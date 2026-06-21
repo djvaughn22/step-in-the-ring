@@ -14,8 +14,7 @@ export default function RingLeaderPage() {
         <p className="eyebrow">🤖 Meet your guide</p>
         <h1>The Ring Leader walks with you round by round.</h1>
         <p className="lede">
-          The Ring Leader is not magic code automation yet. First, it is a clear
-          guided process that helps a normal person use AI without getting lost.
+          The Ring Leader is a clear guided process that helps a normal person use AI with confidence, one round at a time.
         </p>
       </section>
 

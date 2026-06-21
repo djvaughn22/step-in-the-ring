@@ -34,8 +34,7 @@ export default function Home() {
           <div className="portal-ring">◎</div>
           <h2>Where dreams become apps.</h2>
           <p>
-            Not a scary coding bootcamp. Not a startup maze. This is a fun,
-            guided world for building the smallest real version of a dream.
+            A fun, guided world for building the smallest real version of a dream.
           </p>
         </div>
       </section>

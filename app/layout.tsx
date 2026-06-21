@@ -49,8 +49,7 @@ export default function RootLayout({
 
           <footer className="site-footer">
             <p>
-              Private family test first. Approved projects only. No payments,
-              logins, or pressure yet.
+              Private family test first. Approved projects only. Simple, safe, and guided.
             </p>
           </footer>
         </div>

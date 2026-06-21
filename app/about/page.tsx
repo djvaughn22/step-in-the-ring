@@ -15,18 +15,16 @@ export default function AboutPage() {
       <section className="section">
         <div className="grid two">
           <article className="card">
-            <h3>Not a coding bootcamp</h3>
+            <h3>Dream-first building</h3>
             <p>
-              You do not start by learning every technical term. You start by
-              explaining the dream and shaping the smallest useful version.
+              You start by explaining the dream and shaping the smallest useful version.
             </p>
           </article>
 
           <article className="card">
-            <h3>Not an instant app machine</h3>
+            <h3>Guided build-along</h3>
             <p>
-              The first version is a guided build-along. It helps you use AI
-              tools with clarity while the automation grows over time.
+              The first version is a guided build-along that helps you use AI tools with clarity while the automation grows over time.
             </p>
           </article>
 
