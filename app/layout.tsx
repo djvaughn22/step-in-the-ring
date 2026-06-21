@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Step In The Ring",
-  description: "Step in. Dream it. Create the first version.",
+  description: "Enter. Idea. Build.",
 };
 
 export default function RootLayout({
