@@ -1,111 +1,131 @@
-import Link from "next/link";
+"use client";
 
-const steps = [
-  ["Name the idea", "Write the idea in plain language."],
-  ["Choose the user", "Decide who the first version is for."],
-  ["Make it smaller", "Find the smallest useful version."],
-  ["Plan the first screen", "Decide what the user sees and does first."],
-  ["Build with AI", "Use guided prompts and simple checks."],
-  ["Improve it", "Test the result and make the next version better."],
-];
+import { FormEvent, useEffect, useState } from "react";
+
+type Plan = {
+  idea: string;
+  user: string;
+  firstVersion: string;
+  firstScreen: string;
+  nextStep: string;
+};
+
+const storageKey = "first-version-simple-plan-v1";
+
+function makePlan(rawIdea: string): Plan {
+  const idea = rawIdea.trim();
+
+  return {
+    idea,
+    user: "The first person who would actually use this.",
+    firstVersion:
+      "One simple screen that proves the idea is useful before adding more features.",
+    firstScreen:
+      "A clear headline, one short explanation, and one action the user can take.",
+    nextStep:
+      "Write the first screen in plain language. Then ask AI to build only that screen.",
+  };
+}
 
 export default function Home() {
+  const [idea, setIdea] = useState("");
+  const [plan, setPlan] = useState<Plan | null>(null);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(storageKey);
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved) as Plan;
+      setPlan(parsed);
+      setIdea(parsed.idea);
+    } catch {
+      window.localStorage.removeItem(storageKey);
+    }
+  }, []);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const nextPlan = makePlan(idea);
+    setPlan(nextPlan);
+    window.localStorage.setItem(storageKey, JSON.stringify(nextPlan));
+  }
+
+  function clearPlan() {
+    setIdea("");
+    setPlan(null);
+    window.localStorage.removeItem(storageKey);
+  }
+
   return (
-    <main className="main">
-      <section className="hero">
-        <div>
-          <p className="eyebrow">Private test</p>
-          <h1>Turn an idea into a first prototype.</h1>
-          <p className="lede">
-            A simple guided workspace that helps you shape a rough idea, create
-            a Build Card, and take the next practical step with AI.
-          </p>
-          <div className="hero-actions">
-            <Link className="button primary" href="/enter">
-              Start a project
-            </Link>
-            <Link className="button secondary" href="/guide">
-              See the guide
-            </Link>
+    <main>
+      <header>
+        <div className="logo">first version</div>
+      </header>
+
+      <section>
+        <h1>What do you want to build?</h1>
+        <p className="lede">
+          Describe the idea. Get a smaller first version and a practical next
+          step.
+        </p>
+
+        <form className="form" onSubmit={handleSubmit}>
+          <label htmlFor="idea">Your idea</label>
+          <textarea
+            id="idea"
+            value={idea}
+            onChange={(event) => setIdea(event.target.value)}
+            placeholder="Example: I want to make a simple app that helps my kids track chores and earn points."
+            required
+          />
+
+          <div className="actions">
+            <button type="submit">Make a first plan</button>
+            {plan && (
+              <button className="secondary" type="button" onClick={clearPlan}>
+                Clear
+              </button>
+            )}
           </div>
-        </div>
+        </form>
+      </section>
 
-        <div className="concept-card" aria-label="Simple idea-to-prototype path">
-          <div className="simple-path">
-            <div className="path-row">
-              <div className="path-number">1</div>
-              <div>
-                <strong>Start with the idea</strong>
-                <span>Write what you want to make in normal words.</span>
-              </div>
+      {plan && (
+        <section className="result">
+          <h2>First plan</h2>
+
+          <div className="plan">
+            <div className="plan-item">
+              <strong>Idea</strong>
+              <p>{plan.idea}</p>
             </div>
-            <div className="path-row">
-              <div className="path-number">2</div>
-              <div>
-                <strong>Create a Build Card</strong>
-                <span>Clarify the user, purpose, first screen, and first action.</span>
-              </div>
+
+            <div className="plan-item">
+              <strong>First user</strong>
+              <p>{plan.user}</p>
             </div>
-            <div className="path-row">
-              <div className="path-number">3</div>
-              <div>
-                <strong>Build the first version</strong>
-                <span>Use AI one step at a time and test what you made.</span>
-              </div>
+
+            <div className="plan-item">
+              <strong>Smallest first version</strong>
+              <p>{plan.firstVersion}</p>
+            </div>
+
+            <div className="plan-item">
+              <strong>First screen</strong>
+              <p>{plan.firstScreen}</p>
+            </div>
+
+            <div className="plan-item">
+              <strong>Next step</strong>
+              <p>{plan.nextStep}</p>
             </div>
           </div>
-          <h2>Small enough to start. Clear enough to build.</h2>
-          <p>
-            The goal is a first version you can click, test, explain, and
-            improve.
-          </p>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="section">
-        <p className="eyebrow">The process</p>
-        <h2>A practical path for first versions.</h2>
-        <div className="grid six">
-          {steps.map(([title, copy], index) => (
-            <article className="card" key={title}>
-              <div className="step-number">{index + 1}</div>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section soft">
-        <div className="grid two">
-          <article>
-            <p className="eyebrow">First outcome</p>
-            <h2>Start with a Build Card.</h2>
-            <p className="lede">
-              The Build Card gives the project a clear starting point before it
-              becomes bigger or more complicated.
-            </p>
-            <div className="action-row">
-              <Link className="button primary" href="/enter">
-                Create one
-              </Link>
-            </div>
-          </article>
-
-          <article className="card">
-            <span className="badge">What it captures</span>
-            <h3>The basic shape of the project</h3>
-            <p>
-              Idea, user, purpose, smallest useful version, first screen, first
-              action, and next step.
-            </p>
-            <p>
-              That is enough to begin building without turning the project into
-              something too big too soon.
-            </p>
-          </article>
-        </div>
-      </section>
+      <footer>Private test. No account. No payment. Just the first step.</footer>
     </main>
   );
 }
