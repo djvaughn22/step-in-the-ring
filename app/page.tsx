@@ -46,6 +46,7 @@ const questions: {
   question: string;
   help: string;
   placeholder: string;
+  example: string;
 }[] = [
   {
     key: "idea",
@@ -53,6 +54,7 @@ const questions: {
     question: "What website do you want to make?",
     help: "Say it normally.",
     placeholder: "Example: A fashion site where I can design clothes and show new outfits.",
+    example: "A fashion site where I can design clothes and show new outfits.",
   },
   {
     key: "purpose",
@@ -60,6 +62,7 @@ const questions: {
     question: "Why should this site exist?",
     help: "This keeps the project from becoming random.",
     placeholder: "Example: Help me turn outfit ideas into real clothing designs.",
+    example: "Help me turn outfit ideas into real clothing designs.",
   },
   {
     key: "audience",
@@ -67,6 +70,7 @@ const questions: {
     question: "Who is it for first?",
     help: "Pick one real person or group.",
     placeholder: "Example: Me and my friends who like fashion.",
+    example: "Me and my friends who like fashion.",
   },
   {
     key: "function",
@@ -74,6 +78,7 @@ const questions: {
     question: "What should it do first?",
     help: "One useful thing. Keep it small.",
     placeholder: "Example: Let me describe an outfit idea and save it as a design card.",
+    example: "Let me describe an outfit idea and save it as a design card.",
   },
   {
     key: "value",
@@ -81,6 +86,7 @@ const questions: {
     question: "Why would they care?",
     help: "What gets easier, better, faster, calmer, or more fun?",
     placeholder: "Example: It helps me remember my ideas and choose what to make next.",
+    example: "It helps me remember my ideas and choose what to make next.",
   },
   {
     key: "message",
@@ -88,6 +94,7 @@ const questions: {
     question: "What should the first screen say?",
     help: "This is the first thing the user understands.",
     placeholder: "Example: Design your next outfit. Save the idea. Build your look.",
+    example: "Design your next outfit. Save the idea. Build your look.",
   },
   {
     key: "style",
@@ -95,6 +102,7 @@ const questions: {
     question: "How should it feel?",
     help: "Use simple words.",
     placeholder: "Example: clean, stylish, fun, black and white, fashion magazine.",
+    example: "Clean, stylish, fun, black and white, fashion magazine.",
   },
   {
     key: "action",
@@ -102,6 +110,7 @@ const questions: {
     question: "What should the first button do?",
     help: "This becomes the first click.",
     placeholder: "Example: Start a design.",
+    example: "Start a design.",
   },
 ];
 
@@ -189,22 +198,36 @@ export default function Home() {
     setCurrentIndex(0);
   }
 
-  function saveAnswer(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function saveAnswerValue(value: string) {
     if (!active) return;
 
-    const value = draft.trim();
-    if (!value) return;
+    const cleanValue = value.trim();
+    if (!cleanValue) return;
 
     const nextProject = {
       ...project,
-      [active.key]: value,
+      [active.key]: cleanValue,
       version: project.version + 1,
     };
 
     saveProject(nextProject);
     setDraft("");
     setCurrentIndex((index) => index + 1);
+  }
+
+  function saveAnswer(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    saveAnswerValue(draft);
+  }
+
+  function useExample() {
+    if (!active) return;
+    setDraft(active.example);
+  }
+
+  function useExampleAndNext() {
+    if (!active) return;
+    saveAnswerValue(active.example);
   }
 
   function editStep(index: number) {
@@ -283,6 +306,19 @@ export default function Home() {
           </div>
 
           <form className="form panel" onSubmit={saveAnswer}>
+            <div className="example-box">
+              <span>Example</span>
+              <p>{active.example}</p>
+              <div className="actions left">
+                <button className="chip" type="button" onClick={useExample}>
+                  Use and edit
+                </button>
+                <button className="chip" type="button" onClick={useExampleAndNext}>
+                  Use and continue
+                </button>
+              </div>
+            </div>
+
             <textarea
               value={draft}
               onChange={(event) => setDraft(event.target.value)}

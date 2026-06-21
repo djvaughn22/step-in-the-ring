@@ -354,3 +354,29 @@ button.chip {
     gap: 8px;
   }
 }
+
+.example-box {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(215, 181, 109, 0.06);
+}
+
+.example-box span {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.example-box p {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.example-box .actions {
+  margin-top: 2px;
+}
