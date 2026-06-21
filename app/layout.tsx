@@ -3,9 +3,9 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Step In The Ring",
+  title: "Idea to Prototype",
   description:
-    "A simple guided workspace for turning an idea into a first working prototype.",
+    "A simple guided workspace for turning an idea into a first working version.",
 };
 
 const navItems = [
@@ -29,10 +29,10 @@ export default function RootLayout({
         <div className="site-shell">
           <header className="site-header">
             <Link className="brand-mark" href="/">
-              <span className="brand-ring">○</span>
+              <span className="brand-dot">•</span>
               <span>
-                <strong>Step In The Ring</strong>
-                <small>Idea to prototype, one step at a time.</small>
+                <strong>Idea to Prototype</strong>
+                <small>A guided workspace for first versions.</small>
               </span>
             </Link>
 
@@ -48,9 +48,7 @@ export default function RootLayout({
           {children}
 
           <footer className="site-footer">
-            <p>
-              Private family testing. Simple guidance. Approved projects only.
-            </p>
+            <p>Private testing. Simple guidance. Small first versions.</p>
           </footer>
         </div>
       </body>

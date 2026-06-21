@@ -7,8 +7,8 @@ export default function PricingPage() {
         <p className="eyebrow">Pricing</p>
         <h1>Free while the process is being tested.</h1>
         <p className="lede">
-          The first goal is to make the guided path useful for family testing
-          and small approved projects.
+          The first goal is to make the guided path useful for small approved
+          projects.
         </p>
       </section>
 
@@ -16,7 +16,7 @@ export default function PricingPage() {
         <div className="grid two">
           <article className="card price-card">
             <span className="badge">Now</span>
-            <h2>Family test</h2>
+            <h2>Private test</h2>
             <div className="price">$0</div>
             <p>
               Private testing while the questions, Build Card, and guided steps
@@ -29,8 +29,8 @@ export default function PricingPage() {
             <h2>Approved projects</h2>
             <div className="price">$10</div>
             <p>
-              Planned monthly access for approved projects after the first
-              guided process feels clear.
+              Planned monthly access for approved projects after the guided
+              process feels clear.
             </p>
           </article>
         </div>

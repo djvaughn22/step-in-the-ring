@@ -1,9 +1,9 @@
 const projects = [
   {
-    title: "Family test ideas",
-    label: "Private test",
+    title: "Private test ideas",
+    label: "Testing",
     copy:
-      "Small ideas from family testing help shape the process before wider access.",
+      "Small ideas help shape the process before wider access.",
   },
   {
     title: "First prototypes",
@@ -26,8 +26,8 @@ export default function ProjectsPage() {
         <p className="eyebrow">Projects</p>
         <h1>Simple ideas, shaped carefully.</h1>
         <p className="lede">
-          Step In The Ring starts with family testing and approved projects that
-          are small enough to build, test, and improve.
+          Start with a small first version. Build enough to test. Improve from
+          there.
         </p>
       </section>
 

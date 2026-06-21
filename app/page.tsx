@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 const steps = [
-  ["Name the idea", "Write the idea in plain language so it is easy to understand."],
-  ["Choose the user", "Decide who the first version is really for."],
-  ["Make it smaller", "Find the smallest useful version that can be built and tested."],
-  ["Create the first screen", "Decide what the user sees first and what action they take."],
-  ["Build with AI", "Use guided prompts and simple checks to create the first working version."],
-  ["Improve it", "Test it, notice what is confusing, and make the next version better."],
+  ["Name the idea", "Write the idea in plain language."],
+  ["Choose the user", "Decide who the first version is for."],
+  ["Make it smaller", "Find the smallest useful version."],
+  ["Plan the first screen", "Decide what the user sees and does first."],
+  ["Build with AI", "Use guided prompts and simple checks."],
+  ["Improve it", "Test the result and make the next version better."],
 ];
 
 export default function Home() {
@@ -14,35 +14,57 @@ export default function Home() {
     <main className="main">
       <section className="hero">
         <div>
-          <p className="eyebrow">Private family test</p>
-          <h1>Step In The Ring</h1>
+          <p className="eyebrow">Private test</p>
+          <h1>Turn an idea into a first prototype.</h1>
           <p className="lede">
-            A simple guided workspace for turning an idea into a first working
-            prototype with AI.
+            A simple guided workspace that helps you shape a rough idea, create
+            a Build Card, and take the next practical step with AI.
           </p>
           <div className="hero-actions">
             <Link className="button primary" href="/enter">
               Start a project
             </Link>
             <Link className="button secondary" href="/guide">
-              See how it works
+              See the guide
             </Link>
           </div>
         </div>
 
         <div className="concept-card" aria-label="Simple idea-to-prototype path">
-          <div className="quiet-ring">○</div>
-          <h2>Idea to prototype, one step at a time.</h2>
+          <div className="simple-path">
+            <div className="path-row">
+              <div className="path-number">1</div>
+              <div>
+                <strong>Start with the idea</strong>
+                <span>Write what you want to make in normal words.</span>
+              </div>
+            </div>
+            <div className="path-row">
+              <div className="path-number">2</div>
+              <div>
+                <strong>Create a Build Card</strong>
+                <span>Clarify the user, purpose, first screen, and first action.</span>
+              </div>
+            </div>
+            <div className="path-row">
+              <div className="path-number">3</div>
+              <div>
+                <strong>Build the first version</strong>
+                <span>Use AI one step at a time and test what you made.</span>
+              </div>
+            </div>
+          </div>
+          <h2>Small enough to start. Clear enough to build.</h2>
           <p>
-            Start with a rough idea. Leave with a clear Build Card, a smaller
-            first version, and the next step to build it.
+            The goal is a first version you can click, test, explain, and
+            improve.
           </p>
         </div>
       </section>
 
       <section className="section">
-        <p className="eyebrow">The path</p>
-        <h2>A quieter way to start building.</h2>
+        <p className="eyebrow">The process</p>
+        <h2>A practical path for first versions.</h2>
         <div className="grid six">
           {steps.map(([title, copy], index) => (
             <article className="card" key={title}>
@@ -57,29 +79,29 @@ export default function Home() {
       <section className="section soft">
         <div className="grid two">
           <article>
-            <p className="eyebrow">Your guide</p>
-            <h2>Simple guidance for the next step.</h2>
+            <p className="eyebrow">First outcome</p>
+            <h2>Start with a Build Card.</h2>
             <p className="lede">
-              Step In The Ring helps you move from a loose idea to a clear plan,
-              then from that plan to a small working prototype.
+              The Build Card gives the project a clear starting point before it
+              becomes bigger or more complicated.
             </p>
             <div className="action-row">
               <Link className="button primary" href="/enter">
-                Start with an idea
+                Create one
               </Link>
             </div>
           </article>
 
           <article className="card">
-            <span className="badge">First outcome</span>
-            <h3>A Build Card</h3>
+            <span className="badge">What it captures</span>
+            <h3>The basic shape of the project</h3>
             <p>
-              The Build Card captures the idea, the first user, the smallest
-              useful version, the first screen, and the next build step.
+              Idea, user, purpose, smallest useful version, first screen, first
+              action, and next step.
             </p>
             <p>
-              It gives the project a calm starting point before anything gets
-              bigger or more complicated.
+              That is enough to begin building without turning the project into
+              something too big too soon.
             </p>
           </article>
         </div>

@@ -7,8 +7,8 @@ export default function AboutPage() {
         <p className="eyebrow">About</p>
         <h1>A guided way to make ideas easier to build.</h1>
         <p className="lede">
-          Step In The Ring helps everyday people take a rough idea and shape it
-          into a small first prototype with AI.
+          This site helps people take a rough idea and shape it into a small
+          first prototype with AI.
         </p>
       </section>
 

@@ -1,15 +1,14 @@
 :root {
-  --bg: #11131a;
-  --bg-soft: #171a23;
-  --panel: #1b1f2a;
-  --panel-soft: #202532;
-  --text: #f3efe5;
-  --muted: #c6c0b5;
-  --quiet: #9f978a;
-  --line: rgba(243, 239, 229, 0.13);
-  --accent: #c9ad76;
-  --accent-soft: rgba(201, 173, 118, 0.14);
-  --shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+  --bg: #111315;
+  --panel: #191c20;
+  --panel-soft: #20242a;
+  --text: #f3efe7;
+  --muted: #c9c2b8;
+  --quiet: #948d83;
+  --line: rgba(243, 239, 231, 0.12);
+  --accent: #c8ad7f;
+  --accent-soft: rgba(200, 173, 127, 0.12);
+  --shadow: 0 18px 52px rgba(0, 0, 0, 0.22);
 }
 
 * {
@@ -19,8 +18,7 @@
 html {
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(201, 173, 118, 0.07), transparent 34rem),
-    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.04), transparent 30rem),
+    radial-gradient(circle at top left, rgba(200, 173, 127, 0.07), transparent 34rem),
     var(--bg);
 }
 
@@ -45,7 +43,7 @@ textarea {
 }
 
 .site-shell {
-  width: min(1120px, calc(100% - 32px));
+  width: min(1080px, calc(100% - 32px));
   margin: 0 auto;
 }
 
@@ -63,15 +61,16 @@ textarea {
   gap: 12px;
 }
 
-.brand-ring {
+.brand-dot {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--accent);
-  font-size: 26px;
+  font-size: 28px;
+  line-height: 1;
 }
 
 .brand-mark strong,
@@ -117,17 +116,16 @@ textarea {
 
 .hero {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.08fr 0.92fr;
   gap: 34px;
   align-items: center;
-  min-height: 560px;
+  min-height: 540px;
 }
 
 .eyebrow {
   display: inline-flex;
   width: fit-content;
   align-items: center;
-  gap: 8px;
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 7px 11px;
@@ -145,17 +143,17 @@ p {
 }
 
 h1 {
-  max-width: 780px;
+  max-width: 760px;
   margin-bottom: 18px;
-  font-size: clamp(44px, 7vw, 82px);
-  line-height: 0.98;
-  letter-spacing: -0.06em;
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.055em;
 }
 
 h2 {
   margin-bottom: 14px;
-  font-size: clamp(30px, 4vw, 48px);
-  line-height: 1.03;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.04;
   letter-spacing: -0.04em;
 }
 
@@ -167,7 +165,7 @@ h3 {
 .lede {
   max-width: 680px;
   color: var(--muted);
-  font-size: clamp(18px, 2vw, 22px);
+  font-size: clamp(18px, 2vw, 21px);
   line-height: 1.5;
 }
 
@@ -193,7 +191,7 @@ h3 {
 }
 
 .button.primary {
-  border-color: rgba(201, 173, 118, 0.38);
+  border-color: rgba(200, 173, 127, 0.42);
   background: var(--accent);
   color: #17130b;
 }
@@ -204,23 +202,45 @@ h3 {
 
 .concept-card {
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: 26px;
   padding: 30px;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
   box-shadow: var(--shadow);
 }
 
-.quiet-ring {
+.simple-path {
   display: grid;
-  width: min(100%, 280px);
-  aspect-ratio: 1;
-  margin: 0 auto 28px;
+  gap: 12px;
+  margin: 4px 0 28px;
+}
+
+.path-row {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.path-number {
+  display: grid;
+  width: 34px;
+  height: 34px;
   place-items: center;
-  border: 2px solid rgba(201, 173, 118, 0.36);
+  border: 1px solid rgba(200, 173, 127, 0.28);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.018);
+  background: var(--accent-soft);
   color: var(--accent);
-  font-size: 54px;
+  font-weight: 900;
+}
+
+.path-row strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.path-row span {
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .concept-card p {
@@ -232,8 +252,8 @@ h3 {
 .section {
   margin: 22px 0;
   border: 1px solid var(--line);
-  border-radius: 28px;
-  padding: clamp(24px, 5vw, 42px);
+  border-radius: 26px;
+  padding: clamp(24px, 5vw, 40px);
   background: rgba(255, 255, 255, 0.04);
   box-shadow: var(--shadow);
 }
@@ -261,7 +281,7 @@ h3 {
 
 .card {
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 20px;
   padding: 22px;
   background: rgba(255, 255, 255, 0.04);
 }
@@ -279,7 +299,7 @@ li {
   height: 38px;
   margin-bottom: 14px;
   place-items: center;
-  border: 1px solid rgba(201, 173, 118, 0.24);
+  border: 1px solid rgba(200, 173, 127, 0.24);
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent);
@@ -292,7 +312,7 @@ li {
 
 .page-hero h1 {
   max-width: 920px;
-  font-size: clamp(42px, 6vw, 74px);
+  font-size: clamp(42px, 6vw, 72px);
 }
 
 .form-card {
@@ -315,7 +335,7 @@ li {
 .field textarea {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 15px;
   padding: 13px 14px;
   background: rgba(255, 255, 255, 0.055);
   color: var(--text);
@@ -330,14 +350,14 @@ li {
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: rgba(201, 173, 118, 0.7);
+  border-color: rgba(200, 173, 127, 0.7);
 }
 
 .build-card {
-  border: 1px solid rgba(201, 173, 118, 0.3);
-  border-radius: 24px;
+  border: 1px solid rgba(200, 173, 127, 0.3);
+  border-radius: 22px;
   padding: 24px;
-  background: linear-gradient(145deg, rgba(201, 173, 118, 0.09), rgba(255, 255, 255, 0.035));
+  background: linear-gradient(145deg, rgba(200, 173, 127, 0.09), rgba(255, 255, 255, 0.035));
 }
 
 .build-card dl {
@@ -361,7 +381,7 @@ li {
 }
 
 .price-card {
-  border-color: rgba(201, 173, 118, 0.3);
+  border-color: rgba(200, 173, 127, 0.3);
   background: var(--accent-soft);
 }
 

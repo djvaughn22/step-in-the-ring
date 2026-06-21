@@ -7,7 +7,7 @@ export default function EnterPage() {
         <p className="eyebrow">Start</p>
         <h1>Start with the idea in front of you.</h1>
         <p className="lede">
-          This family-test version helps shape a rough idea into a clear MVP1
+          This private-test version helps shape a rough idea into a clear MVP1
           Build Card and saves it in this browser.
         </p>
       </section>

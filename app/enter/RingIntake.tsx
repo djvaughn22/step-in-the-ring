@@ -49,7 +49,7 @@ export default function RingIntake() {
 
     const form = new FormData(event.currentTarget);
     const nextCard: BuildCard = {
-      projectName: valueFrom(form, "projectName") || "Untitled dream",
+      projectName: valueFrom(form, "projectName") || "Untitled project",
       dream: valueFrom(form, "dream"),
       audience: valueFrom(form, "audience"),
       helpsWith: valueFrom(form, "helpsWith"),
@@ -73,7 +73,7 @@ export default function RingIntake() {
       <div className="grid two">
         <form className="form-card" onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="projectName">What should we call this dream?</label>
+            <label htmlFor="projectName">What should we call this project?</label>
             <input
               id="projectName"
               name="projectName"
@@ -83,7 +83,7 @@ export default function RingIntake() {
           </div>
 
           <div className="field">
-            <label htmlFor="dream">What is your dream?</label>
+            <label htmlFor="dream">What is the idea?</label>
             <textarea
               id="dream"
               name="dream"
@@ -109,7 +109,7 @@ export default function RingIntake() {
             <textarea
               id="helpsWith"
               name="helpsWith"
-              placeholder="What problem does it solve or what joy does it create?"
+              placeholder="What problem does it solve or what useful thing does it create?"
               defaultValue={card?.helpsWith || emptyCard.helpsWith}
               required
             />
