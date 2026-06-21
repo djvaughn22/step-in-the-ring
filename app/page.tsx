@@ -2,37 +2,108 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
+type StepKey =
+  | "idea"
+  | "purpose"
+  | "audience"
+  | "function"
+  | "value"
+  | "message"
+  | "style"
+  | "action";
+
 type Project = {
   email: string;
   idea: string;
   purpose: string;
-  build: string;
+  audience: string;
+  function: string;
+  value: string;
   message: string;
+  style: string;
+  action: string;
   version: number;
 };
 
-const storageKey = "step-in-the-ring-email-gate-mvp1";
+const storageKey = "step-in-the-ring-guided-site-mvp1";
 
 const emptyProject: Project = {
   email: "",
   idea: "",
   purpose: "",
-  build: "",
+  audience: "",
+  function: "",
+  value: "",
   message: "",
+  style: "",
+  action: "",
   version: 0,
 };
 
-function firstLine(value: string, fallback: string) {
-  const clean = value.trim();
-  if (!clean) return fallback;
-  const line = clean.split("\n")[0].trim();
-  if (line.length <= 58) return line;
-  return `${line.slice(0, 58).trim()}...`;
-}
-
-function isEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
+const questions: {
+  key: StepKey;
+  label: string;
+  question: string;
+  help: string;
+  placeholder: string;
+}[] = [
+  {
+    key: "idea",
+    label: "Idea",
+    question: "What website do you want to make?",
+    help: "Say it normally.",
+    placeholder: "Example: A fashion site where I can design clothes and show new outfits.",
+  },
+  {
+    key: "purpose",
+    label: "Purpose",
+    question: "Why should this site exist?",
+    help: "This keeps the project from becoming random.",
+    placeholder: "Example: Help me turn outfit ideas into real clothing designs.",
+  },
+  {
+    key: "audience",
+    label: "User",
+    question: "Who is it for first?",
+    help: "Pick one real person or group.",
+    placeholder: "Example: Me and my friends who like fashion.",
+  },
+  {
+    key: "function",
+    label: "Function",
+    question: "What should it do first?",
+    help: "One useful thing. Keep it small.",
+    placeholder: "Example: Let me describe an outfit idea and save it as a design card.",
+  },
+  {
+    key: "value",
+    label: "Value",
+    question: "Why would they care?",
+    help: "What gets easier, better, faster, calmer, or more fun?",
+    placeholder: "Example: It helps me remember my ideas and choose what to make next.",
+  },
+  {
+    key: "message",
+    label: "Message",
+    question: "What should the first screen say?",
+    help: "This is the first thing the user understands.",
+    placeholder: "Example: Design your next outfit. Save the idea. Build your look.",
+  },
+  {
+    key: "style",
+    label: "Style",
+    question: "How should it feel?",
+    help: "Use simple words.",
+    placeholder: "Example: clean, stylish, fun, black and white, fashion magazine.",
+  },
+  {
+    key: "action",
+    label: "Action",
+    question: "What should the first button do?",
+    help: "This becomes the first click.",
+    placeholder: "Example: Start a design.",
+  },
+];
 
 function Icons() {
   return (
@@ -61,10 +132,24 @@ function Icons() {
   );
 }
 
+function validEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function firstLine(value: string, fallback: string) {
+  const clean = value.trim();
+  if (!clean) return fallback;
+  const line = clean.split("\n")[0].trim();
+  if (line.length <= 64) return line;
+  return `${line.slice(0, 64).trim()}...`;
+}
+
 export default function Home() {
   const [project, setProject] = useState<Project>(emptyProject);
   const [emailDraft, setEmailDraft] = useState("");
   const [allowed, setAllowed] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [draft, setDraft] = useState("");
 
   useEffect(() => {
     const saved = window.localStorage.getItem(storageKey);
@@ -75,13 +160,18 @@ export default function Home() {
       setProject(parsed);
       setEmailDraft(parsed.email);
       setAllowed(Boolean(parsed.email));
+      const firstEmpty = questions.findIndex((item) => !parsed[item.key]);
+      setCurrentIndex(firstEmpty >= 0 ? firstEmpty : questions.length);
     } catch {
       window.localStorage.removeItem(storageKey);
     }
   }, []);
 
+  const active = questions[currentIndex];
+  const complete = allowed && currentIndex >= questions.length;
+
   const title = useMemo(() => {
-    return firstLine(project.message || project.idea, "First version");
+    return firstLine(project.message || project.idea, "First website");
   }, [project.idea, project.message]);
 
   function saveProject(nextProject: Project) {
@@ -91,47 +181,57 @@ export default function Home() {
 
   function enter(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!validEmail(emailDraft)) return;
 
-    if (!isEmail(emailDraft)) return;
+    const nextProject = { ...project, email: emailDraft.trim() };
+    saveProject(nextProject);
+    setAllowed(true);
+    setCurrentIndex(0);
+  }
+
+  function saveAnswer(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!active) return;
+
+    const value = draft.trim();
+    if (!value) return;
 
     const nextProject = {
       ...project,
-      email: emailDraft.trim(),
-    };
-
-    saveProject(nextProject);
-    setAllowed(true);
-  }
-
-  function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const form = new FormData(event.currentTarget);
-    const nextProject: Project = {
-      email: project.email,
-      idea: String(form.get("idea") || "").trim(),
-      purpose: String(form.get("purpose") || "").trim(),
-      build: String(form.get("build") || "").trim(),
-      message: String(form.get("message") || "").trim(),
+      [active.key]: value,
       version: project.version + 1,
     };
 
     saveProject(nextProject);
+    setDraft("");
+    setCurrentIndex((index) => index + 1);
+  }
+
+  function editStep(index: number) {
+    const item = questions[index];
+    setCurrentIndex(index);
+    setDraft(project[item.key]);
   }
 
   function reset() {
     setProject(emptyProject);
     setEmailDraft("");
     setAllowed(false);
+    setCurrentIndex(0);
+    setDraft("");
     window.localStorage.removeItem(storageKey);
+  }
+
+  function nextVersion() {
+    saveProject({ ...project, version: project.version + 1 });
   }
 
   if (!allowed) {
     return (
-      <main>
+      <main className="center">
         <Icons />
 
-        <h1>Step In The Ring</h1>
+        <h1 className="welcome-title">Step In The Ring</h1>
 
         <form className="form panel" onSubmit={enter}>
           <label htmlFor="email">Email</label>
@@ -166,60 +266,116 @@ export default function Home() {
         </button>
       </div>
 
-      <section className="stack">
-        <h1 className="project-title">What do you want to build?</h1>
+      {!complete && active && (
+        <section className="stack">
+          <div className="question-head">
+            <div className="kicker">{active.label}</div>
+            <h1>{active.question}</h1>
+            <p>{active.help}</p>
+            <div className="progress" aria-label="Progress">
+              {questions.map((item, index) => (
+                <div
+                  className={`dot ${index <= currentIndex ? "done" : ""}`}
+                  key={item.key}
+                />
+              ))}
+            </div>
+          </div>
 
-        <form className="form panel" onSubmit={save}>
-          <label htmlFor="idea">Idea</label>
-          <textarea
-            id="idea"
-            name="idea"
-            defaultValue={project.idea}
-            placeholder="What is the idea?"
-            required
-          />
+          <form className="form panel" onSubmit={saveAnswer}>
+            <textarea
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder={active.placeholder}
+              autoFocus
+              required
+            />
 
-          <label htmlFor="purpose">Purpose</label>
-          <textarea
-            id="purpose"
-            name="purpose"
-            defaultValue={project.purpose}
-            placeholder="Why should this exist?"
-            required
-          />
+            <div className="actions">
+              <button type="submit">
+                {currentIndex === questions.length - 1 ? "Show website" : "Next"}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
 
-          <label htmlFor="build">Build</label>
-          <textarea
-            id="build"
-            name="build"
-            defaultValue={project.build}
-            placeholder="What should the first version do?"
-            required
-          />
+      {complete && (
+        <section className="stack">
+          <div className="question-head">
+            <div className="kicker">Version {Math.max(project.version, 1)}</div>
+            <h1>Your first website</h1>
+            <p>Change the core answers until it feels right.</p>
+          </div>
 
-          <label htmlFor="message">Message</label>
-          <textarea
-            id="message"
-            name="message"
-            defaultValue={project.message}
-            placeholder="What should the first screen say?"
-            required
-          />
+          <div className="site-preview">
+            <div className="preview-top">first screen</div>
+            <div className="preview-body">
+              <h2>{title}</h2>
+              <p>{project.value}</p>
+              <p>For {project.audience}, this site helps by doing this first: {project.function}</p>
+              <div className="preview-button">{project.action || "Start"}</div>
+            </div>
+          </div>
+
+          <div className="grid-two">
+            <section className="panel summary">
+              <h3>Core answers</h3>
+              {questions.map((item, index) => (
+                <button
+                  className="chip"
+                  type="button"
+                  key={item.key}
+                  onClick={() => editStep(index)}
+                >
+                  Change {item.label}
+                </button>
+              ))}
+            </section>
+
+            <section className="panel build-list">
+              <h3>Build next</h3>
+              <div className="build-item">
+                <strong>Page 1</strong>
+                <p>Home page with the message, value, and first button.</p>
+              </div>
+              <div className="build-item">
+                <strong>Feature 1</strong>
+                <p>{project.function}</p>
+              </div>
+              <div className="build-item">
+                <strong>Test</strong>
+                <p>Show it to {project.audience} and ask what feels confusing.</p>
+              </div>
+            </section>
+          </div>
+
+          <section className="panel summary">
+            <h3>Project summary</h3>
+            <div className="row">
+              <strong>Idea</strong>
+              <p>{project.idea}</p>
+            </div>
+            <div className="row">
+              <strong>Purpose</strong>
+              <p>{project.purpose}</p>
+            </div>
+            <div className="row">
+              <strong>Message</strong>
+              <p>{project.message}</p>
+            </div>
+          </section>
 
           <div className="actions">
-            <button type="submit">Save</button>
+            <button type="button" onClick={nextVersion}>
+              Save next version
+            </button>
+            <button className="secondary" type="button" onClick={() => editStep(0)}>
+              Start questions again
+            </button>
           </div>
-        </form>
-
-        {project.version > 0 && (
-          <section className="preview">
-            <h2>Version {project.version}</h2>
-            <p><strong>{title}</strong></p>
-            <p>{project.purpose}</p>
-            <p>{project.build}</p>
-          </section>
-        )}
-      </section>
+        </section>
+      )}
     </main>
   );
 }
