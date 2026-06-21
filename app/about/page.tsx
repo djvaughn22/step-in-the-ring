@@ -4,50 +4,52 @@ export default function AboutPage() {
   return (
     <main className="main">
       <section className="page-hero">
-        <p className="eyebrow">◎ Why this exists</p>
-        <h1>Step In The Ring turns dreams into guided build adventures.</h1>
+        <p className="eyebrow">About</p>
+        <h1>A guided way to make ideas easier to build.</h1>
         <p className="lede">
-          Step In The Ring is for people with real dreams who need a guided path
-          from idea to working prototype.
+          Step In The Ring helps everyday people take a rough idea and shape it
+          into a small first prototype with AI.
         </p>
       </section>
 
       <section className="section">
         <div className="grid two">
           <article className="card">
-            <h3>Dream-first building</h3>
+            <h3>Start small</h3>
             <p>
-              You start by explaining the dream and shaping the smallest useful version.
+              The first version should be simple enough to understand, build,
+              and test.
             </p>
           </article>
 
           <article className="card">
-            <h3>Guided build-along</h3>
+            <h3>Use AI clearly</h3>
             <p>
-              The first version is a guided build-along that helps you use AI tools with clarity while the automation grows over time.
+              Good prompts, simple checks, and smaller steps make AI more useful
+              for real projects.
             </p>
           </article>
 
           <article className="card">
-            <h3>Family-safe first</h3>
+            <h3>Test with real people</h3>
             <p>
-              The first testers are family and approved projects. The goal is a
-              useful, safe, encouraging system before scale.
+              A prototype gets better when someone can click it, use it, and
+              explain what feels unclear.
             </p>
           </article>
 
           <article className="card">
-            <h3>Round by round</h3>
+            <h3>Improve one step at a time</h3>
             <p>
-              Each round makes the idea clearer, smaller, more testable, and
-              closer to something real.
+              Each pass should make the idea clearer, more useful, and easier to
+              finish.
             </p>
           </article>
         </div>
 
         <div className="action-row">
           <Link className="button primary" href="/enter">
-            Step in
+            Start a project
           </Link>
         </div>
       </section>

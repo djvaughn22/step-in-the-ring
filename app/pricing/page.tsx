@@ -4,11 +4,11 @@ export default function PricingPage() {
   return (
     <main className="main">
       <section className="page-hero">
-        <p className="eyebrow">🎟️ Simple access</p>
-        <h1>Free while we test. Simple later.</h1>
+        <p className="eyebrow">Pricing</p>
+        <h1>Free while the process is being tested.</h1>
         <p className="lede">
-          The first mission is to prove the guided process with family and
-          approved projects. No payment system yet.
+          The first goal is to make the guided path useful for family testing
+          and small approved projects.
         </p>
       </section>
 
@@ -19,8 +19,8 @@ export default function PricingPage() {
             <h2>Family test</h2>
             <div className="price">$0</div>
             <p>
-              Free private testing while we learn what makes the Ring helpful,
-              fun, safe, and clear.
+              Private testing while the questions, Build Card, and guided steps
+              get simpler and more useful.
             </p>
           </article>
 
@@ -29,15 +29,15 @@ export default function PricingPage() {
             <h2>Approved projects</h2>
             <div className="price">$10</div>
             <p>
-              Planned monthly access for approved projects once the process,
-              customer fit, and safety boundaries are ready.
+              Planned monthly access for approved projects after the first
+              guided process feels clear.
             </p>
           </article>
         </div>
 
         <div className="action-row">
           <Link className="button primary" href="/enter">
-            Try the free test flow
+            Start the free test
           </Link>
         </div>
       </section>

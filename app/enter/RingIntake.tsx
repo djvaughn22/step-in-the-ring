@@ -171,7 +171,7 @@ export default function RingIntake() {
 
           <div className="action-row">
             <button className="button primary" type="submit">
-              Make my Build Card
+              Create Build Card
             </button>
             <button className="button secondary" type="button" onClick={clearCard}>
               Start over
@@ -192,8 +192,7 @@ function BuildCardPreview({ card }: { card: BuildCard | null }) {
         <span className="badge">Build Card preview</span>
         <h2>Your first card appears here.</h2>
         <p>
-          Answer the questions and the Ring will turn your dream into a clean
-          MVP1 starting point.
+          Answer the questions to turn a rough idea into a clean MVP1 starting point.
         </p>
       </aside>
     );
@@ -235,8 +234,7 @@ function BuildCardPreview({ card }: { card: BuildCard | null }) {
         <div>
           <dt>Next round</dt>
           <dd>
-            Turn this card into a one-page prototype, test it with one person,
-            then improve only what feels confusing.
+            Turn this card into a one-page prototype, test it with one person, then improve what feels confusing.
           </dd>
         </div>
       </dl>

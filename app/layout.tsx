@@ -5,13 +5,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Step In The Ring",
   description:
-    "A guided AI build park where everyday people turn dreams into simple working app prototypes.",
+    "A simple guided workspace for turning an idea into a first working prototype.",
 };
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/enter", label: "Enter" },
-  { href: "/ring-leader", label: "Ring Leader" },
+  { href: "/enter", label: "Start" },
+  { href: "/guide", label: "Guide" },
   { href: "/build-card", label: "Build Card" },
   { href: "/projects", label: "Projects" },
   { href: "/pricing", label: "Pricing" },
@@ -29,10 +29,10 @@ export default function RootLayout({
         <div className="site-shell">
           <header className="site-header">
             <Link className="brand-mark" href="/">
-              <span className="brand-ring">◎</span>
+              <span className="brand-ring">○</span>
               <span>
                 <strong>Step In The Ring</strong>
-                <small>Where dreams become apps.</small>
+                <small>Idea to prototype, one step at a time.</small>
               </span>
             </Link>
 
@@ -49,7 +49,7 @@ export default function RootLayout({
 
           <footer className="site-footer">
             <p>
-              Private family test first. Approved projects only. Simple, safe, and guided.
+              Private family testing. Simple guidance. Approved projects only.
             </p>
           </footer>
         </div>

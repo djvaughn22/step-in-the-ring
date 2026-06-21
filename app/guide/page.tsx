@@ -1,20 +1,21 @@
 import Link from "next/link";
 
 const jobs = [
-  ["Dream Translator", "Turns messy ideas into simple product language."],
-  ["Prompt Coach", "Tells you what to ask AI and what answer to look for."],
-  ["MVP Referee", "Keeps the first version small enough to actually finish."],
-  ["Test Guide", "Helps you click, observe, fix, and improve round by round."],
+  ["Clarify the idea", "Turn a rough thought into a simple project description."],
+  ["Reduce the scope", "Keep the first version small enough to finish and test."],
+  ["Write better prompts", "Help you ask AI for the next useful step."],
+  ["Check the result", "Look for what works, what is confusing, and what to improve."],
 ];
 
-export default function RingLeaderPage() {
+export default function GuidePage() {
   return (
     <main className="main">
       <section className="page-hero">
-        <p className="eyebrow">🤖 Meet your guide</p>
-        <h1>The Ring Leader walks with you round by round.</h1>
+        <p className="eyebrow">Guide</p>
+        <h1>A calm path from idea to first prototype.</h1>
         <p className="lede">
-          The Ring Leader is a clear guided process that helps a normal person use AI with confidence, one round at a time.
+          The guide helps you shape the idea, choose the smallest useful
+          version, and use AI one practical step at a time.
         </p>
       </section>
 

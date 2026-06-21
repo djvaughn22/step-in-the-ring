@@ -1,21 +1,21 @@
 const projects = [
   {
-    title: "Family test dreams",
-    label: "Private beta",
+    title: "Family test ideas",
+    label: "Private test",
     copy:
-      "Small, safe ideas from family members help test the Ring before public access.",
+      "Small ideas from family testing help shape the process before wider access.",
   },
   {
-    title: "First prototype rides",
+    title: "First prototypes",
     label: "MVP1",
     copy:
-      "Each project starts as a simple guided ride: dream, shape, build card, first screen, first button.",
+      "Each project starts with a clear Build Card and a small first version.",
   },
   {
-    title: "Approved customer projects",
-    label: "Coming later",
+    title: "Approved projects",
+    label: "Later",
     copy:
-      "Step In The Ring will stay intentionally curated so the process stays safe, focused, and useful.",
+      "Access can stay curated so the guidance stays focused and useful.",
   },
 ];
 
@@ -23,11 +23,11 @@ export default function ProjectsPage() {
   return (
     <main className="main">
       <section className="page-hero">
-        <p className="eyebrow">🎪 Inside the park</p>
-        <h1>Approved projects only.</h1>
+        <p className="eyebrow">Projects</p>
+        <h1>Simple ideas, shaped carefully.</h1>
         <p className="lede">
-          This starts with family testing, simple dreams, and carefully approved
-          projects that fit the Ring.
+          Step In The Ring starts with family testing and approved projects that
+          are small enough to build, test, and improve.
         </p>
       </section>
 

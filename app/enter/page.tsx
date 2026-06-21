@@ -4,10 +4,11 @@ export default function EnterPage() {
   return (
     <main className="main">
       <section className="page-hero">
-        <p className="eyebrow">◎ Enter the Ring</p>
-        <h1>Bring the dream. Leave with a Build Card.</h1>
+        <p className="eyebrow">Start</p>
+        <h1>Start with the idea in front of you.</h1>
         <p className="lede">
-          This first family-test version helps shape a dream into a clear MVP1 starting card and saves it in this browser.
+          This family-test version helps shape a rough idea into a clear MVP1
+          Build Card and saves it in this browser.
         </p>
       </section>
 
