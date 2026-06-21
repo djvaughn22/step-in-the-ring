@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Step In The Ring",
-  description: "A simple place to turn an idea into a saved first version.",
+  description: "Step in. Dream it. Create the first version.",
 };
 
 export default function RootLayout({
@@ -14,13 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <header className="topbar">
-          <Link href="/" className="brand">Step In The Ring</Link>
-          <Link href="/projects" className="navlink">Projects</Link>
-        </header>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
