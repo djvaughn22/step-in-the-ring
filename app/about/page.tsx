@@ -5,7 +5,7 @@ export default function AboutPage() {
     <main className="main">
       <section className="page-hero">
         <p className="eyebrow">◎ Why this exists</p>
-        <h1>CrossHeartPray proved the process. Step In The Ring teaches it.</h1>
+        <h1>Step In The Ring turns dreams into guided build adventures.</h1>
         <p className="lede">
           Step In The Ring is for people with real dreams who need a guided path
           from idea to working prototype.

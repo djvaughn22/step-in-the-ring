@@ -70,15 +70,15 @@ export default function Home() {
           </article>
 
           <article className="card">
-            <span className="badge">Proof project</span>
-            <h3>CrossHeartPray</h3>
+            <span className="badge">The promise</span>
+            <h3>Your dream gets a map.</h3>
             <p>
-              CrossHeartPray started as a simple daily Bible routine and became
-              a working web app through the same round-by-round build process.
+              Step In The Ring turns a dream into a clear path: what to build,
+              what to ask AI, what to test, and what to improve next.
             </p>
             <p>
-              Step In The Ring exists to make that process easier to repeat for
-              approved dreams and family-safe projects.
+              The first win is simple: one small prototype that feels real
+              enough to show, test, and improve.
             </p>
           </article>
         </div>

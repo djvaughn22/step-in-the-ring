@@ -1,15 +1,15 @@
 const projects = [
   {
-    title: "CrossHeartPray",
-    label: "Proof project",
-    copy:
-      "A daily Bible routine became a working web app through careful rounds of shaping, building, testing, and improving.",
-  },
-  {
-    title: "Family test projects",
+    title: "Family test dreams",
     label: "Private beta",
     copy:
-      "Small, safe ideas from family members will help test the Ring before public access.",
+      "Small, safe ideas from family members help test the Ring before public access.",
+  },
+  {
+    title: "First prototype rides",
+    label: "MVP1",
+    copy:
+      "Each project starts as a simple guided ride: dream, shape, build card, first screen, first button.",
   },
   {
     title: "Approved customer projects",
@@ -26,8 +26,8 @@ export default function ProjectsPage() {
         <p className="eyebrow">🎪 Inside the park</p>
         <h1>Approved projects only.</h1>
         <p className="lede">
-          This is not an open free-for-all. Step In The Ring starts with family,
-          CrossHeartPray, and carefully approved dreams.
+          This starts with family testing, simple dreams, and carefully approved
+          projects that fit the Ring.
         </p>
       </section>
 
