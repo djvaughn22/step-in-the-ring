@@ -183,6 +183,20 @@ export default function Home() {
     return firstLine(project.message || project.idea, "First website");
   }, [project.idea, project.message]);
 
+  function liveValue(key: StepKey) {
+    const currentAnswer = active?.key === key ? draft.trim() : "";
+    if (currentAnswer) return currentAnswer;
+
+    const savedAnswer = String(project[key] || "").trim();
+    if (savedAnswer) return savedAnswer;
+
+    return questions.find((item) => item.key === key)?.example || "";
+  }
+
+  const liveTitle = useMemo(() => {
+    return firstLine(liveValue("message") || liveValue("idea"), "First website");
+  }, [active?.key, draft, project]);
+
   function saveProject(nextProject: Project) {
     setProject(nextProject);
     window.localStorage.setItem(storageKey, JSON.stringify(nextProject));
@@ -333,6 +347,25 @@ export default function Home() {
               </button>
             </div>
           </form>
+
+          <section className="live-preview-panel">
+            <div className="kicker">Live first draft</div>
+
+            <div className="site-preview">
+              <div className="preview-top">website preview</div>
+              <div className="preview-body">
+                <h2>{liveTitle}</h2>
+                <p>{liveValue("value")}</p>
+                <p>
+                  For {liveValue("audience")}, this project starts by doing this:
+                  {" "}{liveValue("function")}
+                </p>
+                <div className="preview-button">
+                  {liveValue("action") || "Start"}
+                </div>
+              </div>
+            </div>
+          </section>
         </section>
       )}
 

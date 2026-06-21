@@ -380,3 +380,12 @@ button.chip {
 .example-box .actions {
   margin-top: 2px;
 }
+
+.live-preview-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.live-preview-panel .site-preview {
+  margin-top: 2px;
+}
