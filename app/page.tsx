@@ -1,450 +1,419 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-type StepKey =
-  | "idea"
-  | "purpose"
-  | "audience"
-  | "function"
-  | "value"
-  | "message"
-  | "style"
-  | "action";
-
-type Project = {
-  email: string;
-  idea: string;
-  purpose: string;
-  audience: string;
-  function: string;
-  value: string;
-  message: string;
-  style: string;
-  action: string;
-  version: number;
+type IdeaForm = {
+  ideaName: string;
+  whoIsItFor: string;
+  problem: string;
+  firstVersion: string;
+  smallestUseful: string;
+  avoid: string;
 };
 
-const storageKey = "step-in-the-ring-guided-site-mvp1";
+type SavedProject = IdeaForm & { savedAt: string };
 
-const emptyProject: Project = {
-  email: "",
-  idea: "",
-  purpose: "",
-  audience: "",
-  function: "",
-  value: "",
-  message: "",
-  style: "",
-  action: "",
-  version: 0,
-};
-
-const questions: {
-  key: StepKey;
-  label: string;
-  question: string;
-  help: string;
-  placeholder: string;
-  example: string;
-}[] = [
+const STORAGE_KEY = "sitr-projects-v1";
+const EXAMPLES: IdeaForm[] = [
   {
-    key: "idea",
-    label: "Idea",
-    question: "What website do you want to make?",
-    help: "Say it normally.",
-    placeholder: "Example: A fashion site where I can design clothes and show new outfits.",
-    example: "A fashion site where I can design clothes and show new outfits.",
+    ideaName: "A dog rescue campaign",
+    whoIsItFor: "Dog lovers who want to adopt, not shop",
+    problem: "People don't know local rescues have amazing dogs waiting today",
+    firstVersion: "A simple page with adoptable dogs and links to local shelters",
+    smallestUseful: "One page, four dog cards, a find-a-shelter button",
+    avoid: "Paid API, user accounts, donation processing on day one",
   },
   {
-    key: "purpose",
-    label: "Purpose",
-    question: "Why should this site exist?",
-    help: "This keeps the project from becoming random.",
-    placeholder: "Example: Help me turn outfit ideas into real clothing designs.",
-    example: "Help me turn outfit ideas into real clothing designs.",
+    ideaName: "A family-safe movie filter idea",
+    whoIsItFor: "Parents who want to screen movies before family night",
+    problem: "Finding out a movie has bad content after you've already started watching",
+    firstVersion: "A searchable list of movies with parent-written content notes",
+    smallestUseful: "Search box, 20 movies, simple content tag system",
+    avoid: "Video streaming, paid reviews, complex rating algorithms",
   },
   {
-    key: "audience",
-    label: "User",
-    question: "Who is it for first?",
-    help: "Pick one real person or group.",
-    placeholder: "Example: Me and my friends who like fashion.",
-    example: "Me and my friends who like fashion.",
+    ideaName: "A Bible study app",
+    whoIsItFor: "People who want a simple daily Bible routine",
+    problem: "Most Bible apps are overwhelming with features nobody uses",
+    firstVersion: "One verse a day, a note field, a reading streak counter",
+    smallestUseful: "Daily verse, text box, save button",
+    avoid: "Social features, commentary library, sermon uploads",
   },
   {
-    key: "function",
-    label: "Function",
-    question: "What should it do first?",
-    help: "One useful thing. Keep it small.",
-    placeholder: "Example: Let me describe an outfit idea and save it as a design card.",
-    example: "Let me describe an outfit idea and save it as a design card.",
+    ideaName: "A grief support page",
+    whoIsItFor: "People processing loss who need a quiet, honest space",
+    problem: "Grief resources are either clinical or chaotic — nothing feels human",
+    firstVersion: "A page of honest words, a journaling field, gentle resources",
+    smallestUseful: "A written message, a text input, a save locally option",
+    avoid: "Social sharing, login, therapist matching",
   },
   {
-    key: "value",
-    label: "Value",
-    question: "Why would they care?",
-    help: "What gets easier, better, faster, calmer, or more fun?",
-    placeholder: "Example: It helps me remember my ideas and choose what to make next.",
-    example: "It helps me remember my ideas and choose what to make next.",
+    ideaName: "A sports team planner",
+    whoIsItFor: "Youth sports coaches managing practice schedules",
+    problem: "Coordinating schedules and drills by text or email is a mess",
+    firstVersion: "A simple form to create a practice plan and share it as a link",
+    smallestUseful: "Practice form, plain text output, copy button",
+    avoid: "Live chat, player profiles, tournament bracket builder",
   },
   {
-    key: "message",
-    label: "Message",
-    question: "What should the first screen say?",
-    help: "This is the first thing the user understands.",
-    placeholder: "Example: Design your next outfit. Save the idea. Build your look.",
-    example: "Design your next outfit. Save the idea. Build your look.",
-  },
-  {
-    key: "style",
-    label: "Style",
-    question: "How should it feel?",
-    help: "Use simple words.",
-    placeholder: "Example: clean, stylish, fun, black and white, fashion magazine.",
-    example: "Clean, stylish, fun, black and white, fashion magazine.",
-  },
-  {
-    key: "action",
-    label: "Action",
-    question: "What should the first button do?",
-    help: "This becomes the first click.",
-    placeholder: "Example: Start a design.",
-    example: "Start a design.",
+    ideaName: "A local business website",
+    whoIsItFor: "A small business owner with no online presence yet",
+    problem: "No website means no credibility, no hours listed, no way to contact them",
+    firstVersion: "One page: name, what they do, hours, phone number, address",
+    smallestUseful: "Name, service, contact info, styled simply",
+    avoid: "E-commerce, booking system, review integration",
   },
 ];
 
-function Icons() {
-  return (
-    <div className="icons" aria-label="Enter Idea Build">
-      <div className="icon-card">
-        <div className="icon-wrap">
-          <div className="enter-ring" aria-hidden="true" />
-        </div>
-        <span className="icon-label">Enter</span>
-      </div>
+const EMPTY: IdeaForm = {
+  ideaName: "",
+  whoIsItFor: "",
+  problem: "",
+  firstVersion: "",
+  smallestUseful: "",
+  avoid: "",
+};
 
-      <div className="icon-card">
-        <div className="icon-wrap">
-          <span className="idea-icon" aria-hidden="true">✦</span>
-        </div>
-        <span className="icon-label">Idea</span>
-      </div>
-
-      <div className="icon-card">
-        <div className="icon-wrap">
-          <span className="build-icon" aria-hidden="true">💻</span>
-        </div>
-        <span className="icon-label">Build</span>
-      </div>
-    </div>
-  );
+function loadProjects(): SavedProject[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
 }
 
-function validEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+function saveProject(form: IdeaForm) {
+  const projects = loadProjects();
+  const entry: SavedProject = { ...form, savedAt: new Date().toISOString() };
+  projects.unshift(entry);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects.slice(0, 20)));
 }
 
-function firstLine(value: string, fallback: string) {
-  const clean = value.trim();
-  if (!clean) return fallback;
-  const line = clean.split("\n")[0].trim();
-  if (line.length <= 64) return line;
-  return `${line.slice(0, 64).trim()}...`;
+function buildMVPPlan(form: IdeaForm) {
+  const pitch = `${form.ideaName} helps ${form.whoIsItFor} by ${form.problem.toLowerCase().replace(/^people |^users /, "solving: ")}.`;
+  const features = form.firstVersion
+    .split(/[,.\n]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  return {
+    projectName: form.ideaName,
+    pitch,
+    targetUser: form.whoIsItFor,
+    coreProblem: form.problem,
+    features,
+    firstPage: form.smallestUseful,
+    notYet: form.avoid,
+    nextAction: `Build the first page. Show it to one real person from your target group. Ask: "Does this make sense?" Then improve.`,
+  };
 }
 
-export default function Home() {
-  const [project, setProject] = useState<Project>(emptyProject);
-  const [emailDraft, setEmailDraft] = useState("");
-  const [allowed, setAllowed] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [draft, setDraft] = useState("");
+export default function StepInTheRing() {
+  const [stage, setStage] = useState<"landing" | "form" | "result" | "saved">("landing");
+  const [form, setForm] = useState<IdeaForm>(EMPTY);
+  const [plan, setPlan] = useState<ReturnType<typeof buildMVPPlan> | null>(null);
+  const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey);
-    if (!saved) return;
-
-    try {
-      const parsed = JSON.parse(saved) as Project;
-      setProject(parsed);
-      setEmailDraft(parsed.email);
-      setAllowed(Boolean(parsed.email));
-      const firstEmpty = questions.findIndex((item) => !parsed[item.key]);
-      setCurrentIndex(firstEmpty >= 0 ? firstEmpty : questions.length);
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
+    setSavedProjects(loadProjects());
   }, []);
 
-  const active = questions[currentIndex];
-  const complete = allowed && currentIndex >= questions.length;
-
-  const title = useMemo(() => {
-    return firstLine(project.message || project.idea, "First website");
-  }, [project.idea, project.message]);
-
-  function liveValue(key: StepKey) {
-    const currentAnswer = active?.key === key ? draft.trim() : "";
-    if (currentAnswer) return currentAnswer;
-
-    const savedAnswer = String(project[key] || "").trim();
-    if (savedAnswer) return savedAnswer;
-
-    return questions.find((item) => item.key === key)?.example || "";
+  function handleExampleClick(example: IdeaForm) {
+    setForm(example);
+    setStage("form");
+    setTimeout(() => document.getElementById("idea-form")?.scrollIntoView({ behavior: "smooth" }), 80);
   }
 
-  const liveTitle = useMemo(() => {
-    return firstLine(liveValue("message") || liveValue("idea"), "First website");
-  }, [active?.key, draft, project]);
-
-  function saveProject(nextProject: Project) {
-    setProject(nextProject);
-    window.localStorage.setItem(storageKey, JSON.stringify(nextProject));
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    const result = buildMVPPlan(form);
+    setPlan(result);
+    setStage("result");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function enter(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!validEmail(emailDraft)) return;
-
-    const nextProject = { ...project, email: emailDraft.trim() };
-    saveProject(nextProject);
-    setAllowed(true);
-    setCurrentIndex(0);
+  function handleSave() {
+    if (!form.ideaName) return;
+    saveProject(form);
+    setSavedProjects(loadProjects());
+    setStage("saved");
   }
 
-  function saveAnswerValue(value: string) {
-    if (!active) return;
-
-    const cleanValue = value.trim();
-    if (!cleanValue) return;
-
-    const nextProject = {
-      ...project,
-      [active.key]: cleanValue,
-      version: project.version + 1,
-    };
-
-    saveProject(nextProject);
-    setDraft("");
-    setCurrentIndex((index) => index + 1);
-  }
-
-  function saveAnswer(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    saveAnswerValue(draft);
-  }
-
-  function useExample() {
-    if (!active) return;
-    setDraft(active.example);
-  }
-
-  function useExampleAndNext() {
-    if (!active) return;
-    saveAnswerValue(active.example);
-  }
-
-  function editStep(index: number) {
-    const item = questions[index];
-    setCurrentIndex(index);
-    setDraft(project[item.key]);
+  function reopenProject(p: SavedProject) {
+    const { savedAt: _savedAt, ...fields } = p;
+    setForm(fields);
+    setPlan(buildMVPPlan(fields));
+    setStage("result");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function reset() {
-    setProject(emptyProject);
-    setEmailDraft("");
-    setAllowed(false);
-    setCurrentIndex(0);
-    setDraft("");
-    window.localStorage.removeItem(storageKey);
+    setForm(EMPTY);
+    setPlan(null);
+    setStage("landing");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function nextVersion() {
-    saveProject({ ...project, version: project.version + 1 });
-  }
-
-  if (!allowed) {
+  function field(key: keyof IdeaForm, label: string, placeholder: string) {
     return (
-      <main className="center">
-        <Icons />
+      <div className="stack" key={key} style={{ gap: 6 }}>
+        <label htmlFor={key} className="label">{label}</label>
+        <textarea
+          id={key}
+          value={form[key]}
+          onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+          placeholder={placeholder}
+          required
+          rows={3}
+        />
+      </div>
+    );
+  }
 
-        <h1 className="welcome-title">Step In The Ring</h1>
-
-        <form className="form panel" onSubmit={enter}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={emailDraft}
-            onChange={(event) => setEmailDraft(event.target.value)}
-            placeholder="you@example.com"
-            autoFocus
-            required
-          />
-
-          <div className="actions">
-            <button type="submit">Welcome</button>
+  /* ── LANDING ── */
+  if (stage === "landing") {
+    return (
+      <main>
+        <div className="center" style={{ textAlign: "center", paddingBottom: 40 }}>
+          <div className="icons">
+            <div className="icon-card">
+              <div className="icon-wrap"><div className="enter-ring" /></div>
+              <span className="icon-label">Enter</span>
+            </div>
+            <div className="icon-card">
+              <div className="icon-wrap"><span className="idea-icon">✦</span></div>
+              <span className="icon-label">Idea</span>
+            </div>
+            <div className="icon-card">
+              <div className="icon-wrap"><span className="build-icon">💻</span></div>
+              <span className="icon-label">Build</span>
+            </div>
           </div>
-        </form>
 
-        <p className="small">Private family MVP1</p>
+          <h1 className="welcome-title">Step In The Ring</h1>
+          <p style={{ maxWidth: 480, margin: "0 auto 10px", fontSize: 18, fontWeight: 700 }}>
+            Turn a rough idea into a simple first MVP.
+          </p>
+          <p style={{ maxWidth: 420, margin: "0 auto 8px", fontSize: 13 }}>
+            Kids should build with a parent or trusted adult.
+          </p>
+
+          <div className="actions" style={{ marginTop: 24 }}>
+            <button type="button" onClick={() => setStage("form")}>
+              Start Building
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                setStage("form");
+                setTimeout(() => document.getElementById("examples")?.scrollIntoView({ behavior: "smooth" }), 80);
+              }}
+            >
+              See Examples
+            </button>
+          </div>
+
+          {savedProjects.length > 0 && (
+            <div style={{ marginTop: 32 }}>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => setStage("saved")}
+                style={{ fontSize: 13 }}
+              >
+                View {savedProjects.length} Saved Project{savedProjects.length !== 1 ? "s" : ""}
+              </button>
+            </div>
+          )}
+        </div>
       </main>
     );
   }
 
-  return (
-    <main>
-      <Icons />
+  /* ── SAVED PROJECTS ── */
+  if (stage === "saved") {
+    return (
+      <main>
+        <div className="topline">
+          <span className="kicker">Saved Projects</span>
+          <button className="secondary" type="button" onClick={reset} style={{ fontSize: 13 }}>
+            Back
+          </button>
+        </div>
 
-      <div className="topline">
-        <span>{project.email}</span>
-        <button className="secondary" type="button" onClick={reset}>
-          Reset
-        </button>
-      </div>
-
-      {!complete && active && (
-        <section className="stack">
-          <div className="question-head">
-            <div className="kicker">{active.label}</div>
-            <h1>{active.question}</h1>
-            <p>{active.help}</p>
-            <div className="progress" aria-label="Progress">
-              {questions.map((item, index) => (
-                <div
-                  className={`dot ${index <= currentIndex ? "done" : ""}`}
-                  key={item.key}
-                />
-              ))}
+        {savedProjects.length === 0 ? (
+          <div className="panel" style={{ textAlign: "center", padding: 32 }}>
+            <p>No saved projects yet.</p>
+            <div className="actions" style={{ marginTop: 16 }}>
+              <button type="button" onClick={() => setStage("form")}>Start Building</button>
             </div>
           </div>
-
-          <form className="form panel" onSubmit={saveAnswer}>
-            <div className="example-box">
-              <span>Example</span>
-              <p>{active.example}</p>
-              <div className="actions left">
-                <button className="chip" type="button" onClick={useExample}>
-                  Use and edit
-                </button>
-                <button className="chip" type="button" onClick={useExampleAndNext}>
-                  Use and continue
-                </button>
-              </div>
-            </div>
-
-            <textarea
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder={active.placeholder}
-              autoFocus
-              required
-            />
-
-            <div className="actions">
-              <button type="submit">
-                {currentIndex === questions.length - 1 ? "Show website" : "Next"}
-              </button>
-            </div>
-          </form>
-
-          <section className="live-preview-panel">
-            <div className="kicker">Live first draft</div>
-
-            <div className="site-preview">
-              <div className="preview-top">website preview</div>
-              <div className="preview-body">
-                <h2>{liveTitle}</h2>
-                <p>{liveValue("value")}</p>
-                <p>
-                  For {liveValue("audience")}, this project starts by doing this:
-                  {" "}{liveValue("function")}
-                </p>
-                <div className="preview-button">
-                  {liveValue("action") || "Start"}
+        ) : (
+          <div className="stack">
+            {savedProjects.map((p, i) => (
+              <div key={i} className="panel">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                  <div>
+                    <strong style={{ color: "var(--text)", display: "block", marginBottom: 4 }}>
+                      {p.ideaName}
+                    </strong>
+                    <p style={{ fontSize: 12 }}>
+                      For: {p.whoIsItFor}
+                    </p>
+                    <p style={{ fontSize: 11, marginTop: 4 }}>
+                      {new Date(p.savedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="chip"
+                    onClick={() => reopenProject(p)}
+                    style={{ fontSize: 13 }}
+                  >
+                    Open
+                  </button>
                 </div>
               </div>
-            </div>
-          </section>
-        </section>
-      )}
+            ))}
+          </div>
+        )}
+      </main>
+    );
+  }
 
-      {complete && (
-        <section className="stack">
-          <div className="question-head">
-            <div className="kicker">Version {Math.max(project.version, 1)}</div>
-            <h1>Your first website</h1>
-            <p>Change the core answers until it feels right.</p>
+  /* ── RESULT / MVP PLAN ── */
+  if (stage === "result" && plan) {
+    return (
+      <main>
+        <div className="topline">
+          <span className="kicker">First MVP Plan</span>
+          <button className="secondary" type="button" onClick={reset} style={{ fontSize: 13 }}>
+            Start Over
+          </button>
+        </div>
+
+        <div className="stack">
+          <div className="panel">
+            <div className="kicker" style={{ marginBottom: 8 }}>Project</div>
+            <h2 style={{ fontSize: "clamp(22px, 5vw, 32px)" }}>{plan.projectName}</h2>
+            <p style={{ marginTop: 10, fontWeight: 600, color: "var(--text)", fontSize: 15 }}>
+              {plan.pitch}
+            </p>
           </div>
 
-          <div className="site-preview">
-            <div className="preview-top">first screen</div>
-            <div className="preview-body">
-              <h2>{title}</h2>
-              <p>{project.value}</p>
-              <p>For {project.audience}, this site helps by doing this first: {project.function}</p>
-              <div className="preview-button">{project.action || "Start"}</div>
+          <div className="grid-two">
+            <div className="panel">
+              <div className="kicker" style={{ marginBottom: 6 }}>Target User</div>
+              <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>{plan.targetUser}</p>
+            </div>
+            <div className="panel">
+              <div className="kicker" style={{ marginBottom: 6 }}>Core Problem</div>
+              <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>{plan.coreProblem}</p>
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="kicker" style={{ marginBottom: 8 }}>MVP Features</div>
+            <div className="stack" style={{ gap: 8 }}>
+              {plan.features.map((f, i) => (
+                <div key={i} className="build-item">
+                  <strong style={{ fontSize: 13, color: "var(--gold)" }}>#{i + 1}</strong>
+                  <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14, marginTop: 2 }}>{f}</p>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="grid-two">
-            <section className="panel summary">
-              <h3>Core answers</h3>
-              {questions.map((item, index) => (
-                <button
-                  className="chip"
-                  type="button"
-                  key={item.key}
-                  onClick={() => editStep(index)}
-                >
-                  Change {item.label}
-                </button>
-              ))}
-            </section>
-
-            <section className="panel build-list">
-              <h3>Build next</h3>
-              <div className="build-item">
-                <strong>Page 1</strong>
-                <p>Home page with the message, value, and first button.</p>
+            <div className="panel">
+              <div className="kicker" style={{ marginBottom: 6 }}>First Page to Build</div>
+              <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>{plan.firstPage}</p>
+            </div>
+            <div className="panel">
+              <div className="kicker" style={{ color: "var(--muted)", marginBottom: 6 }}>
+                Do NOT Build Yet
               </div>
-              <div className="build-item">
-                <strong>Feature 1</strong>
-                <p>{project.function}</p>
-              </div>
-              <div className="build-item">
-                <strong>Test</strong>
-                <p>Show it to {project.audience} and ask what feels confusing.</p>
-              </div>
-            </section>
+              <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>{plan.notYet}</p>
+            </div>
           </div>
 
-          <section className="panel summary">
-            <h3>Project summary</h3>
-            <div className="row">
-              <strong>Idea</strong>
-              <p>{project.idea}</p>
-            </div>
-            <div className="row">
-              <strong>Purpose</strong>
-              <p>{project.purpose}</p>
-            </div>
-            <div className="row">
-              <strong>Message</strong>
-              <p>{project.message}</p>
-            </div>
-          </section>
+          <div className="panel" style={{ background: "rgba(215, 181, 109, 0.08)", borderColor: "rgba(215, 181, 109, 0.3)" }}>
+            <div className="kicker" style={{ marginBottom: 8 }}>Next Best Action</div>
+            <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14, lineHeight: 1.6 }}>
+              {plan.nextAction}
+            </p>
+          </div>
 
           <div className="actions">
-            <button type="button" onClick={nextVersion}>
-              Save next version
+            <button type="button" onClick={handleSave}>
+              Save Project
             </button>
-            <button className="secondary" type="button" onClick={() => editStep(0)}>
-              Start questions again
+            <button type="button" className="secondary" onClick={() => setStage("form")}>
+              Edit Answers
             </button>
+            {savedProjects.length > 0 && (
+              <button type="button" className="secondary" onClick={() => setStage("saved")} style={{ fontSize: 13 }}>
+                View Saved
+              </button>
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </main>
+    );
+  }
+
+  /* ── FORM ── */
+  return (
+    <main id="idea-form">
+      <div className="topline">
+        <span>
+          <span className="kicker">What do you want to build?</span>
+        </span>
+        <button className="secondary" type="button" onClick={reset} style={{ fontSize: 13 }}>
+          Back
+        </button>
+      </div>
+
+      {/* Example chips */}
+      <section id="examples" style={{ marginBottom: 22 }}>
+        <p className="label" style={{ marginBottom: 10, display: "block" }}>
+          Examples — click to fill the form
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {EXAMPLES.map((ex) => (
+            <button
+              key={ex.ideaName}
+              type="button"
+              className="chip"
+              onClick={() => handleExampleClick(ex)}
+              style={{ fontSize: 13 }}
+            >
+              {ex.ideaName}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <form className="stack" onSubmit={handleSubmit} style={{ gap: 14 }}>
+        <div className="panel">
+          <div className="stack" style={{ gap: 14 }}>
+            {field("ideaName", "Idea Name", 'e.g. "A dog rescue campaign" or "A family movie tracker"')}
+            {field("whoIsItFor", "Who is it for?", "Describe the real person or group who will use this first.")}
+            {field("problem", "What problem does it solve?", "What is annoying, missing, or broken for them right now?")}
+            {field("firstVersion", "What should the first version do?", "List the most important things — one sentence per feature.")}
+            {field("smallestUseful", "What is the smallest useful version?", "If you could only build one thing, what would it be?")}
+            {field("avoid", "What should we avoid?", "Name at least one thing that sounds tempting but does NOT belong in version 1.")}
+          </div>
+        </div>
+
+        <p className="small">Kids should build with a parent or trusted adult.</p>
+
+        <div className="actions">
+          <button type="submit">Generate My MVP Plan</button>
+        </div>
+      </form>
     </main>
   );
 }
