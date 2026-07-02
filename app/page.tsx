@@ -347,7 +347,7 @@ export default function StepInTheRing() {
         <div className="page">
           <section className="hero">
             <PortalRing />
-            <span className="kicker">Open Mirror LLC</span>
+            <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" className="kicker" style={{ textDecoration: "none" }}>Open Mirror LLC</a>
             <h1>Step In The Ring</h1>
             <p className="hero-sub">
               A guided portal to turn any idea into a real first build — with AI as your partner.
@@ -432,7 +432,7 @@ export default function StepInTheRing() {
           <div className="divider" />
 
           <p className="tiny" style={{ textAlign: "center" }}>
-            Step In The Ring is part of Open Mirror LLC. Kids should build with a parent or trusted adult.
+            Step In The Ring is part of <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>Open Mirror LLC</a>. Looking for something deeper? Try <a href="https://crossheartpray.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>CrossHeartPray</a>. Kids should build with a parent or trusted adult.
           </p>
         </div>
       </main>
