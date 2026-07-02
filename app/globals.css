@@ -462,3 +462,7 @@ textarea:focus, input:focus {
   color: var(--dim);
   line-height: 1.5;
 }
+
+/* card hover pop */
+.pop { transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+.pop:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,.5); }
