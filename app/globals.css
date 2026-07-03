@@ -1,19 +1,19 @@
 :root {
-  --bg: #03050a;
-  --surface: #080c14;
-  --panel: #0d1220;
-  --panel2: #111827;
-  --text: #f0ece0;
-  --muted: #8a8278;
-  --dim: #4a4640;
-  --line: rgba(240, 236, 224, 0.10);
-  --line2: rgba(240, 236, 224, 0.18);
-  --gold: #d4a843;
-  --gold-glow: rgba(212, 168, 67, 0.18);
-  --gold-soft: rgba(212, 168, 67, 0.08);
+  --bg: #0b1220;
+  --surface: #0c1220;
+  --panel: #141d2e;
+  --panel2: #1c2740;
+  --text: #e8edf5;
+  --muted: #94a3b8;
+  --dim: #3a4a6a;
+  --line: rgba(232, 237, 245, 0.10);
+  --line2: rgba(232, 237, 245, 0.18);
+  --gold: #60A5FA;
+  --gold-glow: rgba(96, 165, 250, 0.18);
+  --gold-soft: rgba(96, 165, 250, 0.08);
   --blue: #6ea8d4;
   --green: #7ec9a8;
-  --portal: rgba(212, 168, 67, 0.22);
+  --portal: rgba(96, 165, 250, 0.22);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +37,7 @@ button, textarea, input, select { font: inherit; }
   box-shadow:
     inset 0 0 40px var(--gold-glow),
     0 0 60px var(--portal),
-    0 0 100px rgba(212, 168, 67, 0.08);
+    0 0 100px rgba(96, 165, 250, 0.08);
   display: grid;
   place-items: center;
   margin: 0 auto 32px;
@@ -48,7 +48,7 @@ button, textarea, input, select { font: inherit; }
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  border: 1px solid rgba(212, 168, 67, 0.4);
+  border: 1px solid rgba(96, 165, 250, 0.4);
   display: grid;
   place-items: center;
 }
@@ -57,12 +57,12 @@ button, textarea, input, select { font: inherit; }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(212,168,67,0.5) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(96,165,250,0.5) 0%, transparent 70%);
 }
 
 @keyframes pulse-ring {
-  0%, 100% { box-shadow: inset 0 0 40px var(--gold-glow), 0 0 60px var(--portal), 0 0 100px rgba(212,168,67,0.08); }
-  50% { box-shadow: inset 0 0 60px var(--gold-glow), 0 0 80px rgba(212,168,67,0.35), 0 0 140px rgba(212,168,67,0.12); }
+  0%, 100% { box-shadow: inset 0 0 40px var(--gold-glow), 0 0 60px var(--portal), 0 0 100px rgba(96,165,250,0.08); }
+  50% { box-shadow: inset 0 0 60px var(--gold-glow), 0 0 80px rgba(96,165,250,0.35), 0 0 140px rgba(96,165,250,0.12); }
 }
 
 /* ── LAYOUT ── */
@@ -145,7 +145,7 @@ p {
 }
 
 .step-dot.done {
-  background: rgba(212, 168, 67, 0.4);
+  background: rgba(96, 165, 250, 0.4);
 }
 
 /* ── BUTTONS ── */
@@ -198,7 +198,7 @@ p {
 }
 
 .card-gold {
-  border-color: rgba(212, 168, 67, 0.25);
+  border-color: rgba(96, 165, 250, 0.25);
   background: var(--gold-soft);
 }
 
@@ -270,7 +270,7 @@ textarea:focus, input:focus {
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
-  background: rgba(240, 236, 224, 0.04);
+  background: rgba(232, 237, 245, 0.04);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -341,7 +341,7 @@ textarea:focus, input:focus {
 }
 
 .ai-plan-card.featured {
-  border-color: rgba(212,168,67,0.3);
+  border-color: rgba(96,165,250,0.3);
   background: var(--gold-soft);
 }
 
@@ -423,8 +423,8 @@ textarea:focus, input:focus {
 
 /* ── NEXT ACTION BOX ── */
 .next-action {
-  background: linear-gradient(135deg, rgba(212,168,67,0.12) 0%, rgba(212,168,67,0.04) 100%);
-  border: 1px solid rgba(212,168,67,0.28);
+  background: linear-gradient(135deg, rgba(96,165,250,0.12) 0%, rgba(96,165,250,0.04) 100%);
+  border: 1px solid rgba(96,165,250,0.28);
   border-radius: 18px;
   padding: 22px;
 }
