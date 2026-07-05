@@ -287,7 +287,20 @@ export default function StepInTheRing() {
   const [plan, setPlan] = useState<ReturnType<typeof buildPlan> | null>(null);
   const [saved, setSaved] = useState<SavedProject[]>([]);
 
-  useEffect(() => { setSaved(loadProjects()); }, []);
+  useEffect(() => {
+    setSaved(loadProjects());
+    // Handoff from iDontCry's Dream Lab: ?idea=... prefills the idea and opens the form.
+    try {
+      const idea = new URLSearchParams(window.location.search).get("idea");
+      if (idea && idea.trim()) {
+        const seeded = { ...EMPTY, ideaName: idea.trim().slice(0, 160) };
+        setForm(seeded);
+        setDraft(seeded.ideaName);
+        setStep(0);
+        setStage("form");
+      }
+    } catch {}
+  }, []);
 
   const currentQ = QUESTIONS[step];
   const totalSteps = QUESTIONS.length;
@@ -353,6 +366,11 @@ export default function StepInTheRing() {
             <h1>Step In The Ring</h1>
             <p className="hero-sub">
               A guided portal to turn any idea into a real first build — with AI as your partner.
+            </p>
+            <p className="hero-sub" style={{ fontSize: 14, marginTop: 10, opacity: 0.85 }}>
+              Dreamed something up over on{" "}
+              <a href="https://idontcry.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 800 }}>iDontCry</a>?
+              Bring it here and make it real.
             </p>
             <div className="actions center" style={{ marginTop: 32 }}>
               <button className="btn btn-primary" onClick={() => goToForm()}>
