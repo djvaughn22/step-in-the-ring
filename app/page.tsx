@@ -374,6 +374,9 @@ export default function StepInTheRing() {
               <button className="btn btn-primary" onClick={() => goToForm()}>
                 Start Building
               </button>
+              <a href="/build" className="btn btn-gold">
+                🥊 Build your first web app
+              </a>
               <button className="btn btn-ghost" onClick={() => setStage("portal")}>
                 How It Works
               </button>
