@@ -18,7 +18,7 @@ export default function RootLayout({
       <body>
         <OpenMirrorNav site="StepInTheRing.com" />
         {children}
-        <OpenMirrorFooter siteName="StepInTheRing.com" />
+        <OpenMirrorFooter siteName="StepInTheRing.com" accent="#60A5FA" />
       </body>
     </html>
   );
