@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import OpenMirrorFooter from "./OpenMirrorFooter";
+import OpenMirrorNav from "./OpenMirrorNav";
 
 export const metadata: Metadata = {
   title: "Step In The Ring",
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <OpenMirrorNav site="StepInTheRing.com" />
         {children}
         <OpenMirrorFooter siteName="StepInTheRing.com" />
       </body>

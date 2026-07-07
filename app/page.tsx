@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import OpenMirrorNav from "./OpenMirrorNav";
 
 /* ── TYPES ── */
 type IdeaForm = {
@@ -358,7 +357,6 @@ export default function StepInTheRing() {
   if (stage === "landing") {
     return (
       <main>
-        <OpenMirrorNav />
         <div className="page">
           <section className="hero">
             <PortalRing />
@@ -463,7 +461,6 @@ export default function StepInTheRing() {
   if (stage === "portal") {
     return (
       <main>
-        <OpenMirrorNav />
         <div className="page">
           <div className="topbar">
             <span className="topbar-title">How It Works</span>
@@ -508,7 +505,6 @@ export default function StepInTheRing() {
   if (stage === "form") {
     return (
       <main>
-        <OpenMirrorNav />
         <div className="page">
           <div className="topbar">
             <span className="topbar-title">Step {step + 1} of {totalSteps}</span>
@@ -584,7 +580,6 @@ export default function StepInTheRing() {
   if (stage === "saved") {
     return (
       <main>
-        <OpenMirrorNav />
         <div className="page">
           <div className="topbar">
             <span className="topbar-title">Saved Projects</span>
@@ -625,7 +620,6 @@ export default function StepInTheRing() {
   if (stage === "result" && plan) {
     return (
       <main>
-        <OpenMirrorNav />
         <div className="page">
           <div className="topbar">
             <span className="topbar-title">First MVP Plan</span>
