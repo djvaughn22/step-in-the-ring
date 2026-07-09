@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 
 const STORAGE = "sitr-first-app-v1";
+const SEED_KEY = "sitr-build-seed"; // one-time idea handoff from /engines
 
 const IDEA_TYPES = [
   "Business site",
@@ -115,9 +116,11 @@ export default function FirstAppCoach() {
   const [appName, setAppName] = useState("");
   const [purpose, setPurpose] = useState("");
   const [stuck, setStuck] = useState({ ran: "", expected: "", got: "" });
+  const [seededFromEngines, setSeededFromEngines] = useState(false);
 
-  // Restore progress
+  // Restore progress, then apply an Engine Room handoff (if any).
   useEffect(() => {
+    let hadProgress = false;
     try {
       const s = JSON.parse(localStorage.getItem(STORAGE) ?? "null");
       if (s) {
@@ -125,6 +128,25 @@ export default function FirstAppCoach() {
         if (s.ideaType) setIdeaType(s.ideaType);
         if (s.appName) setAppName(s.appName);
         if (s.purpose) setPurpose(s.purpose);
+        hadProgress = Boolean(s.appName || s.purpose || (s.round && s.round > 1));
+      }
+    } catch {}
+
+    // One-time seed from the Engine Room (/engines). Consume it once, and only
+    // prefill when there's no build already in progress — never clobber work.
+    try {
+      const raw = localStorage.getItem(SEED_KEY);
+      if (raw) {
+        localStorage.removeItem(SEED_KEY);
+        const seed = JSON.parse(raw);
+        const seedName = typeof seed?.appName === "string" ? seed.appName.trim() : "";
+        const seedPurpose = typeof seed?.purpose === "string" ? seed.purpose.trim() : "";
+        if (!hadProgress && (seedName || seedPurpose)) {
+          if (seedName) setAppName(seedName);
+          if (seedPurpose) setPurpose(seedPurpose);
+          setRound(1);
+          setSeededFromEngines(true);
+        }
       }
     } catch {}
   }, []);
@@ -213,6 +235,14 @@ export default function FirstAppCoach() {
           <section className="card" style={{ padding: 20 }}>
             <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Round 1 · What do you want to build?</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 14px" }}>No wrong answers. Pick the closest one.</p>
+            {seededFromEngines && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--gold-soft)", border: "1px solid var(--gold)", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+                <span style={{ fontSize: 16 }}>🧰</span>
+                <p style={{ fontSize: 13, color: "var(--text)", margin: 0, lineHeight: 1.5 }}>
+                  Idea loaded from the <strong>Engine Room</strong> — edit anything below.
+                </p>
+              </div>
+            )}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
               {IDEA_TYPES.map((t) => (
                 <button key={t} type="button" onClick={() => setIdeaType(t)} className={ideaType === t ? "btn btn-gold btn-small" : "btn btn-ghost btn-small"}>

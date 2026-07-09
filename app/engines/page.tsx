@@ -304,6 +304,18 @@ export default function EngineRoom() {
     try { await navigator.clipboard.writeText(md); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ }
   };
 
+  // Hand the idea off to /build. One-time seed; /build only uses it if no
+  // build is already in progress, so we never clobber existing work.
+  const seedBuild = () => {
+    try {
+      const appName = idea.name.trim();
+      const purpose = idea.rough.trim() || idea.why.trim();
+      if (appName || purpose) {
+        localStorage.setItem("sitr-build-seed", JSON.stringify({ appName, purpose }));
+      }
+    } catch { /* ignore */ }
+  };
+
   return (
     <main>
       <div className="page">
@@ -362,7 +374,7 @@ export default function EngineRoom() {
             </div>
             <div className="divider" />
             <div style={{ textAlign: "center" }}>
-              <a href="/build" className="btn btn-gold">🥊 Ready to build? Step in the ring</a>
+              <a href="/build" onClick={seedBuild} className="btn btn-gold">🥊 Ready to build? Step in the ring</a>
             </div>
           </>
         )}
@@ -420,7 +432,7 @@ export default function EngineRoom() {
                   </div>
                 ))}
                 {engine.toBuild && (
-                  <a href="/build" className="btn btn-gold" style={{ width: "100%", marginTop: 6 }}>🥊 Now build it → Step in the ring</a>
+                  <a href="/build" onClick={seedBuild} className="btn btn-gold" style={{ width: "100%", marginTop: 6 }}>🥊 Now build it → Step in the ring</a>
                 )}
               </div>
             )}
