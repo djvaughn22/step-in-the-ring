@@ -14,7 +14,7 @@ import {
   newProject, uid, upsertProject, type Cycle, type NextPath, type Project,
 } from "./store";
 
-type View = "list" | "picker" | "intake" | "review" | "cycle" | "return";
+type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
   `mailto:ask@openmirrorllc.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
@@ -50,6 +50,9 @@ export default function EngineSystem() {
   // return flow
   const [review, setReview] = useState<ReviewInput>({ completed: true, correctLive: true, broke: "", wrong: "", deferred: "", readyForPublic: false, raw: "" });
 
+  // edit screen (Pass 2)
+  const [specialtyEdits, setSpecialtyEdits] = useState<Record<string, string>>({});
+
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setProjects(loadProjects()); setReady(true); }, []);
   const engine = getEngine(engineId);
@@ -78,14 +81,27 @@ export default function EngineSystem() {
 
   const toReview = () => {
     if (!engine) return;
-    setObjectiveEdit(generatePackage(engine, answers, stage, depth, destination).objective);
+    const pkg = generatePackage(engine, answers, stage, depth, destination);
+    setObjectiveEdit(pkg.objective);
+    setSpecialtyEdits(pkg.specialties ?? {});
     setView("review");
+  };
+
+  const toEdit = () => {
+    if (!engine) return;
+    const pkg = generatePackage(engine, answers, stage, depth, destination);
+    setObjectiveEdit(pkg.objective);
+    setSpecialtyEdits(pkg.specialties ?? {});
+    setView("edit");
   };
 
   const generate = () => {
     if (!engine) return;
     const pkg = generatePackage(engine, answers, stage, depth, destination);
     if (objectiveEdit.trim()) pkg.objective = objectiveEdit.trim();
+    if (Object.keys(specialtyEdits).length > 0) {
+      pkg.specialties = { ...pkg.specialties, ...specialtyEdits };
+    }
     const cycle: Cycle = {
       id: uid(), index: 0, objective: pkg.objective, stage, destination, depth, pkg, status: "drafted", createdAt: new Date().toISOString(),
     };
@@ -250,7 +266,7 @@ export default function EngineSystem() {
               <select value={stage} onChange={(ev) => setStage(ev.target.value as BuildStage)} style={input}>
                 {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
-              <button onClick={toReview} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Review before generating →</button>
+              <button onClick={toReview} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Review & customize →</button>
             </div>
           </>
         )}
@@ -281,7 +297,31 @@ export default function EngineSystem() {
                   </select>
                 </div>
               </div>
-              <button onClick={generate} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Generate execution package →</button>
+              <button onClick={toEdit} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Customize sections →</button>
+            </div>
+          </>
+        )}
+
+        {/* ---------- EDIT SPECIALTIES ---------- */}
+        {view === "edit" && engine && previewPackage && (
+          <>
+            <button onClick={() => setView("review")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to review</button>
+            <div style={card}>
+              <span className="kicker">Customize this package</span>
+              <p style={{ fontSize: 13.5, color: "var(--muted)", margin: "0 0 14px" }}>Edit any section below. Changes are saved in the package.</p>
+            </div>
+            {engine.specialties.map((title) => (
+              <div key={title} style={{ ...card, marginBottom: 12 }}>
+                <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>{title}</div>
+                <textarea
+                  value={specialtyEdits[title] ?? previewPackage.specialties?.[title] ?? ""}
+                  onChange={(ev) => setSpecialtyEdits({ ...specialtyEdits, [title]: ev.target.value })}
+                  style={{ ...input, minHeight: 80, resize: "vertical" }}
+                />
+              </div>
+            ))}
+            <div style={card}>
+              <button onClick={generate} className="btn btn-gold" style={{ width: "100%", marginTop: 8 }}>Generate final package →</button>
             </div>
           </>
         )}
@@ -340,7 +380,9 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
 }) {
   const p = cycle.pkg;
   const e = engine!;
-  const tabs = [["overview", "Overview"], ["execution", "Execution"], ["verify", "Verify"], ["return", "Return"], ["next", "Next Cycle"]];
+  const baseTabs: [string, string][] = [["overview", "Overview"], ["execution", "Execution"], ["verify", "Verify"], ["return", "Return"], ["next", "Next Cycle"]];
+  const specialtyTabs = e.specialties.map((title) => [title.toLowerCase().replace(/\s+/g, "-"), title] as [string, string]);
+  const tabs = [...baseTabs, ...specialtyTabs];
   const bullets = (arr: string[]) => arr.map((x) => `- ${x}`).join("\n");
   return (
     <>
@@ -401,6 +443,13 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
           </>) : (
             <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>{p.nextCycleNote}</p>
           )}
+        </>)}
+        {e.specialties.some((s) => tab === s.toLowerCase().replace(/\s+/g, "-")) && (<>
+          {e.specialties.map((title) => {
+            const tabId = title.toLowerCase().replace(/\s+/g, "-");
+            if (tab !== tabId) return null;
+            return <Section key={title} title={title} body={p.specialties?.[title] ?? `(${title} not found)`} />;
+          })}
         </>)}
       </div>
 

@@ -3,6 +3,7 @@
 import type { BuildStage, Depth, Destination, Engine } from "./engines";
 import { DEPTH_LABELS, DESTINATION_LABELS } from "./engines";
 import type { ExecutionPackage } from "./store";
+import { generateSpecialties } from "./specialties";
 
 type A = Record<string, string>;
 const val = (a: A, k: string) => (a[k] ?? "").trim();
@@ -335,6 +336,7 @@ export function generatePackage(
     verify: verify(e, a),
     returnTemplate: returnTemplate(a, e, destination),
     nextCycleNote: `After you run this and return with results, StepInTheRing will inspect what actually happened and recommend Fix, Refine, Expand, or Launch — then generate the next focused package. Strong products are built in passes, not one giant request.`,
+    specialties: generateSpecialties(e.id, e.specialties, a, stage),
   };
 }
 

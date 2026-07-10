@@ -18,6 +18,8 @@ export interface ExecutionPackage {
   verify: string;
   returnTemplate: string;
   nextCycleNote: string;
+  // Engine-specific specialties (Pass 2 deepening).
+  specialties?: Record<string, string>;
 }
 
 export type CycleStatus = "drafted" | "sent" | "returned" | "reviewed";
