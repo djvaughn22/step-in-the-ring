@@ -204,6 +204,27 @@ export const ENGINES: Engine[] = [
     ],
     specialties: ["Outcome & current state", "Milestones", "Dependencies & owners", "Timeline", "Risks", "Immediate next action"],
   },
+  {
+    id: "etsy",
+    name: "Etsy Engine",
+    emoji: "🛍️",
+    tagline: "Turn a product idea into a real Etsy listing and launch plan.",
+    blurb: "A rough product concept. We vet it, package it for Etsy, and give you a complete execution pack: listing draft, social launch kit, and honest go/no-go recommendation.",
+    technical: false,
+    suggestedStage: "Shaping",
+    intake: [
+      Q.name(),
+      { key: "idea", label: "Rough product idea", placeholder: "The thing you're thinking about selling.", type: "textarea" },
+      { key: "brand", label: "Source brand", type: "choice", options: ["CrossHeartPray", "TheDJCares", "DontCloneMeTom", "iDontCry", "StepInTheRing", "Open Mirror", "Other"] },
+      { key: "productType", label: "Product type", type: "choice", options: ["Printable / Digital", "Sticker / Decal", "T-shirt / Apparel", "Mug / Drinkware", "Hat / Accessory", "Card / Stationery", "Art Print", "Tote / Bag", "Undecided"] },
+      { key: "buyer", label: "Intended buyer", placeholder: "Who would actually pay for this?", type: "text" },
+      { key: "tone", label: "Tone", type: "choice", options: ["Funny", "Inspiring", "Thoughtful", "Playful", "Bold", "Gentle", "Mixed"] },
+      { key: "format", label: "Format preference", type: "choice", options: ["Digital (no production)", "Print-on-Demand", "Handmade", "Undecided"] },
+      { key: "concept", label: "Phrase or visual concept", placeholder: "One strong idea or phrase you're building around.", type: "text" },
+      { key: "concern", label: "Major concern or risk", placeholder: "What worries you about this one?", type: "textarea", optional: true },
+    ],
+    specialties: ["Product decision & recommendation", "Etsy listing draft (title, description, tags, price hypothesis)", "Organic social launch pack (hooks, concepts, captions, hashtags)", "Open Mirror placement guidance", "Fulfillment & production notes", "Legal & trademark flags"],
+  },
 ];
 
 export const ENGINE_BY_ID = new Map(ENGINES.map((e) => [e.id, e]));

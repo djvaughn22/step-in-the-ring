@@ -41,6 +41,7 @@ function direction(e: Engine, a: A, stage: BuildStage): string {
     fix: `Reproduce and inspect "${or(a, "symptom", "the symptom")}" first, protect what works, then make the smallest safe correction.`,
     grow: `Attack the one bottleneck (${or(a, "bottleneck", "the drop-off")}) with the smallest experiment that can move ${or(a, "measure", "the number")}.`,
     plan: `Turn "${or(a, "outcome", "the outcome")}" into phases with owners and a clear next action — no boiling the ocean.`,
+    etsy: `Vet "${or(a, "idea", "your product idea")}" for Etsy — assess buyer clarity, production fit, and brand alignment — then package it for launch if the green lights align.`,
   };
   return [
     map[e.id] ?? "One focused direction for this cycle.",
@@ -60,6 +61,7 @@ function objective(e: Engine, a: A): string {
     fix: `Reproduce, root-cause, and safely repair "${or(a, "symptom", "the issue")}" without regressions.`,
     grow: `Run one experiment that could move ${or(a, "measure", "the target number")} — with a decision rule.`,
     plan: `Lock the milestones + owners and start the first concrete action.`,
+    etsy: `Produce a go/no-go decision on "${or(a, "idea", "the product")}" — complete with listing draft, social pack, and fulfillment path if approved.`,
   };
   return `${map[e.id] ?? "One focused, verifiable objective."}\n\nNarrow enough to finish and verify in a single pass.`;
 }
@@ -74,10 +76,12 @@ function scope(e: Engine, a: A): { inScope: string[]; outOfScope: string[] } {
     fix: ["Reproduce + inspect the exact symptom", "Smallest safe correction", "Regression tests around the affected journey"],
     grow: ["One growth hypothesis", "Smallest experiment", "Measurement + decision rule"],
     plan: ["Phases + milestones", "Owners + dependencies", "The immediate next action"],
+    etsy: ["Product decision (Build First, Refine, Park, or Avoid)", "Etsy listing draft (title, description, tags, price range)", "Organic social launch pack (hooks, captions, Reel/Story ideas)", "Fulfillment path (digital, POD, handmade)", "Legal & trademark risk assessment"],
   };
   const out = [
     "Native mobile apps", "Accounts / complex auth", "Subscriptions / payments (unless this cycle IS that)",
     "Broad redesign of unrelated areas", "Unnecessary paid APIs", "Advanced analytics", "Speculative features",
+    "Etsy shop setup", "Etsy Pattern integration", "Print-on-Demand vendor account setup", "Actual production or shipping",
   ];
   return { inScope: [...(inByEngine[e.id] ?? []), ...common], outOfScope: out };
 }
@@ -253,6 +257,13 @@ function nonTechPrompt(e: Engine, a: A, dest: Destination): string {
       `Help me turn this into a clear, human plan.`,
       `Outcome: ${or(a, "outcome", "as described")}. Current state: ${or(a, "situation", "as described")}. Deadline: ${or(a, "deadline", "none")}. People: ${or(a, "people", "just me")}.`,
       `Deliver: 2–4 phases, milestones, dependencies, owners, top risks, and the immediate next action.`,
+    ],
+    etsy: [
+      `Help me vet this product idea and package it for Etsy launch.`,
+      `Product idea: ${or(a, "idea", "as described")}. Brand: ${or(a, "brand", "open")}. Type: ${or(a, "productType", "open")}.`,
+      `Buyer: ${or(a, "buyer", "as described")}. Tone: ${or(a, "tone", "open")}. Format: ${or(a, "format", "open")}. Concept: ${or(a, "concept", "as described")}.`,
+      `Main concern: ${or(a, "concern", "none stated")}.`,
+      `Deliver: buyer clarity assessment, product decision (Build First / Refine / Park / Avoid) with honest reasoning, complete Etsy listing draft (title, short desc, long desc, 13 tags, price hypothesis), social launch pack (hooks, captions, Reel/Story/post ideas, hashtags), fulfillment path, legal/trademark flags, and Open Mirror placement guidance.`,
     ],
   };
   const lines = body[e.id] ?? [`Help me with the ${e.name} for "${or(a, "name", "this project")}".`];
