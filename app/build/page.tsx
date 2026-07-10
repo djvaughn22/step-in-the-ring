@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react/no-unescaped-entities -- copy-heavy coach; apostrophes are intentional */
 
 // Build your first web app — a 6-round beginner coach.
 // No API, no login, no database. Progress lives in localStorage.
@@ -123,6 +124,7 @@ export default function FirstAppCoach() {
     let hadProgress = false;
     try {
       const s = JSON.parse(localStorage.getItem(STORAGE) ?? "null");
+      /* eslint-disable react-hooks/set-state-in-effect -- client-only localStorage hydration */
       if (s) {
         if (s.round) setRound(s.round);
         if (s.ideaType) setIdeaType(s.ideaType);
@@ -149,6 +151,7 @@ export default function FirstAppCoach() {
         }
       }
     } catch {}
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   useEffect(() => {
@@ -394,6 +397,7 @@ export default function FirstAppCoach() {
             </div>
             <p style={{ fontSize: 13, color: "var(--muted)", textAlign: "center" }}>
               You did it. Idea → live on the internet. 🥊{" "}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Back to Step In The Ring →</a>
             </p>
           </section>

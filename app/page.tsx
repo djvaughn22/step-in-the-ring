@@ -287,6 +287,7 @@ export default function StepInTheRing() {
   const [saved, setSaved] = useState<SavedProject[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSaved(loadProjects());
     // Handoff from iDontCry's Dream Lab: ?idea=... prefills the idea and opens the form.
     try {

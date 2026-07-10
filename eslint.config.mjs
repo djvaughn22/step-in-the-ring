@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Backup snapshots + synced Open Mirror chrome — not linted here.
+    ".stepinthering-backups/**",
+    "app/OpenMirrorNav.tsx",
+    "app/OpenMirrorFooter.tsx",
+    "app/OpenMirrorTheme.tsx",
   ]),
 ]);
 
