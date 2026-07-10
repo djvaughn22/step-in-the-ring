@@ -225,6 +225,36 @@ export const ENGINES: Engine[] = [
     ],
     specialties: ["Product decision & recommendation", "Etsy listing draft (title, description, tags, price hypothesis)", "Organic social launch pack (hooks, concepts, captions, hashtags)", "Open Mirror placement guidance", "Fulfillment & production notes", "Legal & trademark flags"],
   },
+  {
+    id: "design-shop",
+    name: "Design Shop Engine",
+    emoji: "🛒",
+    tagline: "Product idea → design package → Etsy listing (with transparent scoring).",
+    blurb: "Create original product concepts, explore 5 directions, score them transparently, design complete packages, and prepare Etsy listings. Real output: design packages, Etsy drafts, social launch kits, mockup specs.",
+    technical: false,
+    suggestedStage: "Spark",
+    intake: [
+      Q.name(),
+      { key: "idea", label: "Rough product idea", placeholder: "The thing you're thinking about creating", type: "textarea" },
+      { key: "theme", label: "Theme or inspiration (optional)", placeholder: "e.g., Faith, Family, Fitness, Dogs, Dads, Office Humor", type: "text", optional: true },
+      { key: "customer", label: "Who would use / buy this?", placeholder: "The person with the problem or need", type: "text" },
+      { key: "occasion", label: "Occasion or context (optional)", placeholder: "e.g., Gift, Holiday, Party, Game Night", type: "text", optional: true },
+      { key: "productType", label: "Product type you're imagining", type: "choice", options: ["Printable / Digital", "Card Deck", "Game / Activity Pack", "Sticker Sheet", "T-Shirt / Apparel", "Mug / Drinkware", "Tote / Bag", "Wall Print / Art", "Journal / Planner", "Undecided / Mixed"] },
+      { key: "spark", label: "The spark (joke, phrase, problem it solves)", placeholder: "One core idea or phrase driving this", type: "text" },
+      { key: "constraint", label: "Biggest constraint right now?", placeholder: "Time, design skill, production cost, etc.", type: "text", optional: true },
+    ],
+    specialties: [
+      "Product Spark & Clarification",
+      "Possible Product Directions",
+      "Scoring Dimensions & Matrix",
+      "Recommended Direction",
+      "Design Package Template",
+      "Etsy Listing Draft",
+      "Social Launch Kit",
+      "Fulfillment Path",
+      "IP & Legal Checklist",
+    ],
+  },
 ];
 
 export const ENGINE_BY_ID = new Map(ENGINES.map((e) => [e.id, e]));

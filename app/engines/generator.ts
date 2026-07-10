@@ -43,6 +43,7 @@ function direction(e: Engine, a: A, stage: BuildStage): string {
     grow: `Attack the one bottleneck (${or(a, "bottleneck", "the drop-off")}) with the smallest experiment that can move ${or(a, "measure", "the number")}.`,
     plan: `Turn "${or(a, "outcome", "the outcome")}" into phases with owners and a clear next action — no boiling the ocean.`,
     etsy: `Vet "${or(a, "idea", "your product idea")}" for Etsy — assess buyer clarity, production fit, and brand alignment — then package it for launch if the green lights align.`,
+    "design-shop": `Transform "${or(a, "idea", "your product idea")}" into 5 directions, score them transparently, design the strongest one, and prepare it for Etsy or export.`,
   };
   return [
     map[e.id] ?? "One focused direction for this cycle.",
@@ -63,6 +64,7 @@ function objective(e: Engine, a: A): string {
     grow: `Run one experiment that could move ${or(a, "measure", "the target number")} — with a decision rule.`,
     plan: `Lock the milestones + owners and start the first concrete action.`,
     etsy: `Produce a go/no-go decision on "${or(a, "idea", "the product")}" — complete with listing draft, social pack, and fulfillment path if approved.`,
+    "design-shop": `Create 5 distinct product directions from "${or(a, "idea", "your idea")}", score them transparently, select the strongest, design a complete package, and prepare for Etsy or export.`,
   };
   return `${map[e.id] ?? "One focused, verifiable objective."}\n\nNarrow enough to finish and verify in a single pass.`;
 }
@@ -78,6 +80,7 @@ function scope(e: Engine, a: A): { inScope: string[]; outOfScope: string[] } {
     grow: ["One growth hypothesis", "Smallest experiment", "Measurement + decision rule"],
     plan: ["Phases + milestones", "Owners + dependencies", "The immediate next action"],
     etsy: ["Product decision (Build First, Refine, Park, or Avoid)", "Etsy listing draft (title, description, tags, price range)", "Organic social launch pack (hooks, captions, Reel/Story ideas)", "Fulfillment path (digital, POD, handmade)", "Legal & trademark risk assessment"],
+    "design-shop": ["5 product directions with reasoning", "Transparent scoring matrix (Fun, Usefulness, Giftability, Originality, Ease, Digital-first, Bundle-able, Physical reuse, Seasonality, IP risk)", "Selected direction + complete design package (title, dimensions, print specs, materials, copy, accessibility)", "Etsy listing draft (title, tags, description, price hypothesis)", "Social launch kit (captions, hashtags, video concepts)", "Fulfillment path guidance (digital, POD, handmade)", "IP & legal checklist (no celebrity, brands, copyrighted characters)"],
   };
   const out = [
     "Native mobile apps", "Accounts / complex auth", "Subscriptions / payments (unless this cycle IS that)",

@@ -321,6 +321,166 @@ const etsySpecialties: Record<string, SpecialtyFn> = {
   },
 };
 
+// ---- DESIGN SHOP ENGINE ----
+const designShopSpecialties: Record<string, SpecialtyFn> = {
+  "Product Spark & Clarification": (e, a) => {
+    return [
+      `Idea: ${or(a, "idea", "as you described")}`,
+      `Customer: ${or(a, "customer", "who wants this")}`,
+      `The spark: ${or(a, "spark", "the core phrase or problem")}`,
+      `Product type: ${or(a, "productType", "undecided")}`,
+      `Theme: ${val(a, "theme") ? a.theme : "(none specified)"}`,
+      `Occasion: ${val(a, "occasion") ? a.occasion : "(general use)"}`,
+    ].join("\n");
+  },
+  "Possible Product Directions": (e, a) => {
+    const spark = or(a, "spark", "your idea");
+    return [
+      `1. Core Concept: ${spark} as a ${val(a, "productType").toLowerCase() || "product"}`,
+      `2. Humorous Take: ${spark}, but funny`,
+      `3. Educational Angle: ${spark}, but it teaches something useful`,
+      `4. Seasonal / Timely: ${spark}, tied to a season, holiday, or moment`,
+      `5. Bundle / Collection: ${spark}, plus complementary ideas in one package`,
+      `\nEach direction opens a different market. Pick the one with strongest resonance.`,
+    ].join("\n");
+  },
+  "Scoring Dimensions & Matrix": (e, a) => {
+    return [
+      `Rate each direction on these dimensions (1–5 scale):`,
+      ``,
+      `Fun (5 = delightful, 1 = boring): Does it spark joy?`,
+      `Usefulness (5 = solves real problem, 1 = feels frivolous)`,
+      `Giftability (5 = people buy for others, 1 = personal only)`,
+      `Originality (5 = no competitors, 1 = very common)`,
+      `Ease of Creation (5 = simple, 1 = very complex)`,
+      `Digital-First Potential (yes/no): Can it launch as downloadable?`,
+      `Bundle-ability (yes/no): Could this be part of a larger set?`,
+      `Physical Reuse (yes/no): Can the design appear on multiple products?`,
+      `Seasonality (5 = evergreen, 1 = highly seasonal)`,
+      `IP Risk (5 = high risk, 1 = totally clear)`,
+      ``,
+      `Higher scores in Fun/Usefulness/Giftability + low IP Risk = green light.`,
+    ].join("\n");
+  },
+  "Recommended Direction": (e, a) => {
+    return `After scoring all 5 directions, select the one with the highest combined score in:\n- Fun + Usefulness + Giftability (what buyers want)\n- Low IP Risk (legal safety)\n- Creation Ease (can you actually build it?)\n\nDo not pick based on a single dimension.`;
+  },
+  "Design Package Template": (e, a) => {
+    const productType = or(a, "productType", "TBD");
+    return [
+      `Title: ${or(a, "name", "Untitled")} — [direction label]`,
+      `Concept: [full description of what this product is]`,
+      `Customer: ${or(a, "customer", "TBD")}`,
+      `Product Type: ${productType}`,
+      `Format: [Printable, T-Shirt, Mug, Card, etc.]`,
+      `Dimensions: [specific size]`,
+      `Print Specs: [300 DPI, CMYK, bleed, etc.]`,
+      `Colors: [list colors]`,
+      `Fonts: [list fonts]`,
+      `Materials: [if physical: fabric, ceramic, etc.]`,
+      `Original Copy: [jokes, taglines, phrases unique to this]`,
+      `Accessibility: [readable fonts, contrast, alt text for images]`,
+      `Mockup Requirements: [front, lifestyle, detail shot]`,
+      `Bundle Suggestions: [other products this pairs with]`,
+    ].join("\n");
+  },
+  "Etsy Listing Draft": (e, a) => {
+    return [
+      `Title (140 chars max): [catchy + keyword-rich, include product type]`,
+      ``,
+      `Description (2–3 sentences):`,
+      `What it is. Who it's for. Why they'd buy it.`,
+      ``,
+      `Long Description (5–7 bullets):`,
+      `- What's included (files, physical items, etc.)`,
+      `- Use case or scenario`,
+      `- Dimensions / specifications`,
+      `- What formats are provided`,
+      `- Shipping / delivery info (digital or physical)`,
+      `- Customization options (if any)`,
+      `- Care instructions (if physical)`,
+      ``,
+      `Tags (max 13): keyword1, keyword2, ...`,
+      `[Use high-volume keywords + niche specificity]`,
+      ``,
+      `Price Hypothesis: $[amount based on production cost + 3x markup]`,
+      `Quantity Available: [1 for digital, 10+ for physical]`,
+      `Processing Days: [0 for digital, 3–5 for physical]`,
+    ].join("\n");
+  },
+  "Social Launch Kit": (e, a) => {
+    return [
+      `Instagram Caption (Hook 1):`,
+      `[One-liner that stops the scroll about this product]`,
+      ``,
+      `Caption (Version 2):`,
+      `[Longer version with benefit + CTA]`,
+      ``,
+      `Hashtags (15–20):`,
+      `[Mix high-volume + niche keywords]`,
+      ``,
+      `Reel / Video Concept:`,
+      `[15–30 second idea: unboxing, walkthrough, or demo]`,
+      ``,
+      `Stories / TikTok Hook:`,
+      `[Fastest version: problem → product → solution in 5 sec]`,
+      ``,
+      `Publishing Schedule:`,
+      `Tues/Thurs/Sat at [optimal time for your audience]`,
+    ].join("\n");
+  },
+  "Fulfillment Path": (e, a) => {
+    const productType = val(a, "productType").toLowerCase();
+    if (productType.includes("digital") || productType.includes("printable")) {
+      return [
+        `Digital Fulfillment:`,
+        `- Host file(s) on Etsy or your server`,
+        `- Buyer receives download link via Etsy after purchase`,
+        `- No production cost or shipping`,
+        `- Can be updated/improved anytime`,
+        `- Profit margin: ~80–90%`,
+      ].join("\n");
+    }
+    if (productType.includes("print")) {
+      return [
+        `Print-on-Demand Fulfillment:`,
+        `- Partner with Printful, Printednow, Merch by Amazon, etc.`,
+        `- Upload files to POD vendor`,
+        `- Orders come through Etsy → automatically sent to vendor`,
+        `- Vendor produces + ships → customer receives`,
+        `- Profit margin: ~40–60% (vendor takes cut)`,
+        `- No upfront inventory cost`,
+      ].join("\n");
+    }
+    return [
+      `Fulfillment TBD - choose one:`,
+      `1. Digital Download: deliver via Etsy (100% profit)`,
+      `2. Print-on-Demand: use vendor (40–60% profit)`,
+      `3. Handmade: produce yourself (variable profit, more work)`,
+    ].join("\n");
+  },
+  "IP & Legal Checklist": (e, a) => {
+    return [
+      `Before publishing to Etsy, verify:`,
+      ``,
+      `✓ No direct celebrity references (Tom Brady, Elon, etc.)`,
+      `✓ No copyrighted characters (Mickey, Elsa, Baby Yoda, etc.)`,
+      `✓ No brand logos (Nike, Disney, Apple, etc.) unless licensed`,
+      `✓ No song lyrics (protected by copyright)`,
+      `✓ No famous movie quotes (protected by copyright)`,
+      `✓ No trademarked phrases (Coca-Cola slogans, etc.)`,
+      `✓ Design is original or properly licensed`,
+      `✓ Images are your own or properly licensed (not stock without permission)`,
+      ``,
+      `If any flag appears, either:`,
+      `- Remove the flagged element, or`,
+      `- Seek legal permission before publishing`,
+      ``,
+      `Etsy will remove products that violate IP. Better to be cautious now.`,
+    ].join("\n");
+  },
+};
+
 const engineSpecialties: Record<string, Record<string, SpecialtyFn>> = {
   idea: ideaSpecialties,
   build: buildSpecialties,
@@ -330,6 +490,7 @@ const engineSpecialties: Record<string, Record<string, SpecialtyFn>> = {
   grow: growSpecialties,
   plan: planSpecialties,
   etsy: etsySpecialties,
+  "design-shop": designShopSpecialties,
 };
 
 export function generateSpecialties(
