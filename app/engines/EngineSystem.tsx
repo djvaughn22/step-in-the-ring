@@ -13,6 +13,7 @@ import {
   deleteProject, duplicateProject, exportProject, importProject, loadProjects,
   newProject, uid, upsertProject, type Cycle, type NextPath, type Project,
 } from "./store";
+import DesignShopStudio from "./design-shop/DesignShopStudio";
 
 type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
@@ -163,6 +164,21 @@ export default function EngineSystem() {
   const input = { width: "100%", boxSizing: "border-box" as const, background: "var(--surface)", border: "1px solid var(--line2)", borderRadius: 10, color: "var(--text)", padding: "11px 12px", fontSize: 15, fontFamily: "inherit" };
 
   if (!ready) return <div className="page"><div style={{ height: 200 }} /></div>;
+
+  // Design Shop Engine uses a specialized UI
+  if (engineId === "design-shop" && view === "intake") {
+    return (
+      <DesignShopStudio
+        onBack={() => {
+          setEngineId("");
+          setAnswers({});
+          setView("list");
+        }}
+        card={card}
+        Section={Section}
+      />
+    );
+  }
 
   return (
     <main>
