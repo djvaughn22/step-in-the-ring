@@ -211,21 +211,9 @@ export class EtsyAdapter implements CreationAdapter {
   }
 
   async publish(project: CreationProject, options?: Record<string, unknown>): Promise<PublishedDestination> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated with Etsy.");
-    }
-
-    // TODO: Call Etsy API to create listing.
-    // For now, placeholder returning mock data.
-    const listingId = `${Date.now()}`;
-
-    return {
-      service: "etsy",
-      publishedAt: new Date().toISOString(),
-      externalId: listingId,
-      externalUrl: `https://www.etsy.com/listing/${listingId}`,
-      publicStatus: "draft",
-    };
+    // Never fabricate listing IDs or URLs. Until the real Etsy API integration
+    // exists, publishing is unavailable — use the export adapter instead.
+    throw new Error("Etsy publishing is not connected yet. Export the listing package and create the listing on Etsy manually.");
   }
 
   async sync(project: CreationProject): Promise<Partial<CreationProject>> {

@@ -9,7 +9,7 @@ const or = (a: A, k: string, fallback: string) => (val(a, k) ? val(a, k) : `(${f
 const has = (a: A, k: string) => val(a, k).length > 0;
 const bullets = (items: string[]) => items.filter(Boolean).map((s) => `- ${s}`).join("\n");
 
-type SpecialtyFn = (e: Engine, a: A, stage: BuildStage) => string;
+type SpecialtyFn = (e: Engine | undefined, a: A, stage: BuildStage) => string;
 
 // ---- IDEA ENGINE ----
 const ideaSpecialties: Record<string, SpecialtyFn> = {
@@ -503,7 +503,7 @@ export function generateSpecialties(
   const result: Record<string, string> = {};
   specialtyTitles.forEach((title) => {
     const fn = specs[title];
-    result[title] = fn ? fn({} as any, answers, stage) : `(${title} — engine or specialty not found)`;
+    result[title] = fn ? fn(undefined, answers, stage) : `(${title} — engine or specialty not found)`;
   });
   return result;
 }
