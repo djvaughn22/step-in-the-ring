@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
+import AccessGate from "./AccessGate";
 import EngineSystem from "./EngineSystem";
 
 export const metadata: Metadata = {
   title: "Engine Room — Step In The Ring",
   description:
-    "Pick an engine, answer your real situation, and get a detailed build package you can hand to Claude Code or anyone. Return with results and generate the next focused cycle.",
+    "Start creating in 1, 2, 3. Choose what to make, get the free tools, and finish a real first project.",
+  robots: { index: false, follow: false },
 };
 
 export default function EnginesPage() {
-  return <EngineSystem />;
+  return (
+    <AccessGate>
+      <EngineSystem />
+    </AccessGate>
+  );
 }
