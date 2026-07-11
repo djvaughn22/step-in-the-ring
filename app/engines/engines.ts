@@ -66,6 +66,9 @@ export interface Engine {
   // Engine-specific output section titles (used by the generator + result page).
   specialties: string[];
   activation?: EngineActivation;
+  // Hidden engines stay defined (so old saved projects still open) but do not
+  // appear in the picker.
+  hidden?: boolean;
 }
 
 // Shared situational questions reused across engines (DJ Way: real situation first).
@@ -84,9 +87,10 @@ export const ENGINES: Engine[] = [
     id: "idea",
     name: "Idea Engine",
     emoji: "💡",
-    tagline: "Turn a rough idea into a testable concept.",
-    blurb: "A spark you can't quite explain yet. We clarify it, find the strongest version, and decide the fastest real test.",
+    tagline: "Compare versions of an idea, pick one, leave with a decision.",
+    blurb: "Say the idea however it comes out, weigh a few versions on clear factors, pick one, and hand it straight to the next engine with a first action.",
     technical: false,
+    activation: "beta",
     suggestedStage: "Spark",
     intake: [
       Q.name(),
@@ -216,6 +220,9 @@ export const ENGINES: Engine[] = [
     tagline: "Turn a product idea into a real Etsy listing and launch plan.",
     blurb: "A rough product concept. We vet it, package it for Etsy, and give you a complete execution pack: listing draft, social launch kit, and honest go/no-go recommendation.",
     technical: false,
+    // Folded into the Design Shop Engine — hidden from the picker so old
+    // saved Etsy projects still open, but new work goes through Design Shop.
+    hidden: true,
     suggestedStage: "Shaping",
     intake: [
       Q.name(),

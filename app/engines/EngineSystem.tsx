@@ -14,6 +14,7 @@ import {
   newProject, uid, upsertProject, type Cycle, type NextPath, type Project,
 } from "./store";
 import DesignShopStudio from "./design-shop/DesignShopStudio";
+import IdeaStudio from "./idea/IdeaStudio";
 import OnboardingFlow from "./shared/OnboardingFlow";
 import { MUSIC_ENGINE } from "./music/music.engine";
 
@@ -176,8 +177,33 @@ export default function EngineSystem() {
           setAnswers({});
           setView("list");
         }}
+        initialAnswers={Object.keys(answers).length > 0 ? answers : undefined}
         card={card}
         Section={Section}
+      />
+    );
+  }
+
+  // Idea Engine: compare → pick → decision record → handoff into the next engine
+  if (engineId === "idea" && view === "intake") {
+    return (
+      <IdeaStudio
+        onBack={() => {
+          setEngineId("");
+          setAnswers({});
+          setView("list");
+        }}
+        onHandoff={(nextEngineId, prefilled) => {
+          const target = getEngine(nextEngineId);
+          if (!target) return;
+          setActiveProjectId("");
+          setEngineId(nextEngineId);
+          setAnswers(prefilled);
+          setStage(target.suggestedStage);
+          setDestination(target.technical ? "claude-code" : "chatgpt");
+          setView("intake");
+        }}
+        card={card}
       />
     );
   }
@@ -265,7 +291,7 @@ export default function EngineSystem() {
             <button onClick={() => setView("list")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Projects</button>
             <span className="kicker">Choose an engine</span>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 12, marginTop: 6 }}>
-              {ENGINES.map((e) => (
+              {ENGINES.filter((e) => !e.hidden).map((e) => (
                 <button key={e.id} onClick={() => pickEngine(e.id)} style={{ ...card, textAlign: "left", cursor: "pointer", borderLeft: "4px solid var(--gold)", minHeight: 130 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 24 }}>{e.emoji}</span>

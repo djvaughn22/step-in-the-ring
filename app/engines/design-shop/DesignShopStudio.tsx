@@ -90,10 +90,13 @@ export default function DesignShopStudio({
   onBack,
   card,
   Section,
+  initialAnswers,
 }: {
   onBack: () => void;
   card: React.CSSProperties;
   Section: (p: { title: string; body: string }) => React.ReactElement;
+  // Prefill from another engine's handoff (e.g., Idea Engine decision).
+  initialAnswers?: Record<string, string>;
 }) {
   const [ready, setReady] = useState(false);
   const [saved, setSaved] = useState<CreationProject[]>([]);
@@ -111,8 +114,15 @@ export default function DesignShopStudio({
     const existing = getProjectsByEngine(ENGINE_ID);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSaved(existing);
-    if (existing.length > 0) setStage("projects");
+    if (initialAnswers && Object.keys(initialAnswers).length > 0) {
+      // Arriving from another engine's handoff — start a new spark, prefilled.
+      setAnswers(initialAnswers);
+      setStage("spark");
+    } else if (existing.length > 0) {
+      setStage("projects");
+    }
     setReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const say = (m: string) => {
