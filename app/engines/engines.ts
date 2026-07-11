@@ -50,6 +50,10 @@ export const DESTINATION_LABELS: Record<Destination, string> = {
   self: "Do it myself",
 };
 
+// Honest activation status shown in the picker. "Working" is reserved for
+// engines whose complete stated flow has been verified end to end.
+export type EngineActivation = "working" | "beta" | "setup-ready" | "building" | "planned" | "unavailable";
+
 export interface Engine {
   id: string;
   name: string;
@@ -61,6 +65,7 @@ export interface Engine {
   intake: Question[];
   // Engine-specific output section titles (used by the generator + result page).
   specialties: string[];
+  activation?: EngineActivation;
 }
 
 // Shared situational questions reused across engines (DJ Way: real situation first).
@@ -254,6 +259,19 @@ export const ENGINES: Engine[] = [
       "Fulfillment Path",
       "IP & Legal Checklist",
     ],
+    activation: "beta",
+  },
+  {
+    id: "music",
+    name: "Music Engine",
+    emoji: "🎵",
+    tagline: "Make and export your first beat with free tools.",
+    blurb: "Choose your device, get free music software from official sources, and follow a guided first project to a real exported audio file. Works with no equipment or with an MPK Mini.",
+    technical: false,
+    suggestedStage: "Spark",
+    intake: [],
+    specialties: [],
+    activation: "beta",
   },
 ];
 

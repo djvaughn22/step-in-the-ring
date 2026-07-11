@@ -14,6 +14,8 @@ import {
   newProject, uid, upsertProject, type Cycle, type NextPath, type Project,
 } from "./store";
 import DesignShopStudio from "./design-shop/DesignShopStudio";
+import OnboardingFlow from "./shared/OnboardingFlow";
+import { MUSIC_ENGINE } from "./music/music.engine";
 
 type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
@@ -180,6 +182,20 @@ export default function EngineSystem() {
     );
   }
 
+  // Music Engine uses the shared 1-2-3 onboarding flow
+  if (engineId === "music" && view === "intake") {
+    return (
+      <OnboardingFlow
+        engine={MUSIC_ENGINE}
+        onBack={() => {
+          setEngineId("");
+          setAnswers({});
+          setView("list");
+        }}
+      />
+    );
+  }
+
   return (
     <main>
       <div className="page">
@@ -251,7 +267,14 @@ export default function EngineSystem() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 12, marginTop: 6 }}>
               {ENGINES.map((e) => (
                 <button key={e.id} onClick={() => pickEngine(e.id)} style={{ ...card, textAlign: "left", cursor: "pointer", borderLeft: "4px solid var(--gold)", minHeight: 130 }}>
-                  <div style={{ fontSize: 24 }}>{e.emoji}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 24 }}>{e.emoji}</span>
+                    {e.activation && (
+                      <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--gold)", border: "1px solid var(--line2)", borderRadius: 50, padding: "2px 8px" }}>
+                        {e.activation === "setup-ready" ? "Setup ready" : e.activation}
+                      </span>
+                    )}
+                  </div>
                   <div style={{ fontSize: 15, fontWeight: 900, color: "var(--text)", marginTop: 4 }}>{e.name}</div>
                   <div style={{ fontSize: 12.5, color: "var(--muted)", marginTop: 4, lineHeight: 1.4 }}>{e.tagline}</div>
                 </button>
