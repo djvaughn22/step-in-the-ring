@@ -12,7 +12,7 @@
 // These codes ship in the client bundle — do not put secrets here.
 
 export const ACCESS_CODES = [
-  "RINGSIDE-2026",
+  "2323",
 ];
 
 const STORAGE_KEY = "sitr-engine-access-v1";
