@@ -14,6 +14,17 @@
 // MODES
 // ============================================================================
 
+/**
+ * Game doctrine — every template MUST satisfy this before it ships:
+ * 1. Mobile-first always: thumb-size tap targets, touch-action:manipulation,
+ *    nothing essential below the fold on a ~375px phone.
+ * 2. The board always tells the player what's going on: a goal line on every
+ *    deal, live guidance when they're stuck, and a win → next flow that
+ *    scrolls into view. Silence is a bug.
+ * 3. One easy rule per game, then a named climb (stages/tiers with identity,
+ *    progressive difficulty that's hard but never impossible).
+ * 4. Records everywhere: high scores, best times/chains, a top-runs board.
+ */
 export interface GameTemplate {
   id: string;
   name: string;
