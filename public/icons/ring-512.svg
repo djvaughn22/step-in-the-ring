@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#0b1220"/>
+  <rect x="72" y="72" width="368" height="368" rx="64" fill="#141d2e" stroke="#60A5FA" stroke-width="14"/>
+  <rect x="112" y="112" width="288" height="288" rx="46" fill="none" stroke="#3a5a80" stroke-width="6"/>
+  <rect x="144" y="144" width="224" height="224" rx="34" fill="none" stroke="#26324c" stroke-width="6"/>
+  <circle cx="72" cy="72" r="26" fill="#60A5FA" stroke="#0b1220" stroke-width="8"/>
+  <circle cx="440" cy="72" r="26" fill="#60A5FA" stroke="#0b1220" stroke-width="8"/>
+  <circle cx="72" cy="440" r="26" fill="#60A5FA" stroke="#0b1220" stroke-width="8"/>
+  <circle cx="440" cy="440" r="26" fill="#60A5FA" stroke="#0b1220" stroke-width="8"/>
+  <text x="256" y="268" text-anchor="middle" dominant-baseline="central" font-size="150" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif">🥊</text>
+</svg>

@@ -15,7 +15,7 @@ type IdeaForm = {
 
 type SavedProject = IdeaForm & { savedAt: string };
 
-type Stage = "landing" | "form" | "result" | "portal" | "saved";
+type Stage = "landing" | "form" | "result" | "saved";
 
 /* ── CONSTANTS ── */
 const STORAGE_KEY = "sitr-v2";
@@ -399,7 +399,7 @@ export default function StepInTheRing() {
               </button>
             </div>
             <div className="hero-links">
-              <button onClick={() => setStage("portal")}>How it works</button>
+              <a href="/how" style={{ color: "var(--muted)", fontSize: 13, fontWeight: 800, textDecoration: "underline", textUnderlineOffset: 4, textDecorationColor: "var(--line2)" }}>How it works</a>
               {saved.length > 0 && (
                 <button onClick={() => setStage("saved")}>
                   Your corner — {saved.length} saved plan{saved.length !== 1 ? "s" : ""}
@@ -539,50 +539,6 @@ export default function StepInTheRing() {
 
           <p className="tiny" style={{ textAlign: "center" }}>
             Step In The Ring is part of <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>Open Mirror LLC</a>. Looking for something deeper? Try <a href="https://crossheartpray.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>CrossHeartPray</a>. Kids should build with a parent or trusted adult.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  /* ── HOW IT WORKS ── */
-  if (stage === "portal") {
-    return (
-      <main>
-        <div className="page">
-          <div className="topbar">
-            <span className="topbar-title">How It Works</span>
-            <button className="btn btn-ghost btn-small" onClick={reset}>Back</button>
-          </div>
-
-          <div className="stack">
-            {[
-              { n: "01", title: "You walk in with a rough idea", body: "It doesn't have to be polished. It doesn't have to be smart yet. Just say what you want to build." },
-              { n: "02", title: "Seven questions shape it", body: "Who is it for? What problem does it solve? What does the win look like? What's the smallest version that actually helps someone? We strip the fluff and find the core." },
-              { n: "03", title: "You get your fight plan", body: "A clean plan card: project name, pitch, target user, feature list, what to build first, and what NOT to build yet." },
-              { n: "04", title: "You copy your AI prompt", body: "Your plan becomes a ready-to-paste prompt for Claude or ChatGPT. Paste it in. Start building. Both have free tiers." },
-              { n: "05", title: "Save and come back", body: "Save your project locally. Reopen it later. No account required. Your ideas stay on your device." },
-            ].map((item) => (
-              <div key={item.n} className="card" style={{ display: "flex", gap: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", minWidth: 28, marginTop: 2 }}>
-                  {item.n}
-                </div>
-                <div>
-                  <h3 style={{ marginBottom: 8 }}>{item.title}</h3>
-                  <p style={{ fontSize: 14 }}>{item.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="actions center" style={{ marginTop: 40 }}>
-            <button className="btn btn-primary" onClick={() => goToForm()}>
-              Start Building
-            </button>
-          </div>
-
-          <p className="tiny" style={{ textAlign: "center", marginTop: 20 }}>
-            Kids should build with a parent or trusted adult.
           </p>
         </div>
       </main>
