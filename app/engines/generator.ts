@@ -23,8 +23,9 @@ function understanding(e: Engine, a: A): string {
     `The real situation now: ${or(a, "situation", val(a, "symptom") || val(a, "evidence") || "as you described")}`,
     `What already exists: ${or(a, "exists", "not stated — the build must inspect and confirm before assuming")}`,
     `Main problem / focus: ${or(a, "problem", val(a, "symptom") || val(a, "bottleneck") || val(a, "core") || "the core problem you described")}`,
+    `The win — what better looks like for them: ${or(a, "win", "not stated — define it before building")}`,
     `Biggest constraint: ${or(a, "constraint", "not stated")}`,
-    `What success looks like: ${or(a, "success", val(a, "measure") || "the result you described")}`,
+    `What success looks like: ${or(a, "success", val(a, "measure") || val(a, "win") || "the result you described")}`,
   ];
   const unknowns: string[] = [];
   if (!has(a, "exists")) unknowns.push("What already exists — must be inspected, not assumed.");
@@ -159,7 +160,8 @@ function claudeCodePrompt(e: Engine, a: A, stage: BuildStage, depth: Depth): str
   lines.push(`- Who it's for: ${or(a, "who", val(a, "audience") || "the specified user")}`);
   lines.push(`- Current problem: ${or(a, "problem", val(a, "symptom") || val(a, "core") || "as described")}`);
   lines.push(`- Current state (verify before trusting): ${or(a, "exists", "unknown — inspect the repo and confirm")}`);
-  lines.push(`- Desired outcome for THIS cycle: ${or(a, "outcome", val(a, "success") || "as described")}`);
+  if (has(a, "win")) lines.push(`- The win — what better looks like for them: ${val(a, "win")}`);
+  lines.push(`- Desired outcome for THIS cycle: ${or(a, "outcome", val(a, "success") || val(a, "win") || "as described")}`);
   lines.push(`- Stage: ${stage}`);
   lines.push(``);
   lines.push(`## Objective (this cycle only)`);
@@ -271,13 +273,14 @@ function nonTechPrompt(e: Engine, a: A, dest: Destination): string {
     ],
   };
   const lines = body[e.id] ?? [`Help me with the ${e.name} for "${or(a, "name", "this project")}".`];
+  if (has(a, "win")) lines.push(`The win — what better looks like for them: ${val(a, "win")}. Aim everything at that moment.`);
   return `${head}\n\n${lines.join("\n")}\n\nBe specific to my answers. If something important is missing, tell me what to decide — don't invent it.`;
 }
 
 function verify(e: Engine, a: A): string {
   const base = [
     `The objective is actually met — verified by using it, not just building it.`,
-    `Success condition: ${or(a, "success", val(a, "measure") || "the result you defined")}.`,
+    `Success condition: ${or(a, "success", val(a, "measure") || val(a, "win") || "the result you defined")}.`,
     `Nothing that worked before is broken.`,
   ];
   if (e.technical) base.push(`lint, typecheck, tests, and production build all pass.`, `Mobile behaves; no horizontal overflow.`);

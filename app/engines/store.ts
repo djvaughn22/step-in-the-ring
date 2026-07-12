@@ -47,6 +47,9 @@ export interface Cycle {
   status: CycleStatus;
   ret?: ReturnReport;
   createdAt: string;
+  // Set when the user, after testing locally, asked Open Mirror to push it
+  // live. Optional so every previously-saved cycle keeps loading.
+  pushRequestedAt?: string;
 }
 
 export interface Project {

@@ -47,6 +47,41 @@ async function localRepoAvailable(): Promise<boolean> {
 
 const bad = (status: number, error: string) => NextResponse.json({ error }, { status });
 
+/**
+ * Upsert this game into app/live/live-products.json and push the change, so
+ * every engine publish lands on stepinthering.com/live automatically.
+ * Runs in THIS repo (process.cwd() is the step-in-the-ring root in dev).
+ */
+async function registerLiveProduct(world: DokuWorld): Promise<string> {
+  const registryPath = path.join(process.cwd(), "app", "live", "live-products.json");
+  const raw = await fs.readFile(registryPath, "utf8");
+  const products: Array<Record<string, string>> = JSON.parse(raw);
+  const entry = {
+    id: world.slug,
+    name: world.name,
+    emoji: world.emoji,
+    url: `https://opendoku.com/${world.slug}/`,
+    engine: "game",
+    blurb: world.cardBlurb,
+    pushedAt: new Date().toISOString().slice(0, 10),
+    by: "Game Engine",
+  };
+  const i = products.findIndex((p) => p.id === world.slug);
+  if (i >= 0) products[i] = { ...products[i], ...entry, pushedAt: products[i].pushedAt };
+  else products.push(entry);
+  await fs.writeFile(registryPath, JSON.stringify(products, null, 2) + "\n");
+
+  const relPath = "app/live/live-products.json";
+  const { stdout: dirty } = await run("git", ["status", "--porcelain", "--", relPath], { cwd: process.cwd() });
+  if (!dirty.trim()) return "already registered";
+  await run("git", ["add", relPath], { cwd: process.cwd() });
+  await run("git", ["commit", "-m",
+    `Live page: ${world.name} pushed by the Game Engine\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>`,
+    "--", relPath], { cwd: process.cwd() });
+  await run("git", ["push", "origin", "main"], { cwd: process.cwd() });
+  return "registered + pushed";
+}
+
 export async function POST(req: Request) {
   let body: { action?: string; modeId?: string; templateId?: string; world?: DokuWorld; overwrite?: boolean };
   try {
@@ -114,12 +149,19 @@ export async function POST(req: Request) {
     const { stdout: hash } = await run("git", ["rev-parse", "--short", "HEAD"], { cwd: repo });
     await run("git", ["push", "origin", "main"], { cwd: repo });
 
+    // Register the push on stepinthering.com/live (best-effort — a failure
+    // here must never fail the game publish itself).
+    const liveRegistry = await registerLiveProduct(world).catch(
+      (e) => `failed: ${e instanceof Error ? e.message : String(e)}`,
+    );
+
     return NextResponse.json({
       ok: true,
       driver: "local-git",
       commit: hash.trim(),
       url: `https://opendoku.com/${world.slug}/`,
       updated: exists,
+      liveRegistry,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

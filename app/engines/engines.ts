@@ -71,6 +71,15 @@ export interface Engine {
   hidden?: boolean;
 }
 
+// THE SEVEN QUESTIONS — every question-driven engine asks the same founder's
+// arc, top to bottom, in its own lane's words:
+//   1 The Dream (what is it?) · 2 The Person (who's it for?) · 3 The Pain
+//   (what's broken for them?) · 4 The Win (what does better look like the
+//   first time it works?) · 5 The Ground (what already exists?) · 6 The Scope
+//   (what must this cycle deliver?) · 7 The Limit (constraint / don't-build).
+// Seven on purpose. Keys are stable — generator.ts and specialties.ts read
+// them, and old saved projects must keep working. Add keys, never rename.
+
 // Shared situational questions reused across engines (DJ Way: real situation first).
 const Q = {
   name: (): Question => ({ key: "name", label: "Project name", placeholder: "A working name is fine", type: "text" }),
@@ -78,8 +87,9 @@ const Q = {
   exists: (): Question => ({ key: "exists", label: "What already exists?", help: "Repo, site, doc, audience, nothing yet — be honest so we preserve what works.", placeholder: "e.g. a Next.js repo deployed on Vercel; or nothing yet.", type: "textarea" }),
   outcome: (): Question => ({ key: "outcome", label: "What outcome do you want from this cycle?", placeholder: "The result you want when this pass is done.", type: "textarea" }),
   who: (): Question => ({ key: "who", label: "Who is it for?", placeholder: "One specific person or group.", type: "text" }),
-  constraint: (): Question => ({ key: "constraint", label: "Biggest constraint right now?", help: "Time, money, unknowns, skills, a deadline.", placeholder: "e.g. free tools only; ship this week.", type: "text" }),
+  constraint: (): Question => ({ key: "constraint", label: "7 · What's the limit?", help: "Time, money, unknowns, skills — and anything we should refuse to build yet.", placeholder: "e.g. free tools only; ship this week; no accounts or payments.", type: "text" }),
   success: (): Question => ({ key: "success", label: "What would success look like?", placeholder: "How you'll know this cycle worked.", type: "textarea" }),
+  win: (lane: string): Question => ({ key: "win", label: "4 · What does the win look like?", help: "The first moment it actually works — what just got better in their day?", placeholder: lane, type: "textarea" }),
 };
 
 export const ENGINES: Engine[] = [
@@ -112,13 +122,13 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Building",
     intake: [
       Q.name(),
-      { key: "purpose", label: "In one sentence, what is it and what does it do?", placeholder: "User opens it, does X, gets Y.", type: "textarea" },
-      Q.who(),
-      Q.exists(),
-      { key: "core", label: "The single most important thing it must do first", help: "The one core action. Everything else waits.", placeholder: "The one thing that would actually help someone.", type: "textarea" },
-      { key: "stack", label: "Any stack or tools already in use?", type: "text", optional: true, placeholder: "e.g. Next.js + Tailwind on Vercel; or none yet." },
+      { key: "purpose", label: "1 · What is it?", help: "One sentence: user opens it, does X, gets Y.", placeholder: "Say it plainly.", type: "textarea" },
+      { key: "who", label: "2 · Who is it for?", placeholder: "One specific person or group.", type: "text" },
+      { key: "problem", label: "3 · What's broken for them right now?", help: "The pain this removes — what's missing or frustrating today.", placeholder: "The problem it solves.", type: "textarea" },
+      Q.win('e.g. "She opens it, does the one thing, and it worked — first try."'),
+      { key: "exists", label: "5 · What already exists?", help: "Repo, stack, deployed site, audience, nothing yet — be honest so we preserve what works.", placeholder: "e.g. a Next.js repo on Vercel; or nothing yet.", type: "textarea" },
+      { key: "core", label: "6 · What must version one do?", help: "The one core action this cycle ships. Everything else waits.", placeholder: "The one thing that would actually help someone.", type: "textarea" },
       Q.constraint(),
-      Q.success(),
     ],
     specialties: ["Product definition", "Core user journey", "MVP scope", "Architecture & components", "Detailed Claude Code prompt", "Deployment path"],
   },
@@ -132,11 +142,12 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Shaping",
     intake: [
       Q.name(),
-      { key: "product", label: "What are you selling?", placeholder: "The thing they get.", type: "textarea" },
-      { key: "customer", label: "Who exactly would pay for it?", placeholder: "The specific buyer with the problem.", type: "text" },
-      { key: "problem", label: "What problem does it solve for them?", type: "textarea" },
-      Q.exists(),
-      { key: "channel", label: "Where would they find it?", type: "text", optional: true, placeholder: "e.g. a landing page, Etsy, Gumroad, in-person." },
+      { key: "product", label: "1 · What are you selling?", placeholder: "The thing they get.", type: "textarea" },
+      { key: "customer", label: "2 · Who exactly would pay for it?", placeholder: "The specific buyer with the problem.", type: "text" },
+      { key: "problem", label: "3 · What problem does it solve for them?", type: "textarea" },
+      Q.win('e.g. "He buys it, uses it that night, and tells a friend it was worth it."'),
+      { key: "exists", label: "5 · What already exists?", help: "The product, an audience, a page, nothing yet — be honest.", placeholder: "e.g. the design is done; no store yet.", type: "textarea" },
+      { key: "channel", label: "6 · Where would they find it?", help: "The first road to a real buyer.", type: "text", optional: true, placeholder: "e.g. a landing page, Etsy, Gumroad, in-person." },
       Q.constraint(),
     ],
     specialties: ["Customer & problem", "Offer & format", "Price hypothesis", "Sales-page requirements", "Delivery process", "First validation test"],
@@ -151,11 +162,13 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Launching",
     intake: [
       Q.name(),
-      { key: "what", label: "What are you launching?", placeholder: "The product/site/offer as it stands.", type: "textarea" },
-      Q.exists(),
-      { key: "audience", label: "Who's the first audience?", type: "text" },
-      { key: "worried", label: "What are you most worried is not ready?", type: "textarea", optional: true },
-      { key: "measure", label: "First result you want to measure", type: "text", placeholder: "e.g. 10 signups, 3 sales, 50 visits." },
+      { key: "what", label: "1 · What are you launching?", placeholder: "The product/site/offer as it stands.", type: "textarea" },
+      { key: "audience", label: "2 · Who's the first audience?", placeholder: "The real people who see it first.", type: "text" },
+      { key: "worried", label: "3 · What are you most worried is not ready?", help: "The honest weak spot — that's what launch prep attacks.", type: "textarea", optional: true },
+      Q.win('e.g. "Ten strangers use it in week one and one of them comes back."'),
+      { key: "exists", label: "5 · What already exists?", help: "Where it's deployed, what state it's really in.", placeholder: "e.g. live on Vercel, no analytics, untested on phones.", type: "textarea" },
+      { key: "measure", label: "6 · First result you want to measure", type: "text", placeholder: "e.g. 10 signups, 3 sales, 50 visits." },
+      Q.constraint(),
     ],
     specialties: ["Readiness assessment", "Remaining blockers", "Production checks", "Launch message & channel", "Feedback loop", "First measurable result"],
   },
@@ -169,11 +182,13 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Repairing",
     intake: [
       Q.name(),
-      { key: "symptom", label: "What's the symptom? What do you see?", placeholder: "Exactly what's wrong, and where.", type: "textarea" },
-      { key: "journey", label: "Which user journey does it affect?", type: "text" },
-      { key: "when", label: "When did it start / what changed recently?", type: "textarea", optional: true },
-      Q.exists(),
-      { key: "protect", label: "What must NOT change / must keep working?", help: "So we don't rebuild working parts.", placeholder: "The parts that are fine today.", type: "textarea" },
+      { key: "symptom", label: "1 · What's the symptom?", help: "Exactly what's wrong, and where you see it.", placeholder: "What you see when it breaks.", type: "textarea" },
+      { key: "journey", label: "2 · Whose journey does it break?", help: "The person and the moment it fails them.", type: "text" },
+      { key: "when", label: "3 · When did it start / what changed?", type: "textarea", optional: true },
+      { key: "win", label: "4 · What does fixed look like?", help: "The moment you'd call it healed — what works again, exactly?", placeholder: 'e.g. "She taps save and it saves — on her phone, every time."', type: "textarea" },
+      { key: "exists", label: "5 · What already exists?", help: "Repo, deploy, what state it's really in.", placeholder: "e.g. a Next.js repo on Vercel; last deploy Tuesday.", type: "textarea" },
+      { key: "protect", label: "6 · What must NOT change?", help: "So we don't rebuild working parts.", placeholder: "The parts that are fine today.", type: "textarea" },
+      Q.constraint(),
     ],
     specialties: ["Symptom & evidence", "Likely root cause", "Inspect-first plan", "Protected functionality", "Repair prompt", "Regression tests"],
   },
@@ -187,10 +202,12 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Growing",
     intake: [
       Q.name(),
-      { key: "evidence", label: "What's the current evidence? (numbers if any)", placeholder: "Traffic, signups, sales, feedback so far.", type: "textarea" },
-      { key: "bottleneck", label: "Where do people drop off or stall?", type: "textarea" },
-      { key: "guess", label: "Your best guess at what would move the needle", type: "text", optional: true },
-      { key: "measure", label: "What number are you trying to move?", type: "text" },
+      { key: "measure", label: "1 · What number are you trying to move?", placeholder: "The one number that matters this cycle.", type: "text" },
+      { key: "who", label: "2 · Who are the people behind that number?", placeholder: "The real humans you want more of (or more from).", type: "text" },
+      { key: "bottleneck", label: "3 · Where do they drop off or stall?", type: "textarea" },
+      Q.win('e.g. "A visitor plays one game, finishes it, and comes back tomorrow."'),
+      { key: "evidence", label: "5 · What's the current evidence?", help: "Numbers if you have them; honest guesses if you don't.", placeholder: "Traffic, signups, sales, feedback so far.", type: "textarea" },
+      { key: "guess", label: "6 · Your best guess at what would move it", type: "text", optional: true },
       Q.constraint(),
     ],
     specialties: ["Current evidence", "The bottleneck", "Growth hypothesis", "Smallest experiment", "Measurement & decision rule", "Next experiment (only after evidence)"],
@@ -205,10 +222,12 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Planning",
     intake: [
       Q.name(),
-      { key: "outcome", label: "What's the outcome you're after?", type: "textarea" },
-      { key: "situation", label: "Where does it stand today?", type: "textarea" },
-      { key: "deadline", label: "Any deadline or key date?", type: "text", optional: true },
-      { key: "people", label: "Who's involved / who owns what?", type: "textarea", optional: true },
+      { key: "outcome", label: "1 · What's the outcome you're after?", type: "textarea" },
+      { key: "people", label: "2 · Who is it for, and who's involved?", help: "Who it serves, and who owns what.", type: "textarea" },
+      { key: "problem", label: "3 · What's in the way right now?", help: "The real blocker or mess this plan has to beat.", type: "textarea" },
+      Q.win('e.g. "The event happens, people show up, and nobody\'s scrambling that morning."'),
+      { key: "situation", label: "5 · Where does it stand today?", type: "textarea" },
+      { key: "deadline", label: "6 · Any deadline or key date?", type: "text", optional: true },
       Q.constraint(),
     ],
     specialties: ["Outcome & current state", "Milestones", "Dependencies & owners", "Timeline", "Risks", "Immediate next action"],

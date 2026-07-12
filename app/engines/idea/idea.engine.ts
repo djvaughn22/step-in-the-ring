@@ -103,9 +103,9 @@ export function handoffAnswers(decision: IdeaDecision, projectName: string): Rec
         ...common,
         purpose: decision.description,
         who: decision.intendedUser,
+        problem: decision.problem,
         core: decision.simplestFirstVersion,
-        stack: decision.requiredTools,
-        exists: "Nothing yet — this came out of the Idea Engine.",
+        exists: `Nothing yet — this came out of the Idea Engine.${decision.requiredTools ? ` Tools on hand: ${decision.requiredTools}.` : ""}`,
       };
     case "design-shop":
       return {

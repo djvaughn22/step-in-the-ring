@@ -229,9 +229,10 @@ export default function GameStudio({ onBack, card }: { onBack: () => void; card:
           <>
             <button onClick={() => setStep("world")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Edit world</button>
             <div style={card}>
-              <span style={kicker}>4 · Launchpad — {world.emoji} {world.name}</span>
+              <span style={kicker}>4 · Test it — {world.emoji} {world.name}</span>
               <p style={{ ...dim, margin: "6px 0 10px" }}>
-                This is the real game, playable now. Publishing pushes it to <b>{mode.platform}/{world.slug}/</b> — a live production deploy.
+                This is the real game. <b>Play it here first — this is your local test.</b> When
+                it feels right, push it to <b>{mode.platform}/{world.slug}/</b> — a live production deploy.
               </p>
               {busy && <p style={{ color: "var(--gold)", fontWeight: 800 }}>{busy}</p>}
               {error && <p style={{ color: "#f87171", fontSize: 13.5, lineHeight: 1.5 }}>⚠ {error}</p>}
@@ -248,20 +249,23 @@ export default function GameStudio({ onBack, card }: { onBack: () => void; card:
             </div>
 
             <div style={{ ...card, marginTop: 12 }}>
-              <span style={kicker}>Publish</span>
+              <span style={kicker}>5 · Push live</span>
               <p style={{ ...dim, margin: "6px 0 10px" }}>🔓 {PRIVILEGE_NOTE}</p>
               {publishResult ? (
                 <>
                   <p style={{ fontSize: 15, fontWeight: 900, color: "var(--text)" }}>
                     {publishResult.updated ? "Updated" : "LIVE"} — commit {publishResult.commit} pushed. Vercel is deploying it now (~1 minute).
                   </p>
-                  <p style={{ margin: "10px 0 0" }}>
+                  <p style={{ margin: "10px 0 0", display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <a href={publishResult.url} target="_blank" rel="noopener noreferrer" className="btn btn-gold" style={{ textDecoration: "none" }}>
                       ▶ Play {world.name} live
                     </a>
+                    <a href="/live" className="btn btn-ghost" style={{ textDecoration: "none" }}>
+                      🏆 See it on the Live page
+                    </a>
                   </p>
                   <p style={{ ...dim, marginTop: 12 }}>
-                    Next: add it to the iDontCry Game Lab so the family finds it — one line in GameLab.tsx.
+                    It&apos;s registered on the Live page automatically. Next: add it to the iDontCry Game Lab so the family finds it — one line in GameLab.tsx.
                   </p>
                 </>
               ) : (

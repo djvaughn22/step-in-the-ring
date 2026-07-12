@@ -491,7 +491,8 @@ export default function StepInTheRing() {
               </a>
             </div>
             <p className="tiny" style={{ marginTop: 12 }}>
-              Dreamed on iDontCry → shaped here → live on OpenDoku.com. Your idea takes the same road.
+              Dreamed on iDontCry → shaped here → tested locally → pushed live. Your idea takes the same road.{" "}
+              <a href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>See every live product →</a>
             </p>
           </section>
 

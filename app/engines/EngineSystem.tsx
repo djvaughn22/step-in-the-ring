@@ -435,6 +435,7 @@ export default function EngineSystem() {
             onReturn={() => { setReview({ completed: true, correctLive: true, broke: "", wrong: "", deferred: "", readyForPublic: false, raw: "" }); setView("return"); }}
             onNext={generateNextCycle}
             onNewCycle={() => { setEngineId(activeProject.engineId); setAnswers(activeProject.answers); setView("intake"); }}
+            onPushRequested={() => updateCycle({ pushRequestedAt: new Date().toISOString() })}
             onBack={() => setView("list")}
           />
         )}
@@ -471,11 +472,11 @@ export default function EngineSystem() {
 }
 
 // ---- Cycle result view (tabs + history + actions) ----
-function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, onMarkSent, onReturn, onNext, onNewCycle, onBack }: {
+function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, onMarkSent, onReturn, onNext, onNewCycle, onPushRequested, onBack }: {
   project: Project; cycle: Cycle; engine: ReturnType<typeof getEngine>; tab: string; setTab: (t: string) => void;
   card: React.CSSProperties; Section: (p: { title: string; body: string }) => React.ReactElement;
   copy: (t: string, l: string) => void;
-  onMarkSent: () => void; onReturn: () => void; onNext: (p: NextPath) => void; onNewCycle: () => void; onBack: () => void;
+  onMarkSent: () => void; onReturn: () => void; onNext: (p: NextPath) => void; onNewCycle: () => void; onPushRequested: () => void; onBack: () => void;
 }) {
   const p = cycle.pkg;
   const e = engine!;
@@ -559,6 +560,53 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
         {(cycle.status === "sent" || cycle.status === "drafted") && <button onClick={onReturn} className="btn btn-gold btn-small">Return with results</button>}
         {cycle.status === "reviewed" && <button onClick={onNewCycle} className="btn btn-ghost btn-small">Manual new cycle</button>}
         <a href={REQUEST_MAILTO(`Build this for me: ${project.name}`, packageToText(e, project.answers, p))} className="btn btn-ghost btn-small">💌 Send to Open Mirror to build free</a>
+      </div>
+
+      {/* The road to live: build → test locally → return results → push */}
+      <div style={{ ...card, marginTop: 14 }}>
+        <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+          The road to live
+        </div>
+        <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 12px" }}>
+          Build it → <b style={{ color: "var(--text)" }}>test it locally</b> (the Verify tab is your checklist) →
+          return with results → send it to Open Mirror to push. Every push lands on the{" "}
+          <a href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Live page</a>.
+        </p>
+        {cycle.pushRequestedAt ? (
+          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--text)", margin: 0 }}>
+            🚀 Push requested {new Date(cycle.pushRequestedAt).toLocaleDateString()} — once Open Mirror pushes it,
+            it lands on <a href="/live" style={{ color: "var(--gold)", textDecoration: "none" }}>the Live page</a>.
+          </p>
+        ) : cycle.status === "reviewed" ? (
+          <a
+            href={REQUEST_MAILTO(
+              `Push this live: ${project.name}`,
+              [
+                `I built and TESTED this locally. Please push it live.`,
+                ``,
+                `PROJECT: ${project.name}`,
+                `ENGINE: ${e.name}`,
+                `CYCLE OBJECTIVE: ${cycle.objective}`,
+                ``,
+                `MY LOCAL TEST RESULTS:`,
+                cycle.ret?.raw || "(paste your test results here)",
+                ``,
+                `WHERE THE CODE LIVES (repo / zip / link):`,
+                ``,
+                `--- Full package below for reference ---`,
+                packageToText(e, project.answers, p),
+              ].join("\n"),
+            )}
+            onClick={onPushRequested}
+            className="btn btn-gold"
+          >
+            🚀 Tested locally? Send to Open Mirror to push it live
+          </a>
+        ) : (
+          <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>
+            🔒 The push button unlocks after you test locally and return with results.
+          </p>
+        )}
       </div>
     </>
   );
