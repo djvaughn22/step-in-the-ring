@@ -1,0 +1,32 @@
+[
+  {
+    "id": "slopedoku",
+    "name": "SlopeDoku",
+    "emoji": "⛷️",
+    "url": "https://opendoku.com/slopedoku/",
+    "engine": "game",
+    "blurb": "Winter sudoku — two puzzles in every tile, bunny hill to double black, plus Avalanche.",
+    "pushedAt": "2026-07-08",
+    "by": "Open Mirror"
+  },
+  {
+    "id": "surfdoku",
+    "name": "SurfDoku",
+    "emoji": "🌞",
+    "url": "https://opendoku.com/surfdoku/",
+    "engine": "game",
+    "blurb": "The beach remix — kiddie pool to double red flag, plus Riptide. Same brain, different weather.",
+    "pushedAt": "2026-07-10",
+    "by": "Open Mirror"
+  },
+  {
+    "id": "minedoku",
+    "name": "MineDoku",
+    "emoji": "⛏️",
+    "url": "https://opendoku.com/minedoku/",
+    "engine": "game",
+    "blurb": "Mine the numbers that don't belong — every row and column adds to its target. Surface Dig to The Core, plus Lantern memory digs and Cave-In.",
+    "pushedAt": "2026-07-11",
+    "by": "Game Engine"
+  }
+]
