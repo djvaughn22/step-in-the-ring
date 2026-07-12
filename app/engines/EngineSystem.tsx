@@ -14,6 +14,7 @@ import {
   newProject, uid, upsertProject, type Cycle, type NextPath, type Project,
 } from "./store";
 import DesignShopStudio from "./design-shop/DesignShopStudio";
+import GameStudio from "./games/GameStudio";
 import IdeaStudio from "./idea/IdeaStudio";
 import OnboardingFlow from "./shared/OnboardingFlow";
 import { MUSIC_ENGINE } from "./music/music.engine";
@@ -59,6 +60,21 @@ export default function EngineSystem() {
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setProjects(loadProjects()); setReady(true); }, []);
+
+  // Deep link: /engines?engine=game opens that engine's intake directly
+  // (how iDontCry's Game Lab jumps straight into the Game Engine).
+  useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get("engine");
+    const e = wanted ? getEngine(wanted) : undefined;
+    if (e && !e.hidden) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEngineId(e.id);
+      setAnswers({});
+      setStage(e.suggestedStage);
+      setDestination(e.technical ? "claude-code" : "self");
+      setView("intake");
+    }
+  }, []);
   const engine = getEngine(engineId);
   const activeProject = projects.find((p) => p.id === activeProjectId) || null;
   const activeCycle = activeProject?.cycles.find((c) => c.id === activeCycleId) || null;
@@ -180,6 +196,20 @@ export default function EngineSystem() {
         initialAnswers={Object.keys(answers).length > 0 ? answers : undefined}
         card={card}
         Section={Section}
+      />
+    );
+  }
+
+  // Game Engine: platform mode → template → world → live preview → real publish
+  if (engineId === "game" && view === "intake") {
+    return (
+      <GameStudio
+        onBack={() => {
+          setEngineId("");
+          setAnswers({});
+          setView("list");
+        }}
+        card={card}
       />
     );
   }

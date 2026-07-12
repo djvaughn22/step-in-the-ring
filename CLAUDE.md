@@ -42,3 +42,17 @@ Idea-to-first-build coach, secular. Accent: **#60A5FA**.
 **No APIs:** Deterministic output from curated templates. Works offline.
 
 **Next work:** Link from iDontCry Dream Shop handoff → Etsy Engine prefill (not yet wired). Document the shared handoff format.
+
+## Game Engine
+
+**Route:** `/engines?engine=game` (deep link used by iDontCry's Game Lab) or Engine Room picker → 🎮 Game Engine.
+
+**The pipeline (reference pattern for all future platform modes):**
+iDontCry Game Lab → Game Engine here → real prod push to the platform repo → Vercel deploys the new game live.
+
+- `app/engines/games/game-modes.ts` — mode registry (OpenDoku live, iDontCry arcade planned), `DokuWorld` schema, template instantiation (pure logic, shared by UI + API).
+- `app/engines/games/GameStudio.tsx` — studio UI: platform → template → world form (prefilled MineDoku) → launchpad with playable iframe preview → publish.
+- `app/engines/games/privileges.ts` — publish privileges. BUILD PHASE: everyone past the access gate can publish. Later: map access codes → roles and enforce in the API route too.
+- `app/api/engines/games/publish/route.ts` — preview + publish. Driver today: **local-git** (opendoku repo at `~/OpenDoku/opendoku` or `OPENDOKU_REPO_PATH`): writes `<slug>/` + homepage card, commits, pushes main. A github-api driver (GITHUB_TOKEN) comes later so production stepinthering.com can publish; until then the route 501s off this machine.
+
+**Templates live in the platform repo** (`opendoku/_templates/sum-mine.html`), theme-driven via `__DOKU_THEME__` + `__DOKU_HEAD__` marker blocks; the homepage card lands above `__DOKU_CARDS_END__` in opendoku's index.html. MineDoku (⛏️ Sum-Mine's home world) was the first engine-published game.

@@ -269,6 +269,18 @@ export const ENGINES: Engine[] = [
     activation: "beta",
   },
   {
+    id: "game",
+    name: "Game Engine",
+    emoji: "🎮",
+    tagline: "Shape a doku world and push it live to OpenDoku.com.",
+    blurb: "Pick a game platform, re-theme a proven template, play it instantly, and publish — a real production deploy. OpenDoku is the first platform; more plug in the same way.",
+    technical: true,
+    suggestedStage: "Building",
+    intake: [],
+    specialties: [],
+    activation: "beta",
+  },
+  {
     id: "music",
     name: "Music Engine",
     emoji: "🎵",
