@@ -2,6 +2,7 @@
 
 # StepInTheRing (stepinthering.com)
 Idea-to-first-build coach, secular. Accent: **#60A5FA**.
+- **The Seven Questions (the intake philosophy, every engine):** a founder's mind top to bottom — 1 Dream (what is it?) · 2 Person (who's it for?) · 3 Pain (what's broken for them?) · 4 Win (what does better look like the first time it works?) · 5 Scope (what must version one do?) · 6 Core (smallest useful version?) · 7 Discipline (what do we refuse to build yet?). Same arc in every engine and every lane; only the wording changes. Seven on purpose — DJ's number, complete. Canonical implementation: `QUESTIONS` in app/page.tsx.
 - **Brand = the Ring (boxing, flat):** the mark is a flat top-down boxing ring (`.ring-mark`, gold corner posts, rope insets — never a glowing portal). Vocabulary used sparingly and plainly: step in, rounds, fight plan, your corner. One primary CTA per screen; other paths are explained doors, not competing buttons. Homepage order: hero (one CTA) → three rounds → tag-in examples → doors (/build, /engines) → Built Through the Ring proof (live OpenDoku links) → In Your Corner tools.
 - Accepts `?idea=` handoff from iDontCry's Dream Lab (prefills the build form) and links back.
 - Kids build with a parent — keep that note.

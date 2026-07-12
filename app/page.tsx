@@ -7,6 +7,7 @@ type IdeaForm = {
   ideaName: string;
   whoIsItFor: string;
   problem: string;
+  win: string;
   firstVersion: string;
   smallestUseful: string;
   avoid: string;
@@ -23,11 +24,18 @@ const EMPTY: IdeaForm = {
   ideaName: "",
   whoIsItFor: "",
   problem: "",
+  win: "",
   firstVersion: "",
   smallestUseful: "",
   avoid: "",
 };
 
+/**
+ * THE SEVEN QUESTIONS — the founder's mind, top to bottom.
+ * Dream → Person → Pain → Win → Scope → Core → Discipline.
+ * Every engine intake follows this same arc; only the wording changes lane.
+ * Seven on purpose — complete, like the seventh day.
+ */
 const QUESTIONS: {
   key: keyof IdeaForm;
   label: string;
@@ -55,6 +63,13 @@ const QUESTIONS: {
     question: "What problem does it solve?",
     help: "What is broken, missing, or frustrating for them right now?",
     placeholder: 'e.g. "They don\'t know local shelters have great dogs waiting today"',
+  },
+  {
+    key: "win",
+    label: "The Win",
+    question: "What does the win look like for them?",
+    help: "The first moment it actually works — what just got better in their day?",
+    placeholder: 'e.g. "She finds an adoptable dog 10 minutes away and books a visit the same day"',
   },
   {
     key: "firstVersion",
@@ -86,6 +101,7 @@ const EXAMPLES: { label: string; form: IdeaForm }[] = [
       ideaName: "A dog rescue campaign",
       whoIsItFor: "Dog lovers who want to adopt, not shop",
       problem: "People don't know local rescues have amazing dogs waiting today",
+      win: "A family meets a shelter dog this weekend instead of scrolling breeder sites",
       firstVersion: "A simple page with adoptable dogs and links to local shelters",
       smallestUseful: "One page, four dog cards, a find-a-shelter button",
       avoid: "Paid API, user accounts, donation processing",
@@ -97,6 +113,7 @@ const EXAMPLES: { label: string; form: IdeaForm }[] = [
       ideaName: "A family-safe movie filter",
       whoIsItFor: "Parents who want to screen movies before family night",
       problem: "Finding out a movie has bad content after you've already started",
+      win: "Family night starts with zero surprises — mom already knows what's in the movie",
       firstVersion: "A searchable list of movies with parent-written content notes",
       smallestUseful: "Search box, 20 movies, simple content tags",
       avoid: "Video streaming, paid reviews, complex algorithms",
@@ -108,6 +125,7 @@ const EXAMPLES: { label: string; form: IdeaForm }[] = [
       ideaName: "A Bible study app",
       whoIsItFor: "People who want a simple daily Bible routine",
       problem: "Most Bible apps are overwhelming with features nobody uses",
+      win: "A five-minute verse-and-note habit that actually sticks past week one",
       firstVersion: "One verse a day, a note field, a reading streak counter",
       smallestUseful: "Daily verse, text box, save button",
       avoid: "Social features, commentary library, sermon uploads",
@@ -119,6 +137,7 @@ const EXAMPLES: { label: string; form: IdeaForm }[] = [
       ideaName: "A grief support page",
       whoIsItFor: "People processing loss who need a quiet, honest space",
       problem: "Grief resources are either clinical or chaotic",
+      win: "Someone puts words to a heavy day and feels a little less alone",
       firstVersion: "A page of honest words, a journaling field, gentle resources",
       smallestUseful: "Written message, text input, save locally",
       avoid: "Social sharing, login, therapist matching",
@@ -130,6 +149,7 @@ const EXAMPLES: { label: string; form: IdeaForm }[] = [
       ideaName: "A sports team planner",
       whoIsItFor: "Youth sports coaches managing practice schedules",
       problem: "Coordinating schedules and drills over text is a mess",
+      win: "Every parent knows Tuesday's practice plan without a single group text",
       firstVersion: "A form to create a practice plan and share it as a link",
       smallestUseful: "Practice form, plain text output, copy button",
       avoid: "Live chat, player profiles, tournament brackets",
@@ -141,6 +161,7 @@ const EXAMPLES: { label: string; form: IdeaForm }[] = [
       ideaName: "A local business website",
       whoIsItFor: "A small business owner with no online presence yet",
       problem: "No website means no credibility and no way to find them",
+      win: "A neighbor searches, finds them, and calls — the same day",
       firstVersion: "One page: name, what they do, hours, phone, address",
       smallestUseful: "Name, service, contact info, styled simply",
       avoid: "E-commerce, booking system, review integration",
@@ -203,6 +224,7 @@ function saveToStorage(form: IdeaForm) {
 
 /* ── MVP PLAN BUILDER ── */
 function buildPlan(form: IdeaForm) {
+  const win = (form.win ?? "").trim(); // saves from the six-question era have no win
   const features = form.firstVersion
     .split(/[,\n]/)
     .map((s) => s.trim())
@@ -213,6 +235,7 @@ function buildPlan(form: IdeaForm) {
     `Project: ${form.ideaName}`,
     `Who it's for: ${form.whoIsItFor}`,
     `Problem it solves: ${form.problem}`,
+    ...(win ? [`The win — what better looks like for them: ${win}`] : []),
     `First version does: ${form.firstVersion}`,
     `Smallest useful version: ${form.smallestUseful}`,
     `Do NOT build yet: ${form.avoid}`,
@@ -225,6 +248,7 @@ function buildPlan(form: IdeaForm) {
     pitch: `${form.ideaName} helps ${form.whoIsItFor} by solving: ${form.problem.replace(/^[A-Z]/, (c) => c.toLowerCase())}.`,
     targetUser: form.whoIsItFor,
     coreProblem: form.problem,
+    win,
     features,
     firstPage: form.smallestUseful,
     notYet: form.avoid,
@@ -366,7 +390,7 @@ export default function StepInTheRing() {
             <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" className="kicker" style={{ textDecoration: "none" }}>Open Mirror LLC</a>
             <h1>Step In The Ring</h1>
             <p className="hero-sub">
-              Bring a rough idea. Answer six questions. Walk out with a plan for
+              Bring a rough idea. Answer seven questions. Walk out with a plan for
               version one — and the exact prompt to build it with free tools.
             </p>
             <div className="actions center" style={{ marginTop: 30 }}>
@@ -394,7 +418,7 @@ export default function StepInTheRing() {
             <span className="kicker">The three rounds</span>
             <div className="rounds3">
               {[
-                { n: "Round 1", t: "Answer six questions", b: "What it is, who it's for, what version one must do. Plain words, two minutes." },
+                { n: "Round 1", t: "Answer seven questions", b: "What it is, who it's for, what the win looks like, what version one must do. Plain words, three minutes." },
                 { n: "Round 2", t: "Get your fight plan", b: "One clean card: the pitch, the features, the first page to build — and what to skip." },
                 { n: "Round 3", t: "Hand it to your builder", b: "Copy one ready prompt into Claude or ChatGPT and start building. Both have free tiers." },
               ].map((r) => (
@@ -411,7 +435,7 @@ export default function StepInTheRing() {
           <section className="home-section">
             <span className="kicker">Not sure yet? Tag in an example</span>
             <p className="section-lead">
-              Pick the closest one — it fills all six answers so you can edit and make it yours.
+              Pick the closest one — it fills all seven answers so you can edit and make it yours.
             </p>
             <div className="ex-grid">
               {EXAMPLES.map((ex) => (
@@ -533,7 +557,7 @@ export default function StepInTheRing() {
           <div className="stack">
             {[
               { n: "01", title: "You walk in with a rough idea", body: "It doesn't have to be polished. It doesn't have to be smart yet. Just say what you want to build." },
-              { n: "02", title: "Six questions shape it", body: "Who is it for? What problem does it solve? What's the smallest version that actually helps someone? We strip the fluff and find the core." },
+              { n: "02", title: "Seven questions shape it", body: "Who is it for? What problem does it solve? What does the win look like? What's the smallest version that actually helps someone? We strip the fluff and find the core." },
               { n: "03", title: "You get your fight plan", body: "A clean plan card: project name, pitch, target user, feature list, what to build first, and what NOT to build yet." },
               { n: "04", title: "You copy your AI prompt", body: "Your plan becomes a ready-to-paste prompt for Claude or ChatGPT. Paste it in. Start building. Both have free tiers." },
               { n: "05", title: "Save and come back", body: "Save your project locally. Reopen it later. No account required. Your ideas stay on your device." },
@@ -711,6 +735,14 @@ export default function StepInTheRing() {
                 <p className="plan-value">{plan.coreProblem}</p>
               </div>
             </div>
+
+            {/* The Win */}
+            {plan.win && (
+              <div className="card">
+                <div className="plan-label">The Win</div>
+                <p className="plan-value">{plan.win}</p>
+              </div>
+            )}
 
             {/* Features */}
             <div className="card">
