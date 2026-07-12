@@ -4,7 +4,8 @@
 // Build your first web app — a 6-round beginner coach.
 // No API, no login, no database. Progress lives in localStorage.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { track } from "../lib/analytics";
 
 const STORAGE = "sitr-first-app-v1";
 const SEED_KEY = "sitr-build-seed"; // one-time idea handoff from /engines
@@ -113,6 +114,12 @@ function PromptBlock({ title, text }: { title: string; text: string }) {
 
 export default function FirstAppCoach() {
   const [round, setRound] = useState(1);
+  // Report each coaching round the builder reaches (skips the initial render).
+  const roundSeen = useRef(0);
+  useEffect(() => {
+    if (roundSeen.current !== 0 && roundSeen.current !== round) track("build_round", { round });
+    roundSeen.current = round;
+  }, [round]);
   const [ideaType, setIdeaType] = useState<IdeaType | null>(null);
   const [appName, setAppName] = useState("");
   const [purpose, setPurpose] = useState("");

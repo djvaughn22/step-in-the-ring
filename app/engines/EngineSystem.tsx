@@ -18,6 +18,7 @@ import GameStudio from "./games/GameStudio";
 import IdeaStudio from "./idea/IdeaStudio";
 import OnboardingFlow from "./shared/OnboardingFlow";
 import { MUSIC_ENGINE } from "./music/music.engine";
+import { track } from "../lib/analytics";
 
 type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
@@ -94,6 +95,7 @@ export default function EngineSystem() {
 
   const pickEngine = (id: string) => {
     const e = getEngine(id); if (!e) return;
+    track("engine_start", { engine: id });
     setEngineId(id); setAnswers({}); setStage(e.suggestedStage);
     setDestination(e.technical ? "claude-code" : e.id === "plan" || e.id === "grow" || e.id === "sell" || e.id === "idea" ? "chatgpt" : "self");
     setView("intake");
@@ -117,6 +119,7 @@ export default function EngineSystem() {
 
   const generate = () => {
     if (!engine) return;
+    track("engine_output", { engine: engine.id });
     const pkg = generatePackage(engine, answers, stage, depth, destination);
     if (objectiveEdit.trim()) pkg.objective = objectiveEdit.trim();
     if (Object.keys(specialtyEdits).length > 0) {
@@ -164,6 +167,7 @@ export default function EngineSystem() {
 
   const generateNextCycle = (path: NextPath) => {
     if (!activeProject) return;
+    track("engine_cycle", { engine: activeProject.engineId, path });
     const mapped = PATH_ENGINE[path] || activeProject.engineId;
     const e = getEngine(mapped) || engine!;
     setEngineId(e.id);

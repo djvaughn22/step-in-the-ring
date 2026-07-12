@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { grantAccess, hasAccess } from "./access";
+import { track } from "../lib/analytics";
 
 const REQUEST_MAILTO = `mailto:ask@openmirrorllc.com?subject=${encodeURIComponent(
   "Engine Room access request",
@@ -28,6 +29,7 @@ export default function AccessGate({ children }: { children: React.ReactNode }) 
 
   const submit = () => {
     if (grantAccess(code)) {
+      track("gate_unlocked", {});
       setAllowed(true);
       setError("");
     } else {
