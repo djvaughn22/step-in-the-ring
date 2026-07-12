@@ -233,13 +233,15 @@ function buildPlan(form: IdeaForm) {
   };
 }
 
-/* ── PORTAL RING SVG ── */
-function PortalRing() {
+/* ── THE RING (flat top-down boxing ring — the brand mark) ── */
+function RingMark() {
   return (
-    <div className="portal-ring">
-      <div className="portal-ring-inner">
-        <div className="portal-ring-core" />
-      </div>
+    <div className="ring-mark" aria-hidden="true">
+      <span className="ring-post tl" />
+      <span className="ring-post tr" />
+      <span className="ring-post bl" />
+      <span className="ring-post br" />
+      <span className="ring-glove">🥊</span>
     </div>
   );
 }
@@ -359,68 +361,122 @@ export default function StepInTheRing() {
     return (
       <main>
         <div className="page">
-          <section className="hero">
-            <PortalRing />
+          <section className="hero" style={{ paddingBottom: 8 }}>
+            <RingMark />
             <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" className="kicker" style={{ textDecoration: "none" }}>Open Mirror LLC</a>
             <h1>Step In The Ring</h1>
             <p className="hero-sub">
-              A guided portal to turn any idea into a real first build — with AI as your partner.
+              Bring a rough idea. Answer six questions. Walk out with a plan for
+              version one — and the exact prompt to build it with free tools.
             </p>
-            <p className="hero-sub" style={{ fontSize: 14, marginTop: 10, opacity: 0.85 }}>
-              Dreamed something up over on{" "}
-              <a href="https://idontcry.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 800 }}>iDontCry</a>?
-              Bring it here and make it real.
-            </p>
-            <div className="actions center" style={{ marginTop: 32 }}>
-              <button className="btn btn-primary" onClick={() => goToForm()}>
-                Start Building
+            <div className="actions center" style={{ marginTop: 30 }}>
+              <button className="btn btn-gold btn-big" onClick={() => goToForm()}>
+                🥊 Step in — start your plan
               </button>
-              <a href="/build" className="btn btn-gold">
-                🥊 Build your first web app
-              </a>
-              <a href="/engines" className="btn btn-ghost">
-                🧰 Engine Room
-              </a>
-              <button className="btn btn-ghost" onClick={() => setStage("portal")}>
-                How It Works
-              </button>
+            </div>
+            <div className="hero-links">
+              <button onClick={() => setStage("portal")}>How it works</button>
               {saved.length > 0 && (
-                <button className="btn btn-ghost btn-small" onClick={() => setStage("saved")}>
-                  {saved.length} Saved Project{saved.length !== 1 ? "s" : ""}
+                <button onClick={() => setStage("saved")}>
+                  Your corner — {saved.length} saved plan{saved.length !== 1 ? "s" : ""}
                 </button>
               )}
             </div>
+            <p className="tiny" style={{ marginTop: 20 }}>
+              Dreamed it up on{" "}
+              <a href="https://idontcry.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 800 }}>iDontCry</a>?
+              It lands right here.
+            </p>
           </section>
 
-          <div className="divider" />
+          {/* The three rounds */}
+          <section className="home-section">
+            <span className="kicker">The three rounds</span>
+            <div className="rounds3">
+              {[
+                { n: "Round 1", t: "Answer six questions", b: "What it is, who it's for, what version one must do. Plain words, two minutes." },
+                { n: "Round 2", t: "Get your fight plan", b: "One clean card: the pitch, the features, the first page to build — and what to skip." },
+                { n: "Round 3", t: "Hand it to your builder", b: "Copy one ready prompt into Claude or ChatGPT and start building. Both have free tiers." },
+              ].map((r) => (
+                <div key={r.n} className="round-card">
+                  <span className="round-num">{r.n}</span>
+                  <h3>{r.t}</h3>
+                  <p>{r.b}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
           {/* Examples */}
-          <section style={{ marginBottom: 48 }}>
-            <span className="kicker">Examples — click to start</span>
-            <p style={{ marginBottom: 20, fontSize: 14 }}>
-              Pick one that feels close to your idea. It fills the form so you can edit and make it yours.
+          <section className="home-section">
+            <span className="kicker">Not sure yet? Tag in an example</span>
+            <p className="section-lead">
+              Pick the closest one — it fills all six answers so you can edit and make it yours.
             </p>
-            <div className="chips">
+            <div className="ex-grid">
               {EXAMPLES.map((ex) => (
-                <button
-                  key={ex.label}
-                  className="chip"
-                  onClick={() => goToForm(ex.form)}
-                >
-                  {ex.label}
+                <button key={ex.label} className="ex-card" onClick={() => goToForm(ex.form)}>
+                  <span className="ex-name">{ex.label}</span>
+                  <span className="ex-who">For {ex.form.whoIsItFor.replace(/^[A-Z]/, (c) => c.toLowerCase())}</span>
                 </button>
               ))}
             </div>
           </section>
 
-          <div className="divider" />
+          {/* The other doors */}
+          <section className="home-section">
+            <span className="kicker">More ways into the ring</span>
+            <div className="stack">
+              <a href="/build" className="door-card">
+                <span className="door-emoji">🛠️</span>
+                <div>
+                  <h3>Build your first web app</h3>
+                  <p>Six guided rounds — idea, tools, create, save, deploy, your own domain. Made for total beginners.</p>
+                </div>
+                <span className="door-go">→</span>
+              </a>
+              <a href="/engines" className="door-card">
+                <span className="door-emoji">🧰</span>
+                <div>
+                  <h3>Engine Room</h3>
+                  <p>The pro shop: Idea, Design Shop, Music, and Game engines. The Game Engine pushes real games live to OpenDoku.com. Access code required.</p>
+                </div>
+                <span className="door-go">→</span>
+              </a>
+            </div>
+          </section>
 
-          {/* AI Plans */}
-          <section>
-            <span className="kicker">Build it with AI — affordable plans</span>
-            <p style={{ marginBottom: 24, fontSize: 15 }}>
-              You don&apos;t need expensive tools. Both of these have free tiers.
-              When you&apos;re ready to go deeper, $20/month unlocks everything.
+          {/* Proof */}
+          <section className="home-section">
+            <span className="kicker">Built through the Ring</span>
+            <p className="section-lead">
+              Real things that started as rough ideas. Play them.
+            </p>
+            <div className="proof-grid">
+              <a href="https://opendoku.com/slopedoku/" target="_blank" rel="noopener noreferrer" className="proof-card">
+                <span className="proof-name">⛷️ SlopeDoku</span>
+                <span className="proof-sub">Winter sudoku — two puzzles in every tile, plus Avalanche.</span>
+              </a>
+              <a href="https://opendoku.com/surfdoku/" target="_blank" rel="noopener noreferrer" className="proof-card">
+                <span className="proof-name">🌞 SurfDoku</span>
+                <span className="proof-sub">The beach remix — same brain, different weather.</span>
+              </a>
+              <a href="https://opendoku.com/minedoku/" target="_blank" rel="noopener noreferrer" className="proof-card">
+                <span className="proof-name">⛏️ MineDoku</span>
+                <span className="proof-sub">Published live by the Game Engine itself.</span>
+              </a>
+            </div>
+            <p className="tiny" style={{ marginTop: 12 }}>
+              Dreamed on iDontCry → shaped here → live on OpenDoku.com. Your idea takes the same road.
+            </p>
+          </section>
+
+          {/* AI tools */}
+          <section className="home-section">
+            <span className="kicker">In your corner</span>
+            <p className="section-lead">
+              You don&apos;t need expensive tools. Both of these have free tiers —
+              $20/month only if you go deep.
             </p>
             <div className="ai-plans">
               {AI_PLANS.map((plan) => (
@@ -449,7 +505,7 @@ export default function StepInTheRing() {
                 </div>
               ))}
             </div>
-            <p className="tiny" style={{ marginTop: 16, textAlign: "center" }}>
+            <p className="tiny" style={{ marginTop: 14, textAlign: "center" }}>
               No affiliate links. No paid promotions. Just the tools we actually use.
             </p>
           </section>
@@ -478,7 +534,7 @@ export default function StepInTheRing() {
             {[
               { n: "01", title: "You walk in with a rough idea", body: "It doesn't have to be polished. It doesn't have to be smart yet. Just say what you want to build." },
               { n: "02", title: "Six questions shape it", body: "Who is it for? What problem does it solve? What's the smallest version that actually helps someone? We strip the fluff and find the core." },
-              { n: "03", title: "You get a First MVP Plan", body: "A clean plan card: project name, pitch, target user, feature list, what to build first, and what NOT to build yet." },
+              { n: "03", title: "You get your fight plan", body: "A clean plan card: project name, pitch, target user, feature list, what to build first, and what NOT to build yet." },
               { n: "04", title: "You copy your AI prompt", body: "Your plan becomes a ready-to-paste prompt for Claude or ChatGPT. Paste it in. Start building. Both have free tiers." },
               { n: "05", title: "Save and come back", body: "Save your project locally. Reopen it later. No account required. Your ideas stay on your device." },
             ].map((item) => (
@@ -514,7 +570,7 @@ export default function StepInTheRing() {
       <main>
         <div className="page">
           <div className="topbar">
-            <span className="topbar-title">Step {step + 1} of {totalSteps}</span>
+            <span className="topbar-title">{currentQ.label} · {step + 1} of {totalSteps}</span>
             <button className="btn btn-ghost btn-small" onClick={reset}>Exit</button>
           </div>
 
@@ -538,8 +594,8 @@ export default function StepInTheRing() {
               />
 
               <div className="actions">
-                <button type="submit" className="btn btn-primary">
-                  {step < totalSteps - 1 ? "Next →" : "Build My Plan"}
+                <button type="submit" className="btn btn-gold">
+                  {step < totalSteps - 1 ? "Next →" : "🥊 Get my fight plan"}
                 </button>
                 {step > 0 && (
                   <button
@@ -589,7 +645,7 @@ export default function StepInTheRing() {
       <main>
         <div className="page">
           <div className="topbar">
-            <span className="topbar-title">Saved Projects</span>
+            <span className="topbar-title">Your corner — saved plans</span>
             <button className="btn btn-ghost btn-small" onClick={reset}>Back</button>
           </div>
 
@@ -629,7 +685,7 @@ export default function StepInTheRing() {
       <main>
         <div className="page">
           <div className="topbar">
-            <span className="topbar-title">First MVP Plan</span>
+            <span className="topbar-title">🥊 Your Fight Plan</span>
             <button className="btn btn-ghost btn-small" onClick={reset}>Start Over</button>
           </div>
 
