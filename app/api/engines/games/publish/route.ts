@@ -24,7 +24,8 @@ import { promisify } from "util";
 import { NextResponse } from "next/server";
 import {
   buildIconSvg, buildManifest, buildServiceWorker, getTemplate,
-  instantiateTemplate, upsertHomepageCard, validateWorld, type DokuWorld,
+  instantiateTemplate, upsertGamesRegistry, upsertHomepageCard, validateWorld,
+  type DokuWorld,
 } from "../../../../engines/games/game-modes";
 import { canPublish } from "../../../../engines/games/privileges";
 
@@ -140,7 +141,13 @@ export async function POST(req: Request) {
     const indexHtml = await fs.readFile(indexPath, "utf8");
     await fs.writeFile(indexPath, upsertHomepageCard(indexHtml, world));
 
-    await run("git", ["add", world.slug, "index.html"], { cwd: repo });
+    // games.js is the registry every game's 🧩 menu/footer/About list read —
+    // upserting here puts the new game in every menu on the site at once.
+    const gamesJsPath = path.join(repo, "games.js");
+    const gamesJs = await fs.readFile(gamesJsPath, "utf8");
+    await fs.writeFile(gamesJsPath, upsertGamesRegistry(gamesJs, world));
+
+    await run("git", ["add", world.slug, "index.html", "games.js"], { cwd: repo });
     const message =
       `${exists ? "Update" : "Launch"} ${world.name} (${world.slug}) — published by the StepInTheRing Game Engine\n\n` +
       `Template: ${template.name}. ${world.tagline}\n\n` +

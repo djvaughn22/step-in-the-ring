@@ -272,3 +272,22 @@ export function upsertHomepageCard(indexHtml: string, w: DokuWorld): string {
   if (existing.test(indexHtml)) return indexHtml.replace(existing, buildHomepageCard(w));
   return indexHtml.replace(CARDS_END_MARKER, buildHomepageCard(w) + CARDS_END_MARKER);
 }
+
+export const GAMES_END_MARKER = "// __DOKU_GAMES_END__";
+
+/**
+ * Insert (or replace) this world in opendoku's games.js registry — the one
+ * list every game's 🧩 menu, footer nav, and the About page read.
+ */
+export function upsertGamesRegistry(gamesJs: string, w: DokuWorld): string {
+  if (!gamesJs.includes(GAMES_END_MARKER)) {
+    throw new Error("opendoku games.js is missing the __DOKU_GAMES_END__ marker.");
+  }
+  const entry =
+    `{ slug: ${JSON.stringify(w.slug)}, emoji: ${JSON.stringify(w.emoji)}, ` +
+    `name: ${JSON.stringify(w.name)}, blurb: ${JSON.stringify(w.cardBlurb)} },`;
+  // Replace an existing entry for this slug so republish stays idempotent.
+  const existing = new RegExp(`\\{ slug: ${JSON.stringify(w.slug)},.*\\},`);
+  if (existing.test(gamesJs)) return gamesJs.replace(existing, entry);
+  return gamesJs.replace(GAMES_END_MARKER, entry + "\n  " + GAMES_END_MARKER);
+}
