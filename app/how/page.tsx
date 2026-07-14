@@ -18,7 +18,7 @@ const STEPS = [
   {
     n: "02",
     title: "Seven questions shape it",
-    body: "What is it? Who is it for? What's broken for them? What does the win look like? What must version one do? What's the smallest useful version? What do we refuse to build yet? The founder's mind, top to bottom.",
+    body: "What is it? Who is it for? What's broken for them? What does the win look like? What must version one do? What's the smallest useful version? What do we refuse to build yet? A builder's mind, top to bottom.",
   },
   {
     n: "03",

@@ -806,6 +806,12 @@ export default function StepInTheRing() {
                   </a>
                 ))}
               </div>
+              <p className="tiny" style={{ textAlign: "center", marginTop: 18 }}>
+                Need help reaching production?{" "}
+                <a href="https://openmirrorllc.com/talk-with-the-owner" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+                  Talk with the Owner →
+                </a>
+              </p>
             </div>
 
           </div>
