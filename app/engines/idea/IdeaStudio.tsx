@@ -34,16 +34,19 @@ export default function IdeaStudio({
   onBack,
   onHandoff,
   card,
+  initialAnswers,
 }: {
   onBack: () => void;
   onHandoff: (engineId: string, answers: Record<string, string>) => void;
   card: React.CSSProperties;
+  /** A plan handed over from the planner. Never make them retype it. */
+  initialAnswers?: Record<string, string>;
 }) {
   const [ready, setReady] = useState(false);
   const [saved, setSaved] = useState<CreationProject[]>([]);
   const [project, setProject] = useState<CreationProject | null>(null);
   const [stage, setStage] = useState<Stage>("start");
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers ?? {});
   const [candidates, setCandidates] = useState<IdeaCandidate[]>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [decision, setDecision] = useState<IdeaDecision | null>(null);
@@ -54,9 +57,11 @@ export default function IdeaStudio({
     const existing = getProjectsByEngine(ENGINE_ID);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSaved(existing);
-    if (existing.length > 0) setStage("projects");
+    // An arriving plan goes straight to the form it prefilled — showing the
+    // project list instead would bury the thing they just handed us.
+    if (existing.length > 0 && !initialAnswers) setStage("projects");
     setReady(true);
-  }, []);
+  }, [initialAnswers]);
 
   const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2000); };
 

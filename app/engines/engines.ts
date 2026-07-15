@@ -50,9 +50,30 @@ export const DESTINATION_LABELS: Record<Destination, string> = {
   self: "Do it myself",
 };
 
-// Honest activation status shown in the picker. "Working" is reserved for
-// engines whose complete stated flow has been verified end to end.
-export type EngineActivation = "working" | "beta" | "setup-ready" | "building" | "planned" | "unavailable";
+/**
+ * Honest activation status shown in the picker. These describe whether the
+ * engine ACTUALLY WORKS — they are not Open Mirror's public portfolio labels
+ * (Foundation / Free / Product / Project Help / Exploring), which describe a
+ * visitor's relationship to a portfolio item. Different question, different
+ * vocabulary. Do not mix them.
+ *
+ *  working    — the complete stated flow was run end to end and it works
+ *  beta       — produces real output; less exercised, rough edges expected
+ *  owner-only — works on the owner's machine, NOT for a visitor in production
+ *  building   — real work started, flow does not complete yet
+ *  planned    — a concept only; no route, nothing to open
+ */
+export type EngineActivation = "working" | "beta" | "owner-only" | "setup-ready" | "building" | "planned" | "unavailable";
+
+export const ACTIVATION_LABEL: Record<EngineActivation, string> = {
+  working: "Works",
+  beta: "Beta",
+  "owner-only": "Owner only",
+  "setup-ready": "Setup ready",
+  building: "Being built",
+  planned: "Planned",
+  unavailable: "Unavailable",
+};
 
 export interface Engine {
   id: string;
@@ -66,6 +87,10 @@ export interface Engine {
   // Engine-specific output section titles (used by the generator + result page).
   specialties: string[];
   activation?: EngineActivation;
+  /** What the person actually walks away holding. One plain sentence. */
+  output?: string;
+  /** Why the status is what it is. Shown when it isn't simply "works". */
+  statusNote?: string;
   // Hidden engines stay defined (so old saved projects still open) but do not
   // appear in the picker.
   hidden?: boolean;
@@ -100,7 +125,10 @@ export const ENGINES: Engine[] = [
     tagline: "Compare versions of an idea, pick one, leave with a decision.",
     blurb: "Say the idea however it comes out, weigh a few versions on clear factors, pick one, and hand it straight to the next engine with a first action.",
     technical: false,
-    activation: "beta",
+    // Verified end to end: angles generate, scoring ranks, the decision and
+    // handoff render in IdeaStudio, and idea.engine.test.ts covers the maths.
+    activation: "working",
+    output: "One decision: the version of the idea you're going with, and the first thing to do about it.",
     suggestedStage: "Spark",
     intake: [
       Q.name(),
@@ -119,6 +147,9 @@ export const ENGINES: Engine[] = [
     tagline: "Turn a defined idea into a real first build.",
     blurb: "You know roughly what it is. We define the MVP, the architecture, and a detailed build prompt you can hand straight to Claude Code.",
     technical: true,
+    activation: "beta",
+    output: "A build prompt detailed enough to hand to Claude Code, plus the MVP scope and architecture behind it.",
+    statusNote: "Generates a real package. It writes the brief — it does not write the code. Not the same thing as /build, the beginner walkthrough.",
     suggestedStage: "Building",
     intake: [
       Q.name(),
@@ -139,6 +170,8 @@ export const ENGINES: Engine[] = [
     tagline: "Turn it into a real offer someone can buy.",
     blurb: "A product, service, or digital download. We define the customer, the offer, the price hypothesis, and the first real validation.",
     technical: false,
+    activation: "beta",
+    output: "An offer someone could actually buy: customer, format, price hypothesis, and the first validation test.",
     suggestedStage: "Shaping",
     intake: [
       Q.name(),
@@ -159,6 +192,8 @@ export const ENGINES: Engine[] = [
     tagline: "Get a built thing ready for real people.",
     blurb: "It works — now it needs to face the public. We assess readiness, find blockers, and build a launch package with a first measurable result.",
     technical: true,
+    activation: "beta",
+    output: "A launch package: what's not ready, the production checks, the message, and one number to measure.",
     suggestedStage: "Launching",
     intake: [
       Q.name(),
@@ -179,6 +214,8 @@ export const ENGINES: Engine[] = [
     tagline: "Repair something broken — safely.",
     blurb: "Something regressed, broke, or misleads. We inspect first, protect what works, and produce a careful repair prompt with regression checks.",
     technical: true,
+    activation: "beta",
+    output: "A careful repair prompt that inspects before it edits, plus the regression checks around it.",
     suggestedStage: "Repairing",
     intake: [
       Q.name(),
@@ -199,6 +236,8 @@ export const ENGINES: Engine[] = [
     tagline: "Move one real number with the smallest test.",
     blurb: "It's live and working. We find the bottleneck, pick one growth hypothesis, and design the smallest experiment with a decision rule.",
     technical: false,
+    activation: "beta",
+    output: "One growth hypothesis and the smallest experiment that would prove it, with a decision rule.",
     suggestedStage: "Growing",
     intake: [
       Q.name(),
@@ -219,6 +258,8 @@ export const ENGINES: Engine[] = [
     tagline: "Organize a real-world (non-software) project.",
     blurb: "An event, campaign, build, or effort that isn't code. We turn it into phases, owners, milestones, and the next concrete action.",
     technical: false,
+    activation: "beta",
+    output: "A real-world plan: milestones, owners, dependencies, risks, and the next concrete action.",
     suggestedStage: "Planning",
     intake: [
       Q.name(),
@@ -239,9 +280,12 @@ export const ENGINES: Engine[] = [
     tagline: "Turn a product idea into a real Etsy listing and launch plan.",
     blurb: "A rough product concept. We vet it, package it for Etsy, and give you a complete execution pack: listing draft, social launch kit, and honest go/no-go recommendation.",
     technical: false,
-    // Folded into the Design Shop Engine — hidden from the picker so old
-    // saved Etsy projects still open, but new work goes through Design Shop.
+    // DUPLICATE, deliberately kept: folded into the Design Shop Engine. Hidden
+    // from the picker so old saved Etsy projects still open, but new work goes
+    // through Design Shop. Do not delete — deleting it orphans saved projects.
     hidden: true,
+    activation: "beta",
+    output: "An Etsy listing draft and social launch pack. Superseded by the Design Shop Engine.",
     suggestedStage: "Shaping",
     intake: [
       Q.name(),
@@ -285,19 +329,29 @@ export const ENGINES: Engine[] = [
       "Fulfillment Path",
       "IP & Legal Checklist",
     ],
-    activation: "beta",
+    // Verified: 5 directions generate, the design package builds (17 fields),
+    // and the Etsy draft comes out with a real title and tags.
+    activation: "working",
+    output: "A design package and an Etsy listing draft you can copy straight into a listing.",
   },
   {
     id: "game",
     name: "Game Engine",
     emoji: "🎮",
-    tagline: "Shape a doku world and push it live to OpenDoku.com.",
-    blurb: "Pick a game platform, re-theme a proven template, play it instantly, and publish — a real production deploy. OpenDoku is the first platform; more plug in the same way.",
+    tagline: "Shape a doku world and play it. Publishing runs on the owner's machine.",
+    blurb: "Re-theme the proven Sum-Mine template into a new doku world and play it instantly. Publishing to OpenDoku runs from the owner's machine — MineDoku was published this way.",
     technical: true,
     suggestedStage: "Building",
     intake: [],
     specialties: [],
-    activation: "beta",
+    // Tested both ways on 2026-07-15: the publish route returns a real playable
+    // game locally (opendoku repo present) but 501s in production, for preview
+    // AND publish, because the local-git driver needs that checkout. So it is
+    // genuinely owner-only until the github-api driver lands. MineDoku is real
+    // proof the pipeline works — it is not proof a visitor can use it.
+    activation: "owner-only",
+    statusNote: "Publishing needs the OpenDoku repo on the machine running the site, so it only works for the owner right now. A visitor gets an error. MineDoku on OpenDoku was published by this engine.",
+    output: "A playable doku world — published live to OpenDoku when run by the owner.",
   },
   {
     id: "music",
@@ -309,7 +363,13 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Spark",
     intake: [],
     specialties: [],
+    // Verified: the device picker, the official tool links and the step
+    // tracking all load and save progress. Stays BETA on purpose — the beat
+    // itself gets exported from BandLab, which we can't verify from here, and
+    // music.engine.ts declares "beta" too. Claiming "works" would be us
+    // vouching for a step we never watched happen.
     activation: "beta",
+    output: "A guided path to your first exported beat — the audio file comes out of the free software, not out of this page.",
   },
 ];
 

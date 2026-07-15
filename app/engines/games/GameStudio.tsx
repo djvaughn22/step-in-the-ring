@@ -93,8 +93,17 @@ export default function GameStudio({ onBack, card }: { onBack: () => void; card:
             🎮 Game <span style={{ color: "var(--gold)" }}>Engine</span>
           </h1>
           <p className="hero-sub" style={{ maxWidth: 520, margin: "0 auto" }}>
-            Pick a platform, shape a world on a proven game, play it right here, then publish it live.
-            Dreams start on iDontCry, get built here, and land on the platform for real.
+            Pick a platform, shape a world on a proven game, and play it right here.
+            Dreams start on iDontCry and get built here.
+          </p>
+          {/* Say it before they spend twenty minutes on a world they can't
+              ship. Publishing needs the opendoku repo on the machine serving
+              this page, so on stepinthering.com preview and publish both fail
+              with a 501 — verified 2026-07-15. */}
+          <p className="tiny" style={{ maxWidth: 520, margin: "10px auto 0", lineHeight: 1.5 }}>
+            Publishing to OpenDoku runs from the owner&apos;s machine, so it only works there for now —
+            everywhere else the publish button returns an error. MineDoku on OpenDoku was published
+            by this engine.
           </p>
         </header>
 

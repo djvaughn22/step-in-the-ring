@@ -7,17 +7,17 @@ import Script from "next/script";
 export const metadata: Metadata = {
   metadataBase: new URL("https://stepinthering.com"),
   title: {
-    default: "Step In The Ring — seven questions to a real first build",
+    default: "Step In The Ring — a rough idea to a real first build",
     template: "%s",
   },
   description:
-    "Bring a rough idea, answer seven questions, walk out with a plan for version one — then build it with free tools, test it locally, and push it live.",
+    "Say a rough idea in your own words. Walk out with a plan for version one and a builder prompt worth using — then build it with free tools, test it locally, and push it live.",
   applicationName: "Step In The Ring",
   appleWebApp: { capable: true, title: "The Ring", statusBarStyle: "black-translucent" },
   openGraph: {
     title: "Step In The Ring",
     description:
-      "Seven questions, one fight plan, a real first build. Part of Open Mirror LLC.",
+      "Say it rough. Leave with a plan and a builder prompt. Part of Open Mirror LLC.",
     url: "https://stepinthering.com",
     siteName: "Step In The Ring",
     type: "website",

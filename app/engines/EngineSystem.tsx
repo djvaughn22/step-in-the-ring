@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  DEPTH_LABELS, DESTINATION_LABELS, ENGINES, getEngine, STAGES,
-  type BuildStage, type Depth, type Destination,
+  ACTIVATION_LABEL, DEPTH_LABELS, DESTINATION_LABELS, ENGINES, getEngine, STAGES,
+  type BuildStage, type Depth, type Destination, type Engine,
 } from "./engines";
 import { generatePackage, packageToText } from "./generator";
 import {
@@ -25,6 +25,109 @@ const REQUEST_MAILTO = (subject: string, body: string) =>
   `mailto:ask@openmirrorllc.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
 const PATH_ENGINE: Record<NextPath, string> = { fix: "fix", refine: "", expand: "", launch: "launch" };
+
+/* Grouped by whether the engine actually works for the person reading this —
+   verified by running each one, not by what the registry used to claim. */
+const VISIBLE = ENGINES.filter((e) => !e.hidden);
+const READY_ENGINES = VISIBLE.filter((e) => e.activation === "working" || e.activation === "beta");
+const OWNER_ENGINES = VISIBLE.filter((e) => e.activation === "owner-only");
+
+/* Concepts in creation-engine.registry.ts with launched:false — no intake, no
+   studio, no route. Named honestly; deliberately not clickable. */
+const PLANNED = [
+  { emoji: "📖", name: "Story Engine", what: "premise to a full draft" },
+  { emoji: "👗", name: "Fashion Engine", what: "design to a tech-pack" },
+];
+
+type PlannerSeed = { engineId?: string; title?: string; summary?: string; raw?: string };
+
+/**
+ * Read the handed-over plan exactly once per page load, and remember it.
+ *
+ * This MUST be idempotent: it's called from an effect, and React re-invokes
+ * effects in development. Removing the key on the first call and returning
+ * nothing on the second wiped the prefill right back out — the plan arrived
+ * and vanished. Cache the answer instead of re-reading storage.
+ */
+let seedCache: PlannerSeed | null | undefined;
+
+function readPlannerSeed(): PlannerSeed | null {
+  if (seedCache !== undefined) return seedCache;
+  try {
+    const raw = window.localStorage.getItem("sitr-engine-seed");
+    // Consume it now so a later unrelated visit doesn't refill the form.
+    if (raw) window.localStorage.removeItem("sitr-engine-seed");
+    seedCache = raw ? (JSON.parse(raw) as PlannerSeed) : null;
+  } catch {
+    seedCache = null;
+  }
+  return seedCache;
+}
+
+/**
+ * A plan handed over from the planner (/) arrives here. Never make someone
+ * retype what they already told us — carry it into the engine's own questions.
+ */
+function consumePlannerSeed(e: Engine): Record<string, string> {
+  try {
+    const seed = readPlannerSeed();
+    if (!seed || seed.engineId !== e.id) return {};
+
+    const prefill: Record<string, string> = {};
+    if (seed.title) prefill.name = seed.title;
+    const idea = seed.raw || seed.summary || "";
+    // The first free-text question is where the idea itself belongs.
+    const firstProse = e.intake.find((q) => q.type === "textarea");
+    if (firstProse) prefill[firstProse.key] = idea;
+    // The studios keep their own field names; IdeaStudio reads `seed`.
+    if (e.id === "idea") prefill.seed = idea;
+    return prefill;
+  } catch {
+    return {};
+  }
+}
+
+function EngineCard({
+  engine, projects, onStart, onResume,
+}: {
+  engine: Engine;
+  projects: Project[];
+  onStart: (id: string) => void;
+  onResume: (project: Project) => void;
+}) {
+  const saved = projects.filter((p) => p.engineId === engine.id && !p.archived);
+  const resumable = saved[0];
+  const status = engine.activation ?? "beta";
+  const owner = status === "owner-only";
+
+  return (
+    <div className={`engine-card${owner ? " engine-card-quiet" : ""}`}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 24 }} aria-hidden="true">{engine.emoji}</span>
+        <span className={`status-pill status-${status}`}>{ACTIVATION_LABEL[status]}</span>
+      </div>
+      <h3 className="engine-name">{engine.name}</h3>
+      <p className="engine-line">{engine.tagline}</p>
+      {engine.output && (
+        <p className="engine-out"><span>You finish with:</span> {engine.output}</p>
+      )}
+      {engine.statusNote && <p className="engine-note">{engine.statusNote}</p>}
+      <div className="engine-foot">
+        {resumable ? (
+          <>
+            <button className="btn btn-gold btn-small" onClick={() => onResume(resumable)}>Resume</button>
+            <button className="btn btn-ghost btn-small" onClick={() => onStart(engine.id)}>Start new</button>
+            <span className="engine-saved">{saved.length} saved</span>
+          </>
+        ) : (
+          <button className={`btn btn-small ${owner ? "btn-ghost" : "btn-gold"}`} onClick={() => onStart(engine.id)}>
+            {owner ? "Open anyway" : "Start"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Section({ title, body }: { title: string; body: string }) {
   return (
@@ -70,7 +173,7 @@ export default function EngineSystem() {
     if (e && !e.hidden) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEngineId(e.id);
-      setAnswers({});
+      setAnswers(consumePlannerSeed(e));
       setStage(e.suggestedStage);
       setDestination(e.technical ? "claude-code" : "self");
       setView("intake");
@@ -227,6 +330,7 @@ export default function EngineSystem() {
           setAnswers({});
           setView("list");
         }}
+        initialAnswers={Object.keys(answers).length > 0 ? answers : undefined}
         onHandoff={(nextEngineId, prefilled) => {
           const target = getEngine(nextEngineId);
           if (!target) return;
@@ -323,23 +427,53 @@ export default function EngineSystem() {
         {view === "picker" && (
           <>
             <button onClick={() => setView("list")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Projects</button>
-            <span className="kicker">Choose an engine</span>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 12, marginTop: 6 }}>
-              {ENGINES.filter((e) => !e.hidden).map((e) => (
-                <button key={e.id} onClick={() => pickEngine(e.id)} style={{ ...card, textAlign: "left", cursor: "pointer", borderLeft: "4px solid var(--gold)", minHeight: 130 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 24 }}>{e.emoji}</span>
-                    {e.activation && (
-                      <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--gold)", border: "1px solid var(--line2)", borderRadius: 50, padding: "2px 8px" }}>
-                        {e.activation === "setup-ready" ? "Setup ready" : e.activation}
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: "var(--text)", marginTop: 4 }}>{e.name}</div>
-                  <div style={{ fontSize: 12.5, color: "var(--muted)", marginTop: 4, lineHeight: 1.4 }}>{e.tagline}</div>
-                </button>
+
+            <span className="kicker">Ready to use</span>
+            <p style={{ fontSize: 13, color: "var(--muted)", margin: "4px 0 12px", lineHeight: 1.5 }}>
+              Each of these was run end to end. You finish holding something real.
+            </p>
+            <div className="engine-grid">
+              {READY_ENGINES.map((e) => (
+                <EngineCard key={e.id} engine={e} projects={projects} onStart={pickEngine} onResume={openProject} />
               ))}
             </div>
+
+            {OWNER_ENGINES.length > 0 && (
+              <div style={{ marginTop: 30 }}>
+                <span className="kicker">Owner only — not ready for you yet</span>
+                <p style={{ fontSize: 13, color: "var(--muted)", margin: "4px 0 12px", lineHeight: 1.5 }}>
+                  Real and working, but only on the machine that hosts the site. Shown here so you know it exists —
+                  not hidden, not pretending.
+                </p>
+                <div className="engine-grid">
+                  {OWNER_ENGINES.map((e) => (
+                    <EngineCard key={e.id} engine={e} projects={projects} onStart={pickEngine} onResume={openProject} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ marginTop: 30 }}>
+              <span className="kicker">Planned — nothing to open yet</span>
+              <p style={{ fontSize: 13, color: "var(--muted)", margin: "4px 0 10px", lineHeight: 1.5 }}>
+                Named because they&apos;re coming, not because they&apos;re built. There&apos;s no screen behind them,
+                so there&apos;s no button — we won&apos;t send you into an empty room.
+              </p>
+              <div className="planned-row">
+                {PLANNED.map((p) => (
+                  <span key={p.name} className="planned-chip">
+                    {p.emoji} {p.name} — {p.what}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <p style={{ fontSize: 12.5, color: "var(--dim)", marginTop: 26, lineHeight: 1.5 }}>
+              Looking for the beginner walkthrough? That&apos;s{" "}
+              <a href="/build" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>/build</a>{" "}
+              — six rounds from idea to a live site, for a first web app. It&apos;s a different thing from the Build
+              Engine above, which writes the brief for a builder.
+            </p>
           </>
         )}
 

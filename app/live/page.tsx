@@ -9,7 +9,7 @@ import products from "./live-products.json";
 export const metadata: Metadata = {
   title: "Live Products — Step In The Ring",
   description:
-    "Everything that stepped into the ring and made it out alive: tested locally, pushed live by Open Mirror. Real products from the seven questions.",
+    "Everything that stepped into the ring and made it out alive: tested locally, pushed live by Open Mirror. Real products that started as rough ideas.",
 };
 
 const ENGINE_LABELS: Record<string, string> = {
@@ -45,8 +45,8 @@ export default function LivePage() {
             Live <span style={{ color: "var(--gold)" }}>Products</span>
           </h1>
           <p className="hero-sub">
-            Everything here started as a rough idea, answered the seven questions,
-            got tested locally, and was pushed live. Real products, playable now.
+            Everything here started as a rough idea, got shaped into a plan,
+            tested locally, and pushed live. Real products, playable now.
           </p>
         </section>
 
@@ -71,10 +71,10 @@ export default function LivePage() {
 
         <section className="home-section" style={{ textAlign: "center" }}>
           <p style={{ fontSize: 14, marginBottom: 16 }}>
-            Your build lands here the same way: answer the seven questions, build it,
+            Your build lands here the same way: shape the idea, build it,
             test it locally, send it to Open Mirror to push.
           </p>
-          <Link href="/" className="btn btn-gold">🥊 Step in — start your plan</Link>
+          <Link href="/" className="btn btn-gold">🥊 Shape my idea</Link>
         </section>
 
         <div className="divider" />

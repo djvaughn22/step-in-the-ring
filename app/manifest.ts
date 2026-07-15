@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Step In The Ring",
     short_name: "The Ring",
     description:
-      "Bring a rough idea, answer seven questions, walk out with a plan for version one — then build it, test it locally, and push it live.",
+      "Say a rough idea in your own words, walk out with a plan for version one — then build it, test it locally, and push it live.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

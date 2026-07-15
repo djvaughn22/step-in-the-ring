@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-// The whole road, idea → live, on one linkable page. Seven steps on purpose.
+// The whole road, idea → live, on one linkable page.
 
 export const metadata: Metadata = {
   title: "How It Works — Step In The Ring",
   description:
-    "The whole road in seven steps: bring a rough idea, answer the seven questions, get your fight plan, build it with free tools, test it locally, send it to Open Mirror to push — and it lands on the Live page.",
+    "The whole road: say a rough idea in your own words, get a plan for version one and a builder prompt, build it with free tools, test it locally, send it to Open Mirror to push — and it lands on the Live page.",
 };
 
 const STEPS = [
@@ -17,18 +17,18 @@ const STEPS = [
   },
   {
     n: "02",
-    title: "Seven questions shape it",
-    body: "What is it? Who is it for? What's broken for them? What does the win look like? What must version one do? What's the smallest useful version? What do we refuse to build yet? A builder's mind, top to bottom.",
+    title: "We read it back to you",
+    body: "You see what we understood — what it is, where it belongs, who it's for — before any plan appears. If a detail is missing and it actually changes the build, you get one question. Not a form.",
   },
   {
     n: "03",
-    title: "You get your fight plan",
-    body: "One clean card: project name, pitch, target user, the win, feature list, what to build first, and what NOT to build yet.",
+    title: "You get your plan",
+    body: "What version one does, what it already has, what must not break, and what we're deliberately leaving out. Plus the calls we made for you, so you can overrule any of them.",
   },
   {
     n: "04",
     title: "You hand it to your builder",
-    body: "Your plan becomes a ready-to-paste prompt. Paste it into the AI building tool you already trust and start building. You review and approve what it builds.",
+    body: "Your plan becomes a real execution brief — scope, assets, what to preserve, what to skip, how to test it. Paste it into the AI building tool you already trust. You review and approve what it builds.",
   },
   {
     n: "05",
@@ -57,8 +57,8 @@ export default function HowPage() {
             How It <span style={{ color: "var(--gold)" }}>Works</span>
           </h1>
           <p className="hero-sub">
-            The whole road, idea to live, in seven steps. No accounts, no cost —
-            your plans stay on your device.
+            The whole road, idea to live. No accounts, no cost — your plans stay
+            on your device.
           </p>
         </section>
 
@@ -80,7 +80,7 @@ export default function HowPage() {
 
         <section className="home-section" style={{ textAlign: "center" }}>
           <div className="actions center">
-            <Link href="/" className="btn btn-gold btn-big">🥊 Step in — start your plan</Link>
+            <Link href="/" className="btn btn-gold btn-big">🥊 Shape my idea</Link>
           </div>
           <p style={{ fontSize: 14, marginTop: 16 }}>
             <Link href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
