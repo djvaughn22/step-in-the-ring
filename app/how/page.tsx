@@ -28,7 +28,7 @@ const STEPS = [
   {
     n: "04",
     title: "You hand it to your builder",
-    body: "Your plan becomes a ready-to-paste prompt for Claude or ChatGPT. Paste it in and start building. Both have free tiers — no expensive tools needed.",
+    body: "Your plan becomes a ready-to-paste prompt. Paste it into the AI building tool you already trust and start building. You review and approve what it builds.",
   },
   {
     n: "05",

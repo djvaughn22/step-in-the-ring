@@ -169,41 +169,12 @@ const EXAMPLES: { label: string; form: IdeaForm }[] = [
   },
 ];
 
-const AI_PLANS = [
-  {
-    name: "Claude",
-    by: "Anthropic",
-    free: "Free tier available",
-    price: "$20",
-    period: "/month — Claude Pro",
-    featured: true,
-    features: [
-      "Best for long planning sessions",
-      "Paste your MVP plan — it builds with you",
-      "Understands context across long conversations",
-      "Writes code, copy, structure, and strategy",
-      "claude.ai — works in browser, no install",
-    ],
-    url: "https://claude.ai",
-    cta: "Open Claude",
-  },
-  {
-    name: "ChatGPT",
-    by: "OpenAI",
-    free: "Free tier available",
-    price: "$20",
-    period: "/month — ChatGPT Plus",
-    featured: false,
-    features: [
-      "Great for brainstorming and fast drafts",
-      "Paste your MVP plan to get started fast",
-      "Image generation built in (Plus)",
-      "Massive plugin and GPT store ecosystem",
-      "chatgpt.com — works in browser, no install",
-    ],
-    url: "https://chatgpt.com",
-    cta: "Open ChatGPT",
-  },
+// Deliberately no prices, plans, or feature comparisons here — that goes
+// stale fast and makes someone else's product the main event. The plan and
+// build prompt are ours; the tool is whichever one the builder trusts.
+const AI_TOOLS = [
+  { name: "Claude", url: "https://claude.ai", cta: "Open Claude", featured: true },
+  { name: "ChatGPT", url: "https://chatgpt.com", cta: "Open ChatGPT", featured: false },
 ];
 
 /* ── STORAGE ── */
@@ -420,7 +391,7 @@ export default function StepInTheRing() {
               {[
                 { n: "Round 1", t: "Answer seven questions", b: "What it is, who it's for, what the win looks like, what version one must do. Plain words, three minutes." },
                 { n: "Round 2", t: "Get your fight plan", b: "One clean card: the pitch, the features, the first page to build — and what to skip." },
-                { n: "Round 3", t: "Hand it to your builder", b: "Copy one ready prompt into Claude or ChatGPT and start building. Both have free tiers." },
+                { n: "Round 3", t: "Hand it to your builder", b: "Copy one ready prompt into the AI tool you already trust and start building." },
               ].map((r) => (
                 <div key={r.n} className="round-card">
                   <span className="round-num">{r.n}</span>
@@ -500,38 +471,24 @@ export default function StepInTheRing() {
           <section className="home-section">
             <span className="kicker">In your corner</span>
             <p className="section-lead">
-              You don&apos;t need expensive tools. Both of these have free tiers —
-              $20/month only if you go deep.
+              Use the AI building tool you already trust.
+              StepInTheRing gives you the plan and build prompt. Your tool helps you make it real.
             </p>
-            <div className="ai-plans">
-              {AI_PLANS.map((plan) => (
-                <div key={plan.name} className={`ai-plan-card ${plan.featured ? "featured" : ""}`}>
-                  <div className="ai-plan-name" style={{ color: plan.featured ? "var(--gold)" : "var(--muted)" }}>
-                    {plan.name}
-                  </div>
-                  <div style={{ fontSize: 11, color: "var(--dim)", marginBottom: 10 }}>by {plan.by}</div>
-                  <div className="ai-plan-price">{plan.price}</div>
-                  <div className="ai-plan-period">{plan.period}</div>
-                  <div style={{ fontSize: 11, color: "var(--green)", fontWeight: 700, marginBottom: 12 }}>
-                    ✓ {plan.free}
-                  </div>
-                  {plan.features.map((f) => (
-                    <div key={f} className="ai-plan-feature">{f}</div>
-                  ))}
-                  <a
-                    href={plan.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-ghost btn-small"
-                    style={{ marginTop: 16, width: "100%" }}
-                  >
-                    {plan.cta} →
-                  </a>
-                </div>
+            <div className="actions" style={{ justifyContent: "center" }}>
+              {AI_TOOLS.map((tool) => (
+                <a
+                  key={tool.name}
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`btn btn-small ${tool.featured ? "btn-gold" : "btn-ghost"}`}
+                >
+                  {tool.cta} →
+                </a>
               ))}
             </div>
             <p className="tiny" style={{ marginTop: 14, textAlign: "center" }}>
-              No affiliate links. No paid promotions. Just the tools we actually use.
+              You review and approve what it builds. No affiliate links. No paid promotions.
             </p>
           </section>
 
@@ -780,29 +737,23 @@ export default function StepInTheRing() {
 
             <div className="divider" />
 
-            {/* AI Plans teaser */}
+            {/* Tool handoff */}
             <div>
-              <span className="kicker">Ready to build? Start free.</span>
-              <div className="ai-plans" style={{ marginTop: 16 }}>
-                {AI_PLANS.map((p) => (
+              <span className="kicker">Ready to build?</span>
+              <p className="tiny" style={{ marginTop: 10 }}>
+                Use the AI building tool you already trust. StepInTheRing gives you
+                the plan and build prompt. Your tool helps you make it real.
+              </p>
+              <div className="actions" style={{ marginTop: 14 }}>
+                {AI_TOOLS.map((p) => (
                   <a
                     key={p.name}
                     href={p.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`ai-plan-card ${p.featured ? "featured" : ""}`}
-                    style={{ textDecoration: "none", display: "block" }}
+                    className={`btn btn-small ${p.featured ? "btn-gold" : "btn-ghost"}`}
                   >
-                    <div className="ai-plan-name" style={{ color: p.featured ? "var(--gold)" : "var(--muted)" }}>
-                      {p.name}
-                    </div>
-                    <div className="ai-plan-price" style={{ fontSize: 20 }}>{p.price}/mo</div>
-                    <div style={{ fontSize: 11, color: "var(--green)", fontWeight: 700, margin: "6px 0 12px" }}>
-                      ✓ {p.free}
-                    </div>
-                    <span className="btn btn-ghost btn-small" style={{ display: "inline-flex" }}>
-                      {p.cta} →
-                    </span>
+                    {p.cta} →
                   </a>
                 ))}
               </div>
