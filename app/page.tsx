@@ -31,7 +31,7 @@ const EMPTY: IdeaForm = {
 };
 
 /**
- * THE SEVEN QUESTIONS — the founder's mind, top to bottom.
+ * THE SEVEN QUESTIONS — the owner's mind, top to bottom.
  * Dream → Person → Pain → Win → Scope → Core → Discipline.
  * Every engine intake follows this same arc; only the wording changes lane.
  * Seven on purpose — complete, like the seventh day.
@@ -538,7 +538,7 @@ export default function StepInTheRing() {
           <div className="divider" />
 
           <p className="tiny" style={{ textAlign: "center" }}>
-            Step In The Ring is part of <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>Open Mirror LLC</a>. Looking for something deeper? Try <a href="https://crossheartpray.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>CrossHeartPray</a>. Kids should build with a parent or trusted adult.
+            Step In The Ring is part of <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>Open Mirror LLC</a>. Kids should build with a parent or trusted adult.
           </p>
         </div>
       </main>
