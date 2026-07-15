@@ -757,10 +757,14 @@ export default function StepInTheRing() {
                   </a>
                 ))}
               </div>
+              {/* The "Get it live" haiku — always exactly 3 rows, locked 5-7-5
+                  words (no periods, per OPEN_MIRROR_PORTFOLIO_DOCTRINE.md). Each
+                  line is its own non-wrapping block so it can never break. */}
               <p className="tiny" style={{ textAlign: "center", marginTop: 18 }}>
-                Bring me what you built. I will find the real next step. Then ship something real.
-                <br />
-                <a href="https://openmirrorllc.com/talk-with-the-owner" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+                <span style={{ display: "block", whiteSpace: "nowrap" }}>Bring me what you built</span>
+                <span style={{ display: "block", whiteSpace: "nowrap" }}>I will find the real next step</span>
+                <span style={{ display: "block", whiteSpace: "nowrap" }}>Then ship something real</span>
+                <a href="https://openmirrorllc.com/talk-with-the-owner" style={{ display: "inline-block", marginTop: 10, color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
                   Talk with the Owner →
                 </a>
               </p>
