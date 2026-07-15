@@ -764,8 +764,8 @@ export default function StepInTheRing() {
                 <span style={{ display: "block", whiteSpace: "nowrap" }}>Bring me what you built</span>
                 <span style={{ display: "block", whiteSpace: "nowrap" }}>I will find the real next step</span>
                 <span style={{ display: "block", whiteSpace: "nowrap" }}>Then ship something real</span>
-                <a href="https://openmirrorllc.com/talk-with-the-owner" style={{ display: "inline-block", marginTop: 10, color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
-                  Talk with the Owner →
+                <a href="https://openmirrorllc.com/contact" style={{ display: "inline-block", marginTop: 10, color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+                  Contact Open Mirror →
                 </a>
               </p>
             </div>
