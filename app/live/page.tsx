@@ -7,7 +7,7 @@ import products from "./live-products.json";
 // publish route appends automatically; everything else is a one-line edit).
 
 export const metadata: Metadata = {
-  title: "Live Products — Step In The Ring",
+  title: "Live Products",
   description:
     "Everything that stepped into the ring and made it out alive: tested locally, pushed live by Open Mirror. Real products that started as rough ideas.",
 };

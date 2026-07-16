@@ -4,7 +4,7 @@ import Link from "next/link";
 // The whole road, idea → live, on one linkable page.
 
 export const metadata: Metadata = {
-  title: "How It Works — Step In The Ring",
+  title: "How It Works",
   description:
     "The whole road: say a rough idea in your own words, get a plan for version one and a builder prompt, build it with free tools, test it locally, send it to Open Mirror to push — and it lands on the Live page.",
 };

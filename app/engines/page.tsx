@@ -3,7 +3,7 @@ import AccessGate from "./AccessGate";
 import EngineSystem from "./EngineSystem";
 
 export const metadata: Metadata = {
-  title: "Engine Room — Step In The Ring",
+  title: "Engine Room",
   description:
     "Start creating in 1, 2, 3. Choose what to make, get the free tools, and finish a real first project.",
   robots: { index: false, follow: false },

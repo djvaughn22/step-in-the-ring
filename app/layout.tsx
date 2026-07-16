@@ -7,8 +7,8 @@ import Script from "next/script";
 export const metadata: Metadata = {
   metadataBase: new URL("https://stepinthering.com"),
   title: {
-    default: "Step In The Ring — a rough idea to a real first build",
-    template: "%s",
+    default: "StepInTheRing",
+    template: "%s | StepInTheRing",
   },
   description:
     "Say a rough idea in your own words. Walk out with a plan for version one and a builder prompt worth using — then build it with free tools, test it locally, and push it live.",
