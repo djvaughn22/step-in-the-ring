@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Playbook from "./Playbook";
 
 // The whole road, idea → live, on one linkable page.
 
@@ -77,6 +78,8 @@ export default function HowPage() {
             ))}
           </div>
         </section>
+
+        <Playbook />
 
         <section className="home-section" style={{ textAlign: "center" }}>
           <div className="actions center">

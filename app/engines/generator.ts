@@ -4,6 +4,10 @@ import type { BuildStage, Depth, Destination, Engine } from "./engines";
 import { DEPTH_LABELS, DESTINATION_LABELS } from "./engines";
 import type { ExecutionPackage } from "./store";
 import { generateSpecialties } from "./specialties";
+import { adapterFor, adapterForType, engineFit } from "../creation/adapters";
+import { loadBuilderDefaults } from "../creation/builder-defaults";
+import { recordFromEngineIntake, viewOf } from "../creation/record";
+import { CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL } from "../creation/types";
 
 type A = Record<string, string>;
 const val = (a: A, k: string) => (a[k] ?? "").trim();
@@ -314,6 +318,41 @@ function returnTemplate(a: A, e: Engine, dest: Destination): string {
 }
 
 // ---- Public API --------------------------------------------------------
+/**
+ * The engine's typed reading of the intake — through the same creation
+ * system the planner uses. Replaces the old label-echo "understanding"
+ * whenever the intake carries a real idea to interpret.
+ */
+function creationUnderstanding(e: Engine, a: A): { understanding: string; direction: string; prompt: string } | null {
+  if (e.hidden) return null; // the hidden Etsy duplicate keeps its old output
+  const adapter = adapterFor(e.id);
+  if (!adapter) return null;
+  const record = recordFromEngineIntake(e.id, a);
+  if (!record.originalIdea.trim() || record.originalIdea.trim().length < 8) return null;
+  const v = viewOf(record);
+  const fit = engineFit(e.id, v);
+  // A game in the Build Engine gets the game specification — that is the
+  // promise the recommendation makes when it routes games here.
+  const effective = e.id === "build" && v.creationType === "game" ? adapterForType("game") : adapter;
+  const understanding = [
+    `What you're making: ${CREATION_TYPE_LABEL[v.creationType]} — ${v.typeReason}.`,
+    v.primaryUser ? `Who it's for: ${v.primaryUser}.` : "",
+    v.beneficiary ? `Who it serves: ${v.beneficiary}.` : "",
+    v.problem ? `The real need: ${v.problem}.` : "",
+    `The smallest real result: ${v.smallestOutcome}`,
+    `Version-one promise: ${v.versionOnePromise}`,
+    `Software: ${SOFTWARE_VERDICT_LABEL[v.software.verdict]} — ${v.software.reason}`,
+    v.software.nonSoftwareTest ? `Cheapest first test: ${v.software.nonSoftwareTest}` : "",
+    "",
+    v.assumptions.length ? `Assumptions (correct any that are wrong):\n${v.assumptions.map((s) => `- ${s}`).join("\n")}` : "",
+  ].filter(Boolean).join("\n");
+  const direction = [
+    ...(fit.fits ? [] : [fit.note ?? ""]),
+    effective.spec(v)[0]?.lines.slice(0, 3).join("\n") ?? "",
+  ].filter(Boolean).join("\n\n");
+  return { understanding, direction, prompt: effective.prompt(v, loadBuilderDefaults()) };
+}
+
 export function generatePackage(
   e: Engine,
   a: A,
@@ -322,16 +361,18 @@ export function generatePackage(
   destination: Destination,
 ): ExecutionPackage {
   const sc = scope(e, a);
-  const mainPrompt =
-    destination === "claude-code" || (destination === "developer" && e.technical)
+  const typed = creationUnderstanding(e, a);
+  const mainPrompt = typed
+    ? typed.prompt
+    : destination === "claude-code" || (destination === "developer" && e.technical)
       ? claudeCodePrompt(e, a, stage, depth)
       : nonTechPrompt(e, a, destination);
   return {
     createdAt: new Date().toISOString(),
     depth,
     destination,
-    understanding: understanding(e, a),
-    direction: direction(e, a, stage),
+    understanding: typed ? typed.understanding : understanding(e, a),
+    direction: typed ? `${typed.direction}\n\n${direction(e, a, stage)}` : direction(e, a, stage),
     objective: objective(e, a),
     inScope: sc.inScope,
     outOfScope: sc.outOfScope,

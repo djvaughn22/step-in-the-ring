@@ -6,6 +6,19 @@ import { buildBuilderPrompt } from "./planner/builder-prompt";
 import { recommendEngine } from "./planner/handoff";
 import { deletePlan, loadPlans, savePlan, type SavedPlan } from "./planner/storage";
 import { BUILD_TYPE_LABEL, type Interpretation } from "./planner/types";
+import { adapterForType } from "./creation/adapters";
+import {
+  loadBuilderDefaults, saveBuilderDefaults, type BuilderDefaults,
+} from "./creation/builder-defaults";
+import { downloadBuildPack, downloadCreationJson } from "./creation/build-pack";
+import { readHandoffFromSearch } from "./creation/handoff";
+import {
+  loadCurrentCreation, newRecord, saveCurrentCreation, viewOf, type CreationView,
+} from "./creation/record";
+import { recommendEngines } from "./creation/recommend";
+import {
+  CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
+} from "./creation/types";
 
 type Stage = "landing" | "shape" | "clarify" | "result" | "saved";
 
@@ -90,7 +103,7 @@ function CopyButton({ text, label, big }: { text: string; label: string; big?: b
 }
 
 /** What we understood — shown before the plan, and before any question. */
-function UnderstoodCard({ i }: { i: Interpretation }) {
+function UnderstoodCard({ i, view }: { i: Interpretation; view?: CreationView | null }) {
   return (
     <div className="card card-gold">
       <div className="plan-label">What I understood</div>
@@ -98,14 +111,91 @@ function UnderstoodCard({ i }: { i: Interpretation }) {
       <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.6 }}>{i.summary}</p>
       <div className="pill-row">
         <span className="pill">{BUILD_TYPE_LABEL[i.buildType.value]}</span>
+        {view && <span className="pill">{CREATION_TYPE_LABEL[view.creationType]}</span>}
         {i.destination && <span className="pill">Lands on {i.destination.value}</span>}
         {/* Lowercase the first letter only — blanket toLowerCase() turns
             OpenDoku into "opendoku" and mangles every product name. */}
-        {i.audience && (
-          <span className="pill">For {i.audience.value.charAt(0).toLowerCase() + i.audience.value.slice(1)}</span>
+        {(view?.primaryUser || i.audience) && (
+          <span className="pill">
+            For {(view?.primaryUser ?? i.audience!.value).charAt(0).toLowerCase() + (view?.primaryUser ?? i.audience!.value).slice(1)}
+          </span>
         )}
       </div>
+      {view && (
+        <div style={{ marginTop: 12, fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6 }}>
+          <p style={{ margin: 0 }}>
+            <b style={{ color: "var(--text)" }}>The real result:</b>{" "}
+            {view.smallestOutcome}
+          </p>
+          <p style={{ margin: "6px 0 0" }}>
+            <b style={{ color: "var(--text)" }}>{SOFTWARE_VERDICT_LABEL[view.software.verdict]}.</b>{" "}
+            {view.software.reason}
+            {view.software.nonSoftwareTest && (
+              <> <span style={{ color: "var(--text)" }}>Cheapest first test:</span> {view.software.nonSoftwareTest}</>
+            )}
+          </p>
+          {view.record.source === "idontcry" && (
+            <p style={{ margin: "6px 0 0" }}>
+              Carried over from iDontCry — your original words came with it.
+            </p>
+          )}
+        </div>
+      )}
     </div>
+  );
+}
+
+/** Builder Defaults — how far the builder goes, saved on this device. */
+function BuilderDefaultsPanel({ value, onChange }: { value: BuilderDefaults; onChange: (d: BuilderDefaults) => void }) {
+  const set = (patch: Partial<BuilderDefaults>) => {
+    const next = { ...value, ...patch };
+    saveBuilderDefaults(next);
+    onChange(next);
+  };
+  const selStyle: React.CSSProperties = {
+    width: "100%", boxSizing: "border-box", background: "var(--surface)",
+    border: "1px solid var(--line2)", borderRadius: 10, color: "var(--text)",
+    padding: "9px 10px", fontSize: 14, fontFamily: "inherit",
+  };
+  return (
+    <details className="card">
+      <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        Builder defaults — how your prompts run
+      </summary>
+      <p className="field-help" style={{ margin: "10px 0 12px" }}>
+        Baked into every generated prompt. Saved on this device only — no account, no names.
+      </p>
+      <div className="row2">
+        <div>
+          <label htmlFor="bd-work" style={{ display: "block", fontSize: 13, fontWeight: 800, marginBottom: 4 }}>Where the work lands</label>
+          <select id="bd-work" style={selStyle} value={value.workMode} onChange={(e) => set({ workMode: e.target.value as BuilderDefaults["workMode"] })}>
+            <option value="new-standalone">New standalone build — start clean</option>
+            <option value="existing-repo">Existing repository — inspect first</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="bd-git" style={{ display: "block", fontSize: 13, fontWeight: 800, marginBottom: 4 }}>How far it goes</label>
+          <select id="bd-git" style={selStyle} value={value.gitMode} onChange={(e) => set({ gitMode: e.target.value as BuilderDefaults["gitMode"] })}>
+            <option value="prototype">Prototype only — no commits</option>
+            <option value="build-commit">Build and commit</option>
+            <option value="build-commit-push">Build, commit, and push</option>
+          </select>
+        </div>
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <label htmlFor="bd-notes" style={{ display: "block", fontSize: 13, fontWeight: 800, marginBottom: 4 }}>
+          Anything else every prompt should say (optional)
+        </label>
+        <textarea
+          id="bd-notes"
+          rows={2}
+          style={{ ...selStyle, resize: "vertical" }}
+          value={value.notes}
+          onChange={(e) => set({ notes: e.target.value })}
+          placeholder="e.g. Tailwind only; keep copy plain and human."
+        />
+      </div>
+    </details>
   );
 }
 
@@ -116,13 +206,26 @@ export default function StepInTheRing() {
   const [questionDraft, setQuestionDraft] = useState("");
   const [saved, setSaved] = useState<SavedPlan[]>([]);
   const [flash, setFlash] = useState("");
+  const [incoming, setIncoming] = useState<HandoffPayloadV1 | null>(null);
+  const [hasLastCreation, setHasLastCreation] = useState(false);
+  const [defaults, setDefaults] = useState<BuilderDefaults>(loadBuilderDefaults);
   const shapeRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSaved(loadPlans());
-    // Handoff from iDontCry's Dream Lab: ?idea=... opens straight into shaping.
+    setHasLastCreation(!!loadCurrentCreation());
+    setDefaults(loadBuilderDefaults());
     try {
+      // Versioned handoff (?cr=) first — it carries the whole creation.
+      const payload = readHandoffFromSearch(window.location.search);
+      if (payload) {
+        setIncoming(payload);
+        setDescription(payload.idea.slice(0, 2000));
+        setStage("shape");
+        return;
+      }
+      // Legacy handoff from iDontCry's Dream Lab: ?idea=... still works.
       const idea = new URLSearchParams(window.location.search).get("idea");
       if (idea && idea.trim()) {
         setDescription(idea.trim().slice(0, 600));
@@ -136,9 +239,59 @@ export default function StepInTheRing() {
     () => (description.trim() ? interpret(input) : null),
     [input, description],
   );
+  /* The creation record — one creation, wherever it started. Edits to the
+     description ARE the creator's words, so the record follows them; a
+     handoff's structured facts and origin ride along untouched. */
+  const record = useMemo(() => {
+    if (!description.trim()) return null;
+    return newRecord(description, {
+      answers,
+      ...(incoming
+        ? {
+            source: "idontcry" as const,
+            sourceFlow: incoming.flow,
+            originalTitle: incoming.title,
+            facts: { ...(incoming.facts ?? {}), ...(incoming.typeHint ? { typeHint: incoming.typeHint } : {}) },
+            exclusions: incoming.exclusions ?? [],
+          }
+        : {}),
+    });
+  }, [description, answers, incoming]);
+  const view = useMemo(() => (record ? viewOf(record) : null), [record]);
   const question = plan?.openQuestions[0] ?? null;
   const engine = useMemo(() => (plan ? recommendEngine(plan) : null), [plan]);
-  const builderPrompt = useMemo(() => (plan ? buildBuilderPrompt(plan) : ""), [plan]);
+  const engineRec = useMemo(() => (view ? recommendEngines(view) : null), [view]);
+  /* Repo-touching work keeps the permission-aware brief (never claims access
+     or authority the person didn't give). Standalone creations get their
+     creation-type prompt — a game brief for a game, a design brief for a
+     design, never a generic app plan for a story. */
+  const builderPrompt = useMemo(() => {
+    if (!plan) return "";
+    const repoWork = !!plan.destination || plan.permissions.build || plan.permissions.commit || plan.permissions.push;
+    if (view && !repoWork) return adapterForType(view.creationType).prompt(view, defaults);
+    return buildBuilderPrompt(plan);
+  }, [plan, view, defaults]);
+
+  // The current creation survives a refresh — resume is one tap.
+  useEffect(() => {
+    if (stage === "result" && view) saveCurrentCreation(view.record);
+  }, [stage, view]);
+
+  function continueLast() {
+    const last = loadCurrentCreation();
+    if (!last) return;
+    setDescription(last.originalIdea);
+    setAnswers(last.answers);
+    if (last.source === "idontcry") {
+      setIncoming({
+        v: 1, source: "idontcry",
+        flow: last.sourceFlow === "dream-lab" || last.sourceFlow === "game-lab" || last.sourceFlow === "dream-shop" ? last.sourceFlow : "dream-lab",
+        idea: last.originalIdea, title: last.originalTitle,
+        facts: last.facts, exclusions: last.exclusions,
+      });
+    }
+    go("result");
+  }
 
   function go(next: Stage) {
     setStage(next);
@@ -172,7 +325,25 @@ export default function StepInTheRing() {
     setDescription("");
     setAnswers({});
     setQuestionDraft("");
+    setIncoming(null);
     go("landing");
+  }
+
+  /** Hand the whole creation record to an engine, then follow the route. */
+  function seedEngineWithRecord(engineId: string) {
+    if (!view) return;
+    try {
+      window.localStorage.setItem(
+        "sitr-engine-seed",
+        JSON.stringify({
+          engineId,
+          title: view.interpretation.title.value,
+          summary: view.interpretation.summary,
+          raw: view.record.originalIdea,
+          record: view.record,
+        }),
+      );
+    } catch {}
   }
 
   function handleSave() {
@@ -298,11 +469,20 @@ export default function StepInTheRing() {
             </p>
           </section>
 
-          {saved.length > 0 && (
+          {(saved.length > 0 || hasLastCreation) && (
             <section className="home-section">
-              <button className="btn btn-ghost btn-small" onClick={() => go("saved")}>
-                Your corner — {saved.length} saved plan{saved.length !== 1 ? "s" : ""}
-              </button>
+              <div className="actions">
+                {hasLastCreation && (
+                  <button className="btn btn-ghost btn-small" onClick={continueLast}>
+                    Continue your last creation
+                  </button>
+                )}
+                {saved.length > 0 && (
+                  <button className="btn btn-ghost btn-small" onClick={() => go("saved")}>
+                    Your corner — {saved.length} saved plan{saved.length !== 1 ? "s" : ""}
+                  </button>
+                )}
+              </div>
             </section>
           )}
 
@@ -378,7 +558,7 @@ export default function StepInTheRing() {
           </div>
 
           <div className="stack">
-            <UnderstoodCard i={plan} />
+            <UnderstoodCard i={plan} view={view} />
 
             <form className="card stack" onSubmit={handleAnswer}>
               <div>
@@ -465,7 +645,7 @@ export default function StepInTheRing() {
           </div>
 
           <div className="stack">
-            <UnderstoodCard i={plan} />
+            <UnderstoodCard i={plan} view={view} />
 
             {decided.length > 0 && (
               <div className="card">
@@ -479,17 +659,19 @@ export default function StepInTheRing() {
               </div>
             )}
 
-            <div className="card">
-              <div className="plan-label">What version one does</div>
-              <ul className="plan-list">
-                {plan.versionOne.map((c, n) => (
-                  <li key={n}>
-                    {c.value}
-                    {c.confidence !== "stated" && <span className="tag">my call</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {plan.versionOne.length > 0 && (
+              <div className="card">
+                <div className="plan-label">What version one does</div>
+                <ul className="plan-list">
+                  {plan.versionOne.map((c, n) => (
+                    <li key={n}>
+                      {c.value}
+                      {c.confidence !== "stated" && <span className="tag">my call</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {(plan.assets.length > 0 || plan.preserve.length > 0) && (
               <div className="row2">
@@ -533,6 +715,49 @@ export default function StepInTheRing() {
               <p className="plan-value" style={{ fontSize: 14 }}>{plan.completionAction}</p>
             </div>
 
+            {/* Best engine — one primary, honest alternates, or the prompt path. */}
+            {engineRec && (
+              <div className="card">
+                <div className="plan-label">Best engine</div>
+                {engineRec.primary ? (
+                  <a
+                    href={engineRec.primary.route}
+                    className="door-card"
+                    style={{ marginBottom: engineRec.alternates.length ? 10 : 0 }}
+                    onClick={() => {
+                      if (engine && engine.engineId === engineRec.primary!.engineId) engine.seed();
+                      else seedEngineWithRecord(engineRec.primary!.engineId);
+                    }}
+                  >
+                    <span className="door-emoji" aria-hidden="true">→</span>
+                    <div>
+                      <h3>Continue in {engineRec.primary.name}</h3>
+                      <p>{engineRec.primary.why} Your creation comes with you — nothing gets retyped.</p>
+                    </div>
+                    <span className="door-go" aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
+                    {engineRec.promptPathWhy}
+                  </p>
+                )}
+                {engineRec.alternates.length > 0 && (
+                  <div style={{ marginTop: 10 }}>
+                    {engineRec.alternates.map((alt) => (
+                      <a
+                        key={alt.engineId}
+                        href={alt.route}
+                        onClick={() => seedEngineWithRecord(alt.engineId)}
+                        style={{ display: "block", fontSize: 13.5, color: "var(--muted)", textDecoration: "none", lineHeight: 1.6, marginTop: 4 }}
+                      >
+                        <b style={{ color: "var(--gold)" }}>or {alt.name} →</b> {alt.why}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* The builder prompt is the handoff. Everything else is convenience. */}
             <div className="card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
@@ -546,15 +771,30 @@ export default function StepInTheRing() {
               </div>
             </div>
 
-            {engine && (
-              <a href={engine.route} className="door-card" onClick={() => engine.seed()}>
-                <span className="door-emoji" aria-hidden="true">→</span>
-                <div>
-                  <h3>Continue in {engine.name}</h3>
-                  <p>{engine.why} Your plan comes with you.</p>
+            <BuilderDefaultsPanel value={defaults} onChange={setDefaults} />
+
+            {view && (
+              <div className="card">
+                <div className="plan-label">Build Pack — take the whole creation with you</div>
+                <p className="field-help" style={{ marginBottom: 12 }}>
+                  Two portable files: a human-readable brief (idea, interpretation, spec, prompt) and
+                  the creation record itself, re-importable later.
+                </p>
+                <div className="actions">
+                  <button
+                    className="btn btn-primary btn-small"
+                    onClick={() => downloadBuildPack(view, builderPrompt)}
+                  >
+                    Download brief (.md)
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-small"
+                    onClick={() => downloadCreationJson(view)}
+                  >
+                    Download creation (.json)
+                  </button>
                 </div>
-                <span className="door-go" aria-hidden="true">→</span>
-              </a>
+              </div>
             )}
 
             <div className="actions">

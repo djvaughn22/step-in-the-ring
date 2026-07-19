@@ -119,6 +119,9 @@ function statedBehaviours(text: string): string[] {
       if (!ACTION_VERB.test(c)) continue;
       const stripped = c.replace(CLAUSE_SUBJECT, "").trim();
       if (stripped.length < 4) continue;
+      // "I want to solve…" is intent, not a behaviour — desire verbs never
+      // become features, even when an action verb follows them.
+      if (/^(want|wants|wanting|need|needs|hope|hoping|try|trying|would like|wish)\b/i.test(stripped)) continue;
       out.push(sentenceCase(stripped));
     }
   }
@@ -132,7 +135,11 @@ function statedBehaviours(text: string): string[] {
  */
 function mechanicBehaviour(shape: Shape, subject: string, text: string): string | null {
   const thing = subject || "picture";
-  if (shape === "game" && /\b(rearrang|shuffl|jigsaw|puzzle piece|pieces|scrambl|slide)\b/i.test(text)) {
+  // Only clear jigsaw language earns the jigsaw mechanic. A bare "slide" or
+  // "pieces" is not enough — "pancakes slide off the plate" is a physics
+  // game, and inventing a rearrange mechanic for it puts words in the
+  // creator's mouth.
+  if (shape === "game" && /\b(rearrang\w*|shuffl\w*|jigsaw|puzzle pieces?|scrambl\w*|slid\w* (puzzle|tiles?))\b/i.test(text)) {
     return `Rearrange the shuffled pieces back into the original ${thing}`;
   }
   return null;
@@ -607,11 +614,12 @@ function buildSummary(a: {
     .slice(0, 3)
     .map((c) => lower(c.value.split(/[:—]/)[0].trim()))
     .join(", ");
+  const article = /^[aeiou]/i.test(kind) ? "An" : "A";
   if (!doing) {
     const first = sentences(stripFiller(a.productText))[0] ?? "";
-    return first ? sentenceCase(first) : `A ${kind}${where}.`;
+    return first ? sentenceCase(first) : `${article} ${kind}${where}.`;
   }
-  const verb = a.buildType === "add" ? "A new" : a.buildType === "fix" ? "A fix for the" : "A";
+  const verb = a.buildType === "add" ? "A new" : a.buildType === "fix" ? "A fix for the" : article;
   return `${verb} ${kind}${where}: ${doing}.`;
 }
 

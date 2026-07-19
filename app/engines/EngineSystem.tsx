@@ -19,6 +19,12 @@ import IdeaStudio from "./idea/IdeaStudio";
 import OnboardingFlow from "./shared/OnboardingFlow";
 import { MUSIC_ENGINE } from "./music/music.engine";
 import { track } from "../lib/analytics";
+import { adapterFor } from "../creation/adapters";
+import { loadBuilderDefaults } from "../creation/builder-defaults";
+import { downloadBuildPack, downloadCreationJson } from "../creation/build-pack";
+import { handoffToIntake, readHandoffFromSearch, recordToIntake } from "../creation/handoff";
+import { recordFromEngineIntake, viewOf } from "../creation/record";
+import { parseCreationRecord } from "../creation/types";
 
 type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
@@ -39,7 +45,14 @@ const PLANNED = [
   { emoji: "👗", name: "Fashion Engine", what: "design to a tech-pack" },
 ];
 
-type PlannerSeed = { engineId?: string; title?: string; summary?: string; raw?: string };
+type PlannerSeed = {
+  engineId?: string;
+  title?: string;
+  summary?: string;
+  raw?: string;
+  /** The full creation record, when the planner handed one over. */
+  record?: unknown;
+};
 
 /**
  * Read the handed-over plan exactly once per page load, and remember it.
@@ -72,6 +85,15 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
   try {
     const seed = readPlannerSeed();
     if (!seed || seed.engineId !== e.id) return {};
+
+    // A full creation record maps into this engine's own intake keys — the
+    // person never retypes what the planner already knows.
+    const record = seed.record ? parseCreationRecord(seed.record) : null;
+    if (record) {
+      const prefill = recordToIntake(e.id, record);
+      if (e.id === "idea") prefill.seed = record.originalIdea;
+      return prefill;
+    }
 
     const prefill: Record<string, string> = {};
     if (seed.title) prefill.name = seed.title;
@@ -166,14 +188,21 @@ export default function EngineSystem() {
   useEffect(() => { setProjects(loadProjects()); setReady(true); }, []);
 
   // Deep link: /engines?engine=game opens that engine's intake directly
-  // (how iDontCry's Game Lab jumps straight into the Game Engine).
+  // (how iDontCry's Game Lab jumps straight into the Game Engine). A `cr`
+  // payload riding on the same URL is iDontCry's versioned handoff — it
+  // prefills the intake, and the access gate never touches the URL, so the
+  // creation survives the gate and resumes exactly here after unlock.
   useEffect(() => {
     const wanted = new URLSearchParams(window.location.search).get("engine");
     const e = wanted ? getEngine(wanted) : undefined;
     if (e && !e.hidden) {
+      const handoff = readHandoffFromSearch(window.location.search);
+      const prefill = handoff
+        ? { ...handoffToIntake(e.id, handoff), ...consumePlannerSeed(e) }
+        : consumePlannerSeed(e);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEngineId(e.id);
-      setAnswers(consumePlannerSeed(e));
+      setAnswers(prefill);
       setStage(e.suggestedStage);
       setDestination(e.technical ? "claude-code" : "self");
       setView("intake");
@@ -690,6 +719,25 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
       {/* primary action bar (matches state) */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
         <button onClick={() => copy(packageToText(e, project.answers, p), "Full package")} className="btn btn-ghost btn-small">Copy full package</button>
+        {adapterFor(e.id) && (
+          <>
+            <button
+              onClick={() => {
+                const v = viewOf(recordFromEngineIntake(e.id, project.answers));
+                downloadBuildPack(v, p.mainPrompt, loadBuilderDefaults(), adapterFor(e.id)!.spec(v));
+              }}
+              className="btn btn-ghost btn-small"
+            >
+              Build Pack (.md)
+            </button>
+            <button
+              onClick={() => downloadCreationJson(viewOf(recordFromEngineIntake(e.id, project.answers)))}
+              className="btn btn-ghost btn-small"
+            >
+              Creation (.json)
+            </button>
+          </>
+        )}
         {cycle.status === "drafted" && <button onClick={onMarkSent} className="btn btn-gold btn-small">Mark as sent</button>}
         {(cycle.status === "sent" || cycle.status === "drafted") && <button onClick={onReturn} className="btn btn-gold btn-small">Return with results</button>}
         {cycle.status === "reviewed" && <button onClick={onNewCycle} className="btn btn-ghost btn-small">Manual new cycle</button>}

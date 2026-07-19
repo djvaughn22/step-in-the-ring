@@ -26,6 +26,21 @@ function expectClean(i: ReturnType<typeof interpret>) {
   expect(i.openQuestions.length).toBeLessThanOrEqual(1);
 }
 
+describe("the jigsaw mechanic needs jigsaw language", () => {
+  it('"pancakes slide off the plate" does not become a rearrange puzzle', () => {
+    const i = interpret({ description: "A game where you stack pancakes before they slide off the plate." });
+    expect(joined(i.versionOne)).not.toMatch(/rearrange the shuffled pieces/);
+  });
+});
+
+describe("desire verbs are intent, not features", () => {
+  it('"I want to solve dog boredom" produces no fake solve-behaviour', () => {
+    const i = interpret({ description: "I want to solve dog boredom. Keep a dog busy and entertained." });
+    expect(joined(i.versionOne)).not.toMatch(/want to solve/);
+    expectClean(i);
+  });
+});
+
 describe("OpenDoku picture puzzle — the acceptance test", () => {
   const input =
     "A puzzle game where I upload pictures and they are rearranged into puzzle pieces, with easy, medium, and hard difficulty. Start with 22 scenery pictures from Colorado, New Zealand, and Missouri. Add it to OpenDoku and build it now.";
