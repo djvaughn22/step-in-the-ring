@@ -23,8 +23,7 @@ export default function AboutPage() {
           <li>Shape an idea into a version-one plan and a ready-to-use builder prompt.</li>
           <li>
             Use the Engine Room&rsquo;s focused engines when you already know what kind of thing
-            you&rsquo;re making. Engine access is by request while the engines are being
-            finished — the idea planner above is open to everyone.
+            you&rsquo;re making — open to everyone right now.
           </li>
           <li>Follow the first-app coach in six short rounds if you&rsquo;ve never built before.</li>
           <li>See finished builds that started here.</li>
