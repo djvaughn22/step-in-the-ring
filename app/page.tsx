@@ -819,10 +819,9 @@ export default function StepInTheRing() {
                 <CopyButton text={builderPrompt} label="Copy builder prompt" big />
               </div>
               <pre className="prompt-box">{builderPrompt}</pre>
-              <div className="actions" style={{ marginTop: 14 }}>
-                <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-small">Open Claude →</a>
-                <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-small">Open ChatGPT →</a>
-              </div>
+              <p className="field-help" style={{ marginTop: 12, marginBottom: 0 }}>
+                Copy it into the building tool you already use, and start.
+              </p>
               {view && (
                 <div style={{ borderTop: "1px solid var(--line)", marginTop: 14, paddingTop: 14 }}>
                   <p className="field-help" style={{ marginBottom: 10 }}>

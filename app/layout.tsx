@@ -38,7 +38,17 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <body>
-        <OpenMirrorNav site="StepInTheRing.com" />
+        <OpenMirrorNav
+          site="StepInTheRing.com"
+          accent="#60A5FA"
+          links={[
+            { emoji: "🥊", name: "Shape an Idea", href: "/" },
+            { emoji: "⚙️", name: "Engine Room", href: "/engines" },
+            { emoji: "📦", name: "Live Builds", href: "/live" },
+            { emoji: "🧭", name: "How It Works", href: "/how" },
+            { emoji: "ℹ️", name: "About StepInTheRing", href: "/about" },
+          ]}
+        />
         {children}
         <OpenMirrorFooter siteName="StepInTheRing.com" accent="#60A5FA" />
         <Script

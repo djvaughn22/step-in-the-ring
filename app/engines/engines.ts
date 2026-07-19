@@ -145,10 +145,10 @@ export const ENGINES: Engine[] = [
     name: "Build Engine",
     emoji: "🛠️",
     tagline: "Turn a defined idea into a real first build.",
-    blurb: "You know roughly what it is. We define the MVP, the architecture, and a detailed build prompt you can hand straight to Claude Code.",
+    blurb: "You know roughly what it is. We define the MVP, the architecture, and a detailed build prompt ready for your coding tool.",
     technical: true,
     activation: "beta",
-    output: "A build prompt detailed enough to hand to Claude Code, plus the MVP scope and architecture behind it.",
+    output: "A build prompt detailed enough to hand to your coding tool, plus the MVP scope and architecture behind it.",
     statusNote: "Generates a real package. It writes the brief — it does not write the code. Not the same thing as /build, the beginner walkthrough.",
     suggestedStage: "Building",
     intake: [
@@ -161,7 +161,7 @@ export const ENGINES: Engine[] = [
       { key: "core", label: "What must version one do?", help: "The one core action this cycle ships. Everything else waits.", placeholder: "The one thing that would actually help someone.", type: "textarea" },
       Q.constraint(),
     ],
-    specialties: ["Product definition", "Core user journey", "MVP scope", "Architecture & components", "Detailed Claude Code prompt", "Deployment path"],
+    specialties: ["Product definition", "Core user journey", "MVP scope", "Architecture & components", "Detailed build prompt", "Deployment path"],
   },
   {
     id: "sell",
