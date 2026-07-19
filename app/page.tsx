@@ -808,12 +808,9 @@ export default function StepInTheRing() {
 
             <div className="divider" />
 
-            {/* Open Mirror's current closing stanza — 5-7-5. */}
+            {/* Mission haikus live on the hub About page only — no stanza here. */}
             <p className="tiny" style={{ textAlign: "center" }}>
-              <span style={{ display: "block", whiteSpace: "nowrap" }}>Build what feels alive</span>
-              <span style={{ display: "block", whiteSpace: "nowrap" }}>Keep it useful, keep it fun</span>
-              <span style={{ display: "block", whiteSpace: "nowrap" }}>Then see where it goes</span>
-              <a href="https://openmirrorllc.com/contact" style={{ display: "inline-block", marginTop: 10, color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+              <a href="https://openmirrorllc.com/contact" style={{ display: "inline-block", color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
                 Contact Open Mirror →
               </a>
             </p>
