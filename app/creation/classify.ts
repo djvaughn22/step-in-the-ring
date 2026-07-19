@@ -193,7 +193,10 @@ export function deriveSmallestOutcome(
   caretaker: CaretakerRead,
 ): string {
   if (i.desiredResult?.confidence === "stated") return i.desiredResult.value;
-  if (caretaker) {
+  // The caretaker outcome belongs to helper tools. A dog-walking SERVICE is
+  // measured by a delivered walk, not by the dog's boredom level.
+  const caretakerTypes: CreationType[] = ["tool", "app", "site", "list", "unknown"];
+  if (caretaker && caretakerTypes.includes(type)) {
     return `The ${caretaker.dependent} is genuinely occupied for a stretch you chose, with almost no setup from you.`;
   }
   switch (type) {

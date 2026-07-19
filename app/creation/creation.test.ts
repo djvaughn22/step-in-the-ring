@@ -160,6 +160,9 @@ describe("non-software honesty", () => {
     const v = viewOf(newRecord("A dog-walking service for busy neighbors on my street."));
     expect(v.creationType).toBe("service");
     expect(v.software.verdict).toBe("test-first");
+    // The caretaker read never hijacks a service — its outcome is a delivery.
+    expect(v.smallestOutcome).toMatch(/delivery/i);
+    expect(v.beneficiary).toBeNull();
     const prompt = adapterForType(v.creationType).prompt(v, D);
     expect(prompt).toMatch(/Deliver it manually/i);
     expect(prompt).not.toMatch(/States that must exist|Empty state|Primary flow/);

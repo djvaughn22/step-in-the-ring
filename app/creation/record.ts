@@ -144,7 +144,10 @@ export function viewOf(record: CreationRecordV1): CreationView {
     ? `it arrived from ${record.sourceFlow === "game-lab" ? "the Game Lab" : record.sourceFlow === "dream-shop" ? "the Dream Shop" : "iDontCry"} as ${typeHint === "game" ? "a game" : typeHint}`
     : classified.reason;
 
-  const caretaker = findCaretaker(fullText);
+  // The caretaker read shapes helper tools; a service or product keeps its
+  // own audience (a dog-walking service is bought by the neighbour).
+  const caretakerRaw = findCaretaker(fullText);
+  const caretaker = ["tool", "app", "site", "list", "unknown"].includes(creationType) ? caretakerRaw : null;
   const software = assessSoftware(creationType, i, fullText, caretaker);
 
   const primaryUser = caretaker
