@@ -21,7 +21,11 @@ export default function AboutPage() {
         <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px", color: "var(--ink, #e8edf5)" }}>What you can do here</h2>
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted, #94a3b8)", margin: "0 0 28px", paddingLeft: 18 }}>
           <li>Shape an idea into a version-one plan and a ready-to-use builder prompt.</li>
-          <li>Use the Engine Room&rsquo;s focused engines when you already know what kind of thing you&rsquo;re making.</li>
+          <li>
+            Use the Engine Room&rsquo;s focused engines when you already know what kind of thing
+            you&rsquo;re making. Engine access is by request while the engines are being
+            finished — the idea planner above is open to everyone.
+          </li>
           <li>Follow the first-app coach in six short rounds if you&rsquo;ve never built before.</li>
           <li>See finished builds that started here.</li>
           <li>Download your brief and creation record, and bring them back later to continue.</li>
