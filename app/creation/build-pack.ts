@@ -28,6 +28,8 @@ export function buildPackMarkdown(v: CreationView, prompt: string, spec?: SpecSe
   return [
     `# ${v.record.originalTitle || i.title.value} — Build Pack`,
     "",
+    `**${CREATION_TYPE_LABEL[v.creationType]}.** ${v.versionOnePromise}`,
+    "",
     `Made with StepInTheRing on ${new Date().toLocaleDateString()}. Source: ${v.record.source} (${v.record.sourceFlow}).`,
     "",
     section("The original idea, word for word", `> ${v.record.originalIdea.replace(/\n/g, "\n> ")}`),

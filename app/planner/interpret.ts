@@ -609,9 +609,11 @@ function buildSummary(a: {
   //
   // "Choose a difficulty: easy, medium or hard" also reads badly mid-sentence —
   // the summary wants the headline, the plan carries the detail.
+  // Two items at most: the summary is a headline, and a third clause is
+  // where run-on duplication starts to show ("…join in, join in, and…").
   const doing = a.versionOne
     .filter((c) => c.confidence === "stated")
-    .slice(0, 3)
+    .slice(0, 2)
     .map((c) => lower(c.value.split(/[:—]/)[0].trim()))
     .join(", ");
   const article = /^[aeiou]/i.test(kind) ? "An" : "A";

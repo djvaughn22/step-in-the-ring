@@ -5,7 +5,9 @@
   --panel2: #1c2740;
   --text: #e8edf5;
   --muted: #94a3b8;
-  --dim: #3a4a6a;
+  /* Quiet-but-readable: 4.6:1 on --panel, 5.1:1 on --bg (small-text minimum
+     is 4.5:1 — the old #3a4a6a sat at 1.9:1 and real help text used it). */
+  --dim: #7186a8;
   --line: rgba(232, 237, 245, 0.10);
   --line2: rgba(232, 237, 245, 0.18);
   --gold: #60A5FA;
@@ -127,30 +129,6 @@ p {
   line-height: 1.6;
 }
 
-/* ── STEPS NAV ── */
-.step-track {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 36px;
-}
-
-.step-dot {
-  flex: 1;
-  height: 3px;
-  background: var(--line);
-  border-radius: 999px;
-  position: relative;
-}
-
-.step-dot.active {
-  background: var(--gold);
-}
-
-.step-dot.done {
-  background: rgba(96, 165, 250, 0.4);
-}
-
 /* ── BUTTONS ── */
 .btn {
   display: inline-flex;
@@ -193,6 +171,11 @@ p {
   font-size: 12px;
 }
 
+/* Fingers get full-size targets; pointers keep the compact rhythm. */
+@media (pointer: coarse) {
+  .btn, .btn-small { min-height: 44px; }
+}
+
 /* ── CARDS / PANELS ── */
 .card {
   border: 1px solid var(--line);
@@ -208,6 +191,10 @@ p {
 
 .stack { display: flex; flex-direction: column; gap: 14px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Collapsible detail sections read as controls, not text. */
+details > summary { cursor: pointer; }
+details[open] > summary { margin-bottom: 10px; }
 
 /* ── FORM ── */
 .field-label {
@@ -258,45 +245,7 @@ textarea:focus, input:focus {
   box-shadow: 0 0 0 3px var(--gold-soft);
 }
 
-/* ── CHIPS ── */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-  background: rgba(232, 237, 245, 0.04);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.chip:hover {
-  border-color: var(--gold);
-  background: var(--gold-soft);
-  color: var(--gold);
-}
-
 /* ── PLAN OUTPUT ── */
-.plan-header {
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-}
-
-.plan-section {
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
-  margin-top: 16px;
-}
-
 .plan-label {
   font-size: 10px;
   font-weight: 900;
@@ -311,23 +260,6 @@ textarea:focus, input:focus {
   font-weight: 600;
   color: var(--text);
   line-height: 1.55;
-}
-
-.feature-item {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-}
-.feature-item:last-child { border-bottom: none; }
-
-.feature-num {
-  font-size: 11px;
-  font-weight: 900;
-  color: var(--gold);
-  min-width: 20px;
-  margin-top: 2px;
 }
 
 /* ── TOPBAR ── */
@@ -392,53 +324,7 @@ textarea:focus, input:focus {
 .home-section > .kicker { margin-bottom: 8px; }
 .section-lead { font-size: 14px; margin-bottom: 18px; max-width: 520px; }
 
-.hero-links {
-  display: flex;
-  gap: 22px;
-  justify-content: center;
-  margin-top: 18px;
-  flex-wrap: wrap;
-}
-.hero-links button {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-color: var(--line2);
-}
-.hero-links button:hover { color: var(--text); }
-
 .btn-big { padding: 17px 36px; font-size: 15px; }
-
-.rounds3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-.round-card {
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--panel);
-  padding: 18px;
-}
-.round-num {
-  display: inline-flex;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gold);
-  border: 1px solid var(--line2);
-  border-radius: 999px;
-  padding: 4px 10px;
-  margin-bottom: 12px;
-}
-.round-card h3 { font-size: 15px; margin-bottom: 6px; }
-.round-card p { font-size: 13px; }
 
 .ex-grid {
   display: grid;
@@ -505,7 +391,6 @@ textarea:focus, input:focus {
   h1 { letter-spacing: -0.035em; }
   .ring-mark { width: 88px; height: 88px; }
   .ring-glove { font-size: 28px; }
-  .rounds3 { grid-template-columns: 1fr; }
   .ex-grid { grid-template-columns: 1fr; }
   .proof-grid { grid-template-columns: 1fr; }
   .hero .btn-big { width: 100%; }
@@ -540,10 +425,6 @@ textarea:focus, input:focus {
   color: var(--dim);
   line-height: 1.5;
 }
-
-/* card hover pop */
-.pop { transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
-.pop:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,.5); }
 
 
 /* OPEN MIRROR FAMILY STYLE OVERRIDE START */
@@ -851,6 +732,14 @@ a[href]:hover {
    the dark surface and fall to ~2:1 on light mode's white card — well under
    the 4.5:1 minimum for text this size. Darker ink on a tinted chip in light
    mode only; the dark theme keeps the family accents. */
+/* The family light theme resets --dim to #94a3b8 (~2.2:1 on its light
+   background). Same treatment as the pills below: readable ink, this repo
+   only. 4.8:1 on the light bg, 5.4:1 on white cards. The :root doubles
+   specificity so this outlives the theme's later <style> tag. */
+html[data-om-theme="light"]:root {
+  --dim: #5b6b85;
+}
+
 html[data-om-theme="light"] .status-working {
   color: #15803d;
   border-color: #86efac;

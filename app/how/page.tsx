@@ -29,7 +29,7 @@ const STEPS = [
   {
     n: "04",
     title: "You hand it to your builder",
-    body: "Your plan becomes a real execution brief — scope, assets, what to preserve, what to skip, how to test it. Paste it into the AI building tool you already trust. You review and approve what it builds.",
+    body: "Your plan becomes a real execution brief — scope, assets, what to preserve, what to skip, how to test it. Paste it into the building tool you already trust. You review and approve what it builds.",
   },
   {
     n: "05",

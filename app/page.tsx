@@ -106,7 +106,7 @@ function CopyButton({ text, label, big }: { text: string; label: string; big?: b
 function UnderstoodCard({ i, view }: { i: Interpretation; view?: CreationView | null }) {
   return (
     <div className="card card-gold">
-      <div className="plan-label">What I understood</div>
+      <div className="plan-label">What you&apos;re building</div>
       <h2 style={{ marginBottom: 10 }}>{i.title.value}</h2>
       <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.6 }}>{i.summary}</p>
       <div className="pill-row">
@@ -257,7 +257,8 @@ export default function StepInTheRing() {
         : {}),
     });
   }, [description, answers, incoming]);
-  const view = useMemo(() => (record ? viewOf(record) : null), [record]);
+  // `plan` already interpreted these exact words — reuse it, don't recompute.
+  const view = useMemo(() => (record ? viewOf(record, plan ?? undefined) : null), [record, plan]);
   const question = plan?.openQuestions[0] ?? null;
   const engine = useMemo(() => (plan ? recommendEngine(plan) : null), [plan]);
   const engineRec = useMemo(() => (view ? recommendEngines(view) : null), [view]);
@@ -647,18 +648,6 @@ export default function StepInTheRing() {
           <div className="stack">
             <UnderstoodCard i={plan} view={view} />
 
-            {decided.length > 0 && (
-              <div className="card">
-                <div className="plan-label">What I decided</div>
-                <p className="field-help" style={{ marginBottom: 10 }}>
-                  Safe calls so you could keep moving. Wrong ones are worth fixing.
-                </p>
-                <ul className="plan-list">
-                  {decided.map((a, n) => <li key={n}>{a}</li>)}
-                </ul>
-              </div>
-            )}
-
             {plan.versionOne.length > 0 && (
               <div className="card">
                 <div className="plan-label">What version one does</div>
@@ -703,22 +692,33 @@ export default function StepInTheRing() {
               </div>
             )}
 
-            {plan.desiredResult && (
+            {/* Their own words about what "done" means — inferences already
+                live on the understood card as "the real result". */}
+            {plan.desiredResult && plan.desiredResult.confidence === "stated" && (
               <div className="card">
                 <div className="plan-label">Ready when</div>
                 <p className="plan-value" style={{ fontSize: 14 }}>{plan.desiredResult.value}</p>
               </div>
             )}
 
-            <div className="next-action">
-              <div className="plan-label">Next</div>
-              <p className="plan-value" style={{ fontSize: 14 }}>{plan.completionAction}</p>
-            </div>
+            {decided.length > 0 && (
+              <details className="card">
+                <summary className="plan-label" style={{ marginBottom: 0 }}>
+                  Calls I made for you ({decided.length}) — open to check them
+                </summary>
+                <p className="field-help" style={{ margin: "8px 0 10px" }}>
+                  Safe assumptions so you could keep moving. Wrong ones are worth fixing.
+                </p>
+                <ul className="plan-list">
+                  {decided.map((a, n) => <li key={n}>{a}</li>)}
+                </ul>
+              </details>
+            )}
 
-            {/* Best engine — one primary, honest alternates, or the prompt path. */}
+            {/* ONE next step — an engine door, or the prompt path, never both. */}
             {engineRec && (
-              <div className="card">
-                <div className="plan-label">Best engine</div>
+              <div className="next-action">
+                <div className="plan-label">Next step</div>
                 {engineRec.primary ? (
                   <a
                     href={engineRec.primary.route}
@@ -737,9 +737,12 @@ export default function StepInTheRing() {
                     <span className="door-go" aria-hidden="true">→</span>
                   </a>
                 ) : (
-                  <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
-                    {engineRec.promptPathWhy}
-                  </p>
+                  <>
+                    <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
+                      {engineRec.promptPathWhy}
+                    </p>
+                    <p className="plan-value" style={{ fontSize: 14, marginTop: 8 }}>{plan.completionAction}</p>
+                  </>
                 )}
                 {engineRec.alternates.length > 0 && (
                   <div style={{ marginTop: 10 }}>
@@ -758,7 +761,8 @@ export default function StepInTheRing() {
               </div>
             )}
 
-            {/* The builder prompt is the handoff. Everything else is convenience. */}
+            {/* The builder prompt is the handoff. One card holds it and the
+                two files that carry it — nothing else competes with it. */}
             <div className="card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
                 <div className="plan-label" style={{ margin: 0 }}>Your builder prompt</div>
@@ -769,33 +773,31 @@ export default function StepInTheRing() {
                 <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-small">Open Claude →</a>
                 <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-small">Open ChatGPT →</a>
               </div>
+              {view && (
+                <div style={{ borderTop: "1px solid var(--line)", marginTop: 14, paddingTop: 14 }}>
+                  <p className="field-help" style={{ marginBottom: 10 }}>
+                    Or take the whole creation with you — the readable brief, and the record you can
+                    bring back later.
+                  </p>
+                  <div className="actions">
+                    <button
+                      className="btn btn-ghost btn-small"
+                      onClick={() => downloadBuildPack(view, builderPrompt)}
+                    >
+                      Download brief (.md)
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-small"
+                      onClick={() => downloadCreationJson(view)}
+                    >
+                      Download record (.json)
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <BuilderDefaultsPanel value={defaults} onChange={setDefaults} />
-
-            {view && (
-              <div className="card">
-                <div className="plan-label">Build Pack — take the whole creation with you</div>
-                <p className="field-help" style={{ marginBottom: 12 }}>
-                  Two portable files: a human-readable brief (idea, interpretation, spec, prompt) and
-                  the creation record itself, re-importable later.
-                </p>
-                <div className="actions">
-                  <button
-                    className="btn btn-primary btn-small"
-                    onClick={() => downloadBuildPack(view, builderPrompt)}
-                  >
-                    Download brief (.md)
-                  </button>
-                  <button
-                    className="btn btn-ghost btn-small"
-                    onClick={() => downloadCreationJson(view)}
-                  >
-                    Download creation (.json)
-                  </button>
-                </div>
-              </div>
-            )}
 
             <div className="actions">
               <button className="btn btn-primary" onClick={() => go("shape")}>Fix this plan</button>

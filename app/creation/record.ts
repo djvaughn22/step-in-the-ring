@@ -130,9 +130,14 @@ function handoffFacts(r: CreationRecordV1): string[] {
     .map(([k, v]) => `${label[k] ?? k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`);
 }
 
-export function viewOf(record: CreationRecordV1): CreationView {
+/**
+ * Derive the full view. Pass `pre` when the caller already interpreted the
+ * same words (the planner does) — interpretation is deterministic, so this
+ * is purely a saved recomputation, never a different answer.
+ */
+export function viewOf(record: CreationRecordV1, pre?: Interpretation): CreationView {
   const input: PlannerInput = { description: record.originalIdea, answers: record.answers };
-  const i = interpret(input);
+  const i = pre ?? interpret(input);
   const fullText = [record.originalIdea, ...Object.values(record.answers), ...Object.values(record.facts)].join(". ");
 
   const typeHint = record.facts.typeHint as CreationType | undefined;

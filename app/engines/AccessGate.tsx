@@ -33,7 +33,11 @@ export default function AccessGate({ children }: { children: React.ReactNode }) 
       setAllowed(true);
       setError("");
     } else {
-      setError("That code is not valid.");
+      setError(
+        code.trim()
+          ? "That code didn't match. Check the reply email for the exact code, or request access below."
+          : "Type the code from your reply email first.",
+      );
     }
   };
 
@@ -56,21 +60,23 @@ export default function AccessGate({ children }: { children: React.ReactNode }) 
             Request access by email
           </a>
 
-          <label style={{ display: "block", fontSize: 13, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>
+          <label htmlFor="gate-code" style={{ display: "block", fontSize: 13, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>
             Already have a code?
           </label>
           <div style={{ display: "flex", gap: 8 }}>
             <input
+              id="gate-code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
               placeholder="Access code"
-              aria-label="Access code"
+              aria-describedby={error ? "gate-error" : undefined}
+              aria-invalid={!!error}
               style={{ flex: 1, boxSizing: "border-box", background: "var(--surface)", border: "1px solid var(--line2)", borderRadius: 10, color: "var(--text)", padding: "11px 12px", fontSize: 15, fontFamily: "inherit" }}
             />
             <button onClick={submit} className="btn btn-gold btn-small">Enter</button>
           </div>
-          {error && <p style={{ fontSize: 13, color: "var(--gold)", fontWeight: 700, margin: "8px 0 0" }}>{error}</p>}
+          <p id="gate-error" role="status" aria-live="polite" style={{ fontSize: 13, color: "var(--gold)", fontWeight: 700, margin: "8px 0 0", minHeight: 18 }}>{error}</p>
 
           <p style={{ fontSize: 12, color: "var(--muted)", margin: "18px 0 0", lineHeight: 1.5 }}>
             No account is created and nothing is tracked. The code is remembered on this device only.

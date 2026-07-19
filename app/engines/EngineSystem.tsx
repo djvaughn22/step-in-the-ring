@@ -212,16 +212,19 @@ export default function EngineSystem() {
   const activeProject = projects.find((p) => p.id === activeProjectId) || null;
   const activeCycle = activeProject?.cycles.find((c) => c.id === activeCycleId) || null;
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 1600); };
+  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2400); };
   const copy = async (text: string, label: string) => {
-    try { await navigator.clipboard.writeText(text); say(`${label} copied`); } catch { say("Copy failed"); }
+    try { await navigator.clipboard.writeText(text); say(`${label} copied`); }
+    catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };
 
-  // ---- draft package preview (review screen) ----
+  // ---- draft package preview ----
+  // Only the review and edit screens read this. Building it during intake
+  // would re-run the whole interpreter on every keystroke.
   const previewPackage = useMemo(() => {
-    if (!engine) return null;
+    if (!engine || (view !== "review" && view !== "edit")) return null;
     return generatePackage(engine, answers, stage, depth, destination);
-  }, [engine, answers, stage, depth, destination]);
+  }, [engine, answers, stage, depth, destination, view]);
 
   const startNew = () => { setEngineId(""); setAnswers({}); setActiveProjectId(""); setView("picker"); };
 
@@ -397,10 +400,11 @@ export default function EngineSystem() {
           <h1 style={{ fontSize: "clamp(1.9rem,8vw,2.6rem)", fontWeight: 900, color: "var(--text)", margin: "6px 0 8px", lineHeight: 1.05 }}>
             Engine <span style={{ color: "var(--gold)" }}>Room</span>
           </h1>
-          <p className="hero-sub" style={{ maxWidth: 500, margin: "0 auto" }}>
-            Pick an engine. Answer the real situation. Get a detailed build package. Take it, come back with results, and generate the next focused cycle. Build in passes.
+          <p className="hero-sub" style={{ maxWidth: 460, margin: "0 auto" }}>
+            Pick an engine, answer a few real questions, and leave with a package you can act on today.
           </p>
-          {flash && <p style={{ color: "var(--gold)", fontWeight: 800, marginTop: 8 }}>{flash}</p>}
+          {/* Always mounted so screen readers hear the announcement, not just see it. */}
+          <p role="status" aria-live="polite" style={{ color: "var(--gold)", fontWeight: 800, marginTop: 8, minHeight: 20, margin: "8px 0 0" }}>{flash}</p>
         </header>
 
         {/* ---------- LIST ---------- */}
@@ -437,7 +441,9 @@ export default function EngineSystem() {
                           <p style={{ fontSize: 17, fontWeight: 900, color: "var(--text)", margin: 0 }}>{e?.emoji} {p.name}</p>
                           <p style={{ fontSize: 13, color: "var(--muted)", margin: "2px 0 0" }}>{e?.name} · {p.stage} · {p.cycles.length} cycle{p.cycles.length !== 1 ? "s" : ""}{last ? ` · last: ${last.status}` : ""}</p>
                         </div>
-                        <div style={{ display: "flex", gap: 6, flexShrink: 0, flexWrap: "wrap" }}>
+                        {/* Shrinkable so the row wraps inside a 320px phone
+                            instead of pushing the card past the edge. */}
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", minWidth: 0 }}>
                           <button onClick={() => openProject(p)} className="btn btn-gold btn-small">Open</button>
                           <button onClick={() => { setProjects(duplicateProject(p.id)); say("Duplicated"); }} className="btn btn-ghost btn-small">Copy</button>
                           <button onClick={() => copy(exportProject(p), "Project JSON")} className="btn btn-ghost btn-small">Export</button>
@@ -515,17 +521,17 @@ export default function EngineSystem() {
               <p style={{ fontSize: 14, color: "var(--muted)", margin: "4px 0 16px" }}>{engine.blurb}</p>
               {engine.intake.map((q) => (
                 <div key={q.key} style={{ marginBottom: 14 }}>
-                  <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>{q.label}{q.optional ? " (optional)" : ""}</label>
-                  {q.help && <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 6px" }}>{q.help}</p>}
+                  <label htmlFor={`intake-${q.key}`} style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>{q.label}{q.optional ? " (optional)" : ""}</label>
+                  {q.help && <p id={`intake-${q.key}-help`} style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 6px" }}>{q.help}</p>}
                   {q.type === "textarea" ? (
-                    <textarea value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={{ ...input, minHeight: 66, resize: "vertical" }} />
+                    <textarea id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={{ ...input, minHeight: 66, resize: "vertical" }} />
                   ) : (
-                    <input value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={input} />
+                    <input id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={input} />
                   )}
                 </div>
               ))}
-              <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>Current build stage</label>
-              <select value={stage} onChange={(ev) => setStage(ev.target.value as BuildStage)} style={input}>
+              <label htmlFor="intake-stage" style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>Current build stage</label>
+              <select id="intake-stage" value={stage} onChange={(ev) => setStage(ev.target.value as BuildStage)} style={input}>
                 {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
               <button onClick={toReview} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Review & customize →</button>
@@ -542,19 +548,19 @@ export default function EngineSystem() {
               <Section title="Engine understanding" body={previewPackage.understanding} />
               <Section title="Recommended direction" body={previewPackage.direction} />
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Current objective (edit if needed)</div>
-                <textarea value={objectiveEdit} onChange={(ev) => setObjectiveEdit(ev.target.value)} style={{ ...input, minHeight: 60, resize: "vertical" }} />
+                <label htmlFor="review-objective" style={{ display: "block", fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Current objective (edit if needed)</label>
+                <textarea id="review-objective" value={objectiveEdit} onChange={(ev) => setObjectiveEdit(ev.target.value)} style={{ ...input, minHeight: 60, resize: "vertical" }} />
               </div>
               <div style={{ display: "grid", gap: 10, gridTemplateColumns: "1fr 1fr" }}>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: "var(--muted)", marginBottom: 4 }}>Depth</div>
-                  <select value={depth} onChange={(ev) => setDepth(ev.target.value as Depth)} style={input}>
+                  <label htmlFor="review-depth" style={{ display: "block", fontSize: 12, fontWeight: 800, color: "var(--muted)", marginBottom: 4 }}>Depth</label>
+                  <select id="review-depth" value={depth} onChange={(ev) => setDepth(ev.target.value as Depth)} style={input}>
                     {(["quick", "full", "deep"] as Depth[]).map((d) => <option key={d} value={d}>{DEPTH_LABELS[d]}</option>)}
                   </select>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: "var(--muted)", marginBottom: 4 }}>Send it to</div>
-                  <select value={destination} onChange={(ev) => setDestination(ev.target.value as Destination)} style={input}>
+                  <label htmlFor="review-destination" style={{ display: "block", fontSize: 12, fontWeight: 800, color: "var(--muted)", marginBottom: 4 }}>Send it to</label>
+                  <select id="review-destination" value={destination} onChange={(ev) => setDestination(ev.target.value as Destination)} style={input}>
                     {(Object.keys(DESTINATION_LABELS) as Destination[]).map((d) => <option key={d} value={d}>{DESTINATION_LABELS[d]}</option>)}
                   </select>
                 </div>
@@ -572,16 +578,20 @@ export default function EngineSystem() {
               <span className="kicker">Customize this package</span>
               <p style={{ fontSize: 13.5, color: "var(--muted)", margin: "0 0 14px" }}>Edit any section below. Changes are saved in the package.</p>
             </div>
-            {engine.specialties.map((title) => (
-              <div key={title} style={{ ...card, marginBottom: 12 }}>
-                <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>{title}</div>
-                <textarea
-                  value={specialtyEdits[title] ?? previewPackage.specialties?.[title] ?? ""}
-                  onChange={(ev) => setSpecialtyEdits({ ...specialtyEdits, [title]: ev.target.value })}
-                  style={{ ...input, minHeight: 80, resize: "vertical" }}
-                />
-              </div>
-            ))}
+            {engine.specialties.map((title) => {
+              const id = `edit-${title.toLowerCase().replace(/\s+/g, "-")}`;
+              return (
+                <div key={title} style={{ ...card, marginBottom: 12 }}>
+                  <label htmlFor={id} style={{ display: "block", fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>{title}</label>
+                  <textarea
+                    id={id}
+                    value={specialtyEdits[title] ?? previewPackage.specialties?.[title] ?? ""}
+                    onChange={(ev) => setSpecialtyEdits({ ...specialtyEdits, [title]: ev.target.value })}
+                    style={{ ...input, minHeight: 80, resize: "vertical" }}
+                  />
+                </div>
+              );
+            })}
             <div style={card}>
               <button onClick={generate} className="btn btn-gold" style={{ width: "100%", marginTop: 8 }}>Generate final package →</button>
             </div>
@@ -609,19 +619,19 @@ export default function EngineSystem() {
             <button onClick={() => setView("cycle")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to cycle</button>
             <div style={card}>
               <span className="kicker">Return with results</span>
-              <p style={{ fontSize: 13.5, color: "var(--muted)", margin: "0 0 14px" }}>Paste what actually came back, then answer a few quick things. StepInTheRing will inspect it and recommend the next move.</p>
-              <textarea value={review.raw} onChange={(ev) => setReview({ ...review, raw: ev.target.value })} placeholder="Paste the tool's final report / results here…" style={{ ...input, minHeight: 120, resize: "vertical", marginBottom: 14 }} />
+              <label htmlFor="return-raw" style={{ display: "block", fontSize: 13.5, color: "var(--muted)", margin: "0 0 14px", fontWeight: 400 }}>Paste what actually came back, then answer a few quick things. StepInTheRing will inspect it and recommend the next move.</label>
+              <textarea id="return-raw" value={review.raw} onChange={(ev) => setReview({ ...review, raw: ev.target.value })} placeholder="Paste the tool's final report / results here…" style={{ ...input, minHeight: 120, resize: "vertical", marginBottom: 14 }} />
               {REVIEW_QUESTIONS.map((q) => (
                 <div key={q.key} style={{ marginBottom: 12 }}>
-                  <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>{q.label}</label>
+                  <label htmlFor={q.type === "bool" ? undefined : `return-${q.key}`} style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>{q.label}</label>
                   {q.type === "bool" ? (
-                    <div style={{ display: "flex", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 8 }} role="group" aria-label={q.label}>
                       {[["Yes", true], ["No", false]].map(([lbl, v]) => (
-                        <button key={String(v)} onClick={() => setReview({ ...review, [q.key]: v })} className={(review[q.key] as boolean) === v ? "btn btn-gold btn-small" : "btn btn-ghost btn-small"}>{lbl as string}</button>
+                        <button key={String(v)} aria-pressed={(review[q.key] as boolean) === v} onClick={() => setReview({ ...review, [q.key]: v })} className={(review[q.key] as boolean) === v ? "btn btn-gold btn-small" : "btn btn-ghost btn-small"}>{lbl as string}</button>
                       ))}
                     </div>
                   ) : (
-                    <input value={review[q.key] as string} onChange={(ev) => setReview({ ...review, [q.key]: ev.target.value })} style={input} />
+                    <input id={`return-${q.key}`} value={review[q.key] as string} onChange={(ev) => setReview({ ...review, [q.key]: ev.target.value })} style={input} />
                   )}
                 </div>
               ))}
