@@ -173,7 +173,9 @@ describe("non-software honesty", () => {
     expect(v.creationType).toBe("story");
     const prompt = adapterForType(v.creationType).prompt(v, D);
     expect(prompt).toMatch(/premise|character/i);
-    expect(prompt).toMatch(/not an app/i);
+    // The "this is writing, not software" guard — wording may evolve, the
+    // promise (nothing to build/install) must not.
+    expect(prompt).toMatch(/nothing to build|nothing to install|not an app/i);
   });
 
   it("explicit software request is honoured but the cheaper test is shown", () => {

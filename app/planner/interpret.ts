@@ -19,6 +19,7 @@ import {
   inferred, NO_PERMISSIONS, stated, type BuildType, type Claim,
   type Interpretation, type OpenQuestion, type Permissions, type Shape,
 } from "./types";
+import { findSportKind, looksFashion, SPORTS_PLAN_WORDS } from "../creation/profile";
 
 export type PlannerInput = {
   /** The one open description. Always the source of truth. */
@@ -636,8 +637,22 @@ function deriveQuestions(a: {
   const answered = (k: string) => isMeaningful(a.answers[k] ?? "");
   const realBehaviours = a.versionOne.filter((c) => c.confidence === "stated").length;
 
+  // A DEFINITE written or musical piece has no "behaviours" — its version one
+  // is a draft, and the specialist defines the deliverable. Asking what a poem
+  // "should do the first time someone uses it" is software framing. A vague
+  // "something with music" is not a piece yet, so it still earns the question.
+  const piece =
+    a.shape === "content" &&
+    /\b(poem|poetry|haiku|sonnet|songs?|lyrics|stor(?:y|ies)|novel|screenplay|script|books?|album|newsletter|blog|podcast|speech|toast|eulogy|sermon|journal)\b/i.test(a.productText);
+  // Same logic for coaching work: a practice plan's version one is a practice,
+  // and the coach already told us the team. The sports specialist takes over.
+  const coachPlan = SPORTS_PLAN_WORDS.test(a.productText) && !!findSportKind(a.productText);
+  // A wearable design has no behaviours either — but "who wears it?" is the
+  // one question that genuinely shapes it, so only the behaviour question is
+  // skipped; the audience question stays available below.
+  const wearable = looksFashion(a.productText);
   // Nothing concrete to build yet — this is the only thing worth asking.
-  if (!answered("versionOne") && realBehaviours === 0) {
+  if (!answered("versionOne") && realBehaviours === 0 && !piece && !coachPlan && !wearable) {
     return [
       {
         key: "versionOne",
@@ -658,7 +673,13 @@ function deriveQuestions(a: {
       },
     ];
   }
-  if (!a.audience && !answered("audience")) {
+  // Personal creative work needs no audience interview — a poem, a song, or a
+  // story gets made either way, so the question wouldn't change version one.
+  // (A blog, newsletter, podcast, or speech keeps it: those are FOR a room.)
+  const personalPiece =
+    a.shape === "content" &&
+    /\b(poem|poetry|haiku|sonnet|journal(?:ing)?|diary|songs?|lyrics|stor(?:y|ies)|novel|screenplay|children'?s book)\b/i.test(a.productText);
+  if (!a.audience && !answered("audience") && !personalPiece && !coachPlan) {
     return [
       {
         key: "audience",

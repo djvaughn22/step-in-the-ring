@@ -43,6 +43,18 @@ export function recommendEngines(v: CreationView): Recommendation {
   const alternates: EngineChoice[] = [];
   const i = v.interpretation;
 
+  // Something is BROKEN. That outranks every other read — a person reporting
+  // a breakage must never be sent to brainstorm about it.
+  if (i.buildType.value === "fix") {
+    push(alternates, choice("fix", "A guided repair cycle with regression checks, if you want the fuller package."));
+    return {
+      primary: null,
+      promptPathWhy:
+        "Something real is broken — the repair prompt below looks before it touches, protects what still works, and checks the fix stays fixed. Copy it into your builder.",
+      alternates,
+    };
+  }
+
   // Still an early thought → sharpen before building anything. A KNOWN
   // creation type outranks vagueness — a mug idea is a mug idea even when
   // it's only eight words long.
@@ -66,10 +78,26 @@ export function recommendEngines(v: CreationView): Recommendation {
         alternates,
       };
 
+    case "fashion":
+      push(alternates, choice("sell", "Skips design and goes straight to the offer and first validation."));
+      return {
+        primary: choice("design-shop", "It takes a wearable idea to a finished design package and a listing draft — mockups included."),
+        alternates,
+      };
+
     case "music":
       push(alternates, choice("idea", "If the song is one of several ideas, pick first."));
       return {
         primary: choice("music", "It walks you to a real exported audio file with free tools."),
+        alternates,
+      };
+
+    case "sports-plan":
+      push(alternates, choice("plan", "If it's more logistics than coaching (a season, a tournament), this organises it."));
+      return {
+        primary: null,
+        promptPathWhy:
+          "This is coaching work — the plan below thinks like a coach: blocks, drills, cues, progression. Print it, run one real practice on it, then sharpen it.",
         alternates,
       };
 
@@ -105,18 +133,21 @@ export function recommendEngines(v: CreationView): Recommendation {
       };
 
     default: {
-      // Software: app / site / tool / list.
-      if (i.buildType.value === "fix" && i.destination) {
-        push(alternates, choice("fix", "A guided repair cycle with regression checks, if you want the fuller package."));
-        return {
-          primary: null,
-          promptPathWhy: "Something real is broken — the repair prompt below inspects before it edits. Copy it into your builder.",
-          alternates,
-        };
-      }
+      // Software: app / site / tool / list. (Fixes were handled up top.)
       if (i.buildType.value === "sell") {
         push(alternates, choice("design-shop", "If what's being sold is a designed product, this makes the package."));
         return { primary: choice("sell", "It turns this into an offer someone can actually buy."), alternates };
+      }
+      // One HTML file needs no walkthrough and no engine — the prompt below
+      // IS the build: save the file, open it in a browser, done.
+      if (v.profile.webForm === "html-file") {
+        push(alternates, choice("build", "The fuller build brief, if this grows past one file."));
+        return {
+          primary: null,
+          promptPathWhy:
+            "One self-contained HTML file proves this. Copy the prompt below into your builder, save what it writes as one file, and open it in a browser — no installs, no hosting, no setup.",
+          alternates,
+        };
       }
       if (i.buildType.value === "new" && !i.destination) {
         push(alternates, choice("build", "The fuller build brief, if you've shipped something before."));

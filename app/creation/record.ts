@@ -11,6 +11,7 @@ import {
   assessSoftware, classifyCreationType, deriveSafetyConstraints,
   deriveSmallestOutcome, deriveVersionOnePromise, findCaretaker,
 } from "./classify";
+import { deriveProfile, deriveTools, type CreationProfile, type ToolsGuidance } from "./profile";
 import {
   CREATION_SCHEMA_VERSION, parseCreationRecord,
   type CreationRecordV1, type CreationType, type HandoffPayloadV1,
@@ -112,6 +113,10 @@ export interface CreationView {
   smallestOutcome: string;
   versionOnePromise: string;
   software: SoftwareCall;
+  /** The form within the kind — poem vs screenplay, one HTML file vs web app. */
+  profile: CreationProfile;
+  /** Honest tools, setup, and automation guidance for version one. */
+  tools: ToolsGuidance;
   safetyConstraints: string[];
   /** Cleanly separated: what they said / what we assumed / what we suggest. */
   facts: string[];
@@ -154,6 +159,8 @@ export function viewOf(record: CreationRecordV1, pre?: Interpretation): Creation
   const caretakerRaw = findCaretaker(fullText);
   const caretaker = ["tool", "app", "site", "list", "unknown"].includes(creationType) ? caretakerRaw : null;
   const software = assessSoftware(creationType, i, fullText, caretaker);
+  const profile = deriveProfile(fullText, creationType);
+  const tools = deriveTools(creationType, profile, software);
 
   const primaryUser = caretaker
     ? `The person looking after the ${caretaker.dependent} — often busy, short on attention, needing a fast answer`
@@ -195,6 +202,8 @@ export function viewOf(record: CreationRecordV1, pre?: Interpretation): Creation
     smallestOutcome: deriveSmallestOutcome(creationType, i, caretaker),
     versionOnePromise: deriveVersionOnePromise(creationType, i, caretaker, fullText),
     software,
+    profile,
+    tools,
     safetyConstraints: deriveSafetyConstraints(fullText, caretaker),
     facts,
     assumptions,

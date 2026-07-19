@@ -141,20 +141,37 @@ export function stripPermissionPhrases(text: string): string {
 
 const SHAPE_WORDS: [Shape, RegExp, number][] = [
   ["game", /\b(game|puzzle|play|player|arcade|score|level|quiz|trivia|maze|bingo|jigsaw|match)\b/i, 3],
-  ["product", /\b(printable|workbook|planner|journal|sticker|shirt|mug|tote|poster|print|deck|etsy|download|template|sell|selling|buyer|store|merch)\b/i, 3],
+  // "planner app" / "journal app" are software wearing a paper word.
+  ["product", /\b(printable|workbook|planner(?!\s+app)|journal(?!\s+app)|sticker|shirt|mug|tote|poster|print|deck|etsy|download|template|sell|selling|buyer|store|merch)\b/i, 3],
   ["list", /\b(list|watch-?list|tracker|track|log|leaderboard|collection|library|catalog|inventory|scores?)\b/i, 2],
   // "book" only counts as a THING, never the verb — "book a walk" and "book an
   // appointment" are actions on a booking site, not a novel.
   [
     "content",
-    /\b(story|stories|book(?!\s+(?:a|an|the|my|your|our|his|her|their|it|one|us)\b)|books|song|beat|music|album|video|podcast|newsletter|poem|lyrics|manuscript)\b/i,
+    /\b(story|stories|book(?!\s+(?:a|an|the|my|your|our|his|her|their|it|one|us)\b)|books|song|beat|music|album|video|podcast|newsletter|poem|lyrics|manuscript|novel|screenplay)\b/i,
     3,
   ],
-  ["site", /\b(website|web site|site|landing page|homepage|portfolio|blog|business page)\b/i, 2],
-  ["tool", /\b(app|tool|calculator|dashboard|generator|form|planner app|web app|utility)\b/i, 1],
+  ["site", /\b(website|web site|site|landing page|homepage|portfolio|blog|business page|online)\b/i, 2],
+  ["tool", /\b(app|tool|calculator|dashboard|generator|form|planner app|web app|utility|api)\b/i, 1],
+];
+
+/**
+ * The form named up front is the form meant: "A web app where our book club…"
+ * is a WEB APP, whatever nouns the rest of the sentence mentions. Without
+ * this, "book" twice outweighs the person's own opening words.
+ */
+const LEADING_FORM: [Shape, RegExp][] = [
+  ["game", /^(?:a|an|the|my|our)?\s*(?:[\w'-]+\s+){0,3}?(?:game|puzzle|quiz)\b/i],
+  ["list", /^(?:a|an|the|my|our)?\s*(?:[\w'-]+\s+){0,3}?(?:watch-?list|list|tracker|leaderboard)\b/i],
+  ["site", /^(?:a|an|the|my|our)?\s*(?:[\w'-]+\s+){0,3}?(?:website|web ?site|site|landing page|homepage|portfolio)\b/i],
+  ["tool", /^(?:a|an|the|my|our)?\s*(?:[\w'-]+\s+){0,3}?(?:web ?app|app|tool|calculator|dashboard|api)\b/i],
 ];
 
 export function findShape(text: string): Shape {
+  const first = (text.split(/[.!?]/)[0] ?? text).trim();
+  for (const [shape, re] of LEADING_FORM) {
+    if (re.test(first)) return shape;
+  }
   const scores = new Map<Shape, number>();
   for (const [shape, re, weight] of SHAPE_WORDS) {
     const hits = (text.match(new RegExp(re.source, "gi")) || []).length;
@@ -355,6 +372,9 @@ const TITLE_NOISE = new Set([
   "have", "has", "let", "lets", "then", "so", "but", "into", "from", "on",
   "in", "at", "by", "up", "out", "all", "any", "one", "first", "just",
   "really", "very", "people", "person", "user", "users", "someone", "them",
+  "she", "he", "her", "his", "him", "its", "passed", "died",
+  "about", "after", "before", "because", "until", "unless", "while",
+  "during", "without", "when",
   "start", "starting", "add", "added", "adding", "put", "now", "commit",
   "push", "deploy", "please", "help", "me", "this", "these", "those",
 ]);
@@ -366,7 +386,7 @@ function leadingNounPhrase(text: string): string[] {
   // Cut at the first subordinator/verb boundary — that's where the NP ends.
   const np = first
     .replace(/^(a|an|the|my|our|some)\s+/i, "")
-    .split(/\s+(?:where|that|which|who|so|with|to|for|and|when|then|it|they|you|i)\b/i)[0]
+    .split(/\s+(?:where|that|which|who|so|with|to|for|and|when|then|it|they|you|i|about|after|before|because|until|unless|while|inspired|based|in|on|is|are|was|has|since)\b/i)[0]
     .trim();
   return np
     .split(/\s+/)

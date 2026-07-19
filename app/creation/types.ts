@@ -19,10 +19,12 @@ export type CreationType =
   | "digital-product"
   | "printable"
   | "design"
+  | "fashion"
   | "music"
   | "story"
   | "content"
   | "service"
+  | "sports-plan"
   | "event-plan"
   | "unknown";
 
@@ -36,10 +38,12 @@ export const CREATION_TYPE_LABEL: Record<CreationType, string> = {
   "digital-product": "A digital product",
   printable: "A printable",
   design: "A design",
+  fashion: "A wearable design",
   music: "Music",
-  story: "A story",
+  story: "A written piece",
   content: "A piece of content",
   service: "A service",
+  "sports-plan": "A coaching plan",
   "event-plan": "A real-world plan",
   unknown: "An idea",
 };
@@ -121,7 +125,8 @@ export interface HandoffPayloadV1 {
 
 const CREATION_TYPES = new Set<string>([
   "app", "site", "tool", "list", "game", "physical-product", "digital-product",
-  "printable", "design", "music", "story", "content", "service", "event-plan", "unknown",
+  "printable", "design", "fashion", "music", "story", "content", "service",
+  "sports-plan", "event-plan", "unknown",
 ]);
 const HANDOFF_FLOWS = new Set(["dream-lab", "game-lab", "dream-shop"]);
 

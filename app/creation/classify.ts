@@ -9,32 +9,53 @@
 // come out of the same paths.
 
 import type { Interpretation, Shape } from "../planner/types";
+import { findSportKind, looksFashion, SPORTS_PLAN_WORDS } from "./profile";
 import type { CreationType, SoftwareCall } from "./types";
 
 /* ── CREATION TYPE ─────────────────────────────────────────────────────── */
 
 const PRINTABLE = /\b(printable|pdf|worksheet|template|planner page|colou?ring page|flash ?cards?)\b/i;
-const DIGITAL_PRODUCT = /\b(digital (download|product)|e-?book|preset|font pack|download(able)?)\b/i;
-const PHYSICAL = /\b(shirts?|t-?shirts?|mugs?|stickers?|totes?|hats?|candles?|jewell?ery|apparel|garments?|clothing|sew|knit|3d[- ]print|woodwork|furniture)\b/i;
+const DIGITAL_PRODUCT = /\b(digital (download|product)|e-?book|preset|font pack|download(able)?|(online )?course)\b/i;
+const PHYSICAL = /\b(shirts?|t-?shirts?|mugs?|stickers?|totes?|hats?|candles?|jewell?ery|apparel|garments?|clothing|sew|knit|3d[- ]print|woodwork|furniture|greeting cards?|subscription box)\b/i;
 const DESIGN = /\b(design|logo|art print|wall art|illustration|poster)\b/i;
-const MUSIC = /\b(song|beat|track|album|melody|chords?|lyrics|music)\b/i;
-const STORY = /\b(story|novel|book|chapter|comic|screenplay|script|poem|children'?s book)\b/i;
+/* "track movies" and "book a walk" are verbs, not media — so music and story
+   words only classify when the SHAPE isn't already software (a list app that
+   tracks albums stays a list app). */
+const MUSIC = /\b(songs?|beats?|album|melody|chords?|lyrics|music|playlist|setlist|open mic|instrumental|remix)\b/i;
+const STORY = /\b(story|novel|book|chapter|comic|screenplay|script|poem|children'?s book|speech|toast|eulogy|sermon)\b/i;
 const CONTENT = /\b(blog|podcast|video series|newsletter|channel|content|posts?\b|reel)\b/i;
-const SERVICE = /\b(service|dog[- ]walk|babysit|tutor|coach(ing)?|clean(ing)? (houses|homes)|mow|for (people|clients) (who|that)|i('| a)?m offering)\b/i;
+/* Publication words strong enough to say "content" whatever the shape — a
+   blog reads as a site, but the blog IS the writing. */
+const CONTENT_STRONG = /\b(blog|newsletter|podcast|youtube|video series|(?:tiktok|instagram|youtube) channel|channel about)\b/i;
+const SERVICE = /\b(service|dog[- ]walk|babysit|tutor(ing)?|coach(ing)?|clean(ing)? (houses|homes|offices)|mow|i('| a)?m offering)\b/i;
 const EVENT = /\b(event|party|wedding|reunion|fundraiser|trip|camp|tournament|campaign)\b/i;
 
 export function classifyCreationType(text: string, shape: Shape): { type: CreationType; reason: string } {
   // A game is a game before it is anything its theme mentions — "guess the
   // missing lyric" is a game about music, not music.
   if (shape === "game") return { type: "game", reason: "you described something people play" };
+  // Coach-side sports work (a practice plan, drills, a playbook) is a coaching
+  // plan — unless the thing itself is a site or tracker, which stays software.
+  if (SPORTS_PLAN_WORDS.test(text) && findSportKind(text) && !/\b(site|website|page|tracker|app)\b/i.test(text)) {
+    return { type: "sports-plan", reason: "you described coaching work — a plan for real players on a real field" };
+  }
+  // Wearables with design intent are fashion, not a generic product — the
+  // build talks fit, fabric, and placement, not shipping.
+  if (looksFashion(text)) {
+    return { type: "fashion", reason: "you described something people wear" };
+  }
+  // Media words only mean media when the shape isn't already software.
+  const mediaShape = shape === "content" || shape === "unknown";
+  if (mediaShape && MUSIC.test(text)) return { type: "music", reason: "you described music" };
+  if (mediaShape && STORY.test(text)) return { type: "story", reason: "you described a written piece" };
+  // A blog or podcast is a publication even when it lives on a site.
+  if (CONTENT_STRONG.test(text)) return { type: "content", reason: "you described something you publish, piece by piece" };
   // Most specific first: a "sticker design" is a design, not a generic product.
   if (PRINTABLE.test(text)) return { type: "printable", reason: "you described a printable file" };
   if (PHYSICAL.test(text)) return { type: "physical-product", reason: "you described a physical item" };
   if (DIGITAL_PRODUCT.test(text)) return { type: "digital-product", reason: "you described a digital product" };
   if (shape === "product" && DESIGN.test(text)) return { type: "design", reason: "you described a design to sell" };
   if (shape === "product") return { type: "physical-product", reason: "you described something people would buy" };
-  if (MUSIC.test(text)) return { type: "music", reason: "you described music" };
-  if (STORY.test(text)) return { type: "story", reason: "you described a written piece" };
   if (SERVICE.test(text)) return { type: "service", reason: "you described something done for people, not built" };
   if (EVENT.test(text)) return { type: "event-plan", reason: "you described a real-world effort, not software" };
   if (CONTENT.test(text) && shape === "content") return { type: "content", reason: "you described published content" };
@@ -86,6 +107,12 @@ export function deriveSafetyConstraints(text: string, caretaker: CaretakerRead):
   }
   if (/\b(money|invest|budget|debt|financ)\b/i.test(text)) {
     out.push("This is not financial advice — say so visibly.");
+  }
+  if (/\b(practice|drill|playbook|conditioning|training|workout|athlete)\b/i.test(text) && findSportKind(text)) {
+    out.push(
+      "No medical, injury, or guaranteed performance claims — a coach plans the work, a doctor clears the player.",
+      "Keep age-appropriate intensity; water and rest breaks are part of the plan, not an interruption to it.",
+    );
   }
   return out;
 }
@@ -152,6 +179,20 @@ export function assessSoftware(
         nonSoftwareTest: "Make one finished unit (or one finished listing with a real mockup) and get one honest reaction.",
         explicitSoftwareRequest: explicit,
       };
+    case "fashion":
+      return {
+        verdict: "test-first",
+        reason: "It's something people wear. One finished design on a real mockup answers more than any app could.",
+        nonSoftwareTest: "Finish ONE design, put it on a print-on-demand mockup, and show it to one person who'd actually wear it.",
+        explicitSoftwareRequest: explicit,
+      };
+    case "sports-plan":
+      return {
+        verdict: "optional",
+        reason: "The plan is the product. It lives on one printed page and in the coach's pocket, not in an app.",
+        nonSoftwareTest: "Run ONE real practice from the printed plan. What survives contact with real players stays; the rest gets cut.",
+        explicitSoftwareRequest: explicit,
+      };
     case "music":
     case "story":
     case "content":
@@ -208,10 +249,12 @@ export function deriveSmallestOutcome(
     case "design":
     case "digital-product": return "One finished file a real person downloads, prints, or uses.";
     case "physical-product": return "One finished unit in a real person's hands, and an honest reaction.";
+    case "fashion": return "One finished design on a realistic mockup, and an honest reaction from someone who'd wear it.";
     case "music": return "One finished piece you can play for someone, start to end.";
     case "story": return "One finished draft a real reader gets through.";
     case "content": return "One finished piece published where its audience actually is.";
     case "service": return "One real delivery, done start to finish, for one real customer.";
+    case "sports-plan": return "One real practice runs on this plan, start to finish, and the team was better for it.";
     case "event-plan": return "The thing happens, people show up, and nobody's scrambling that morning.";
     default: return i.desiredResult?.value ?? "One version of this exists in the world and someone real has used it.";
   }
@@ -238,6 +281,6 @@ export function deriveVersionOnePromise(
 const CREATION_TYPE_NOUN: Record<CreationType, string> = {
   app: "app", site: "site", tool: "tool", list: "list", game: "game",
   "physical-product": "product", "digital-product": "download", printable: "printable",
-  design: "design", music: "piece", story: "draft", content: "piece",
-  service: "service", "event-plan": "plan", unknown: "version",
+  design: "design", fashion: "design", music: "piece", story: "draft", content: "piece",
+  service: "service", "sports-plan": "plan", "event-plan": "plan", unknown: "version",
 };
