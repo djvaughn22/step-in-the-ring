@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
-import AccessGate from "./AccessGate";
 import EngineSystem from "./EngineSystem";
+
+// The access gate is OFF for now — the Engine Room is open to everyone.
+// To bring it back, wrap EngineSystem in <AccessGate> again:
+//
+//   import AccessGate from "./AccessGate";
+//   <AccessGate><EngineSystem /></AccessGate>
+//
+// AccessGate.tsx and access.ts stay in the repo, tested and ready. Codes
+// already on visitors' devices keep working the day it returns.
 
 export const metadata: Metadata = {
   title: "Engine Room",
@@ -10,9 +18,5 @@ export const metadata: Metadata = {
 };
 
 export default function EnginesPage() {
-  return (
-    <AccessGate>
-      <EngineSystem />
-    </AccessGate>
-  );
+  return <EngineSystem />;
 }

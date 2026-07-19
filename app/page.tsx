@@ -396,7 +396,7 @@ export default function StepInTheRing() {
                 <h2>Create something</h2>
                 <p>
                   The Engine Room: pick an engine and finish a real thing — a decision, a design,
-                  a first beat. Access code required.
+                  a first beat. Open to everyone.
                 </p>
                 <a href="/engines" className="btn btn-primary btn-big">
                   Open the Engine Room
