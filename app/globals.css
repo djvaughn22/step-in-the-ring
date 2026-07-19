@@ -82,6 +82,23 @@ button, textarea, input, select { font: inherit; }
   padding: 60px 0 48px;
 }
 
+/* The landing leads with the creation question — the hero introduces, it
+   doesn't occupy. On a phone the question and box must arrive fast. */
+.hero-compact { padding: 24px 0 26px; }
+.hero-compact .ring-mark { width: 76px; height: 76px; margin-bottom: 16px; }
+.hero-compact .ring-glove { font-size: 26px; }
+.hero-compact h1 { font-size: clamp(30px, 6vw, 48px); }
+
+@media (max-width: 600px) {
+  /* On a phone the question and box must be in the first screenful — the
+     hero introduces and steps aside. The sub-line is lovely and expendable. */
+  .hero-compact { padding: 8px 0 14px; }
+  .hero-compact .ring-mark { width: 56px; height: 56px; margin-bottom: 10px; }
+  .hero-compact .ring-glove { font-size: 19px; }
+  .hero-compact .hero-sub { display: none; }
+  .hero-compact .kicker { margin-bottom: 6px; }
+}
+
 /* ── TYPE ── */
 h1 {
   font-size: clamp(38px, 8vw, 68px);
@@ -387,6 +404,7 @@ textarea:focus, input:focus {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
+  .page { padding-top: 22px; }
   .row2 { grid-template-columns: 1fr; }
   h1 { letter-spacing: -0.035em; }
   .ring-mark { width: 88px; height: 88px; }
@@ -572,6 +590,40 @@ a[href]:hover {
 .door-big p { font-size: 13.5px; color: var(--muted); line-height: 1.55; flex: 1; }
 .door-big .btn { margin-top: 6px; }
 .door-big .door-emoji { font-size: 26px; }
+
+/* ── STARTER CHIPS (outcome-first ways into the idea box) ── */
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--line2);
+  border-radius: 999px;
+  padding: 8px 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  touch-action: manipulation;
+}
+.chip:hover { border-color: var(--gold); color: var(--text); background: var(--gold-soft); }
+
+@media (pointer: coarse) {
+  .chip { min-height: 42px; }
+}
+
+/* Sub-heads inside the tools card. */
+.tools-sub {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  margin: 12px 0 6px;
+}
 
 /* ── PLAN READOUT ── */
 .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }

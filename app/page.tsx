@@ -7,6 +7,7 @@ import { recommendEngine } from "./planner/handoff";
 import { deletePlan, loadPlans, savePlan, type SavedPlan } from "./planner/storage";
 import { BUILD_TYPE_LABEL, type Interpretation } from "./planner/types";
 import { adapterForType } from "./creation/adapters";
+import { track } from "./lib/analytics";
 import {
   loadBuilderDefaults, saveBuilderDefaults, type BuilderDefaults,
 } from "./creation/builder-defaults";
@@ -20,7 +21,21 @@ import {
   CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
 } from "./creation/types";
 
-type Stage = "landing" | "shape" | "clarify" | "result" | "saved";
+type Stage = "landing" | "clarify" | "result" | "saved";
+
+/* Starters — outcome-first ways in. Each one drops an editable stem into the
+   box: the person finishes the sentence in their own words, and the reading
+   flows from what they actually typed. No hidden category state. */
+const STARTERS: { emoji: string; label: string; stem: string }[] = [
+  { emoji: "🛠️", label: "Build something", stem: "A website that " },
+  { emoji: "🎮", label: "Make a game", stem: "A game where " },
+  { emoji: "🎨", label: "Design something", stem: "A design for " },
+  { emoji: "🎵", label: "Create music", stem: "A song about " },
+  { emoji: "✍️", label: "Write something", stem: "A short story about " },
+  { emoji: "🏈", label: "Coach a team", stem: "A football practice plan for " },
+  { emoji: "🔧", label: "Fix something", stem: "Something broke: " },
+  { emoji: "💼", label: "Start a business", stem: "A service where I " },
+];
 
 /* Examples are whole descriptions now — the way a person actually talks. */
 const EXAMPLES: { label: string; hint: string; description: string }[] = [
@@ -106,7 +121,7 @@ function CopyButton({ text, label, big }: { text: string; label: string; big?: b
 function UnderstoodCard({ i, view }: { i: Interpretation; view?: CreationView | null }) {
   return (
     <div className="card card-gold">
-      <div className="plan-label">What you&apos;re building</div>
+      <div className="plan-label">What I think you&apos;re making</div>
       <h2 style={{ marginBottom: 10 }}>{i.title.value}</h2>
       <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.6 }}>{i.summary}</p>
       <div className="pill-row">
@@ -218,18 +233,20 @@ export default function StepInTheRing() {
     setDefaults(loadBuilderDefaults());
     try {
       // Versioned handoff (?cr=) first — it carries the whole creation.
+      // The idea box lives on the landing page now, so a handoff simply
+      // prefills it and puts the cursor there — one screen fewer to cross.
       const payload = readHandoffFromSearch(window.location.search);
       if (payload) {
         setIncoming(payload);
         setDescription(payload.idea.slice(0, 2000));
-        setStage("shape");
+        setTimeout(() => shapeRef.current?.focus(), 0);
         return;
       }
       // Legacy handoff from iDontCry's Dream Lab: ?idea=... still works.
       const idea = new URLSearchParams(window.location.search).get("idea");
       if (idea && idea.trim()) {
         setDescription(idea.trim().slice(0, 600));
-        setStage("shape");
+        setTimeout(() => shapeRef.current?.focus(), 0);
       }
     } catch {}
   }, []);
@@ -277,6 +294,11 @@ export default function StepInTheRing() {
   useEffect(() => {
     if (stage === "result" && view) saveCurrentCreation(view.record);
   }, [stage, view]);
+  useEffect(() => {
+    if (stage === "result" && view) track("plan_result_viewed", { type: view.creationType });
+    // Once per arrival at the result, not per keystroke of a correction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
 
   function continueLast() {
     const last = loadCurrentCreation();
@@ -365,44 +387,89 @@ export default function StepInTheRing() {
     return (
       <main>
         <div className="page">
-          <section className="hero" style={{ paddingBottom: 8 }}>
+          <section className="hero hero-compact">
             <RingMark />
             <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" className="kicker" style={{ textDecoration: "none" }}>
               Open Mirror LLC
             </a>
             <h1>Step In The Ring</h1>
             <p className="hero-sub">
-              Two ways in: say a rough idea and get a clear plan for version one — or open the
-              Engine Room and make something today.
+              Say it the way it comes out. You get back what it really is, the smartest first
+              version, and the tools it actually needs.
             </p>
           </section>
 
-          <section className="home-section" style={{ marginTop: 8 }}>
-            <div className="doors2">
-              <div className="door-big">
-                <span className="door-emoji" aria-hidden="true">🥊</span>
-                <h2>Shape an idea</h2>
-                <p>
-                  Say it however it comes out — messy is fine. You get back a plan for version one
-                  and a builder prompt worth handing to Claude or ChatGPT.
+          <section style={{ marginTop: 4 }} aria-label="Start a creation">
+            <form className="stack" onSubmit={handleShape}>
+              <div>
+                <label className="field-question" htmlFor="idea-description" style={{ display: "block" }}>
+                  What do you want to create today?
+                </label>
+                <p className="field-help" id="idea-help" style={{ marginBottom: 0 }}>
+                  An app, a game, a song, a story, a practice plan, a repair — messy is fine.
+                  If it belongs on a site you already have, say which one.
                 </p>
-                <button className="btn btn-gold btn-big" onClick={() => go("shape")}>
-                  Shape my idea
+              </div>
+              <textarea
+                id="idea-description"
+                ref={shapeRef}
+                aria-describedby="idea-help"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder='e.g. "A puzzle game where you pick a photo and drag the pieces back together."'
+                rows={5}
+                required
+              />
+              <div className="actions">
+                <button type="submit" className="btn btn-gold" disabled={!description.trim()}>
+                  Read my idea →
                 </button>
+                {hasLastCreation && (
+                  <button type="button" className="btn btn-ghost btn-small" onClick={continueLast}>
+                    Continue your last creation
+                  </button>
+                )}
+                {saved.length > 0 && (
+                  <button type="button" className="btn btn-ghost btn-small" onClick={() => go("saved")}>
+                    Your corner — {saved.length} saved
+                  </button>
+                )}
               </div>
+              <div className="chip-row" role="group" aria-label="Or start from what you want to make">
+                {STARTERS.map((s) => (
+                  <button
+                    key={s.label}
+                    type="button"
+                    className="chip"
+                    onClick={() => {
+                      setDescription(s.stem);
+                      setTimeout(() => {
+                        const el = shapeRef.current;
+                        if (!el) return;
+                        el.focus();
+                        el.setSelectionRange(s.stem.length, s.stem.length);
+                      }, 0);
+                    }}
+                  >
+                    <span aria-hidden="true">{s.emoji}</span> {s.label}
+                  </button>
+                ))}
+              </div>
+            </form>
+          </section>
 
-              <div className="door-big">
-                <span className="door-emoji" aria-hidden="true">🧰</span>
-                <h2>Create something</h2>
+          <section className="home-section" style={{ marginTop: 36 }}>
+            <a href="/engines" className="door-card">
+              <span className="door-emoji" aria-hidden="true">🧰</span>
+              <div>
+                <h3>Or open the Engine Room</h3>
                 <p>
-                  The Engine Room: pick an engine and finish a real thing — a decision, a design,
-                  a first beat. Open to everyone.
+                  Work with one specialist directly — decide an idea, design a product, make a
+                  first beat. Open to everyone.
                 </p>
-                <a href="/engines" className="btn btn-primary btn-big">
-                  Open the Engine Room
-                </a>
               </div>
-            </div>
+              <span className="door-go" aria-hidden="true">→</span>
+            </a>
           </section>
 
           <section className="home-section">
@@ -434,7 +501,8 @@ export default function StepInTheRing() {
                   onClick={() => {
                     setDescription(ex.description);
                     setAnswers({});
-                    go("shape");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    shapeRef.current?.focus();
                   }}
                 >
                   <span className="ex-name">{ex.label}</span>
@@ -470,23 +538,6 @@ export default function StepInTheRing() {
             </p>
           </section>
 
-          {(saved.length > 0 || hasLastCreation) && (
-            <section className="home-section">
-              <div className="actions">
-                {hasLastCreation && (
-                  <button className="btn btn-ghost btn-small" onClick={continueLast}>
-                    Continue your last creation
-                  </button>
-                )}
-                {saved.length > 0 && (
-                  <button className="btn btn-ghost btn-small" onClick={() => go("saved")}>
-                    Your corner — {saved.length} saved plan{saved.length !== 1 ? "s" : ""}
-                  </button>
-                )}
-              </div>
-            </section>
-          )}
-
           <div className="divider" />
           <p className="tiny" style={{ textAlign: "center" }}>
             Step In The Ring is part of{" "}
@@ -495,54 +546,6 @@ export default function StepInTheRing() {
             </a>
             . Kids should build with a parent or trusted adult.
           </p>
-        </div>
-      </main>
-    );
-  }
-
-  /* ── SHAPE — one open box ── */
-  if (stage === "shape") {
-    return (
-      <main>
-        <div className="page">
-          <div className="topbar">
-            <span className="topbar-title">Shape an idea</span>
-            <button className="btn btn-ghost btn-small" onClick={startOver}>Exit</button>
-          </div>
-
-          <div className="step-enter stack">
-            <div>
-              <label className="field-question" htmlFor="idea-description" style={{ display: "block" }}>
-                What do you want to make, improve, or fix?
-              </label>
-              <p className="field-help" id="idea-help">
-                However it comes out. Spelling doesn&apos;t matter. If it belongs on a site you already
-                have, say which one.
-              </p>
-            </div>
-
-            <form className="stack" onSubmit={handleShape}>
-              <textarea
-                id="idea-description"
-                ref={shapeRef}
-                aria-describedby="idea-help"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder='e.g. "A puzzle game where you pick a photo and drag the pieces back together. Add it to my games site."'
-                autoFocus
-                rows={7}
-                required
-              />
-              <div className="actions">
-                <button type="submit" className="btn btn-gold" disabled={!description.trim()}>
-                  Read my idea →
-                </button>
-                <button type="button" className="btn btn-ghost btn-small" onClick={() => go("landing")}>
-                  ← Back
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       </main>
     );
@@ -584,7 +587,7 @@ export default function StepInTheRing() {
                 <button type="button" className="btn btn-ghost btn-small" onClick={skipQuestion}>
                   Skip — decide for me
                 </button>
-                <button type="button" className="btn btn-ghost btn-small" onClick={() => go("shape")}>
+                <button type="button" className="btn btn-ghost btn-small" onClick={() => go("landing")}>
                   ← Change what I said
                 </button>
               </div>
@@ -607,7 +610,7 @@ export default function StepInTheRing() {
           {saved.length === 0 ? (
             <div className="card" style={{ textAlign: "center", padding: 40 }}>
               <p style={{ marginBottom: 20 }}>Nothing saved yet.</p>
-              <button className="btn btn-gold" onClick={() => go("shape")}>Shape my idea</button>
+              <button className="btn btn-gold" onClick={() => go("landing")}>Start a creation</button>
             </div>
           ) : (
             <div className="stack">
@@ -698,6 +701,53 @@ export default function StepInTheRing() {
               <div className="card">
                 <div className="plan-label">Ready when</div>
                 <p className="plan-value" style={{ fontSize: 14 }}>{plan.desiredResult.value}</p>
+              </div>
+            )}
+
+            {/* Tools and setup, honestly — what to use, what's manual once,
+                what turns automatic, what deliberately waits. */}
+            {view && (
+              <div className="card">
+                <div className="plan-label">The tools this needs</div>
+                <p className="plan-value" style={{ fontSize: 14.5 }}>{view.tools.stack}</p>
+                <p className="field-help" style={{ margin: "4px 0 0" }}>{view.tools.why}</p>
+                {view.tools.noSetup.length > 0 && (
+                  <p style={{ fontSize: 13.5, color: "var(--muted)", margin: "10px 0 0", lineHeight: 1.55 }}>
+                    <b style={{ color: "var(--text)" }}>No setup needed:</b> {view.tools.noSetup.join(" ")}
+                  </p>
+                )}
+                {view.tools.setup.length > 0 && (
+                  <>
+                    <p className="tools-sub">You set up once</p>
+                    <ul className="plan-list">
+                      {view.tools.setup.map((s, n) => <li key={n}>{s}</li>)}
+                    </ul>
+                  </>
+                )}
+                {view.tools.automatic.length > 0 && (
+                  <>
+                    <p className="tools-sub">Automatic after that</p>
+                    <ul className="plan-list">
+                      {view.tools.automatic.map((s, n) => <li key={n}>{s}</li>)}
+                    </ul>
+                  </>
+                )}
+                {view.tools.optional.length > 0 && (
+                  <>
+                    <p className="tools-sub">Optional — know the cost first</p>
+                    <ul className="plan-list">
+                      {view.tools.optional.map((s, n) => <li key={n}>{s}</li>)}
+                    </ul>
+                  </>
+                )}
+                {view.tools.wait.length > 0 && (
+                  <>
+                    <p className="tools-sub">You don&apos;t need yet</p>
+                    <ul className="plan-list">
+                      {view.tools.wait.map((s, n) => <li key={n}>{s}</li>)}
+                    </ul>
+                  </>
+                )}
               </div>
             )}
 
@@ -800,7 +850,7 @@ export default function StepInTheRing() {
             <BuilderDefaultsPanel value={defaults} onChange={setDefaults} />
 
             <div className="actions">
-              <button className="btn btn-primary" onClick={() => go("shape")}>Fix this plan</button>
+              <button className="btn btn-primary" onClick={() => go("landing")}>Fix this plan</button>
               <button className="btn btn-ghost btn-small" onClick={handleSave}>Save it</button>
               {saved.length > 0 && (
                 <button className="btn btn-ghost btn-small" onClick={() => go("saved")}>Your corner</button>
