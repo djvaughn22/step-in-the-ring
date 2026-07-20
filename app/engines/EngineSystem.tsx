@@ -23,6 +23,7 @@ import { adapterFor } from "../creation/adapters";
 import { loadBuilderDefaults } from "../creation/builder-defaults";
 import { downloadBuildPack, downloadCreationJson } from "../creation/build-pack";
 import { handoffToIntake, readHandoffFromSearch, recordToIntake } from "../creation/handoff";
+import { readEtsyPackageFromSearch, type EtsyCreativePackageV1 } from "../creation/etsy-package";
 import { recordFromEngineIntake, viewOf } from "../creation/record";
 import { parseCreationRecord } from "../creation/types";
 
@@ -164,6 +165,8 @@ export default function EngineSystem() {
   const [ready, setReady] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [view, setView] = useState<View>("list");
+  // An approved Dream Shop package (artwork included) arriving via `ecp`.
+  const [etsyPackage, setEtsyPackage] = useState<EtsyCreativePackageV1 | null>(null);
 
   // draft (new / next cycle)
   const [engineId, setEngineId] = useState<string>("");
@@ -193,6 +196,16 @@ export default function EngineSystem() {
   // prefills the intake, and the access gate never touches the URL, so the
   // creation survives the gate and resumes exactly here after unlock.
   useEffect(() => {
+    // An `ecp` package is the Dream Shop's approved creation, artwork and
+    // all — it goes straight to the Etsy Listing Builder, never a blank form.
+    const etsyPkg = readEtsyPackageFromSearch(window.location.search);
+    if (etsyPkg) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEtsyPackage(etsyPkg);
+      setEngineId("design-shop");
+      setView("intake");
+      return;
+    }
     const wanted = new URLSearchParams(window.location.search).get("engine");
     const e = wanted ? getEngine(wanted) : undefined;
     if (e && !e.hidden) {
@@ -330,9 +343,11 @@ export default function EngineSystem() {
         onBack={() => {
           setEngineId("");
           setAnswers({});
+          setEtsyPackage(null);
           setView("list");
         }}
         initialAnswers={Object.keys(answers).length > 0 ? answers : undefined}
+        etsyPackage={etsyPackage ?? undefined}
         card={card}
         Section={Section}
       />

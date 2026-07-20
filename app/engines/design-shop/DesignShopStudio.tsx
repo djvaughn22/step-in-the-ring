@@ -14,6 +14,8 @@ import {
   generateEtsyListingDraft,
   type DesignPackage,
 } from "./design-shop.engine";
+import type { EtsyCreativePackageV1 } from "../../creation/etsy-package";
+import EtsyListingBuilder, { etsyContentOf } from "./EtsyListingBuilder";
 import type { CreationDirection, CreationProject, CreationStatus, FileExport } from "../shared/creation-engine.types";
 import { CREATION_STATUS_LABELS } from "../shared/creation-engine.types";
 import {
@@ -91,12 +93,16 @@ export default function DesignShopStudio({
   card,
   Section,
   initialAnswers,
+  etsyPackage,
 }: {
   onBack: () => void;
   card: React.CSSProperties;
   Section: (p: { title: string; body: string }) => React.ReactElement;
   // Prefill from another engine's handoff (e.g., Idea Engine decision).
   initialAnswers?: Record<string, string>;
+  // An approved Dream Shop creative package (artwork included) — goes
+  // straight into the Etsy Listing Builder, never an empty form.
+  etsyPackage?: EtsyCreativePackageV1;
 }) {
   const [ready, setReady] = useState(false);
   const [saved, setSaved] = useState<CreationProject[]>([]);
@@ -109,6 +115,9 @@ export default function DesignShopStudio({
   const [design, setDesign] = useState<DesignPackage | null>(null);
   const [loading, setLoading] = useState(false);
   const [flash, setFlash] = useState("");
+  // An Etsy-listing project being worked on in the builder (from a fresh
+  // Dream Shop handoff or a saved project reopened from the list).
+  const [builderProject, setBuilderProject] = useState<CreationProject | null>(null);
 
   useEffect(() => {
     const existing = getProjectsByEngine(ENGINE_ID);
@@ -152,6 +161,11 @@ export default function DesignShopStudio({
 
   // ---- PROJECTS LIST ----
   const openProject = (p: CreationProject) => {
+    // Etsy-listing projects reopen in the builder, right where they left off.
+    if (etsyContentOf(p)) {
+      setBuilderProject(p);
+      return;
+    }
     setProject(p);
     setAnswers(p.answers);
     setDirections(p.directions ?? []);
@@ -347,6 +361,24 @@ ${listing.ipChecklist.join("\n")}
   const buttonRow = { display: "flex", gap: 8, flexWrap: "wrap" as const };
 
   if (!ready) return <div className="page"><div style={{ height: 200 }} /></div>;
+
+  // A Dream Shop handoff or a reopened listing project → the Etsy Listing
+  // Builder owns the screen. Never an empty engine form.
+  if (etsyPackage || builderProject) {
+    return (
+      <EtsyListingBuilder
+        pkg={builderProject ? undefined : etsyPackage}
+        project={builderProject ?? undefined}
+        onBack={() => {
+          setBuilderProject(null);
+          refreshList();
+          setStage("projects");
+          // A fresh handoff has no list to fall back to — leave to the Engine Room.
+          if (etsyPackage && !builderProject) onBack();
+        }}
+      />
+    );
+  }
 
   return (
     <main>
