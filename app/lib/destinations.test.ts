@@ -75,9 +75,13 @@ describe("the build-with card stays calm and accurate", () => {
     const { BUILD_WITH_CARD } = await import("./destinations");
     const live = liveDestinations(BUILD_WITH_CARD.destinations);
     expect(live).toHaveLength(1);
-    expect(live[0]?.href).toBe("https://openmirrorllc.com/contact");
-    expect(live[0]?.label).toBe("Contact Open Mirror");
+    expect(live[0]?.href).toBe("mailto:ask@openmirrorllc.com?subject=Open%20Mirror");
+    expect(live[0]?.label).toBe("Email Open Mirror");
     expect(BUILD_WITH_CARD.body.join(" ")).toContain("one outside project at a time");
+    // Say-less (owner, 2026-07-20): the pitch lines stay retired.
+    expect(
+      [BUILD_WITH_CARD.heading, ...BUILD_WITH_CARD.body, BUILD_WITH_CARD.closing ?? ""].join(" "),
+    ).not.toMatch(/pitch deck|send a short note|unfinished build/i);
     expect(
       [BUILD_WITH_CARD.heading, ...BUILD_WITH_CARD.body, BUILD_WITH_CARD.closing ?? ""].join(" "),
     ).not.toMatch(

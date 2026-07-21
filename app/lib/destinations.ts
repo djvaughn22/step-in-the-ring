@@ -113,19 +113,17 @@ export const BE_PREPARED_CARD: DestinationCardContent = {
 // there. Calm language only: no urgency, no prices, no promised acceptance.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Say-less (owner, 2026-07-20): one plain fact, one email action. No pitch.
 export const BUILD_WITH_CARD: DestinationCardContent = {
   heading: "Building something of your own?",
   body: [
-    "Open Mirror occasionally works with one outside project at a time. The work is small, focused, and based on fit and available time.",
-    "If you have a real idea, an unfinished build, or a specific problem, you can send a short note.",
+    "Open Mirror takes one outside project at a time, when there is a good fit. Email and we'll talk.",
   ],
-  closing: "No pitch deck required. Start with what you are trying to make.",
   destinations: [
     {
-      label: "Contact Open Mirror",
-      href: "https://openmirrorllc.com/contact",
+      label: "Email Open Mirror",
+      href: "mailto:ask@openmirrorllc.com?subject=Open%20Mirror",
       kind: "consulting",
-      external: true,
       enabled: true,
       status: "available",
     },
