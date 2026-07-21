@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import AboutDestinationCard from "../components/AboutDestinationCard";
+import { BE_PREPARED_CARD, BUILD_WITH_CARD } from "../lib/destinations";
 
 export const metadata: Metadata = {
   title: "About StepInTheRing",
@@ -34,6 +36,14 @@ export default function AboutPage() {
         <p style={{ border: "1px solid var(--line, #26324c)", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, color: "var(--ink, #e8edf5)", margin: "0 0 28px" }}>
           Free, no account. What you type stays on this device unless you download it yourself.
         </p>
+
+        {/* The quiet destination cards — after the site's own story. This is
+            the build site, so it also carries the one calm consulting path;
+            the primary consulting page stays on Open Mirror's Contact. */}
+        <div style={{ display: "grid", gap: 16, margin: "0 0 28px" }}>
+          <AboutDestinationCard card={BE_PREPARED_CARD} />
+          <AboutDestinationCard card={BUILD_WITH_CARD} />
+        </div>
 
         <p style={{ fontSize: 13, lineHeight: 1.7, color: "var(--muted, #94a3b8)", margin: 0 }}>
           StepInTheRing is an{" "}
