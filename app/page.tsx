@@ -17,6 +17,8 @@ import {
   loadCurrentCreation, newRecord, saveCurrentCreation, viewOf, type CreationView,
 } from "./creation/record";
 import { recommendEngines } from "./creation/recommend";
+import { projectFromCreation } from "./project/from-creation";
+import { saveProjectRecord } from "./project/store";
 import {
   CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
 } from "./creation/types";
@@ -374,6 +376,15 @@ export default function StepInTheRing() {
     setSaved(savePlan(input, plan.title.value));
     setFlash("Saved to your corner.");
     setTimeout(() => setFlash(""), 2500);
+  }
+
+  /** Promote the creation to a full project — workspace, gates, evidence. */
+  function makeProject() {
+    if (!view || !plan) return;
+    const project = projectFromCreation(view.record, plan);
+    saveProjectRecord(project);
+    track("project_created", { adapter: project.adapterId, from: "planner" });
+    window.location.href = `/projects?p=${project.projectId}`;
   }
 
   function openSaved(p: SavedPlan) {
@@ -840,6 +851,9 @@ export default function StepInTheRing() {
                       onClick={() => downloadCreationJson(view)}
                     >
                       Download record (.json)
+                    </button>
+                    <button className="btn btn-ghost btn-small" onClick={makeProject}>
+                      Make it a project
                     </button>
                   </div>
                 </div>
