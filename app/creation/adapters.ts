@@ -181,25 +181,91 @@ function gameCore(v: CreationView): SpecSection[] {
   const f = v.record.facts;
   const i = v.interpretation;
   const stated = i.versionOne.filter((c) => c.confidence === "stated").map((c) => c.value);
+  // Has the creator actually locked the core mechanic, or is finding it the
+  // real work? "You stack pancakes" is locked; "a skill game, mechanic to be
+  // developed" is not — and pretending otherwise ships the wrong game.
+  const fullText = [v.record.originalIdea, ...Object.values(v.record.answers), ...Object.values(v.record.facts)].join(". ");
+  const mechanicOpen =
+    /mechanic[^.!?]*\b(not|isn'?t|undecided|unknown|open|later|yet to)\b|\b(no|without|find|develop|discover|invent)\b[^.!?]{0,60}\bmechanic\b/i.test(fullText);
+
+  const mechanicSection: SpecSection[] = mechanicOpen
+    ? [
+        {
+          title: "The open decision: the core mechanic",
+          lines: bullets([
+            "The mechanic is NOT locked — locking it honestly is the first job. Do not build the first loop that sounds fun.",
+            "Draft 3–5 genuinely different core loops: different touch verbs (tap the moment / drag to steer / aim and release / choose fast), different skills being tested.",
+            "Score every candidate against: understood in seconds; one finger; how failure feels; skill ceiling; replay and procedural potential; readable without any language; production cost; ongoing cost; originality; and — above all — does the first player keep pressing restart.",
+            "Write the comparison into this creation's record before building. Then build ONE smallest playable proof of the winner — never three games.",
+            "Recommended direction: favour the candidate whose failure is instantly self-explaining and whose restart is instant — the 'one more try' pull lives there, not in graphics or theme.",
+          ]),
+        },
+      ]
+    : [];
+
   return [
     {
       title: "The game, precisely",
       lines: bullets([
+        "The one-sentence rule: state the whole game in ONE sentence a stranger could act on. If the sentence needs a second clause, the game is already too complicated.",
         `Player: ${f.player || v.primaryUser || "whoever picks it up — assume no instructions get read"}.`,
         `Player goal: ${f.goal || i.desiredResult?.value || "state one goal the player can hold in their head from the first second"}.`,
-        `Core action: the ONE input the player repeats${stated.length ? ` — from their words: ${stated.join("; ")}` : ""}.`,
+        `Core action: the ONE input the player repeats${stated.length ? ` — from their words: ${stated.join("; ")}` : ""}. Name the exact touch verb (tap / drag / hold-and-release) — one finger, phone portrait, playable with a thumb.`,
         "Core loop: act → immediate feedback → new situation → act again. If this loop isn't fun bare, nothing added later fixes it.",
+        "Anticipation: name the moment the player sees coming (the gap closing, the window shrinking). No visible approaching moment, no tension — no tension, no game.",
+        "Satisfaction: name the payoff of a good action — the snap, the sound, the near-miss survived. It must land the instant the input does.",
         f.theme ? `Theme: ${f.theme}.` : "Theme serves the loop, never replaces it.",
         "Rules: few enough to explain on the board itself — the board always tells the player what to do next.",
       ]),
     },
+    ...mechanicSection,
     {
-      title: "Win, loss, and feedback",
+      title: "Win, loss, and restart",
       lines: bullets([
         "Win state: the game SAYS you won, clearly, and offers the next round.",
-        "Loss/stuck state: the player always knows why, and retrying is one tap.",
+        "Loss state: every failure traces to the player's own action — show WHAT ended the run and by how much (early/late, too far/short), so they leave knowing how to improve.",
+        "Restart: one tap, under a second, straight back into play — no menu, no confirmation, no loading. The 'one more try' loop dies at two taps.",
         "Every action gets instant feedback — silence is a bug.",
-        "A session fits the time the player actually has; one round is minutes, not hours.",
+      ]),
+    },
+    {
+      title: "Score and visible mastery",
+      lines: bullets([
+        "Score measures skill, never time spent — a better player scores more in fewer minutes.",
+        "Best result saved on the device; the game always shows the number to beat.",
+        "Improvement is visible: streaks, perfects, or a cleaner run the player can feel by their third session.",
+        "Skill ceiling: a first-day player and a hundredth-day player should play visibly differently.",
+      ]),
+    },
+    {
+      title: "Difficulty, fairness, and replay",
+      lines: bullets([
+        "Difficulty ramps with the player's skill inside a run — and the climb has NAMES the player can say out loud, not just a number.",
+        "Fairness: never punish what couldn't be seen coming; no off-screen deaths; judge the player generously at the edges.",
+        "Decide deterministic vs random and write it down. Randomness may vary the SITUATION, never the fairness — every generated situation must be winnable, and a seeded run must replay identically.",
+        "Procedural variation carries long-term replay — generated by code, not by hand-authoring a level treadmill.",
+      ]),
+    },
+    {
+      title: "Sessions, short and long",
+      lines: bullets([
+        "A round fits the pocket of time a phone actually gets: under two minutes, meaningful in thirty seconds.",
+        "A long sitting is just chained restarts — nothing (energy, timers, interstitials) ever interrupts the chain.",
+      ]),
+    },
+    {
+      title: "On the phone",
+      lines: bullets([
+        "Phone portrait first: the action lives in the upper two-thirds; the thumb owns the bottom; nothing essential hides under a finger.",
+        "Sound and haptics reinforce, never carry — a tick for success, a distinct thud for failure, both with visible toggles, and the game fully playable silent.",
+        "Respect reduced motion; the game remains playable with animations minimised.",
+      ]),
+    },
+    {
+      title: "The cost model",
+      lines: bullets([
+        "A static page and local storage: no server, no accounts, no content pipeline — the whole game runs on the player's device.",
+        "Content is generated by code at play time; adding replay value costs thought, not ongoing money.",
       ]),
     },
     {
@@ -208,14 +274,23 @@ function gameCore(v: CreationView): SpecSection[] {
         "One level/round, fully playable start → win, before ANY menu, progression, or settings work.",
         "Play-test acceptance: someone who didn't build it finishes a round without being told how.",
         "Mobile-first: thumb targets, touch-action manipulation, nothing essential below the fold.",
-        "Respect reduced motion; the game remains playable with animations minimised.",
       ]),
     },
     {
       title: "Do not add in version one",
       lines: bullets([
         "Accounts, currencies, stores, achievements, multiplayer, leaderboards, social systems.",
+        "Ads, subscriptions, energy systems, coins, gems, boosters, or any timer that makes a player wait to play — not in testing, and not bolted on later.",
+        "Manipulative daily-reward loops: the game earns the return visit or it doesn't deserve one.",
         "Menus beyond play/again. Progression only if a single round already proves fun.",
+      ]),
+    },
+    {
+      title: "Playtest and the honest verdict",
+      lines: bullets([
+        "Watch the first player, silently: did they understand without being told? Restart without being asked? Pass ten attempts? Chase their own best?",
+        "The return test: do they open it again later, unprompted? That answer outranks every opinion.",
+        "Kill-or-continue, decided BEFORE the playtest: continue only if the first player voluntarily restarts past ten attempts and comes back later on their own; kill or change the mechanic if playing feels like obligation. A mediocre loop cannot be polished into a good one.",
       ]),
     },
   ];
