@@ -539,6 +539,10 @@ export default function StepInTheRing() {
                 <span className="proof-name">⛏️ MineDoku</span>
                 <span className="proof-sub">Built and pushed live from the Game Engine.</span>
               </a>
+              <a href="https://www.idontcry.com/circuit" target="_blank" rel="noopener noreferrer" className="proof-card">
+                <span className="proof-name">⚡ Circuit</span>
+                <span className="proof-sub">One lap, one tap — catch the green light. Started in the Game Lab, specified through the Ring.</span>
+              </a>
             </div>
             <p className="tiny" style={{ marginTop: 12 }}>
               <a href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>See every live product →</a>

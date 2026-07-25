@@ -1,5 +1,15 @@
 [
   {
+    "id": "circuit",
+    "name": "Circuit",
+    "emoji": "⚡",
+    "url": "https://www.idontcry.com/circuit",
+    "engine": "build",
+    "blurb": "One lap, one tap — catch the green light as the dot laps the ring. Yellow pays less, red ends the run; moving gates and asteroids join the climb.",
+    "pushedAt": "2026-07-24",
+    "by": "Open Mirror"
+  },
+  {
     "id": "slopedoku",
     "name": "SlopeDoku",
     "emoji": "⛷️",
