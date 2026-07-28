@@ -372,6 +372,24 @@ export const ENGINES: Engine[] = [
     statusNote: "The package is real and downloadable. The camera and the YouTube upload button are yours — the engine prepares everything and keeps the record.",
   },
   {
+    id: "story",
+    name: "Story Partner",
+    emoji: "📖",
+    tagline: "Turn a lifetime of memories into a novel — one character, one storyline at a time.",
+    blurb: "A private working story room. Capture memories in any order, open one focus at a time, separate real facts from fictional changes, draft and revise scenes, and watch the chapter outline take shape. You bring your own ChatGPT — the engine sells the process, not tokens.",
+    technical: false,
+    suggestedStage: "Building",
+    intake: [],
+    specialties: [],
+    // The full owner flow (capture → rooms → briefing pack → paste-back →
+    // export/import) is covered by story.engine.test.ts and was walked in a
+    // real browser, but the first novel is still being written with it. It
+    // earns "working" when a manuscript actually comes out the other side.
+    activation: "beta",
+    output: "A growing novel project — memories, characters, relationships, storylines, scenes with full revision history, and a chapter outline — saved in your browser, exportable as one file.",
+    statusNote: "Local-first: your words stay in this browser and are not intentionally stored on this site's server. That also means a cleared browser can erase them — the workspace pushes you to export backups.",
+  },
+  {
     id: "music",
     name: "Music Engine",
     emoji: "🎵",

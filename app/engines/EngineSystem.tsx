@@ -16,6 +16,7 @@ import {
 import DesignShopStudio from "./design-shop/DesignShopStudio";
 import GameStudio from "./games/GameStudio";
 import HowToStudio from "./howto/HowToStudio";
+import StoryStudio from "./story/StoryStudio";
 import IdeaStudio from "./idea/IdeaStudio";
 import OnboardingFlow from "./shared/OnboardingFlow";
 import { MUSIC_ENGINE } from "./music/music.engine";
@@ -359,6 +360,20 @@ export default function EngineSystem() {
   if (engineId === "game" && view === "intake") {
     return (
       <GameStudio
+        onBack={() => {
+          setEngineId("");
+          setAnswers({});
+          setView("list");
+        }}
+        card={card}
+      />
+    );
+  }
+
+  // Story Partner: private story room — memories → rooms → scenes → chapters
+  if (engineId === "story" && view === "intake") {
+    return (
+      <StoryStudio
         onBack={() => {
           setEngineId("");
           setAnswers({});
