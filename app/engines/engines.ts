@@ -354,6 +354,24 @@ export const ENGINES: Engine[] = [
     output: "A playable doku world — published live to OpenDoku when run by the owner.",
   },
   {
+    id: "howto",
+    name: "How to Anything Engine",
+    emoji: "🎬",
+    tagline: "Turn something you know into something that helps — and keep it working for you.",
+    blurb: "One proven solution at a time. Capture what really happened, prove the fix is real, and leave with the full production package: script, shot list, YouTube listing, thumbnail plan, article, and social versions. Your knowledge is the value — nothing gets invented.",
+    technical: false,
+    suggestedStage: "Building",
+    intake: [],
+    specialties: [],
+    // The package generates deterministically and the whole flow is covered by
+    // howto.engine.test.ts, but filming and the YouTube upload happen off this
+    // page — we can't watch that part, so this stays beta until the first
+    // video is live (the Xumo box fix is queued to be that video).
+    activation: "beta",
+    output: "A complete production package for one proven fix — voiceover script, shot list, YouTube title/description/tags, pinned comment, thumbnail plan, article, and social versions. You film it and press publish.",
+    statusNote: "The package is real and downloadable. The camera and the YouTube upload button are yours — the engine prepares everything and keeps the record.",
+  },
+  {
     id: "music",
     name: "Music Engine",
     emoji: "🎵",

@@ -15,6 +15,7 @@ import {
 } from "./store";
 import DesignShopStudio from "./design-shop/DesignShopStudio";
 import GameStudio from "./games/GameStudio";
+import HowToStudio from "./howto/HowToStudio";
 import IdeaStudio from "./idea/IdeaStudio";
 import OnboardingFlow from "./shared/OnboardingFlow";
 import { MUSIC_ENGINE } from "./music/music.engine";
@@ -358,6 +359,20 @@ export default function EngineSystem() {
   if (engineId === "game" && view === "intake") {
     return (
       <GameStudio
+        onBack={() => {
+          setEngineId("");
+          setAnswers({});
+          setView("list");
+        }}
+        card={card}
+      />
+    );
+  }
+
+  // How to Anything Engine: one proven solution → full production package
+  if (engineId === "howto" && view === "intake") {
+    return (
+      <HowToStudio
         onBack={() => {
           setEngineId("");
           setAnswers({});

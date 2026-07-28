@@ -54,6 +54,19 @@ Idea-to-first-build coach, secular. Accent: **#60A5FA**.
 
 **Next work:** Link from iDontCry Dream Shop handoff → Etsy Engine prefill (not yet wired). Document the shared handoff format.
 
+## How to Anything Engine
+
+**Route:** `/engines` → 🎬 How to Anything Engine. **Status: beta** (see `docs/ENGINE-STATUS.md`).
+
+**What it is:** turns ONE proven real-life solution at a time into original faceless how-to content. The owner's knowledge is the value — the engine is a production assistant, never an information source. Flow (one screen per step, chips gate forward movement): 1 Remember (capture what really happened, steps one per line) → 2 Prove → 3 Create (the production package) → 4 Footage (shot checklist; clips stay on the owner's camera) → 5 Publish (copy-paste YouTube package + accuracy check; owner presses the real publish button, pastes the video URL back) → 6 Promote (per-platform social versions, each pointing at the video) → 7 Learn (manual performance check-ins from YouTube Studio) → next solution. The library grows from lived experience, not content quotas.
+
+**The law of this engine — the proof gate (`proofGate` in `howto.engine.ts`):** a guess never becomes a claimed fact. No package generates until proof level is `firsthand` or `documented` AND the owner checks "every step above is exactly what happened". `uncertain` is a hard stop with honest copy, not a warning. Never soften this gate.
+
+- `app/engines/howto/howto.engine.ts` — pure logic, no APIs, deterministic: `SolutionRecord` (lives in a CreationProject's `buildContent`, shared persistence store), gates, `buildPackage()` (titles, voiceover script built from the owner's captured words with minimal connective tissue, shot list one shot per step, YouTube description with chapters + "Not sponsored" disclosure, tags, pinned comment, thumbnail plan, article markdown), `socialPack()` (6 platforms; placeholder link until `videoUrl` is set), `packageMarkdown()` (full .md download), `XUMO_SEED`.
+- `app/engines/howto/HowToStudio.tsx` — the studio, mounted from EngineSystem like IdeaStudio. Saves via `shared/persistence.ts` (`engineId: "howto"`).
+- Tests: `app/engines/howto/howto.engine.test.ts` (24) — gate blocking, steps surviving verbatim, disclosure + limits presence, no hype words, optional sections staying optional, URL swap-in, parse safety. Add a fixture with any reasoning change.
+- **First seed:** the Spectrum Xumo box white-flash fix (hold the green Home button ~5s — it's standby, not broken). This is queued to be the first published video; once it completes the whole path the engine moves to `working`.
+
 ## Game Engine
 
 **Route:** `/engines?engine=game` (deep link used by iDontCry's Game Lab) or Engine Room picker → 🎮 Game Engine.
