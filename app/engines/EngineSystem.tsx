@@ -17,8 +17,7 @@ import DesignShopStudio from "./design-shop/DesignShopStudio";
 import GameStudio from "./games/GameStudio";
 import HowToStudio from "./howto/HowToStudio";
 import IdeaStudio from "./idea/IdeaStudio";
-import OnboardingFlow from "./shared/OnboardingFlow";
-import { MUSIC_ENGINE } from "./music/music.engine";
+import MusicStudio from "./music/MusicStudio";
 import { track } from "../lib/analytics";
 import { adapterFor } from "../creation/adapters";
 import { loadBuilderDefaults } from "../creation/builder-defaults";
@@ -438,11 +437,11 @@ export default function EngineSystem() {
     );
   }
 
-  // Music Engine uses the shared 1-2-3 onboarding flow
+  // Music Engine: adaptive front door — "bring your song to life" for
+  // creators who already have material, or the original first-beat flow.
   if (engineId === "music" && view === "intake") {
     return (
-      <OnboardingFlow
-        engine={MUSIC_ENGINE}
+      <MusicStudio
         onBack={() => {
           setEngineId("");
           setAnswers({});
