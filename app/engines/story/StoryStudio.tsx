@@ -26,8 +26,11 @@ import {
   type StoryProjectV1,
 } from "./story.engine";
 import { loadActiveProject, saveActiveProject } from "./story.store";
+import { redactRealNames } from "./vault.engine";
+import { loadVault } from "./vault.store";
+import VaultView from "./VaultView";
 
-type View = { name: "home" } | { name: "room"; ref: LinkRef } | { name: "novel" };
+type View = { name: "home" } | { name: "room"; ref: LinkRef } | { name: "novel" } | { name: "vault" };
 
 const ROOM_NOTE_SECTIONS: { kind: NoteKind; title: string }[] = [
   { kind: "fact", title: "Established story facts" },
@@ -62,6 +65,7 @@ export default function StoryStudio({
   const [noteKind, setNoteKind] = useState<NoteKind>("question");
   const [noteText, setNoteText] = useState("");
   const [task, setTask] = useState("");
+  const [redactPack, setRedactPack] = useState(true);
   const [paste, setPaste] = useState("");
   const [pasteClass, setPasteClass] = useState<PasteClassification>("working");
   const [pasteSceneId, setPasteSceneId] = useState("");
@@ -284,6 +288,7 @@ export default function StoryStudio({
         </button>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <button type="button" style={view.name === "novel" ? btn : btnQuiet} onClick={() => setView({ name: "novel" })}>The Novel</button>
+          <button type="button" style={btnQuiet} onClick={() => setView({ name: "vault" })}>🔒 Private legend</button>
           <button type="button" style={btnQuiet} onClick={doExport}>Export backup</button>
         </div>
       </div>
@@ -335,6 +340,12 @@ export default function StoryStudio({
       <button type="button" style={{ ...btn, marginTop: 10 }} onClick={() => saveCapture(autoLink)}>Save memory</button>
     </div>
   );
+
+  // ================= the private legend (owner-only vault) =================
+
+  if (view.name === "vault") {
+    return <VaultView project={project} card={card} onBack={() => setView({ name: "home" })} />;
+  }
 
   // ================= home =================
 
@@ -542,6 +553,11 @@ export default function StoryStudio({
             <span style={label}>Real basis (private notes)</span>
             <textarea value={character.realBasis} onChange={(e) => persist(updateCharacter(project, ref.id, { realBasis: e.target.value }))}
               placeholder="Who or what this draws from in real life. Stays in this browser." style={{ ...input, minHeight: 52, resize: "vertical" }} />
+            <p style={{ ...help, margin: "4px 0 0" }}>
+              Real identities are better kept in the 🔒 Private legend — it stays out of every export,
+              tracks what changed and why, and never travels with the creative backup. This field does
+              travel with the creative backup.
+            </p>
           </>
         )}
         {relationship && (
@@ -731,10 +747,22 @@ export default function StoryStudio({
         <textarea value={task} onChange={(e) => setTask(e.target.value)}
           placeholder='e.g. "Ask me five questions that would deepen this relationship before we draft the meeting scene."'
           style={{ ...input, minHeight: 56, resize: "vertical" }} />
+        {(loadVault(project.id)?.sources.length ?? 0) > 0 && (
+          <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            <input type="checkbox" checked={redactPack} onChange={(e) => setRedactPack(e.target.checked)} />
+            Replace real names with private source IDs before copying (recommended)
+          </label>
+        )}
         <button type="button" style={{ ...btn, marginTop: 8 }}
           onClick={async () => {
             if (!task.trim()) { say("Say what you want your partner to do — the pack needs a task."); return; }
-            try { await navigator.clipboard.writeText(briefingPack(project, ref, task)); say("Briefing pack copied."); }
+            let pack = briefingPack(project, ref, task);
+            const vaultSources = loadVault(project.id)?.sources ?? [];
+            if (redactPack && vaultSources.length > 0) pack = redactRealNames(pack, vaultSources);
+            try {
+              await navigator.clipboard.writeText(pack);
+              say(redactPack && vaultSources.length > 0 ? "Briefing pack copied — real names replaced with source IDs." : "Briefing pack copied.");
+            }
             catch { say("Couldn't reach the clipboard — select and copy by hand."); }
           }}>
           Copy briefing pack
