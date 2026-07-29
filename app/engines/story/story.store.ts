@@ -1,46 +1,42 @@
 // Story Partner persistence — local-first, versioned, safe-parsed.
 //
-// The project lives in localStorage in THIS browser on THIS device. It is not
-// intentionally sent to or stored on the server. See PRIVACY_EXPLANATION in
-// story.engine.ts for the honest version shown to the author.
+// The project lives in THIS browser on THIS device: IndexedDB is the durable
+// store, localStorage remains a best-effort mirror (and the migration source
+// for pre-IndexedDB projects). Nothing is intentionally sent to or stored on
+// the server. See PRIVACY_EXPLANATION in story.engine.ts for the honest
+// version shown to the author. Call initStorage() once before reading.
 
-import { sanitizeProject, type StoryProjectV1 } from "./story.engine";
+import { type StoryProject } from "./story.engine";
+import {
+  cachedActiveProject, cachedProjects, initStorage as initDb,
+  persistProject, setActiveProject, storageHealth,
+} from "./db";
 
-const STORAGE_KEY = "sitr-story-partner-v1";
-const VERSION = 1;
+export { storageHealth };
+export type { StorageHealth } from "./db";
 
-interface StoryStore {
-  version: number;
-  projects: StoryProjectV1[];
+export async function initStorage(): Promise<void> {
+  await initDb();
 }
 
-function safeParse(raw: string | null): StoryStore {
-  if (!raw) return { version: VERSION, projects: [] };
-  try {
-    const parsed = JSON.parse(raw) as Partial<StoryStore>;
-    const projects = Array.isArray(parsed?.projects)
-      ? parsed.projects.map(sanitizeProject).filter((p): p is StoryProjectV1 => !!p)
-      : [];
-    return { version: VERSION, projects };
-  } catch {
-    return { version: VERSION, projects: [] };
-  }
+export function loadActiveProject(): StoryProject | null {
+  return cachedActiveProject();
 }
 
-export function loadActiveProject(): StoryProjectV1 | null {
-  if (typeof window === "undefined") return null;
-  const store = safeParse(window.localStorage.getItem(STORAGE_KEY));
-  return store.projects[0] ?? null;
+export function listProjects(): StoryProject[] {
+  return cachedProjects();
 }
 
-export function saveActiveProject(project: StoryProjectV1): boolean {
-  if (typeof window === "undefined") return false;
-  const store = safeParse(window.localStorage.getItem(STORAGE_KEY));
-  const rest = store.projects.filter((p) => p.id !== project.id);
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, projects: [project, ...rest] }));
-    return true;
-  } catch {
-    return false; // storage full or blocked — caller shows the honest message
-  }
+/** Persists to IndexedDB + mirror. Resolves false when nothing durable took the write. */
+export function saveActiveProject(project: StoryProject): Promise<boolean> {
+  return persistProject(project, true);
+}
+
+/** Store a project WITHOUT making it the active one (restore-as-copy). */
+export function saveProjectInBackground(project: StoryProject): Promise<boolean> {
+  return persistProject(project, false);
+}
+
+export async function switchActiveProject(id: string): Promise<void> {
+  await setActiveProject(id);
 }

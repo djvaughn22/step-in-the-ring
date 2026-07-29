@@ -15,22 +15,42 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addChapter, addCharacter, addDraft, addMemory, addNote, addRelationship,
   addScene, addStoryline, amendMemory, applyPasteBack, briefingPack,
-  CHAPTER_STATUSES, countRecords, createProject, currentDraft, exportPayload,
+  CHAPTER_STATUSES, CHARACTER_CLASSIFICATIONS, countRecords, craftWarnings,
+  createProject, currentDraft, exportPayload,
   exportReminder, FOCUS_KIND_LABELS, gatherFocus, labelFor, markExported,
   moveChapter, moveSceneInChapter, NOTE_KINDS, parseImport, placeSceneInChapter,
-  PASTE_CLASSIFICATIONS, PRIVACY_EXPLANATION, promoteNote,
+  PASTE_CLASSIFICATIONS, PRIVACY_EXPLANATION, promoteNote, REVIEW_STATES,
   removeSceneFromChapter, setNoteStatus, deleteNote, toggleMemoryLink,
   updateChapter, updateCharacter, updateRelationship, updateScene,
   updateStoryline,
-  type FocusKind, type LinkRef, type NoteKind, type PasteClassification,
-  type StoryProjectV1,
+  type CharacterClassification, type FocusKind, type LinkRef, type NoteKind,
+  type PasteClassification, type ReviewState, type StoryProjectV1,
 } from "./story.engine";
-import { loadActiveProject, saveActiveProject } from "./story.store";
-import { redactRealNames } from "./vault.engine";
-import { loadVault } from "./vault.store";
+import { initStorage, listProjects, loadActiveProject, saveActiveProject, switchActiveProject } from "./story.store";
+import { redactRealNames, type SourceVaultV1 } from "./vault.engine";
+import { loadVault, saveVault } from "./vault.store";
+import { asRestoredCopy, exportOwnerBackup, OWNER_BACKUP_FILENAME_PREFIX, OWNER_BACKUP_NOTICE, parseOwnerBackup } from "./backup";
+import { makeRevision } from "./revisions";
+import { persistRevision } from "./db";
+import { ConstitutionPanel, ResearchPanel, RevisionsPanel, SeriesPanel, type PanelStyles } from "./StudioPanels";
 import VaultView from "./VaultView";
 
-type View = { name: "home" } | { name: "room"; ref: LinkRef } | { name: "novel" } | { name: "vault" };
+type View =
+  | { name: "home" } | { name: "room"; ref: LinkRef } | { name: "novel" } | { name: "vault" }
+  | { name: "series" } | { name: "constitution" } | { name: "research" } | { name: "revisions" };
+
+const AUTOSAVE_REVISION_MS = 2 * 60 * 1000; // a background revision at most this often
+
+// Background revision so "every draft is preserved" holds even between manual
+// saves — throttled at module level, and pruning never touches named checkpoints.
+let lastAutosaveAt = 0;
+function maybeAutosaveRevision(next: StoryProjectV1): void {
+  const t = Date.now();
+  if (t - lastAutosaveAt > AUTOSAVE_REVISION_MS) {
+    lastAutosaveAt = t;
+    void persistRevision(makeRevision(next, "autosave"));
+  }
+}
 
 const ROOM_NOTE_SECTIONS: { kind: NoteKind; title: string }[] = [
   { kind: "fact", title: "Established story facts" },
@@ -45,9 +65,11 @@ const ROOM_NOTE_SECTIONS: { kind: NoteKind; title: string }[] = [
 export default function StoryStudio({
   onBack,
   card,
+  backLabel = "← Engine Room",
 }: {
   onBack: () => void;
   card: React.CSSProperties;
+  backLabel?: string;
 }) {
   const [ready, setReady] = useState(false);
   const [project, setProject] = useState<StoryProjectV1 | null>(null);
@@ -73,23 +95,28 @@ export default function StoryStudio({
   const [revision, setRevision] = useState("");
   const [revisionNote, setRevisionNote] = useState("");
   const [openMemoryId, setOpenMemoryId] = useState("");
-  const [pendingImport, setPendingImport] = useState<StoryProjectV1 | null>(null);
+  const [pendingImport, setPendingImport] = useState<{ project: StoryProjectV1; vault: SourceVaultV1 | null; ownerBackup: boolean } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setProject(loadActiveProject());
-    setReady(true);
+    let alive = true;
+    void initStorage().then(() => {
+      if (!alive) return;
+      setProject(loadActiveProject());
+      setReady(true);
+    });
+    return () => { alive = false; };
   }, []);
 
   const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 3000); };
 
   const persist = (next: StoryProjectV1, message?: string) => {
     setProject(next);
-    if (!saveActiveProject(next)) {
-      say("Saving to this browser failed — export a backup now.");
-      return;
-    }
-    if (message) say(message);
+    void saveActiveProject(next).then((ok) => {
+      if (!ok) { say("Saving to this browser failed — export a backup now."); return; }
+      if (message) say(message);
+    });
+    maybeAutosaveRevision(next);
   };
 
   const reminder = useMemo(() => (project ? exportReminder(project) : null), [project]);
@@ -160,29 +187,67 @@ export default function StoryStudio({
     setCapture(""); setCaptureEra(""); setCaptureLinks([]);
   };
 
+  const download = (filename: string, contents: string) => {
+    const blob = new Blob([contents], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  /** Creative Project Backup — the fictional project only; the vault is excluded by design. */
   const doExport = () => {
     if (!project) return;
     const stamped = markExported(project);
-    const payload = exportPayload(stamped);
-    const blob = new Blob([payload], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${stamped.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "story-partner"}-${stamped.lastExportAt.slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    persist(stamped, "Export downloaded. Keep it somewhere safe.");
+    download(
+      `${stamped.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "story-partner"}-${stamped.lastExportAt.slice(0, 10)}.json`,
+      exportPayload(stamped),
+    );
+    persist(stamped, "Creative backup downloaded — the private legend is NOT in this file.");
+  };
+
+  /** Complete Owner Vault Backup — explicit, highly sensitive, PRIVATE-named. */
+  const doExportOwner = () => {
+    if (!project) return;
+    if (!window.confirm(`${OWNER_BACKUP_NOTICE}\n\nDownload the Complete Owner Vault Backup?`)) return;
+    const vault = loadVault(project.id);
+    download(
+      `${OWNER_BACKUP_FILENAME_PREFIX}-${new Date().toISOString().slice(0, 10)}.json`,
+      exportOwnerBackup(project, vault),
+    );
+    say(vault ? "Owner backup downloaded — it CONTAINS the private legend. Guard it." : "Owner backup downloaded (no legend exists yet for this project).");
   };
 
   const onImportFile = async (file: File) => {
     const raw = await file.text();
-    const result = parseImport(raw);
-    if (!result.ok) { say(result.error); return; }
+    const owner = parseOwnerBackup(raw);
+    const parsed = owner.ok
+      ? { project: owner.project, vault: owner.vault, ownerBackup: true }
+      : (() => {
+          const result = parseImport(raw);
+          return result.ok ? { project: result.project, vault: null, ownerBackup: false } : null;
+        })();
+    if (!parsed) { say("That file isn't a Story Partner backup."); return; }
     if (!project || countRecords(project) === 0) {
-      persist(result.project, "Project imported.");
+      // Nothing here to protect — import straight in (still as a sanitized copy).
+      const copy = asRestoredCopy(parsed.project, parsed.vault, listProjects().map((p) => p.id));
+      persist(copy.project, "Project imported.");
+      if (copy.vault) void saveVault(copy.vault);
       setView({ name: "home" });
       return;
     }
-    setPendingImport(result.project); // confirmation step — never silently replace
+    setPendingImport(parsed); // confirmation step — and even then, never a replace
+  };
+
+  /** Restores land ALONGSIDE existing work — nothing is overwritten, ever. */
+  const applyImport = () => {
+    if (!pendingImport) return;
+    const copy = asRestoredCopy(pendingImport.project, pendingImport.vault, listProjects().map((p) => p.id));
+    persist(copy.project, copy.remapped ? "Imported as a separate restored copy — the existing project is untouched." : "Project imported.");
+    if (copy.vault) void saveVault(copy.vault);
+    setPendingImport(null);
+    setView({ name: "home" });
   };
 
   const linkChips = (current: LinkRef[], onToggle: (ref: LinkRef) => void) => (
@@ -241,7 +306,7 @@ export default function StoryStudio({
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <button type="button" onClick={onBack} style={btnQuiet}>← Engine Room</button>
+          <button type="button" onClick={onBack} style={btnQuiet}>{backLabel}</button>
         </div>
         <div style={card}>
           <p style={kicker}>Story Partner</p>
@@ -284,12 +349,15 @@ export default function StoryStudio({
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
         <button type="button" onClick={view.name === "home" ? onBack : () => setView({ name: "home" })} style={btnQuiet}>
-          {view.name === "home" ? "← Engine Room" : "← Workspace"}
+          {view.name === "home" ? backLabel : "← Workspace"}
         </button>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <button type="button" style={view.name === "novel" ? btn : btnQuiet} onClick={() => setView({ name: "novel" })}>The Novel</button>
+          <button type="button" style={view.name === "series" ? btn : btnQuiet} onClick={() => setView({ name: "series" })}>Series board</button>
+          <button type="button" style={view.name === "constitution" ? btn : btnQuiet} onClick={() => setView({ name: "constitution" })}>Constitutions</button>
+          <button type="button" style={view.name === "research" ? btn : btnQuiet} onClick={() => setView({ name: "research" })}>Research</button>
+          <button type="button" style={view.name === "revisions" ? btn : btnQuiet} onClick={() => setView({ name: "revisions" })}>Revisions & backups</button>
           <button type="button" style={btnQuiet} onClick={() => setView({ name: "vault" })}>🔒 Private legend</button>
-          <button type="button" style={btnQuiet} onClick={doExport}>Export backup</button>
         </div>
       </div>
       <p role="status" aria-live="polite" style={{ color: "var(--gold)", fontWeight: 800, minHeight: 20, margin: "0 0 6px" }}>{flash}</p>
@@ -300,17 +368,16 @@ export default function StoryStudio({
       )}
       {pendingImport && (
         <div style={{ ...card, borderLeft: "4px solid var(--gold)", marginBottom: 10 }}>
-          <p style={sectionTitle}>Replace the current project?</p>
+          <p style={sectionTitle}>Restore “{pendingImport.project.title}”?</p>
           <p style={help}>
-            Importing “{pendingImport.title}” ({countRecords(pendingImport)} records) will REPLACE
-            “{project.title}” ({countRecords(project)} records) in this browser. This cannot be undone
-            unless you have an export of the current project.
+            {pendingImport.ownerBackup
+              ? `This is a Complete Owner Vault Backup (${countRecords(pendingImport.project)} records${pendingImport.vault ? ", including the private legend" : ""}). `
+              : `This is a Creative Project Backup (${countRecords(pendingImport.project)} records). `}
+            It will be imported as a separate copy — “{project.title}” stays exactly as it is.
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button type="button" style={btn} onClick={() => { persist(pendingImport, "Project imported."); setPendingImport(null); setView({ name: "home" }); }}>
-              Replace it
-            </button>
-            <button type="button" style={btnQuiet} onClick={() => setPendingImport(null)}>Keep current project</button>
+            <button type="button" style={btn} onClick={applyImport}>Import as a separate copy</button>
+            <button type="button" style={btnQuiet} onClick={() => setPendingImport(null)}>Cancel</button>
           </div>
         </div>
       )}
@@ -345,6 +412,36 @@ export default function StoryStudio({
 
   if (view.name === "vault") {
     return <VaultView project={project} card={card} onBack={() => setView({ name: "home" })} />;
+  }
+
+  // ================= planning & preservation panels =================
+
+  const panelStyles: PanelStyles = { input, label, help, kicker, btn, btnQuiet, sectionTitle, verbatim };
+  const panelProps = { project, card, s: panelStyles, persist, say };
+
+  if (view.name === "series") {
+    return <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>{header}<SeriesPanel {...panelProps} /></div>;
+  }
+  if (view.name === "constitution") {
+    return <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>{header}<ConstitutionPanel {...panelProps} /></div>;
+  }
+  if (view.name === "research") {
+    return <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>{header}<ResearchPanel {...panelProps} /></div>;
+  }
+  if (view.name === "revisions") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {header}
+        <RevisionsPanel
+          {...panelProps}
+          onExportCreative={doExport}
+          onExportOwner={doExportOwner}
+          onImportClick={() => fileRef.current?.click()}
+        />
+        <input ref={fileRef} type="file" accept=".json,application/json" style={{ display: "none" }}
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = ""; }} />
+      </div>
+    );
   }
 
   // ================= home =================
@@ -404,9 +501,19 @@ export default function StoryStudio({
           <p style={sectionTitle}>Backup & where your words live</p>
           <p style={help}>{PRIVACY_EXPLANATION}</p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button type="button" style={btn} onClick={doExport}>Export backup (.json)</button>
+            <button type="button" style={btn} onClick={doExport}>Creative backup (.json)</button>
+            <button type="button" style={btnQuiet} onClick={() => setView({ name: "revisions" })}>Revisions, checkpoints & full backups</button>
             <button type="button" style={btnQuiet} onClick={() => fileRef.current?.click()}>Import</button>
           </div>
+          {listProjects().length > 1 && (
+            <div style={{ marginTop: 10 }}>
+              <span style={label}>Projects in this browser</span>
+              <select value={project.id} style={{ ...input, width: "auto" }}
+                onChange={(e) => { void switchActiveProject(e.target.value).then(() => { setProject(loadActiveProject()); setView({ name: "home" }); }); }}>
+                {listProjects().map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+              </select>
+            </div>
+          )}
           <input ref={fileRef} type="file" accept=".json,application/json" style={{ display: "none" }}
             onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = ""; }} />
         </div>
@@ -423,7 +530,15 @@ export default function StoryStudio({
         <div style={card}>
           <p style={kicker}>The Novel</p>
           <h2 style={{ fontSize: 19, fontWeight: 900, margin: "0 0 6px" }}>{project.title}</h2>
-          <p style={help}>Chapters in reading order. Reordering moves references only — scenes and their drafts are never duplicated or lost.</p>
+          <p style={help}>Chapters in reading order. Reordering moves references only — scenes and their drafts are never duplicated or lost. Third person, one focal viewpoint per chapter.</p>
+          {craftWarnings(project).length > 0 && (
+            <div style={{ borderLeft: "3px solid var(--gold)", paddingLeft: 10, margin: "0 0 8px" }}>
+              {craftWarnings(project).map((w, i) => (
+                <p key={i} style={{ ...help, margin: "0 0 3px" }}>⚠️ {w.text}</p>
+              ))}
+              <p style={{ fontSize: 11.5, color: "var(--muted)", margin: 0 }}>Warnings flag — they never rewrite your prose.</p>
+            </div>
+          )}
           <div style={{ display: "flex", gap: 6 }}>
             {adding === "chapter" ? (
               <>
@@ -469,7 +584,40 @@ export default function StoryStudio({
                     {CHAPTER_STATUSES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                   </select>
                 </div>
+                {project.books.length > 0 && (
+                  <div>
+                    <span style={label}>Book</span>
+                    <select value={ch.bookId} onChange={(e) => persist(updateChapter(project, ch.id, { bookId: e.target.value }))} style={{ ...input, width: "auto" }}>
+                      <option value="">Unassigned</option>
+                      {project.books.map((b) => <option key={b.id} value={b.id}>{b.workingTitle}</option>)}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <span style={label}>Review</span>
+                  <select value={ch.reviewState} onChange={(e) => persist(updateChapter(project, ch.id, { reviewState: e.target.value as ReviewState }))} style={{ ...input, width: "auto" }}>
+                    {REVIEW_STATES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                  </select>
+                </div>
               </div>
+              <details style={{ marginTop: 8 }}>
+                <summary style={{ fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+                  🎧 Audio pass {ch.audio.reviewed ? "· reviewed" : ""}
+                </summary>
+                <span style={{ ...label, display: "block", marginTop: 6 }}>Pronunciation notes (names, terms)</span>
+                <textarea value={ch.audio.pronunciationNotes}
+                  onChange={(e) => persist(updateChapter(project, ch.id, { audio: { ...ch.audio, pronunciationNotes: e.target.value } }))}
+                  style={{ ...input, minHeight: 40, resize: "vertical" }} />
+                <span style={{ ...label, display: "block", marginTop: 6 }}>Narrator notes</span>
+                <textarea value={ch.audio.narratorNotes}
+                  onChange={(e) => persist(updateChapter(project, ch.id, { audio: { ...ch.audio, narratorNotes: e.target.value } }))}
+                  style={{ ...input, minHeight: 40, resize: "vertical" }} />
+                <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                  <input type="checkbox" checked={ch.audio.reviewed}
+                    onChange={(e) => persist(updateChapter(project, ch.id, { audio: { ...ch.audio, reviewed: e.target.checked } }))} />
+                  Read aloud and reviewed for listeners
+                </label>
+              </details>
               {project.storylines.length > 0 && (
                 <div style={{ marginTop: 8 }}>
                   <span style={label}>Storylines</span>
@@ -550,6 +698,27 @@ export default function StoryStudio({
             <span style={label}>Description (in the novel)</span>
             <textarea value={character.description} onChange={(e) => persist(updateCharacter(project, ref.id, { description: e.target.value }))}
               placeholder="Who this character is in the fiction." style={{ ...input, minHeight: 52, resize: "vertical", marginBottom: 8 }} />
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+              <div>
+                <span style={label}>Classification</span>
+                <select value={character.classification} onChange={(e) => persist(updateCharacter(project, ref.id, { classification: e.target.value as CharacterClassification }))} style={{ ...input, width: "auto" }}>
+                  {CHARACTER_CLASSIFICATIONS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                </select>
+              </div>
+              <div style={{ flex: 1, minWidth: 160 }}>
+                <span style={label}>Pronunciation (for the narrator)</span>
+                <input value={character.pronunciation} onChange={(e) => persist(updateCharacter(project, ref.id, { pronunciation: e.target.value }))}
+                  placeholder="How the name is said aloud" style={input} />
+              </div>
+            </div>
+            {character.classification !== "human" && (
+              <p style={{ ...help, margin: "0 0 8px" }}>
+                A spiritual being&apos;s portrayal is fictional invention under the Spiritual-World Constitution — never doctrine.
+              </p>
+            )}
+            <span style={label}>Voice notes — rhythm, vocabulary, how they sound</span>
+            <textarea value={character.voiceNotes} onChange={(e) => persist(updateCharacter(project, ref.id, { voiceNotes: e.target.value }))}
+              placeholder="Distinct voices keep listeners oriented." style={{ ...input, minHeight: 44, resize: "vertical", marginBottom: 8 }} />
             <span style={label}>Real basis (private notes)</span>
             <textarea value={character.realBasis} onChange={(e) => persist(updateCharacter(project, ref.id, { realBasis: e.target.value }))}
               placeholder="Who or what this draws from in real life. Stays in this browser." style={{ ...input, minHeight: 52, resize: "vertical" }} />

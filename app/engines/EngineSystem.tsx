@@ -16,7 +16,6 @@ import {
 import DesignShopStudio from "./design-shop/DesignShopStudio";
 import GameStudio from "./games/GameStudio";
 import HowToStudio from "./howto/HowToStudio";
-import StoryStudio from "./story/StoryStudio";
 import IdeaStudio from "./idea/IdeaStudio";
 import OnboardingFlow from "./shared/OnboardingFlow";
 import { MUSIC_ENGINE } from "./music/music.engine";
@@ -370,17 +369,33 @@ export default function EngineSystem() {
     );
   }
 
-  // Story Partner: private story room — memories → rooms → scenes → chapters
+  // Story Partner: the working room moved behind the owner door at /author.
+  // This public card reveals nothing and only points at the protected entry.
   if (engineId === "story" && view === "intake") {
     return (
-      <StoryStudio
-        onBack={() => {
-          setEngineId("");
-          setAnswers({});
-          setView("list");
-        }}
-        card={card}
-      />
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <button
+          type="button"
+          onClick={() => { setEngineId(""); setAnswers({}); setView("list"); }}
+          style={{ alignSelf: "flex-start", background: "var(--surface)", color: "inherit", border: "1px solid var(--line)", borderRadius: 10, padding: "9px 14px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+        >
+          ← Engine Room
+        </button>
+        <div style={card}>
+          <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Story Partner</p>
+          <h2 style={{ fontSize: 19, fontWeight: 900, margin: "0 0 6px" }}>A private author&apos;s room</h2>
+          <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.55, margin: "0 0 12px" }}>
+            Story Partner is a password-protected working room for its author. The writing lives in the
+            author&apos;s own browser, not on this site.
+          </p>
+          <a
+            href="/author"
+            style={{ display: "inline-block", background: "var(--gold)", color: "#111", borderRadius: 10, padding: "9px 14px", fontSize: 14, fontWeight: 800, textDecoration: "none" }}
+          >
+            Owner entrance →
+          </a>
+        </div>
+      </div>
     );
   }
 

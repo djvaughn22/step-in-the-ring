@@ -381,13 +381,13 @@ export const ENGINES: Engine[] = [
     suggestedStage: "Building",
     intake: [],
     specialties: [],
-    // The full owner flow (capture → rooms → briefing pack → paste-back →
-    // export/import) is covered by story.engine.test.ts and was walked in a
-    // real browser, but the first novel is still being written with it. It
-    // earns "working" when a manuscript actually comes out the other side.
-    activation: "beta",
-    output: "A growing novel project — memories, characters, relationships, storylines, scenes with full revision history, and a chapter outline — saved in your browser, exportable as one file.",
-    statusNote: "Local-first: your words stay in this browser and are not intentionally stored on this site's server. That also means a cleared browser can erase them — the workspace pushes you to export backups.",
+    // The working room now lives behind server-side password protection at
+    // /author. This public card only points at that protected entry — it
+    // reveals no project data. It earns "working" when a manuscript actually
+    // comes out the other side.
+    activation: "owner-only",
+    output: "A growing novel project — memories, characters, relationships, storylines, scenes with full revision history, series planning, and a chapter outline — saved in the author's browser, exportable as backups.",
+    statusNote: "Private: the working room is password-protected and the writing is local-first — it stays in the author's browser and is not intentionally stored on this site's server.",
   },
   {
     id: "music",

@@ -41,3 +41,11 @@ yarn-error.log*
 next-env.d.ts
 .stepinthering-backups/
 .microsurgery-backups/
+
+# Author's Room — private manuscript & vault material must never enter Git
+PRIVATE-*
+*.story-backup.json
+/Story Partner/
+/private/
+/backups/
+/exports/

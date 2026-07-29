@@ -9,52 +9,19 @@
 // It deters casual access. It is not a security boundary, and the honest copy
 // in the UI says so.
 
-import { sanitizeVault, type SourceVaultV1 } from "./vault.engine";
+import { type SourceVaultV1 } from "./vault.engine";
+import { cachedVault, persistVault } from "./db";
 
-const STORAGE_KEY = "sitr-source-vault-v1";
 const LOCK_KEY = "sitr-source-vault-lock-v1";
 const UNLOCK_SESSION_KEY = "sitr-source-vault-unlocked-v1";
-const VERSION = 1;
-
-interface VaultStore {
-  version: number;
-  /** Reserved for a later encryption pass. "none" today — stated honestly. */
-  cipher: "none";
-  vaults: SourceVaultV1[];
-}
-
-function safeParse(raw: string | null): VaultStore {
-  if (!raw) return { version: VERSION, cipher: "none", vaults: [] };
-  try {
-    const parsed = JSON.parse(raw) as Partial<VaultStore>;
-    const vaults = Array.isArray(parsed?.vaults)
-      ? parsed.vaults.map(sanitizeVault).filter((v): v is SourceVaultV1 => !!v)
-      : [];
-    return { version: VERSION, cipher: "none", vaults };
-  } catch {
-    return { version: VERSION, cipher: "none", vaults: [] };
-  }
-}
 
 export function loadVault(projectId: string): SourceVaultV1 | null {
-  if (typeof window === "undefined") return null;
-  const store = safeParse(window.localStorage.getItem(STORAGE_KEY));
-  return store.vaults.find((v) => v.projectId === projectId) ?? null;
+  return cachedVault(projectId);
 }
 
-export function saveVault(vault: SourceVaultV1): boolean {
-  if (typeof window === "undefined") return false;
-  const store = safeParse(window.localStorage.getItem(STORAGE_KEY));
-  const rest = store.vaults.filter((v) => v.projectId !== vault.projectId);
-  try {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ version: VERSION, cipher: "none", vaults: [vault, ...rest] }),
-    );
-    return true;
-  } catch {
-    return false; // storage full or blocked — caller shows the honest message
-  }
+/** Persists to IndexedDB + mirror. Resolves false when nothing durable took the write. */
+export function saveVault(vault: SourceVaultV1): Promise<boolean> {
+  return persistVault(vault);
 }
 
 // ---------------------------------------------------------------------------

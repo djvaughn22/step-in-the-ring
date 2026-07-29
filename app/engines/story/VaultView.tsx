@@ -30,6 +30,9 @@ import {
   hasLock, isUnlocked, loadVault, lockNow, LOCK_RESET_PHRASE, resetLock, saveVault,
   setLock, unlockWithCode,
 } from "./vault.store";
+import {
+  disableVaultEncryption, enableVaultEncryption, lockVault, unlockVault, vaultEncryptionState,
+} from "./db";
 
 const WORKFLOW =
   "Capture → Preserve → Identify → Classify → Protect → Fictionalize → Connect → Approve. " +
@@ -75,22 +78,37 @@ export default function VaultView({
   const [confirmExport, setConfirmExport] = useState(false);
   const [pendingImport, setPendingImport] = useState<SourceVaultV1 | null>(null);
 
-  useEffect(() => {
-    setLockExists(hasLock());
-    setLocked(!isUnlocked());
-    setReady(true);
-  }, []);
+  const [encState, setEncState] = useState<"off" | "locked" | "unlocked">("off");
+  const [passInput, setPassInput] = useState("");
+  const [passConfirm, setPassConfirm] = useState("");
+  const [showEncrypt, setShowEncrypt] = useState(false);
 
   useEffect(() => {
-    if (!locked) setVault(loadVault(project.id) ?? createVault(project.id));
-  }, [locked, project.id]);
+    let alive = true;
+    // Deferred so state settles in one pass after mount, not synchronously in the effect.
+    void Promise.resolve().then(() => {
+      if (!alive) return;
+      setLockExists(hasLock());
+      const isLocked = !isUnlocked();
+      setLocked(isLocked);
+      const enc = vaultEncryptionState(project.id);
+      setEncState(enc);
+      if (!isLocked && enc !== "locked") setVault(loadVault(project.id) ?? createVault(project.id));
+      setReady(true);
+    });
+    return () => { alive = false; };
+  }, [project.id]);
+
+  const openVault = () => setVault(loadVault(project.id) ?? createVault(project.id));
 
   const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 3500); };
 
   const persist = (next: SourceVaultV1, message?: string) => {
     setVault(next);
-    if (!saveVault(next)) { say("Saving to this browser failed — export the vault now."); return; }
-    if (message) say(message);
+    void saveVault(next).then((ok) => {
+      if (!ok) { say("Saving to this browser failed — export the vault now."); return; }
+      if (message) say(message);
+    });
   };
 
   // ---- styles (match StoryStudio conventions) ----
@@ -126,6 +144,45 @@ export default function VaultView({
 
   // ================= lock screens =================
 
+  // Real encryption comes first: while the vault is sealed, there is nothing
+  // readable in memory — the passphrase is the only way in, and it is NOT
+  // recoverable.
+  if (encState === "locked") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <button type="button" onClick={onBack} style={{ ...btnQuiet, alignSelf: "flex-start" }}>← Workspace</button>
+        <div style={card}>
+          <p style={kicker}>Real-to-Fiction Legend</p>
+          <h2 style={{ fontSize: 19, fontWeight: 900, margin: "0 0 6px" }}>Unlock the encrypted vault</h2>
+          <p style={help}>
+            This vault is encrypted (AES-256-GCM) under your passphrase. There is no reset and no
+            recovery — a forgotten passphrase means this vault stays sealed for good. Your Complete
+            Owner Vault Backups are the safety net.
+          </p>
+          <span style={label}>Vault passphrase</span>
+          <input type="password" value={passInput} onChange={(e) => setPassInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") (document.getElementById("vault-decrypt-btn") as HTMLButtonElement | null)?.click(); }}
+            style={input} />
+          <button id="vault-decrypt-btn" type="button" style={{ ...btn, marginTop: 10 }}
+            onClick={async () => {
+              if (!passInput) { say("Enter the passphrase."); return; }
+              if (await unlockVault(project.id, passInput)) {
+                setPassInput("");
+                setEncState("unlocked");
+                openVault();
+                say("Vault unlocked for this page session.");
+              } else {
+                say("That passphrase doesn't open this vault.");
+              }
+            }}>
+            Unlock
+          </button>
+          {flashLine}
+        </div>
+      </div>
+    );
+  }
+
   if (locked) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -155,11 +212,12 @@ export default function VaultView({
             id="vault-unlock-btn" type="button" style={{ ...btn, marginTop: 10 }}
             onClick={async () => {
               if (!codeInput.trim()) { say("Enter a code."); return; }
+              // This screen only renders when the encrypted seal is already off or open.
               if (lockExists) {
-                if (await unlockWithCode(codeInput)) { setLocked(false); setCodeInput(""); }
+                if (await unlockWithCode(codeInput)) { setLocked(false); setCodeInput(""); openVault(); }
                 else say("That's not the code.");
               } else {
-                if (await setLock(codeInput)) { setLockExists(true); setLocked(false); setCodeInput(""); }
+                if (await setLock(codeInput)) { setLockExists(true); setLocked(false); setCodeInput(""); openVault(); }
                 else say("Couldn't set the lock in this browser.");
               }
             }}
@@ -258,7 +316,11 @@ export default function VaultView({
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         <button type="button" onClick={onBack} style={btnQuiet}>← Workspace</button>
-        <button type="button" style={btnQuiet} onClick={() => { lockNow(); setLocked(true); }}>🔒 Lock now</button>
+        <button type="button" style={btnQuiet} onClick={async () => {
+          if (encState === "unlocked") { await lockVault(project.id); setEncState("locked"); setVault(null); }
+          lockNow();
+          setLocked(true);
+        }}>🔒 Lock now</button>
       </div>
 
       <div style={card}>
@@ -267,6 +329,59 @@ export default function VaultView({
         <p style={help}>{WORKFLOW}</p>
         <p style={help}>{VAULT_PRIVACY_EXPLANATION}</p>
         {flashLine}
+      </div>
+
+      <div style={card}>
+        <p style={sectionTitle}>
+          {encState === "unlocked" ? "🔐 Encryption is ON (unlocked this session)" : "Encryption — off"}
+        </p>
+        {encState === "unlocked" ? (
+          <>
+            <p style={help}>
+              The vault is stored as AES-256-GCM ciphertext. While unlocked it lives decrypted in this
+              page&apos;s memory only — locking, refreshing, or closing the tab seals it again. Nothing
+              typed here is written back to unencrypted storage.
+            </p>
+            <button type="button" style={btnQuiet} onClick={async () => {
+              if (!window.confirm("Turn encryption OFF and store the vault as plain browser data again?")) return;
+              const ok = await disableVaultEncryption(project.id);
+              if (ok) { setEncState("off"); say("Encryption is off — the vault is plain browser data again."); }
+              else say("Couldn't disable encryption.");
+            }}>Turn encryption off</button>
+          </>
+        ) : showEncrypt ? (
+          <>
+            <p style={help}>
+              Real encryption (AES-256-GCM, PBKDF2). Two honest warnings before you turn it on:
+              the passphrase is NOT recoverable — forgetting it loses this vault permanently — and
+              encryption protects the vault at rest, not while it&apos;s unlocked on an open screen.
+              Download a Complete Owner Vault Backup first and store it somewhere safe.
+            </p>
+            <span style={label}>Vault passphrase (min 8 characters — separate from your login password)</span>
+            <input type="password" value={passInput} onChange={(e) => setPassInput(e.target.value)} style={input} />
+            <span style={{ ...label, marginTop: 6, display: "block" }}>Type it again</span>
+            <input type="password" value={passConfirm} onChange={(e) => setPassConfirm(e.target.value)} style={input} />
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <button type="button" style={btn} onClick={async () => {
+                if (passInput.length < 8) { say("Use at least 8 characters."); return; }
+                if (passInput !== passConfirm) { say("The two entries don't match."); return; }
+                const ok = await enableVaultEncryption(project.id, passInput);
+                if (ok) { setEncState("unlocked"); setShowEncrypt(false); setPassInput(""); setPassConfirm(""); say("Vault encrypted. The passphrase is NOT recoverable — keep backups."); }
+                else say("Couldn't encrypt the vault in this browser.");
+              }}>Encrypt the vault</button>
+              <button type="button" style={btnQuiet} onClick={() => { setShowEncrypt(false); setPassInput(""); setPassConfirm(""); }}>Cancel</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p style={help}>
+              Today this vault is plain browser data behind a courtesy lock. Optional real encryption
+              seals it under a passphrase so browser storage and stolen device backups hold only
+              ciphertext. The trade is permanent: no passphrase, no vault.
+            </p>
+            <button type="button" style={btnQuiet} onClick={() => setShowEncrypt(true)}>Encrypt this vault…</button>
+          </>
+        )}
       </div>
 
       {/* Private search */}
