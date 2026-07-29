@@ -393,8 +393,8 @@ export const ENGINES: Engine[] = [
     id: "music",
     name: "Music Engine",
     emoji: "🎵",
-    tagline: "Make and export your first beat with free tools.",
-    blurb: "Choose your device, get free music software from official sources, and follow a guided first project to a real exported audio file. Works with no equipment or with an MPK Mini.",
+    tagline: "Bring your song to life — or make your first beat.",
+    blurb: "Arrive with words, a melody in your head, a voice memo, or nothing at all. The engine preserves your source exactly, meets you at your actual starting point, and guides you to a real playable result. Works with no equipment or with an MPK Mini.",
     technical: false,
     suggestedStage: "Spark",
     intake: [],
@@ -405,7 +405,7 @@ export const ENGINES: Engine[] = [
     // music.engine.ts declares "beta" too. Claiming "works" would be us
     // vouching for a step we never watched happen.
     activation: "beta",
-    output: "A guided path to your first exported beat — the audio file comes out of the free software, not out of this page.",
+    output: "A preserved song project moving to a playable Version One — or your first exported beat. The audio comes out of your music software, not out of this page.",
   },
 ];
 

@@ -30,7 +30,7 @@ question, different vocabulary. Don't mix them.
 | Grow Engine | `/engines?engine=grow` | beta | Generates a real package (~4k chars). |
 | Plan Engine | `/engines?engine=plan` | beta | Generates a real package (~3.9k chars). |
 | How to Anything Engine | `/engines` → 🎬 How to Anything Engine | beta | Drove the full flow in the browser on 2026-07-27 with the Xumo seed: capture → proof gate (verified it BLOCKS without the confirmation and blocks "uncertain") → package (script/shots/titles/description with chapters + disclosure) → footage checklist (6/6) → publish (video URL swaps into every social version) → performance check-in → reopen lands on Learn. 24 unit tests. Stays beta on purpose: filming and the YouTube upload happen off this page. |
-| Music Engine | `/engines?engine=music` | beta | Device picker, official tool links and step tracking load and save. Stays beta on purpose: the beat is exported from BandLab, which we cannot verify from here. |
+| Music Engine | `/engines?engine=music` | beta | Two paths (2026-07-28): "Bring your song to life" — adaptive song workspace for creators arriving with words/melody/recordings (source preserved exactly, creator boundaries gate the UI, honest milestones, Version One requires real proof + explicit creator decision; see `docs/MUSIC-ENGINE.md`) — and the original first-beat beginner flow, unchanged. Stays beta on purpose: the audio comes out of the music software, which we cannot verify from here. |
 | Game Engine | `/engines?engine=game` | **owner-only** | See below. |
 | Etsy Engine | (hidden) | beta, **duplicate** | Folded into Design Shop. Hidden from the picker, kept defined so old saved Etsy projects still open. **Do not delete** — deleting it orphans saved projects. |
 
