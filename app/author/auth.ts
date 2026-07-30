@@ -24,7 +24,7 @@ type Env = Record<string, string | undefined>;
 
 export function ownerPassword(env: Env = process.env): string | null {
   const p = env.STORY_OWNER_PASSWORD;
-  return p && p.length >= 8 ? p : null; // shorter than 8 = treated as unconfigured
+  return p && p.length >= 4 ? p : null; // shorter than 4 = treated as unconfigured
 }
 
 export function sessionSecret(env: Env = process.env): string | null {
