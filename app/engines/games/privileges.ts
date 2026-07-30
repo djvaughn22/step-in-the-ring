@@ -1,19 +1,16 @@
 // Game Engine privileges — WHO may publish a game to a live platform.
 //
-// BUILD PHASE (now): everyone who is past the Engine Room access gate gets
-// full privileges, so the whole pipeline can be tested end to end.
-//
-// LATER (DJ adds): map Engine Room access codes to roles here — e.g.
-// { "2323": "publisher", "4444": "builder" } — and enforce the same check
-// server-side in app/api/engines/games/publish/route.ts before any push.
-// Publishing only works where a publish driver is configured (the local
-// opendoku repo today; a GITHUB_TOKEN driver for production later), so the
-// open stub cannot push from stepinthering.com in the meantime.
+// The real boundary is the shared owner session: the publish API
+// (app/api/engines/games/publish/route.ts) rejects any request without a
+// valid owner cookie before reading the body, and the whole Engine Room UI
+// sits behind the server-side owner gate. These role helpers only shape the
+// UI for whoever is already inside; if visitor roles ever return, enforce
+// them server-side in the publish route as well, never only here.
 
 export type GameRole = "player" | "builder" | "publisher";
 
 export function currentRole(): GameRole {
-  return "publisher"; // build phase: everyone
+  return "publisher"; // inside the owner gate, the owner has full privileges
 }
 
 export function canBuild(): boolean {
@@ -25,4 +22,4 @@ export function canPublish(): boolean {
 }
 
 export const PRIVILEGE_NOTE =
-  "Build phase: everyone with Engine Room access can publish while we test the pipeline. Roles per access code come later.";
+  "The Engine Room is owner-only; publishing also re-checks the owner session on the server.";

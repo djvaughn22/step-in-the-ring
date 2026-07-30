@@ -17,6 +17,10 @@ only. The `.gitignore` blocks `PRIVATE-*` files and local backup folders.
 - **Where:** `app/author/auth.ts`, `app/api/author/login/route.ts`,
   `app/api/author/logout/route.ts`, checked server-side in
   `app/author/page.tsx` before any private UI renders.
+- **Shared boundary:** the same session now protects every private SITR
+  surface (`/engines`, `/projects`, the `/owner` hub, and the game publish
+  API) — see `OWNER-AUTH.md`. One login opens all of them; one logout (or a
+  password rotation) closes all of them.
 - **Password:** the `STORY_OWNER_PASSWORD` environment variable (min 4
   characters; shorter is treated as unconfigured). Verified on the server
   with a timing-safe comparison. It is never in the client bundle, never in

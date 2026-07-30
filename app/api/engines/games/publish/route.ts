@@ -12,8 +12,10 @@
  *    GITHUB_TOKEN env var, so publishing works from stepinthering.com in
  *    production. Not implemented yet — the route says so honestly.
  *
- * Privileges: open during the build phase (see app/engines/games/privileges.ts).
- * When DJ adds roles, enforce them HERE too, not just in the UI.
+ * Access: owner-only. The shared owner session (app/owner/session.ts) is
+ * verified at the top of POST before any body parsing or file access.
+ * privileges.ts still models roles for the UI; the session check here is the
+ * real boundary.
  */
 
 import { promises as fs } from "fs";
@@ -21,7 +23,8 @@ import os from "os";
 import path from "path";
 import { execFile } from "child_process";
 import { promisify } from "util";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { isOwnerRequest } from "../../../../owner/session";
 import {
   buildIconSvg, buildManifest, buildServiceWorker, getTemplate,
   instantiateTemplate, upsertGamesRegistry, upsertHomepageCard, validateWorld,
@@ -83,7 +86,12 @@ async function registerLiveProduct(world: DokuWorld): Promise<string> {
   return "registered + pushed";
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  // Owner-only: this route can write to a repo and push a live site. The
+  // shared owner session is checked before anything else — same generic
+  // denial the login endpoint uses, nothing about the gate leaks.
+  if (!isOwnerRequest(req)) return bad(401, "That didn't work.");
+
   let body: { action?: string; modeId?: string; templateId?: string; world?: DokuWorld; overwrite?: boolean };
   try {
     body = await req.json();

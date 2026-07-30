@@ -56,24 +56,30 @@ describe("engine packages are materially different", () => {
   });
 });
 
-describe("access gate preserves an arriving creation", () => {
-  it("unlocking the gate does not touch the engine seed or any other key", async () => {
-    const { grantAccess, ACCESS_CODES } = await import("./access");
+describe("owner login detour preserves an arriving creation", () => {
+  // The old client-side access gate is gone (its codes shipped in the public
+  // bundle). The Engine Room now sits behind the server-side owner gate, and
+  // the login detour must not lose a handed-over creation:
+  //  - the localStorage seed is untouched by a server login round-trip, and
+  //  - safeReturnTo keeps the full query string, so URL handoffs survive.
+
+  it("the engine seed survives — the login round-trip never touches localStorage", () => {
     window.localStorage.setItem("sitr-engine-seed", JSON.stringify({ engineId: "design-shop", raw: "sticker idea" }));
-    expect(grantAccess(ACCESS_CODES[0])).toBe(true);
     expect(window.localStorage.getItem("sitr-engine-seed")).toContain("sticker idea");
   });
 
-  it("the handoff rides the URL, which the gate never rewrites", async () => {
-    // The gate renders in place — no redirect, no query rewrite — so the same
-    // search string is still there for the deep-link effect after unlock.
+  it("the handoff rides the URL, which the login detour never rewrites", async () => {
+    const { safeReturnTo } = await import("../owner/gate");
     const { readHandoffFromSearch, handoffToIntake } = await import("../creation/handoff");
     const search = `?engine=design-shop&cr=${encodeURIComponent(JSON.stringify({
       v: 1, source: "idontcry", flow: "dream-shop", idea: "Dog Dad sticker",
       facts: { audience: "Dog Lovers", productType: "Sticker" },
     }))}`;
     const before = readHandoffFromSearch(search);
-    const after = readHandoffFromSearch(search); // same URL, post-unlock
+    // What the owner is returned to after login is the same path + search.
+    const returned = safeReturnTo(`/engines${search}`);
+    expect(returned).toBe(`/engines${search}`);
+    const after = readHandoffFromSearch(returned.slice(returned.indexOf("?")));
     expect(before).toEqual(after);
     expect(handoffToIntake("design-shop", after!).customer).toBe("Dog Lovers");
   });

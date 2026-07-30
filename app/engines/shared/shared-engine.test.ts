@@ -143,18 +143,18 @@ describe("platform filtering", () => {
   });
 });
 
-// ---- Access codes ----
+// ---- Engine Room access ----
+// The client-side access-code gate was removed (its codes shipped in the
+// public bundle). Engine Room entry is now the server-side shared owner
+// session; that boundary is tested in app/owner/gate.test.ts and
+// app/owner/owner-boundary.test.ts against the real route handlers.
 describe("engine room access", () => {
-  it("rejects invalid codes and accepts valid ones", async () => {
-    const { ACCESS_CODES, grantAccess, hasAccess, revokeAccess } = await import("../access");
-    expect(hasAccess()).toBe(false);
-    expect(grantAccess("wrong-code")).toBe(false);
-    expect(hasAccess()).toBe(false);
-
-    expect(grantAccess(ACCESS_CODES[0].toLowerCase())).toBe(true); // case-insensitive entry
-    expect(hasAccess()).toBe(true);
-
-    revokeAccess();
-    expect(hasAccess()).toBe(false);
+  it("only a valid owner session opens the room — codes are gone", async () => {
+    const { hasOwnerSession } = await import("../../owner/gate");
+    const env = { STORY_OWNER_PASSWORD: "invented-test-password" };
+    expect(hasOwnerSession(undefined, env)).toBe(false);
+    expect(hasOwnerSession("wrong-token", env)).toBe(false);
+    const { createSessionToken, sessionSecret } = await import("../../author/auth");
+    expect(hasOwnerSession(createSessionToken(sessionSecret(env)!), env)).toBe(true);
   });
 });

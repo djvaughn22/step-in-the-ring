@@ -1,18 +1,29 @@
 import type { NextConfig } from "next";
 
-// The Author's Room is private: never cached by a shared cache, never indexed.
+// Private owner surfaces: never cached by a shared cache, never indexed.
+// The list must cover every route behind the shared owner gate — the pages
+// also set robots noindex in metadata; these headers are the CDN-level layer.
 const PRIVATE_HEADERS = [
   { key: "Cache-Control", value: "no-store, private" },
   { key: "X-Robots-Tag", value: "noindex, nofollow" },
 ];
 
+const PRIVATE_ROUTES = [
+  "/author",
+  "/author/:path*",
+  "/api/author/:path*",
+  "/owner",
+  "/owner/:path*",
+  "/engines",
+  "/engines/:path*",
+  "/projects",
+  "/projects/:path*",
+  "/api/engines/:path*",
+];
+
 const nextConfig: NextConfig = {
   async headers() {
-    return [
-      { source: "/author", headers: PRIVATE_HEADERS },
-      { source: "/author/:path*", headers: PRIVATE_HEADERS },
-      { source: "/api/author/:path*", headers: PRIVATE_HEADERS },
-    ];
+    return PRIVATE_ROUTES.map((source) => ({ source, headers: PRIVATE_HEADERS }));
   },
 };
 
