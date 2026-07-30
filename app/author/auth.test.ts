@@ -15,7 +15,11 @@ describe("owner password configuration", () => {
   });
 
   it("treats a too-short password as unconfigured", () => {
-    expect(ownerPassword({ STORY_OWNER_PASSWORD: "short" })).toBeNull();
+    expect(ownerPassword({ STORY_OWNER_PASSWORD: "abc" })).toBeNull();
+  });
+
+  it("accepts a password at the four-character minimum", () => {
+    expect(ownerPassword({ STORY_OWNER_PASSWORD: "abcd" })).toBe("abcd");
   });
 
   it("derives a session secret from the password so rotation invalidates sessions", () => {

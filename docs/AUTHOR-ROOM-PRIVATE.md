@@ -17,7 +17,7 @@ only. The `.gitignore` blocks `PRIVATE-*` files and local backup folders.
 - **Where:** `app/author/auth.ts`, `app/api/author/login/route.ts`,
   `app/api/author/logout/route.ts`, checked server-side in
   `app/author/page.tsx` before any private UI renders.
-- **Password:** the `STORY_OWNER_PASSWORD` environment variable (min 8
+- **Password:** the `STORY_OWNER_PASSWORD` environment variable (min 4
   characters; shorter is treated as unconfigured). Verified on the server
   with a timing-safe comparison. It is never in the client bundle, never in
   localStorage, never in a URL, never logged, never echoed in a response.
