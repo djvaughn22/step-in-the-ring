@@ -175,6 +175,44 @@ export function validateWorld(w: DokuWorld): string[] {
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
+// ============================================================================
+// TEMPLATE CONTRACT (executable — refuse broken templates with plain words)
+// ============================================================================
+
+/** Where a template opts into the shared Arcade Kit runtime (optional —
+    templates without the marker are passed through byte-identical). */
+export const ARCADE_KIT_MARKER = "<!-- __ARCADE_KIT__ -->";
+
+export interface TemplateCheck {
+  /** Hard failures — instantiation cannot produce a working game. */
+  errors: string[];
+  /** Doctrine gaps — the game ships, but the checklist caught something. */
+  warnings: string[];
+}
+
+/**
+ * Check a template against the engine's contract BEFORE instantiating.
+ * Errors block; warnings surface in the studio so gaps get fixed at the
+ * source instead of shipping silently.
+ */
+export function checkTemplateHtml(html: string): TemplateCheck {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  if (!/\/\*__DOKU_THEME_START__\*\/[\s\S]*?\/\*__DOKU_THEME_END__\*\//.test(html)) {
+    errors.push("Template is missing its __DOKU_THEME__ block — the world has nowhere to go.");
+  }
+  if (!/<!-- __DOKU_HEAD_START__ -->[\s\S]*?<!-- __DOKU_HEAD_END__ -->/.test(html)) {
+    errors.push("Template is missing its __DOKU_HEAD__ block — title/description can't be set.");
+  }
+  if (!/<meta[^>]+name=["']viewport["']/.test(html)) {
+    warnings.push("No viewport meta — the game doctrine is mobile-first.");
+  }
+  if (!/touch-action/.test(html)) {
+    warnings.push("No touch-action rule — taps may scroll or zoom the page mid-game.");
+  }
+  return { errors, warnings };
+}
+
 export function buildHeadBlock(w: DokuWorld): string {
   const title = `${w.name} — ${w.tagline.replace(/\.$/, "").toLowerCase()} (an OpenDoku game)`;
   const desc = `${w.name}, an OpenDoku game: ${w.cardBlurb}`;
@@ -189,10 +227,15 @@ export function buildHeadBlock(w: DokuWorld): string {
 <!-- __DOKU_HEAD_END__ -->`;
 }
 
-export function instantiateTemplate(templateHtml: string, w: DokuWorld): string {
+export function instantiateTemplate(templateHtml: string, w: DokuWorld, kitJs?: string): string {
   const themeBlock = `/*__DOKU_THEME_START__*/${JSON.stringify(w, null, 2)}/*__DOKU_THEME_END__*/`;
   let html = templateHtml.replace(/\/\*__DOKU_THEME_START__\*\/[\s\S]*?\/\*__DOKU_THEME_END__\*\//, themeBlock);
   html = html.replace(/<!-- __DOKU_HEAD_START__ -->[\s\S]*?<!-- __DOKU_HEAD_END__ -->/, buildHeadBlock(w));
+  // Templates that carry the Arcade Kit marker get the shared runtime
+  // inlined; templates without it are untouched (full back-compat).
+  if (kitJs && html.includes(ARCADE_KIT_MARKER)) {
+    html = html.replace(ARCADE_KIT_MARKER, `<script>\n${kitJs}\n</script>`);
+  }
   return html;
 }
 
