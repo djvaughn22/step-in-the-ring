@@ -26,10 +26,11 @@ import { promisify } from "util";
 import { NextResponse, type NextRequest } from "next/server";
 import { isOwnerRequest } from "../../../../owner/session";
 import {
-  buildIconSvg, buildManifest, buildServiceWorker, getTemplate,
+  buildIconSvg, buildManifest, buildServiceWorker, checkTemplateHtml, getTemplate,
   instantiateTemplate, upsertGamesRegistry, upsertHomepageCard, validateWorld,
   type DokuWorld,
 } from "../../../../engines/games/game-modes";
+import { ARCADE_KIT_JS } from "../../../../engines/games/arcade-kit";
 import { canPublish } from "../../../../engines/games/privileges";
 
 export const runtime = "nodejs";
@@ -120,10 +121,16 @@ export async function POST(req: NextRequest) {
   } catch {
     return bad(500, `Template ${template.file} not found in the opendoku repo — pull latest main.`);
   }
-  const gameHtml = instantiateTemplate(templateHtml, world);
+  // The executable template contract: refuse a template that instantiation
+  // cannot make into a working game, with plain words about what's missing.
+  const check = checkTemplateHtml(templateHtml);
+  if (check.errors.length) {
+    return bad(500, `Template ${template.file} is broken: ${check.errors.join(" ")}`);
+  }
+  const gameHtml = instantiateTemplate(templateHtml, world, ARCADE_KIT_JS);
 
   if (action === "preview") {
-    return NextResponse.json({ ok: true, html: gameHtml });
+    return NextResponse.json({ ok: true, html: gameHtml, templateWarnings: check.warnings });
   }
 
   if (action !== "publish") return bad(400, `Unknown action "${action}".`);
