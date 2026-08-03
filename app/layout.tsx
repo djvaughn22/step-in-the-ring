@@ -50,7 +50,7 @@ export default function RootLayout({
           ]}
         />
         {children}
-        <OpenMirrorFooter siteName="StepInTheRing.com" accent="#60A5FA" />
+        <OpenMirrorFooter />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Y89TD7NPS0"
           strategy="afterInteractive"
