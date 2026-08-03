@@ -49,6 +49,36 @@ export default function AboutPage() {
           </a>{" "}
           project.
         </p>
+
+        {/* The footer's Contact and Disclaimer links land on these two
+            sections (family standard, 2026-08-02). */}
+        <section id="contact" style={{ marginTop: 28, scrollMarginTop: 96 }}>
+          <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px", color: "var(--ink, #e8edf5)" }}>Contact</h2>
+          <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted, #94a3b8)", margin: 0 }}>
+            Have a question or an idea? Email{" "}
+            <a
+              href="mailto:ask@openmirrorllc.com?subject=Open%20Mirror%20Inquiry"
+              style={{ color: "var(--gold)" }}
+            >
+              ask@openmirrorllc.com
+            </a>
+            .
+          </p>
+        </section>
+
+        <section id="disclaimer" style={{ marginTop: 28, scrollMarginTop: 96 }}>
+          <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px", color: "var(--ink, #e8edf5)" }}>Disclaimer</h2>
+          <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted, #94a3b8)", margin: 0 }}>
+            Open Mirror LLC is independently owned and operated. Nothing
+            published by Open Mirror LLC is sponsored by, affiliated with,
+            endorsed by, or representative of the owner&rsquo;s full-time
+            employer. Read the{" "}
+            <a href="https://openmirrorllc.com/disclaimer" style={{ color: "var(--gold)" }}>
+              full Open Mirror disclaimer
+            </a>
+            .
+          </p>
+        </section>
       </div>
     </main>
   );

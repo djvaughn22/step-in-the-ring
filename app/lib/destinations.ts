@@ -88,7 +88,7 @@ export const BUILD_WITH_CARD: DestinationCardContent = {
   destinations: [
     {
       label: "Email Open Mirror",
-      href: "mailto:ask@openmirrorllc.com?subject=Open%20Mirror",
+      href: "mailto:ask@openmirrorllc.com?subject=Open%20Mirror%20Inquiry",
       kind: "consulting",
       enabled: true,
       status: "available",
