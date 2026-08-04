@@ -21,6 +21,11 @@
 // 7. Spiritual-world rules always carry one of four truth labels — direct
 //    Scripture, chosen interpretation, fictional invention, open question —
 //    and fictional invention is never presented as doctrine.
+// 8. Source material (SM-…) follows the same preservation law as memories:
+//    the original capture is write-once, edits are separate versions, and its
+//    SM id is stable for the life of the project. See source.engine.ts.
+
+import { sanitizeSource, sourceIdNumber, type SourceMaterial } from "./source.engine";
 
 export type FocusKind = "character" | "relationship" | "storyline" | "scene" | "chapter";
 
@@ -336,13 +341,17 @@ export interface PublishedEdition {
 }
 
 export interface StoryProject {
-  version: 2;
+  version: 3;
   id: string;
   title: string;
   premise: string;
   createdAt: string;
   updatedAt: string;
   lastExportAt: string; // "" = never exported
+  /** Captured source material — Record it / Write it (SM-… ids, law 8). */
+  sources: SourceMaterial[];
+  /** Allocator for SM ids. Only ever grows — ids stay stable forever. */
+  sourceCounter: number;
   memories: MemoryRecord[];
   characters: CharacterRecord[];
   relationships: RelationshipRecord[];
@@ -357,7 +366,7 @@ export interface StoryProject {
   editions: PublishedEdition[]; // immutable — see law 5
 }
 
-/** Compatibility alias — sanitizeProject migrates stored v1 data forward. */
+/** Compatibility alias — sanitizeProject migrates stored v1/v2 data forward. */
 export type StoryProjectV1 = StoryProject;
 
 // ---------------------------------------------------------------------------
@@ -379,13 +388,15 @@ function touch(p: StoryProject): StoryProject {
 export function createProject(title: string, premise = ""): StoryProject {
   const t = now();
   return {
-    version: 2,
+    version: 3,
     id: uid(),
     title: title.trim() || "Untitled novel",
     premise: premise.trim(),
     createdAt: t,
     updatedAt: t,
     lastExportAt: "",
+    sources: [],
+    sourceCounter: 0,
     memories: [],
     characters: [],
     relationships: [],
@@ -1101,7 +1112,7 @@ export function craftWarnings(p: StoryProject): CraftWarning[] {
 export const EXPORT_FORMAT = "story-partner-export";
 
 export function exportPayload(p: StoryProject): string {
-  return JSON.stringify({ format: EXPORT_FORMAT, formatVersion: 2, exportedAt: now(), project: p }, null, 2);
+  return JSON.stringify({ format: EXPORT_FORMAT, formatVersion: 3, exportedAt: now(), project: p }, null, 2);
 }
 
 export function markExported(p: StoryProject): StoryProject {
@@ -1305,16 +1316,34 @@ export function sanitizeProject(data: unknown): StoryProject | null {
     });
   }
 
-  // Always returns the CURRENT schema (version 2). Feeding it a stored v1
-  // project IS the migration: new sections default to empty, nothing is lost.
+  const sources: SourceMaterial[] = [];
+  for (const raw of arr(d.sources)) {
+    const s = sanitizeSource(raw);
+    if (!s || sources.some((x) => x.id === s.id)) continue;
+    // A direction's sceneId must point at a real scene, or it is cleared —
+    // which correctly re-opens the "add to manuscript" step.
+    sources.push({
+      ...s,
+      directions: s.directions.map((dir) =>
+        dir.sceneId && !scenes.some((sc) => sc.id === dir.sceneId) ? { ...dir, sceneId: "" } : dir,
+      ),
+    });
+  }
+  const maxSourceNumber = sources.reduce((max, s) => Math.max(max, sourceIdNumber(s.id)), 0);
+  const storedCounter = typeof d.sourceCounter === "number" && Number.isFinite(d.sourceCounter) ? d.sourceCounter : 0;
+
+  // Always returns the CURRENT schema (version 3). Feeding it a stored v1 or
+  // v2 project IS the migration: new sections default to empty, nothing is lost.
   return {
-    version: 2,
+    version: 3,
     id: d.id,
     title: d.title.trim() || "Untitled novel",
     premise: strOr(d.premise),
     createdAt: strOr(d.createdAt),
     updatedAt: strOr(d.updatedAt),
     lastExportAt: strOr(d.lastExportAt),
+    sources,
+    sourceCounter: Math.max(storedCounter, maxSourceNumber),
     memories, characters, relationships, storylines, scenes, chapters, notes,
     books, constitution: parseRules(d.constitution, false), spiritual: parseRules(d.spiritual, true),
     research, editions,
@@ -1345,7 +1374,7 @@ export function parseImport(raw: string): ImportResult {
 
 export function countRecords(p: StoryProject): number {
   return (
-    p.memories.length + p.characters.length + p.relationships.length +
+    p.sources.length + p.memories.length + p.characters.length + p.relationships.length +
     p.storylines.length + p.scenes.length + p.chapters.length + p.notes.length
   );
 }

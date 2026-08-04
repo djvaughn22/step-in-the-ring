@@ -32,7 +32,7 @@ describe("v1 → v2 migration", () => {
       notes: [],
     };
     const p = sanitizeProject(v1)!;
-    expect(p.version).toBe(2);
+    expect(p.version).toBe(3);
     expect(p.books).toEqual([]);
     expect(p.constitution).toEqual([]);
     expect(p.spiritual).toEqual([]);

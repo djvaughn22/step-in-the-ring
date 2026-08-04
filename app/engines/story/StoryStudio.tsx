@@ -16,7 +16,7 @@ import {
   addChapter, addCharacter, addDraft, addMemory, addNote, addRelationship,
   addScene, addStoryline, amendMemory, applyPasteBack, briefingPack,
   CHAPTER_STATUSES, CHARACTER_CLASSIFICATIONS, countRecords, craftWarnings,
-  createProject, currentDraft, exportPayload,
+  createProject, exportPayload,
   exportReminder, FOCUS_KIND_LABELS, gatherFocus, labelFor, markExported,
   moveChapter, moveSceneInChapter, NOTE_KINDS, parseImport, placeSceneInChapter,
   PASTE_CLASSIFICATIONS, PRIVACY_EXPLANATION, promoteNote, REVIEW_STATES,
@@ -29,15 +29,23 @@ import {
 import { initStorage, listProjects, loadActiveProject, saveActiveProject, switchActiveProject } from "./story.store";
 import { redactRealNames, type SourceVaultV1 } from "./vault.engine";
 import { loadVault, saveVault } from "./vault.store";
-import { asRestoredCopy, exportOwnerBackup, OWNER_BACKUP_FILENAME_PREFIX, OWNER_BACKUP_NOTICE, parseOwnerBackup } from "./backup";
+import {
+  asRestoredCopy, base64ToBlob, blobToBase64, exportOwnerBackup,
+  OWNER_BACKUP_FILENAME_PREFIX, OWNER_BACKUP_NOTICE, parseOwnerBackup,
+  type AudioBackupEntry,
+} from "./backup";
 import { makeRevision } from "./revisions";
-import { persistRevision } from "./db";
+import { audioForProject, persistAudio, persistRevision } from "./db";
+import { awaitingReview, buildManuscriptExport, continueTarget } from "./capture.engine";
+import { nextActionFor, SOURCE_STAGE_LABELS, sourceStage } from "./source.engine";
+import { CapturePanel, SourceRoom } from "./CaptureFlow";
 import { ConstitutionPanel, ResearchPanel, RevisionsPanel, SeriesPanel, type PanelStyles } from "./StudioPanels";
 import VaultView from "./VaultView";
 
 type View =
   | { name: "home" } | { name: "room"; ref: LinkRef } | { name: "novel" } | { name: "vault" }
-  | { name: "series" } | { name: "constitution" } | { name: "research" } | { name: "revisions" };
+  | { name: "series" } | { name: "constitution" } | { name: "research" } | { name: "revisions" }
+  | { name: "capture"; mode: "record" | "write" } | { name: "source"; id: string };
 
 const AUTOSAVE_REVISION_MS = 2 * 60 * 1000; // a background revision at most this often
 
@@ -95,7 +103,7 @@ export default function StoryStudio({
   const [revision, setRevision] = useState("");
   const [revisionNote, setRevisionNote] = useState("");
   const [openMemoryId, setOpenMemoryId] = useState("");
-  const [pendingImport, setPendingImport] = useState<{ project: StoryProjectV1; vault: SourceVaultV1 | null; ownerBackup: boolean } | null>(null);
+  const [pendingImport, setPendingImport] = useState<{ project: StoryProjectV1; vault: SourceVaultV1 | null; ownerBackup: boolean; audio: AudioBackupEntry[] } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -208,32 +216,75 @@ export default function StoryStudio({
   };
 
   /** Complete Owner Vault Backup — explicit, highly sensitive, PRIVATE-named. */
-  const doExportOwner = () => {
+  const doExportOwner = async () => {
     if (!project) return;
     if (!window.confirm(`${OWNER_BACKUP_NOTICE}\n\nDownload the Complete Owner Vault Backup?`)) return;
     const vault = loadVault(project.id);
+    const audio: AudioBackupEntry[] = [];
+    for (const rec of audioForProject(project.id)) {
+      try {
+        audio.push({
+          id: rec.id, projectId: rec.projectId, mimeType: rec.mimeType,
+          durationMs: rec.durationMs, createdAt: rec.createdAt,
+          base64: await blobToBase64(rec.blob),
+        });
+      } catch {
+        // A recording that can't be encoded is skipped — the backup still works.
+      }
+    }
     download(
       `${OWNER_BACKUP_FILENAME_PREFIX}-${new Date().toISOString().slice(0, 10)}.json`,
-      exportOwnerBackup(project, vault),
+      exportOwnerBackup(project, vault, audio),
     );
     say(vault ? "Owner backup downloaded — it CONTAINS the private legend. Guard it." : "Owner backup downloaded (no legend exists yet for this project).");
+  };
+
+  /** Restore recordings from an owner backup into the audio store. */
+  const restoreAudio = async (entries: AudioBackupEntry[]) => {
+    for (const a of entries) {
+      const blob = base64ToBlob(a.base64, a.mimeType);
+      if (!blob) continue;
+      await persistAudio({ id: a.id, projectId: a.projectId, blob, mimeType: a.mimeType, durationMs: a.durationMs, createdAt: a.createdAt });
+    }
+  };
+
+  /** Manuscript export — approved manuscript content ONLY, leak-scanned first. */
+  const doExportManuscript = () => {
+    if (!project) return;
+    const result = buildManuscriptExport(project, loadVault(project.id));
+    if (!result.safe) {
+      window.alert(
+        "The manuscript export was BLOCKED — private material was found in the compiled text:\n\n" +
+        result.findings.map((f) => `• ${f.detail}`).join("\n") +
+        "\n\nFix the scenes (or the legend) and export again. Nothing was downloaded.",
+      );
+      return;
+    }
+    const blob = new Blob([result.markdown], { type: "text/markdown" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "manuscript"}-manuscript.md`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    say("Manuscript exported — scanned clean: no private ids, identities, or source text.");
   };
 
   const onImportFile = async (file: File) => {
     const raw = await file.text();
     const owner = parseOwnerBackup(raw);
     const parsed = owner.ok
-      ? { project: owner.project, vault: owner.vault, ownerBackup: true }
+      ? { project: owner.project, vault: owner.vault, ownerBackup: true, audio: owner.audio }
       : (() => {
           const result = parseImport(raw);
-          return result.ok ? { project: result.project, vault: null, ownerBackup: false } : null;
+          return result.ok ? { project: result.project, vault: null, ownerBackup: false, audio: [] } : null;
         })();
     if (!parsed) { say("That file isn't a Story Partner backup."); return; }
     if (!project || countRecords(project) === 0) {
       // Nothing here to protect — import straight in (still as a sanitized copy).
-      const copy = asRestoredCopy(parsed.project, parsed.vault, listProjects().map((p) => p.id));
+      const copy = asRestoredCopy(parsed.project, parsed.vault, listProjects().map((p) => p.id), parsed.audio);
       persist(copy.project, "Project imported.");
       if (copy.vault) void saveVault(copy.vault);
+      void restoreAudio(copy.audio);
       setView({ name: "home" });
       return;
     }
@@ -243,9 +294,10 @@ export default function StoryStudio({
   /** Restores land ALONGSIDE existing work — nothing is overwritten, ever. */
   const applyImport = () => {
     if (!pendingImport) return;
-    const copy = asRestoredCopy(pendingImport.project, pendingImport.vault, listProjects().map((p) => p.id));
+    const copy = asRestoredCopy(pendingImport.project, pendingImport.vault, listProjects().map((p) => p.id), pendingImport.audio);
     persist(copy.project, copy.remapped ? "Imported as a separate restored copy — the existing project is untouched." : "Project imported.");
     if (copy.vault) void saveVault(copy.vault);
+    void restoreAudio(copy.audio);
     setPendingImport(null);
     setView({ name: "home" });
   };
@@ -419,6 +471,31 @@ export default function StoryStudio({
   const panelStyles: PanelStyles = { input, label, help, kicker, btn, btnQuiet, sectionTitle, verbatim };
   const panelProps = { project, card, s: panelStyles, persist, say };
 
+  // ---- Tell your story: capture + source rooms ----
+  const flowProps = {
+    project, card, s: panelStyles, persist, say,
+    onOpenSource: (id: string) => setView({ name: "source", id }),
+    onOpenScene: (sceneId: string) => setView({ name: "room", ref: { kind: "scene" as const, id: sceneId } }),
+    onOpenVault: () => setView({ name: "vault" }),
+  };
+
+  if (view.name === "capture") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {header}
+        <CapturePanel {...flowProps} mode={view.mode} />
+      </div>
+    );
+  }
+  if (view.name === "source") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {header}
+        <SourceRoom {...flowProps} sourceId={view.id} />
+      </div>
+    );
+  }
+
   if (view.name === "series") {
     return <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>{header}<SeriesPanel {...panelProps} /></div>;
   }
@@ -448,6 +525,8 @@ export default function StoryStudio({
 
   if (view.name === "home") {
     const unattached = project.memories.filter((m) => m.links.length === 0);
+    const cont = continueTarget(project);
+    const review = awaitingReview(project);
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {header}
@@ -456,10 +535,67 @@ export default function StoryStudio({
           <h2 style={{ fontSize: 19, fontWeight: 900, margin: 0 }}>{project.title}</h2>
           {project.premise && <p style={{ ...help, margin: "4px 0 0" }}>{project.premise}</p>}
           <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "6px 0 0" }}>
-            {project.memories.length} memories · {project.scenes.length} scenes · {project.chapters.length} chapters ·
+            {project.sources.length} sources · {project.memories.length} memories · {project.scenes.length} scenes · {project.chapters.length} chapters ·
             last export: {project.lastExportAt ? project.lastExportAt.slice(0, 10) : "never"}
           </p>
         </div>
+
+        {cont && (
+          <div style={{ ...card, borderLeft: "4px solid var(--gold)" }}>
+            <p style={kicker}>Continue</p>
+            <p style={{ fontSize: 15, fontWeight: 900, margin: "0 0 2px" }}>{cont.title} <span style={{ color: "var(--muted)", fontWeight: 400 }}>({cont.id})</span></p>
+            <p style={{ ...help, margin: "0 0 8px" }}>{nextActionFor(cont)}</p>
+            <button type="button" style={btn} onClick={() => setView({ name: "source", id: cont.id })}>Pick up where you left off</button>
+          </div>
+        )}
+
+        <div style={card}>
+          <h2 style={{ fontSize: 21, fontWeight: 900, margin: "0 0 4px" }}>Tell your story</h2>
+          <p style={{ ...help, margin: "0 0 12px" }}>
+            Speak it or type it — both are the same first-class path. The exact original is preserved
+            forever, and everything after it is yours to approve.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button type="button" style={{ ...btn, flex: 1, minWidth: 140, fontSize: 16, padding: "16px 18px" }}
+              onClick={() => setView({ name: "capture", mode: "record" })}>
+              🎙 Record it
+            </button>
+            <button type="button" style={{ ...btn, flex: 1, minWidth: 140, fontSize: 16, padding: "16px 18px" }}
+              onClick={() => setView({ name: "capture", mode: "write" })}>
+              ✍️ Write it
+            </button>
+          </div>
+        </div>
+
+        {review.length > 0 && (
+          <div style={card}>
+            <p style={sectionTitle}>Waiting on you ({review.length})</p>
+            {review.slice(0, 6).map((r, i) => (
+              <div key={`${r.sourceId}-${r.what}-${i}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--line)" }}>
+                <span style={{ fontSize: 13.5 }}>
+                  {r.title} — {r.what === "ingredients" ? `${r.count} ingredient${r.count === 1 ? "" : "s"} to decide`
+                    : r.what === "directions" ? `${r.count} scene direction${r.count === 1 ? "" : "s"} to decide`
+                    : r.what === "transcript" ? "needs its transcript" : "unfinished entry"}
+                </span>
+                <button type="button" style={{ ...btnQuiet, padding: "5px 10px" }} onClick={() => setView({ name: "source", id: r.sourceId })}>Open</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {project.sources.length > 0 && (
+          <div style={card}>
+            <p style={sectionTitle}>Source material ({project.sources.length})</p>
+            {project.sources.slice(0, 8).map((sm) => (
+              <div key={sm.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--line)" }}>
+                <span style={{ fontSize: 13.5 }}>
+                  {sm.title} <span style={{ color: "var(--muted)" }}>· {sm.id} · {SOURCE_STAGE_LABELS[sourceStage(sm)]}</span>
+                </span>
+                <button type="button" style={{ ...btnQuiet, padding: "5px 10px" }} onClick={() => setView({ name: "source", id: sm.id })}>Open</button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {quickCapture()}
 
@@ -539,7 +675,7 @@ export default function StoryStudio({
               <p style={{ fontSize: 11.5, color: "var(--muted)", margin: 0 }}>Warnings flag — they never rewrite your prose.</p>
             </div>
           )}
-          <div style={{ display: "flex", gap: 6 }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {adding === "chapter" ? (
               <>
                 <input autoFocus value={addName} onChange={(e) => setAddName(e.target.value)}
@@ -550,7 +686,12 @@ export default function StoryStudio({
             ) : (
               <button type="button" style={btn} onClick={() => { setAdding("chapter"); setAddName(""); }}>+ New chapter</button>
             )}
+            <button type="button" style={btnQuiet} onClick={doExportManuscript}>Export manuscript (.md)</button>
           </div>
+          <p style={{ ...help, margin: "6px 0 0" }}>
+            The manuscript export contains chapter titles and approved scene prose only — it is scanned
+            before download, and blocked if any private id, real identity, or raw source text is found.
+          </p>
         </div>
         {project.chapters.map((ch, i) => {
           const issues = project.notes.filter(
