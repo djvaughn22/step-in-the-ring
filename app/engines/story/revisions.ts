@@ -92,6 +92,7 @@ export function planRestore(current: StoryProject, revision: RevisionRecord): Re
 export function compareRevisions(a: RevisionRecord, b: RevisionRecord): string[] {
   const lines: string[] = [];
   const sections: { key: keyof StoryProject & string; label: string }[] = [
+    { key: "sources", label: "source material" },
     { key: "memories", label: "memories" },
     { key: "characters", label: "characters" },
     { key: "relationships", label: "relationships" },

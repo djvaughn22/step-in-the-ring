@@ -22,11 +22,60 @@ interface StoredVault {
 }
 
 const DB_NAME = "sitr-story-partner";
-const DB_VERSION = 1;
+// v2 adds the "audio" store (original recordings). The upgrade handler is
+// additive and idempotent — existing stores and their data are untouched.
+const DB_VERSION = 2;
 const LEGACY_PROJECTS_KEY = "sitr-story-partner-v1";
 const LEGACY_VAULT_KEY = "sitr-source-vault-v1";
 
 export type StorageHealth = "indexeddb" | "localstorage-only" | "memory-only";
+
+/**
+ * An original recording. The blob is written once when the recording is saved
+ * and never modified — transcript corrections live on the source record.
+ * Audio lives ONLY in IndexedDB (blobs can't mirror to localStorage), so on
+ * a localstorage-only browser persistAudio honestly returns false.
+ */
+export interface AudioRecord {
+  id: string;
+  projectId: string;
+  blob: Blob;
+  mimeType: string;
+  durationMs: number;
+  createdAt: string;
+}
+
+/** On disk the audio is raw bytes — Blobs don't survive IndexedDB on every
+ *  browser (and not in tests), ArrayBuffers survive everywhere. */
+interface StoredAudio {
+  id: string;
+  projectId: string;
+  bytes: ArrayBuffer;
+  mimeType: string;
+  durationMs: number;
+  createdAt: string;
+}
+
+function toStoredAudio(rec: AudioRecord, bytes: ArrayBuffer): StoredAudio {
+  return { id: rec.id, projectId: rec.projectId, bytes, mimeType: rec.mimeType, durationMs: rec.durationMs, createdAt: rec.createdAt };
+}
+
+/** Cross-realm-safe ArrayBuffer check (instanceof fails across realms). */
+function isArrayBufferLike(x: unknown): x is ArrayBuffer {
+  return !!x && Object.prototype.toString.call(x) === "[object ArrayBuffer]";
+}
+
+function fromStoredAudio(stored: StoredAudio): AudioRecord | null {
+  if (!stored || typeof stored.id !== "string" || !isArrayBufferLike(stored.bytes)) return null;
+  return {
+    id: stored.id,
+    projectId: typeof stored.projectId === "string" ? stored.projectId : "",
+    blob: new Blob([stored.bytes], { type: stored.mimeType || "audio/webm" }),
+    mimeType: typeof stored.mimeType === "string" ? stored.mimeType : "audio/webm",
+    durationMs: typeof stored.durationMs === "number" && Number.isFinite(stored.durationMs) ? stored.durationMs : 0,
+    createdAt: typeof stored.createdAt === "string" ? stored.createdAt : "",
+  };
+}
 
 interface Cache {
   ready: boolean;
@@ -39,11 +88,12 @@ interface Cache {
   /** Passphrases for vaults unlocked THIS page load — memory only, never stored. */
   vaultKeys: Map<string, string>;
   revisions: RevisionRecord[];
+  audio: AudioRecord[];
 }
 
 const cache: Cache = {
   ready: false, health: "memory-only", projects: [], vaults: [],
-  sealed: new Map(), vaultKeys: new Map(), revisions: [],
+  sealed: new Map(), vaultKeys: new Map(), revisions: [], audio: [],
 };
 
 let dbPromise: Promise<IDBDatabase | null> | null = null;
@@ -67,6 +117,10 @@ function openDb(): Promise<IDBDatabase | null> {
           store.createIndex("projectId", "projectId", { unique: false });
         }
         if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta");
+        if (!db.objectStoreNames.contains("audio")) {
+          const store = db.createObjectStore("audio", { keyPath: "id" });
+          store.createIndex("projectId", "projectId", { unique: false });
+        }
       };
       req.onsuccess = () => { openedDb = req.result; resolve(req.result); };
       req.onerror = () => resolve(null);
@@ -186,11 +240,13 @@ export async function initStorage(): Promise<StorageHealth> {
   const localVaults = legacyVaults();
 
   if (db) {
-    const [projects, vaults, revisions] = await Promise.all([
+    const [projects, vaults, revisions, audio] = await Promise.all([
       idbGetAll<unknown>(db, "projects"),
       idbGetAll<StoredVault>(db, "vaults"),
       idbGetAll<RevisionRecord>(db, "revisions"),
+      idbGetAll<StoredAudio>(db, "audio"),
     ]);
+    cache.audio = audio.map(fromStoredAudio).filter((a): a is AudioRecord => !!a);
     cache.projects = projects.map(sanitizeProject).filter((p): p is StoryProject => !!p);
     cache.vaults = [];
     cache.sealed = new Map();
@@ -354,6 +410,43 @@ export async function lockAllVaults(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Audio — original recordings, written once, never modified
+// ---------------------------------------------------------------------------
+
+export function cachedAudio(id: string): AudioRecord | null {
+  return cache.audio.find((a) => a.id === id) ?? null;
+}
+
+export function audioForProject(projectId: string): AudioRecord[] {
+  return cache.audio.filter((a) => a.projectId === projectId);
+}
+
+/**
+ * Persist an original recording. Resolves false when no durable store took
+ * the blob (e.g. IndexedDB unavailable) — the caller must tell the author
+ * honestly that the recording won't survive this page.
+ */
+export async function persistAudio(rec: AudioRecord): Promise<boolean> {
+  if (cache.audio.some((a) => a.id === rec.id)) return true; // write-once
+  cache.audio = [...cache.audio, rec];
+  const db = await openDb();
+  if (!db) return false;
+  let bytes: ArrayBuffer;
+  try {
+    bytes = await rec.blob.arrayBuffer();
+  } catch {
+    return false;
+  }
+  return idbPut(db, "audio", toStoredAudio(rec, bytes));
+}
+
+export async function deleteAudio(id: string): Promise<void> {
+  cache.audio = cache.audio.filter((a) => a.id !== id);
+  const db = await openDb();
+  if (db) await idbDelete(db, "audio", id);
+}
+
+// ---------------------------------------------------------------------------
 // Revisions — autosave pruning never touches saves, checkpoints, or anything
 // protected (see revisions.ts)
 // ---------------------------------------------------------------------------
@@ -405,5 +498,6 @@ export function _resetStorageForTests(): void {
   cache.sealed = new Map();
   cache.vaultKeys = new Map();
   cache.revisions = [];
+  cache.audio = [];
   dbPromise = null;
 }

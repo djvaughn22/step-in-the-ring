@@ -35,7 +35,7 @@ function seeded() {
 describe("creation and linking", () => {
   it("creates an empty project with a version marker", () => {
     const p = createProject("  My Novel  ");
-    expect(p.version).toBe(2);
+    expect(p.version).toBe(3);
     expect(p.title).toBe("My Novel");
     expect(countRecords(p)).toBe(0);
   });

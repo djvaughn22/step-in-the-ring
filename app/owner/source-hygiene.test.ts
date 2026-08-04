@@ -48,4 +48,13 @@ describe("owner-boundary source hygiene", () => {
       expect(bad, `${file} exposes ${bad?.[0]} to the client`).toBeNull();
     }
   });
+
+  it("Story Partner code never logs to the console — private material stays off logs", () => {
+    const STORY = path.join(APP, "engines", "story");
+    for (const file of walk(STORY)) {
+      const text = readFileSync(file, "utf8");
+      const bad = text.match(/console\.(log|info|warn|error|debug)/);
+      expect(bad, `${file} logs to the console`).toBeNull();
+    }
+  });
 });

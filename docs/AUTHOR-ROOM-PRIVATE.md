@@ -69,9 +69,11 @@ only. The `.gitignore` blocks `PRIVATE-*` files and local backup folders.
 
 ## 3. Where the writing lives (local-first)
 
-- **IndexedDB** (database `sitr-story-partner`) is the durable store:
-  object stores `projects`, `vaults` (structurally separate), `revisions`,
-  `meta`. See `app/engines/story/db.ts`.
+- **IndexedDB** (database `sitr-story-partner`, version 2) is the durable
+  store: object stores `projects`, `vaults` (structurally separate),
+  `revisions`, `meta`, and `audio` (original recordings, stored as raw
+  bytes and rebuilt into Blobs on load — v2 added this store additively;
+  nothing from v1 is touched). See `app/engines/story/db.ts`.
 - **localStorage** remains a best-effort mirror of projects and unencrypted
   vaults, and is the migration source for pre-IndexedDB data (migrated into
   IndexedDB automatically on first load, nothing deleted).
@@ -80,6 +82,60 @@ only. The `.gitignore` blocks `PRIVATE-*` files and local backup folders.
   locally, redacted by default (real names → source IDs), and shown before
   the owner copies anything anywhere.
 - Multiple projects are supported; imports land alongside existing work.
+
+## 3a. Tell your story — Record it / Write it (the capture workflow)
+
+Two equal doors into one protected pipeline (2026-08-04):
+
+> Raw Source → Proposed Interpretation → Author Edited → Approved Fiction →
+> Manuscript
+
+- **Source material** (`app/engines/story/source.engine.ts`) — every capture
+  gets a stable private id (`SM-0001`, `SM-0002`, …) that never contains
+  names or content, plus a kind (spoken / typed / pasted), a derived
+  processing stage, and an append-only history.
+- **The original is write-once.** For typed/pasted sources it is the exact
+  submitted text (untrimmed). For spoken sources it is the word-for-word
+  transcript, with the original audio preserved separately in the `audio`
+  store. Edits and transcript corrections are appended as versions; no code
+  path can change an original after capture.
+- **Spoken path** (`recorder.ts`) — in-browser MediaRecorder with pause /
+  resume / cancel / finish and playback before saving. The browser's own
+  speech recognition produces a live transcript when it can; when it can't
+  (unsupported browser, blocked service), the recording still saves and the
+  owner types the word-for-word transcript once — after which it is
+  permanent like any original. No API keys, no uploads.
+- **One question at a time** — deterministic, material-responsive questions
+  ("What was left unsaid?" surfaces when people appear in the text). Always
+  answerable, skippable, or savable for later; nothing downstream is gated
+  on answering.
+- **Proposed story ingredients** — deterministic suggestions drawn from the
+  owner's own words and answers (emotional truth, central conflict, setting,
+  turning point, …). Every proposal is labeled **Suggested by Story
+  Partner** and holds one of five states: proposed / undecided /
+  author-edited / author-approved / rejected. Editing preserves the verbatim
+  proposal alongside the owner's text.
+- **Real-to-Fiction Bridge** — before directions are offered, the source
+  must be mapped in the Legend (vault mappings now carry
+  `sourceMaterialIds`, so the bridge is many-to-many in both directions:
+  several sources → one mapping, one source → several mappings).
+- **Three scene directions** — structurally different by construction
+  (viewpoint, chronology, hidden vs. open conflict, who holds power), each
+  explaining what happens, whose scene it is, want, obstacle, change, and
+  why it may serve the saga. The owner can approve, edit, reject all,
+  request a different trio, or write their own.
+- **The manuscript gate** (`capture.engine.ts`,
+  `addApprovedSceneToManuscript`) — the only door from this workflow into
+  the manuscript. It refuses any direction that is not author-approved,
+  refuses empty text, and is idempotent (repeat approval returns the same
+  scene, never a duplicate). The approved scene lands in a chapter with the
+  draft note "Approved by Author"; the direction records the scene id as
+  private lineage (source → direction → scene).
+- **Manuscript export** (The Novel → "Export manuscript (.md)") — compiles
+  chapter titles and current scene prose only, then runs
+  `manuscriptLeakScan`: private ids (SM-/MAP-/REAL-/FI-), Legend real
+  names, never-publish details, verbatim source passages, and stray
+  suggestion labels all **block the download** with a plain explanation.
 
 ## 4. Revisions — every draft preserved
 
@@ -102,10 +158,17 @@ only. The `.gitignore` blocks `PRIVATE-*` files and local backup folders.
 
 | | Creative Project Backup | Complete Owner Vault Backup |
 |---|---|---|
-| Contains | The fictional project only | Project **plus** the Real-to-Fiction Legend |
+| Contains | The fictional project only | Project **plus** the Real-to-Fiction Legend **plus** original recordings |
 | Real identities | **Excluded by design** | **Included** |
+| Recordings | Not included | Included as base64 (formatVersion 2; v1 backups still restore) |
 | Filename | `<title>-<date>.json` | `PRIVATE-COMPLETE-OWNER-BACKUP-<date>.json` |
 | When to use | Routine backups, future sharing | The real safety net; store privately |
+
+Note: the Creative Project Backup carries the full project — including raw
+source material and memories — because it is a *backup*, not a share file.
+The only share-grade output is the manuscript export, which is leak-scanned
+(see §3a). Restoring an owner backup restores the recordings too, with
+fresh ids on collision (the sources' audio references follow).
 
 - The owner backup requires an explicit confirmation and carries a
   HIGHLY SENSITIVE notice inside the file.

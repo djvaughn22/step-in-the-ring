@@ -49,3 +49,6 @@ PRIVATE-*
 /private/
 /backups/
 /exports/
+
+# local Claude session config
+.claude/

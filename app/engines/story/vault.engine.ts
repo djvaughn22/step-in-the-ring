@@ -156,6 +156,9 @@ export interface LegendMapping {
   id: string; // MAP-001
   /** One or many sources — composites are normal. */
   sourceIds: string[];
+  /** Captured source material (SM-…) that fed this mapping. Many-to-many:
+   *  several sources can feed one mapping, one source can feed several. */
+  sourceMaterialIds: string[];
   /** The fictional element, when one exists. null = not yet in the story. */
   fiction: FictionTarget | null;
   /** Owner's label while no story element exists (or as a reminder). */
@@ -362,7 +365,7 @@ export function unlinkMemoryFromSource(v: SourceVaultV1, sourceId: string, memor
 export function addMapping(
   v: SourceVaultV1,
   sourceIds: string[],
-  opts: { fiction?: FictionTarget | null; workingLabel?: string } = {},
+  opts: { fiction?: FictionTarget | null; workingLabel?: string; sourceMaterialIds?: string[] } = {},
 ): { vault: SourceVaultV1; mapping: LegendMapping | null } {
   const valid = [...new Set(sourceIds)].filter((id) => v.sources.some((s) => s.id === id));
   if (valid.length === 0) return { vault: v, mapping: null };
@@ -370,6 +373,7 @@ export function addMapping(
   const mapping: LegendMapping = {
     id: `MAP-${String(n).padStart(3, "0")}`,
     sourceIds: valid,
+    sourceMaterialIds: [...new Set((opts.sourceMaterialIds ?? []).filter((x) => /^SM-\d{4,}$/.test(x)))],
     fiction: opts.fiction ?? null,
     workingLabel: (opts.workingLabel ?? "").trim(),
     previousFictionalNames: [],
@@ -416,6 +420,28 @@ export function updateMapping(
       if (historyNote.trim()) next.history = [...m.history, { at: now(), note: historyNote.trim() }];
       return next;
     }),
+  });
+}
+
+/** Link a captured source (SM-…) to a mapping — the many-to-many bridge lane. */
+export function linkSourceMaterialToMapping(v: SourceVaultV1, mappingId: string, smId: string): SourceVaultV1 {
+  if (!/^SM-\d{4,}$/.test(smId)) return v;
+  return touch({
+    ...v,
+    mappings: v.mappings.map((m) =>
+      m.id === mappingId && !m.sourceMaterialIds.includes(smId)
+        ? { ...m, sourceMaterialIds: [...m.sourceMaterialIds, smId], history: [...m.history, { at: now(), note: `Source material ${smId} linked.` }] }
+        : m,
+    ),
+  });
+}
+
+export function unlinkSourceMaterialFromMapping(v: SourceVaultV1, mappingId: string, smId: string): SourceVaultV1 {
+  return touch({
+    ...v,
+    mappings: v.mappings.map((m) =>
+      m.id === mappingId ? { ...m, sourceMaterialIds: m.sourceMaterialIds.filter((x) => x !== smId) } : m,
+    ),
   });
 }
 
@@ -860,6 +886,7 @@ export function sanitizeVault(data: unknown): SourceVaultV1 | null {
     mappings.push({
       id: m.id,
       sourceIds: [...new Set(sourceIds)],
+      sourceMaterialIds: [...new Set(arr(m.sourceMaterialIds).filter((x): x is string => isStr(x) && /^SM-\d{4,}$/.test(x)))],
       fiction,
       workingLabel: strOr(m.workingLabel),
       previousFictionalNames: arr(m.previousFictionalNames).filter(isStr),
