@@ -19,6 +19,12 @@ const PRIVATE_ROUTES = [
   "/projects",
   "/projects/:path*",
   "/api/engines/:path*",
+  // Member account surfaces: personal, never cached, never indexed. The
+  // public /membership page is deliberately NOT here.
+  "/account",
+  "/account/:path*",
+  "/api/members/:path*",
+  "/api/owner/:path*",
 ];
 
 const nextConfig: NextConfig = {

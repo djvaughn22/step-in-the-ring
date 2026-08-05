@@ -11,6 +11,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import EngineSystem from "./EngineSystem";
 import { isOwnerAuthed } from "../owner/session";
+import { currentMember } from "../members/session";
 
 export const dynamic = "force-dynamic";
 
@@ -26,15 +27,23 @@ export default async function EnginesPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  if (!(await isOwnerAuthed())) {
-    const sp = await searchParams;
-    const qs = new URLSearchParams();
-    for (const [k, v] of Object.entries(sp)) {
-      if (typeof v === "string") qs.set(k, v);
-      else if (Array.isArray(v)) for (const x of v) qs.append(k, x);
-    }
-    const dest = qs.size ? `/engines?${qs}` : "/engines";
-    redirect(`/owner?to=${encodeURIComponent(dest)}`);
+  // Three audiences, decided on the server:
+  //   owner            → the full Engine Room, owner-only engines included
+  //   live member      → the Engine Room with owner-only engines hidden
+  //   everyone else    → the public membership page (the free introduction)
+  if (await isOwnerAuthed()) {
+    return <EngineSystem />;
   }
-  return <EngineSystem />;
+  const member = await currentMember();
+  if (member?.access.memberAccess) {
+    return <EngineSystem memberMode />;
+  }
+  const sp = await searchParams;
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (typeof v === "string") qs.set(k, v);
+    else if (Array.isArray(v)) for (const x of v) qs.append(k, x);
+  }
+  qs.set("from", "engines");
+  redirect(`/membership?${qs}`);
 }

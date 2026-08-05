@@ -161,7 +161,10 @@ function Section({ title, body }: { title: string; body: string }) {
   );
 }
 
-export default function EngineSystem() {
+// memberMode: rendered for a paying member or private tester instead of the
+// owner. Owner-only engines are hidden and unpickable — the server decides
+// who gets which mode; this prop only mirrors that decision in the UI.
+export default function EngineSystem({ memberMode = false }: { memberMode?: boolean } = {}) {
   const [ready, setReady] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [view, setView] = useState<View>("list");
@@ -243,6 +246,7 @@ export default function EngineSystem() {
 
   const pickEngine = (id: string) => {
     const e = getEngine(id); if (!e) return;
+    if (memberMode && e.activation === "owner-only") return;
     track("engine_start", { engine: id });
     setEngineId(id); setAnswers({}); setStage(e.suggestedStage);
     setDestination(e.technical ? "claude-code" : e.id === "plan" || e.id === "grow" || e.id === "sell" || e.id === "idea" ? "chatgpt" : "self");
@@ -532,7 +536,7 @@ export default function EngineSystem() {
               ))}
             </div>
 
-            {OWNER_ENGINES.length > 0 && (
+            {!memberMode && OWNER_ENGINES.length > 0 && (
               <div style={{ marginTop: 30 }}>
                 <span className="kicker">Owner only — not ready for you yet</span>
                 <p style={{ fontSize: 13, color: "var(--muted)", margin: "4px 0 12px", lineHeight: 1.5 }}>
