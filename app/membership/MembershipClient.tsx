@@ -194,6 +194,10 @@ export default function MembershipClient(props: Props) {
             Accounts are for an adult, parent, or other responsible purchaser.
             Only an email and password are collected.
           </p>
+          <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "0 0 10px", lineHeight: 1.6 }}>
+            Account recovery is not available during this private test.
+            Use an email and password you can retain.
+          </p>
           <form onSubmit={submitAuth}>
             <input
               type="email"
