@@ -83,13 +83,18 @@ export default function AccountClient(props: {
   // User-triggered import of the browser-local Engine Room projects.
   async function importLocal() {
     setMessage(null);
+    // Engine work lives in two local stores: the Engine Room shell
+    // ("sitr-engine-projects-v1") and the creation studios like Idea and
+    // Design Shop ("creation-engine-projects-v1"). Import both.
     let local: unknown[] = [];
-    try {
-      const raw = window.localStorage.getItem("sitr-engine-projects-v1");
-      const parsed = raw ? (JSON.parse(raw) as { projects?: unknown[] }) : null;
-      local = Array.isArray(parsed?.projects) ? parsed.projects : [];
-    } catch {
-      local = [];
+    for (const key of ["sitr-engine-projects-v1", "creation-engine-projects-v1"]) {
+      try {
+        const raw = window.localStorage.getItem(key);
+        const parsed = raw ? (JSON.parse(raw) as { projects?: unknown[] }) : null;
+        if (Array.isArray(parsed?.projects)) local = local.concat(parsed.projects);
+      } catch {
+        // an unreadable store contributes nothing
+      }
     }
     if (local.length === 0) {
       setMessage("No local Engine Room projects were found in this browser.");
