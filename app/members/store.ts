@@ -412,7 +412,12 @@ export async function getMemberStore(): Promise<MemberStore | null> {
     cachedStore = null;
     return null;
   }
-  const { Pool } = await import("pg");
+  const { Pool, types } = await import("pg");
+  // Timestamps must round-trip: pg's default Date parsing would later be
+  // written back via String(date), which Postgres rejects. Normalize every
+  // timestamptz/timestamp to an ISO string at the driver boundary instead.
+  types.setTypeParser(types.builtins.TIMESTAMPTZ, (v: string) => new Date(v).toISOString());
+  types.setTypeParser(types.builtins.TIMESTAMP, (v: string) => new Date(v + "Z").toISOString());
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 3 });
   cachedStore = new PgMemberStore(pool as unknown as PgPool);
   return cachedStore;
