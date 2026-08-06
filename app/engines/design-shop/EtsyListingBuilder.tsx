@@ -185,7 +185,10 @@ export default function EtsyListingBuilder({
   // Ref mirror of the listing — two taps in the same tick (or a fast double
   // tap) must not build from a stale closure and drop the first change.
   const listingRef = useRef<EtsyListingState | null>(null);
-  listingRef.current = listing ?? listingRef.current;
+
+  useEffect(() => {
+    if (listing) listingRef.current = listing;
+  }, [listing]);
 
   const persist = (nextListing: EtsyListingState, nextStage: BuilderStage = stage) => {
     listingRef.current = nextListing;
