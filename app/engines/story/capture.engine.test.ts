@@ -407,7 +407,7 @@ describe("scene directions", () => {
 describe("manuscript approval enforcement", () => {
   function readyProject() {
     const made = projectWith();
-    const source = made.source;
+    let source = made.source;
     let project = made.project;
     project = updateSourceIn(project, source.id, (s) => attachProposedDirections(s, ""));
     source = findSource(project, source.id)!;
