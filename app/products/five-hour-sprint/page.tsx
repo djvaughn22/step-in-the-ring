@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { currentMember } from "../../members/session";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Five Hour Sprint",
@@ -12,7 +15,10 @@ const PARTS = [
   ["03", "Verify before calling it finished", "Review the diff, run the checks, test production, and record the real result."],
 ];
 
-export default function FiveHourSprintPage() {
+export default async function FiveHourSprintPage() {
+  const member = await currentMember();
+  const hasAccess = !!member?.access.memberAccess;
+
   return (
     <main>
       <div className="page">
@@ -39,9 +45,15 @@ export default function FiveHourSprintPage() {
 
         <section className="home-section" style={{ textAlign: "center" }}>
           <div className="actions center">
-            <Link href="/membership?source=five-hour-sprint" className="btn btn-gold btn-big">
-              See Step In The Ring membership
-            </Link>
+            {hasAccess ? (
+              <Link href="/five-hour-sprint-tool" className="btn btn-gold btn-big">
+                Open the Sprint Tool
+              </Link>
+            ) : (
+              <Link href="/membership?source=five-hour-sprint" className="btn btn-gold btn-big">
+                See Step In The Ring membership
+              </Link>
+            )}
             <Link href="/" className="btn btn-ghost">Start with an idea</Link>
           </div>
         </section>
