@@ -486,6 +486,10 @@ export default function StepInTheRing() {
           <section className="home-section">
             <span className="kicker">What people finish here</span>
             <div className="ex-grid">
+              <a href="/products/five-hour-sprint" className="ex-card">
+                <span className="ex-name">⏱️ Plan and finish a Five Hour Sprint</span>
+                <span className="ex-who">Use two AI tools with clear roles, a fixed budget, and proof of completion</span>
+              </a>
               <a href="/engines?engine=idea" className="ex-card">
                 <span className="ex-name">💡 Choose and improve an idea</span>
                 <span className="ex-who">Weigh a few versions, leave with one decision</span>
