@@ -154,6 +154,7 @@ export const ENGINES: Engine[] = [
     technical: true,
     activation: "beta",
     output: "A build prompt detailed enough to hand to your coding tool, plus the MVP scope and architecture behind it.",
+    beginWith: "An idea you're ready to build, and who it's for.",
     statusNote: "Generates a real package. It writes the brief — it does not write the code. Not the same thing as /build, the beginner walkthrough.",
     suggestedStage: "Building",
     intake: [
@@ -177,6 +178,7 @@ export const ENGINES: Engine[] = [
     technical: false,
     activation: "beta",
     output: "An offer someone could actually buy: customer, format, price hypothesis, and the first validation test.",
+    beginWith: "Something you want to sell and who it's for.",
     suggestedStage: "Shaping",
     intake: [
       Q.name(),
@@ -199,6 +201,7 @@ export const ENGINES: Engine[] = [
     technical: true,
     activation: "beta",
     output: "A launch package: what's not ready, the production checks, the message, and one number to measure.",
+    beginWith: "A built product ready to introduce to real people.",
     suggestedStage: "Launching",
     intake: [
       Q.name(),
@@ -221,6 +224,7 @@ export const ENGINES: Engine[] = [
     technical: true,
     activation: "beta",
     output: "A careful repair prompt that inspects before it edits, plus the regression checks around it.",
+    beginWith: "A specific problem, failure, or confusing behavior.",
     suggestedStage: "Repairing",
     intake: [
       Q.name(),
@@ -243,6 +247,7 @@ export const ENGINES: Engine[] = [
     technical: false,
     activation: "beta",
     output: "One growth hypothesis and the smallest experiment that would prove it, with a decision rule.",
+    beginWith: "An existing project and the result you want to improve.",
     suggestedStage: "Growing",
     intake: [
       Q.name(),
@@ -265,6 +270,7 @@ export const ENGINES: Engine[] = [
     technical: false,
     activation: "beta",
     output: "A real-world plan: milestones, owners, dependencies, risks, and the next concrete action.",
+    beginWith: "A goal, deadline, or deliverable that needs a workable plan.",
     suggestedStage: "Planning",
     intake: [
       Q.name(),
@@ -356,8 +362,9 @@ export const ENGINES: Engine[] = [
     // genuinely owner-only until the github-api driver lands. MineDoku is real
     // proof the pipeline works — it is not proof a visitor can use it.
     activation: "owner-only",
-    statusNote: "Publishing needs the OpenDoku repo on the machine running the site, so it only works for the owner right now. A visitor gets an error. MineDoku on OpenDoku was published by this engine.",
     output: "A playable doku world — published live to OpenDoku when run by the owner.",
+    beginWith: "A game idea, rule, or theme for a doku world.",
+    statusNote: "Publishing needs the OpenDoku repo on the machine running the site, so it only works for the owner right now. A visitor gets an error. MineDoku on OpenDoku was published by this engine.",
   },
   {
     id: "howto",
@@ -394,6 +401,7 @@ export const ENGINES: Engine[] = [
     // comes out the other side.
     activation: "owner-only",
     output: "A growing novel project — memories, characters, relationships, storylines, scenes with full revision history, series planning, and a chapter outline — saved in the author's browser, exportable as backups.",
+    beginWith: "A memory, draft, recording, or story you want to develop.",
     statusNote: "Private: the working room is password-protected and the writing is local-first — it stays in the author's browser and is not intentionally stored on this site's server.",
   },
   {

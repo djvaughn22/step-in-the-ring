@@ -152,10 +152,25 @@ Ranked by severity:
 - Project continuation: Engine Room project-list rows now say "Continue" instead of "Open" and show a human-readable "Updated M/D/YYYY" line, so a returning tester can answer "what was I on, when, how do I continue" at a glance.
 - Did not touch: individual engine intake flows, `/how`, `/live`, `/about`, `/build`, `/shop`, `/five-hour-sprint-tool`, signed-out/empty states beyond what's noted above (all were already reasonable per the session-1 audit).
 
+## Work completed — session 4
+
+**Engine starting-requirements completion:**
+- Added `beginWith` field to the 8 remaining engines (Build, Sell, Launch, Fix, Grow, Plan, Game, Story Partner), grounded in each engine's actual intake questions and blurb. Values follow the existing tone (plain, specific, one sentence).
+  - Build: "An idea you're ready to build, and who it's for."
+  - Sell: "Something you want to sell and who it's for."
+  - Launch: "A built product ready to introduce to real people."
+  - Fix: "A specific problem, failure, or confusing behavior."
+  - Grow: "An existing project and the result you want to improve."
+  - Plan: "A goal, deadline, or deliverable that needs a workable plan."
+  - Game: "A game idea, rule, or theme for a doku world."
+  - Story: "A memory, draft, recording, or story you want to develop."
+- New regression test: `app/engines/engines.test.ts` (12-engine assertion: all engines expected to have `beginWith` have non-empty values). 621 tests passed (including the new test).
+- Verified: `npx tsc --noEmit` clean; `npx eslint` 0 new errors; `npm run build` successful (no blockers).
+- Known limitation: production owner login is not available to Claude (ruled out at system level), so the Engine Room cards could not be visually verified in prod browser. The regression test and manual source inspection confirm all 12 `beginWith` values are present and non-empty; `EngineCard.tsx` already renders them conditionally on the "To begin:" line. Changes are isolated to data (the ENGINES array) with no component edits needed.
+
 ## Exact next-session starting point
 
 1. Read this file first.
-2. `git log --oneline -6` to confirm session 1–3 commits landed, including the Phase B commit (`feat: clarify Step In The Ring beta journey`) and whether it was pushed/deployed (check the final checkpoint in the session-3 transcript).
-3. Priority (bounded, mechanical — good Haiku candidate): add `beginWith` copy to the remaining 8 engines (Build, Sell, Launch, Fix, Grow, Plan, Game, Story Partner) following the exact pattern in `app/engines/engines.ts` — one plain sentence each, same field name, no other changes needed since `EngineCard` already renders it conditionally.
-4. After that: engine-by-engine internals (Story Partner, Game Engine remain owner-only by design — confirm that's still intentional before changing).
-5. Do not reopen the pricing/beta-foundation, feedback-foundation, or journey-cleanup work unless a new dollar amount, misleading CTA, or journey defect is found by the regression tests or a fresh audit.
+2. `git log --oneline -6` to confirm session 4's commit landed and deployed (rollback point: `34dbe93`).
+3. Priority: engine-by-engine internals (Story Partner, Game Engine remain owner-only by design — confirm that's still intentional before changing).
+4. Do not reopen the pricing/beta-foundation, feedback-foundation, journey-cleanup, or engine-startup-requirements work unless a new dollar amount, misleading CTA, journey defect, or engine content issue is found by the regression tests or a fresh audit.
