@@ -158,8 +158,8 @@ describe("authentication", () => {
 // ── Entitlement resolution ──────────────────────────────────────────────────
 
 describe("entitlement", () => {
-  it("price is exactly $7.77 monthly — one plan, no annual, no lifetime", () => {
-    expect(MEMBERSHIP_PRICE_LABEL).toBe("$7.77 per month");
+  it("public price is TBD during the beta — one plan, no annual, no lifetime", () => {
+    expect(MEMBERSHIP_PRICE_LABEL).toBe("TBD");
     expect(MEMBERSHIP_PRICE_CENTS).toBe(777);
     expect(MEMBERSHIP_CADENCE).toBe("month");
     const src = stripComments(

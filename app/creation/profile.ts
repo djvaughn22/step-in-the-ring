@@ -323,7 +323,7 @@ export function deriveTools(
         setup: ["Nothing to start — save the file, double-click it, it runs."],
         noSetup: ["Building and playing/using it locally."],
         automatic: ["Sharing: connect the file to free static hosting once, and every save can go live."],
-        optional: ["A custom domain costs ~$10–15/year and changes nothing about how it works."],
+        optional: ["A custom domain has a small yearly registrar cost and changes nothing about how it works."],
         wait: ["Frameworks, databases, accounts, and app stores — a single file has to earn them first."],
       };
     }
@@ -355,7 +355,7 @@ export function deriveTools(
       setup: ["A free hosting account (one time), connected to where the code lives."],
       noSetup: ["Building and testing it locally in a browser."],
       automatic: ["Deploys: once hosting is connected, every push goes live on its own."],
-      optional: ["A custom domain (~$10–15/year). Analytics later, and only the free kind."],
+      optional: ["A custom domain (small yearly registrar cost). Analytics later, and only the free kind."],
       wait: ["Databases, accounts, logins, payments, dashboards, AI features — each needs a reason, and version one hasn't produced one yet."],
     };
   }

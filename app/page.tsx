@@ -404,9 +404,13 @@ export default function StepInTheRing() {
               Open Mirror LLC
             </a>
             <h1>Step In The Ring</h1>
+            <span className="status-pill status-beta" style={{ display: "inline-block", margin: "8px 0 0" }}>
+              Open beta
+            </span>
             <p className="hero-sub">
-              Say it the way it comes out. You get back what it really is, the smartest first
-              version, and the tools it actually needs.
+              Take an idea and turn it into a real first build. Say it however it comes
+              out — you get back what it really is, the smartest first version, and the
+              tools it actually needs.
             </p>
           </section>
 
@@ -476,7 +480,7 @@ export default function StepInTheRing() {
                 <h3>Or open the Engine Room</h3>
                 <p>
                   Work with one specialist directly — decide an idea, design a product, make a
-                  first beat. Open to everyone.
+                  first beat. Open beta: sign up free or use a tester code to get in.
                 </p>
               </div>
               <span className="door-go" aria-hidden="true">→</span>
