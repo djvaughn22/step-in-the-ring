@@ -54,6 +54,8 @@ export function resolveAccess(
   switch (record.status) {
     case "owner":
       return { status: "owner", memberAccess: true, activeUntil: null };
+    case "pending":
+      return { status: "pending", memberAccess: false, activeUntil: null };
     case "active":
       // A live paid record with a lapsed period end behaves as expired even
       // if a webhook was missed — stale state can never extend access.

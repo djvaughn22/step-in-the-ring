@@ -17,6 +17,7 @@
 
 export type EntitlementStatus =
   | "free"
+  | "pending" // signed up, awaiting owner approval
   | "active" // paid, current
   | "tester" // tester-code grant
   | "owner"
@@ -102,6 +103,7 @@ export interface MemberStore {
   getUserByEmail(email: string): Promise<UserRecord | null>;
   getUserById(id: string): Promise<UserRecord | null>;
   updateUser(u: UserRecord): Promise<void>;
+  listUsers(): Promise<UserRecord[]>;
   // sessions
   createSession(s: SessionRecord): Promise<void>;
   getSession(tokenHash: string): Promise<SessionRecord | null>;
@@ -111,6 +113,7 @@ export interface MemberStore {
   getEntitlement(userId: string): Promise<EntitlementRecord | null>;
   upsertEntitlement(e: EntitlementRecord): Promise<void>;
   getEntitlementByStripeCustomer(customerId: string): Promise<EntitlementRecord | null>;
+  listEntitlements(): Promise<EntitlementRecord[]>;
   // projects
   createProject(p: ProjectRecord): Promise<void>;
   getProject(id: string): Promise<ProjectRecord | null>;
@@ -159,6 +162,9 @@ export class MemoryMemberStore implements MemberStore {
   async updateUser(u: UserRecord) {
     this.users.set(u.id, { ...u });
   }
+  async listUsers() {
+    return [...this.users.values()];
+  }
   async createSession(s: SessionRecord) {
     this.sessions.set(s.tokenHash, { ...s });
   }
@@ -181,6 +187,9 @@ export class MemoryMemberStore implements MemberStore {
     return (
       [...this.entitlements.values()].find((e) => e.stripeCustomerId === customerId) ?? null
     );
+  }
+  async listEntitlements() {
+    return [...this.entitlements.values()];
   }
   async createProject(p: ProjectRecord) {
     this.projects.set(p.id, { ...p });
@@ -277,6 +286,10 @@ export class PgMemberStore implements MemberStore {
       [u.id, u.email, u.passwordHash, u.emailVerified, u.updatedAt, u.deletionRequestedAt],
     );
   }
+  async listUsers() {
+    const { rows } = await this.pool.query(`SELECT * FROM member_users ORDER BY created_at DESC`);
+    return rows.map(this.mapUser);
+  }
   async createSession(s: SessionRecord) {
     await this.pool.query(
       `INSERT INTO member_sessions (token_hash, user_id, expires_at, created_at) VALUES ($1,$2,$3,$4)`,
@@ -337,6 +350,14 @@ export class PgMemberStore implements MemberStore {
       [customerId],
     );
     return this.one(rows, this.mapEnt);
+  }
+  async listEntitlements() {
+    const { rows } = await this.pool.query(
+      `SELECT e.*, u.email FROM member_entitlements e
+       LEFT JOIN member_users u ON e.user_id = u.id
+       ORDER BY e.created_at DESC`,
+    );
+    return rows.map(this.mapEnt);
   }
 
   private mapProject = (r: Record<string, unknown>): ProjectRecord => ({
