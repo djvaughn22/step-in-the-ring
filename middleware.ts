@@ -52,9 +52,12 @@ export function middleware(req: NextRequest) {
   if (isProtectedRoute(pathname)) {
     const sessionCookie = req.cookies.get(MEMBER_SESSION_COOKIE);
     if (!sessionCookie) {
-      // Redirect to login, preserving intended destination
+      // Redirect to login, preserving intended destination (pathname is always internal from router)
       const loginUrl = new URL("/members/login", req.url);
-      loginUrl.searchParams.set("returnTo", pathname);
+      // Only set returnTo for safe internal paths
+      if (pathname.startsWith("/")) {
+        loginUrl.searchParams.set("returnTo", pathname);
+      }
       return NextResponse.redirect(loginUrl);
     }
   }
