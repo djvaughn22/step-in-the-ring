@@ -14,6 +14,7 @@ const ROOMS = [
   { href: "/engines", emoji: "🎛️", name: "Engine Room", what: "Idea, Build, Sell, Design Shop, Game, How-to and Music studios, plus saved engine projects." },
   { href: "/projects", emoji: "🗂️", name: "Project OS", what: "Project records: scope, evidence, lifecycle, next actions." },
   { href: "/owner/tester-codes", emoji: "🎟️", name: "Tester codes", what: "Create, view and revoke private-beta membership codes." },
+  { href: "/owner/feedback", emoji: "🗣️", name: "Tester feedback", what: "Every structured feedback submission, newest first." },
 ];
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;

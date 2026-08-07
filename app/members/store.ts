@@ -83,6 +83,19 @@ export interface AnalyticsEvent {
   createdAt: string;
 }
 
+export type FeedbackCategory = "bug" | "confusing" | "idea" | "other";
+export type FeedbackStatus = "new" | "reviewed";
+
+export interface FeedbackRecord {
+  id: string;
+  userId: string;
+  category: FeedbackCategory;
+  message: string;
+  contextUrl: string; // where the person was when they submitted, e.g. "/engines?engine=idea"
+  status: FeedbackStatus;
+  createdAt: string;
+}
+
 export interface MemberStore {
   // users
   createUser(u: UserRecord): Promise<void>;
@@ -113,6 +126,10 @@ export interface MemberStore {
   recordStripeEvent(eventId: string): Promise<boolean>;
   // analytics (non-sensitive counters only)
   recordEvent(e: AnalyticsEvent): Promise<void>;
+  // structured tester feedback
+  createFeedback(f: FeedbackRecord): Promise<void>;
+  listFeedback(): Promise<FeedbackRecord[]>;
+  updateFeedbackStatus(id: string, status: FeedbackStatus): Promise<void>;
 }
 
 // ── In-memory implementation (tests / no-database dev) ──────────────────────
@@ -125,6 +142,7 @@ export class MemoryMemberStore implements MemberStore {
   testerCodes = new Map<string, TesterCodeRecord>();
   stripeEvents = new Set<string>();
   events: AnalyticsEvent[] = [];
+  feedback = new Map<string, FeedbackRecord>();
 
   async createUser(u: UserRecord) {
     if ([...this.users.values()].some((x) => x.email === u.email)) {
@@ -200,6 +218,16 @@ export class MemoryMemberStore implements MemberStore {
   }
   async recordEvent(e: AnalyticsEvent) {
     this.events.push({ ...e });
+  }
+  async createFeedback(f: FeedbackRecord) {
+    this.feedback.set(f.id, { ...f });
+  }
+  async listFeedback() {
+    return [...this.feedback.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  async updateFeedbackStatus(id: string, status: FeedbackStatus) {
+    const existing = this.feedback.get(id);
+    if (existing) this.feedback.set(id, { ...existing, status });
   }
 }
 
@@ -394,6 +422,31 @@ export class PgMemberStore implements MemberStore {
       `INSERT INTO member_events (event, source, created_at) VALUES ($1,$2,$3)`,
       [e.event, e.source, e.createdAt],
     );
+  }
+
+  private mapFeedback = (r: Record<string, unknown>): FeedbackRecord => ({
+    id: String(r.id),
+    userId: String(r.user_id),
+    category: String(r.category) as FeedbackCategory,
+    message: String(r.message),
+    contextUrl: String(r.context_url ?? ""),
+    status: String(r.status) as FeedbackStatus,
+    createdAt: String(r.created_at),
+  });
+
+  async createFeedback(f: FeedbackRecord) {
+    await this.pool.query(
+      `INSERT INTO member_feedback (id, user_id, category, message, context_url, status, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [f.id, f.userId, f.category, f.message, f.contextUrl, f.status, f.createdAt],
+    );
+  }
+  async listFeedback() {
+    const { rows } = await this.pool.query(`SELECT * FROM member_feedback ORDER BY created_at DESC`);
+    return rows.map(this.mapFeedback);
+  }
+  async updateFeedbackStatus(id: string, status: FeedbackStatus) {
+    await this.pool.query(`UPDATE member_feedback SET status=$2 WHERE id=$1`, [id, status]);
   }
 }
 
