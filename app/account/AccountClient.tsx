@@ -6,6 +6,7 @@
 // authorization decision — this component only calls and mirrors.
 
 import { useCallback, useEffect, useState } from "react";
+import FeedbackForm from "./FeedbackForm";
 
 type ProjectSummary = {
   id: string;
@@ -200,6 +201,8 @@ export default function AccountClient(props: {
           {message}
         </p>
       )}
+
+      <FeedbackForm />
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <button type="button" className="btn btn-ghost" onClick={logout}>Sign out</button>
