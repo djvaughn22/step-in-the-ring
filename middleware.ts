@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MEMBER_SESSION_COOKIE } from "./app/members/auth";
+import { MEMBER_SESSION_COOKIE } from "./app/members/constants";
 
 const PROTECTED_ROUTES = [
   "/engines",
