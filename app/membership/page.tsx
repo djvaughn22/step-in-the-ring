@@ -3,9 +3,9 @@
 // introduction to the Engine Room.
 //
 // Honest-state rules (test-locked):
-//   - Price is exactly $7.77 per month, monthly recurring. One plan. No
-//     annual, no lifetime, no tiers, no trials, no crossed-out prices, no
-//     countdowns, no fake counts.
+//   - Public price is TBD during the open beta (2026-08-06 beta reset). One
+//     plan. No annual, no lifetime, no tiers, no trials, no crossed-out
+//     prices, no countdowns, no fake counts.
 //   - While billing is not live this page says PRIVATE BETA plainly and the
 //     join button becomes "billing not live yet".
 //   - What stays free stays listed: iDontCry, this introduction, the local
@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Membership",
   description:
-    "Step In The Ring Membership — $7.77 per month. Take an idea from iDontCry or anywhere else and turn it into a real first build, with saved projects and guided engines.",
+    "Step In The Ring Membership — open beta, price TBD. Take an idea from iDontCry or anywhere else and turn it into a real first build, with saved projects and guided engines.",
 };
 
 const FREE_ALWAYS = [
@@ -73,14 +73,7 @@ export default async function MembershipPage({
         <h1 style={{ fontSize: 28, fontWeight: 900, margin: "6px 0 8px", color: "var(--ink, #e8edf5)" }}>
           {MEMBERSHIP_PRODUCT_NAME}
         </h1>
-        <p style={{ fontSize: 18, fontWeight: 800, margin: "0 0 4px", color: "var(--gold, #f59e0b)" }}>
-          {MEMBERSHIP_PRICE_LABEL}
-        </p>
-        <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 20px" }}>
-          Monthly recurring billing. Cancel any time from the billing portal —
-          paid access runs to the end of the period you already paid for.
-        </p>
-        <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted, #94a3b8)", margin: "0 0 28px" }}>
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted, #94a3b8)", margin: "0 0 20px" }}>
           Take any idea — even one you dreamed up on iDontCry — and turn it
           into a real first build. Membership is the working side of Step In
           The Ring: guided engines, saved projects, and structured iteration
@@ -89,15 +82,24 @@ export default async function MembershipPage({
         </p>
 
         {!billingLive && (
-          <div style={{ border: "1px solid rgba(245,158,11,0.4)", borderRadius: 14, padding: "14px 16px", marginBottom: 28 }}>
+          <div style={{ border: "1px solid rgba(245,158,11,0.4)", borderRadius: 14, padding: "14px 16px", marginBottom: 20 }}>
             <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold, #f59e0b)", margin: 0, lineHeight: 1.6 }}>
               Billing is not live yet. Membership is in private beta: invited
               testers use owner-issued codes, and nothing can be purchased on
-              this page today. When billing opens, the exact terms above are
+              this page today. When billing opens, the exact terms below are
               what you&apos;ll see at checkout — nothing hidden.
             </p>
           </div>
         )}
+
+        <p style={{ fontSize: 14, fontWeight: 800, margin: "0 0 4px", color: "var(--muted, #94a3b8)" }}>
+          Future price: {MEMBERSHIP_PRICE_LABEL}
+        </p>
+        <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 28px" }}>
+          Monthly recurring billing, once billing opens. Cancel any time from
+          the billing portal — paid access runs to the end of the period you
+          already paid for.
+        </p>
 
         <h2 style={{ fontSize: 16, fontWeight: 900, margin: "0 0 10px", color: "var(--ink, #e8edf5)" }}>
           What stays free

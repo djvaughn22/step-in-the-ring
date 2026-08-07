@@ -43,7 +43,7 @@ export default function RootLayout({
           accent="#60A5FA"
           links={[
             { emoji: "🥊", name: "Shape an Idea", href: "/" },
-            { emoji: "⚙️", name: "Engine Room", href: "/engines" },
+            { emoji: "⚙️", name: "Engine Room (Beta)", href: "/engines" },
             { emoji: "📦", name: "Live Builds", href: "/live" },
             { emoji: "🧭", name: "How It Works", href: "/how" },
             { emoji: "ℹ️", name: "About StepInTheRing", href: "/about" },

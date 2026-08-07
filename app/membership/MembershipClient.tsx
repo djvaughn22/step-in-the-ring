@@ -6,6 +6,7 @@
 // browser only asks the server and mirrors the answer.
 
 import { useEffect, useState } from "react";
+import { MEMBERSHIP_PRICE_LABEL } from "../members/entitlement";
 
 type Props = {
   configured: boolean;
@@ -249,7 +250,7 @@ function billingButton(billingLive: boolean, busy: boolean, checkout: () => void
   }
   return (
     <button type="button" className="btn btn-primary" onClick={checkout} disabled={busy}>
-      Join — $7.77 per month
+      Join — {MEMBERSHIP_PRICE_LABEL}
     </button>
   );
 }

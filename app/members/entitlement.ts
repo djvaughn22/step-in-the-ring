@@ -25,7 +25,11 @@
 import { ENGINES, type Engine } from "../engines/engines";
 import type { EntitlementRecord } from "./store";
 
-export const MEMBERSHIP_PRICE_LABEL = "$7.77 per month";
+// Public price display is TBD during the open beta (locked public rule,
+// 2026-08-06 beta reset). MEMBERSHIP_PRICE_CENTS is the real dormant Stripe
+// amount for when billing goes live — it is server-side config, never
+// rendered to a visitor, and stays as-is.
+export const MEMBERSHIP_PRICE_LABEL = "TBD";
 export const MEMBERSHIP_PRICE_CENTS = 777;
 export const MEMBERSHIP_CADENCE = "month" as const;
 export const MEMBERSHIP_PRODUCT_NAME = "Step In The Ring Membership";
