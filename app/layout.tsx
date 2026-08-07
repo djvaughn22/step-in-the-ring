@@ -44,6 +44,7 @@ export default function RootLayout({
           links={[
             { emoji: "🥊", name: "Shape an Idea", href: "/" },
             { emoji: "⚙️", name: "Engine Room (Beta)", href: "/engines" },
+            { emoji: "💻", name: "Build Machine", href: "/build-machine" },
             { emoji: "📦", name: "Live Builds", href: "/live" },
             { emoji: "🧭", name: "How It Works", href: "/how" },
             { emoji: "👤", name: "Account", href: "/account" },
