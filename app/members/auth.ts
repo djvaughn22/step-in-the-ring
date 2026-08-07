@@ -105,7 +105,7 @@ export function passwordProblem(raw: unknown): string | null {
   return null;
 }
 
-async function issueSession(
+export async function issueSession(
   store: MemberStore,
   userId: string,
   now: Date,
