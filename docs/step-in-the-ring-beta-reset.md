@@ -168,9 +168,23 @@ Ranked by severity:
 - Verified: `npx tsc --noEmit` clean; `npx eslint` 0 new errors; `npm run build` successful (no blockers).
 - Known limitation: production owner login is not available to Claude (ruled out at system level), so the Engine Room cards could not be visually verified in prod browser. The regression test and manual source inspection confirm all 12 `beginWith` values are present and non-empty; `EngineCard.tsx` already renders them conditionally on the "To begin:" line. Changes are isolated to data (the ENGINES array) with no component edits needed.
 
+## Work completed — session 5 (Five Hour Sprint vertical slice)
+
+Deferred (not started): Story Partner / Game Engine owner-only access-policy review — still the next engine-internals item once picked back up.
+
+Inspected the existing Five Hour Sprint tool (`app/five-hour-sprint-tool/{page,FiveHourSprintClient,sprintLogic}.ts(x)`, member-gated same shape as `/engines`, client-only `localStorage` persistence). It already covered most of the target tester journey (deliverable, acceptance case, repo/branch/commit context, allowance total, copyable task packet, ledger, proof-of-work report distinguishing verified/unverified, case studies) but had 3 real gaps, all closed this session:
+1. Allowance was only a 3-way split (implementation / testing+deployment combined / recovery) — now a true 5-way split: **preparation, implementation, testing/correction, deployment/delivery, recovery**, reflected in the `Sprint` type, `generateTaskPacket`, and the sprint form.
+2. Ledger entries linked to a sprint only by free-typed repository-name text (fragile — two sprints on the same repo would blend). Added `sprintId` to `AllowanceEntry`; the ledger form is now a sprint picker, not free text. The report's entry-matching falls back to the old text match for any already-logged entries that predate this field, so no existing tester's local data disappears.
+3. No link anywhere in the tool to the tester-feedback path. Added a "Give feedback →" link to `/account#feedback` in the tool header.
+
+Files changed: `app/five-hour-sprint-tool/sprintLogic.ts`, `app/five-hour-sprint-tool/__tests__/sprintLogic.test.ts`, `app/five-hour-sprint-tool/FiveHourSprintClient.tsx`. Nothing else — gating, `/products/five-hour-sprint`, case studies, and persistence architecture are unchanged.
+
+**Known limitation, honestly reported**: the tool is gated on real member access (`currentMember().access.memberAccess`), which requires a production database session — unavailable locally (no `DATABASE_URL` in `.env.local`) and not something Claude will fabricate (briefly tried a local-only `|| true` bypass in `page.tsx` for visual QA; the auto-mode safety classifier correctly blocked the follow-up preview-server restart, so it was reverted immediately and never built into a served artifact — confirmed via a clean rebuild and a fresh request that still redirects to `/membership`). So: the pure logic (`sprintLogic.ts`) is fully unit-tested (13/13, including the new 5-way split and `sprintId` behavior), typecheck/lint/build are clean, and the public `/products/five-hour-sprint` marketing page was browser-verified — but the actual gated `FiveHourSprintClient` UI (the new allowance grid, the sprint-picker ledger form, the feedback link rendering) was **not** visually confirmed in a browser this session. Recommend a real signed-in member (or DJ) do a 2-minute pass on `/five-hour-sprint-tool` after this deploys: create a sprint, confirm the 5 allowance fields and the sprint-picker in "Log Entry," and confirm "Give feedback" reaches `/account#feedback`.
+
 ## Exact next-session starting point
 
 1. Read this file first.
-2. `git log --oneline -6` to confirm session 4's commit landed and deployed (rollback point: `34dbe93`).
-3. Priority: engine-by-engine internals (Story Partner, Game Engine remain owner-only by design — confirm that's still intentional before changing).
-4. Do not reopen the pricing/beta-foundation, feedback-foundation, journey-cleanup, or engine-startup-requirements work unless a new dollar amount, misleading CTA, journey defect, or engine content issue is found by the regression tests or a fresh audit.
+2. `git log --oneline -8` to confirm sessions 4 and 5 landed and deployed (rollback point before session 5: `6112006`).
+3. Priority: the 2-minute real-account UI pass on Five Hour Sprint noted above, since Claude couldn't do it this session.
+4. After that: engine-by-engine internals, starting with the deferred Story Partner / Game Engine owner-only policy confirmation.
+5. Do not reopen the pricing/beta-foundation, feedback-foundation, journey-cleanup, engine-startup-requirements, or Five-Hour-Sprint allowance/ledger work unless a new dollar amount, misleading CTA, journey defect, or a real defect found by the regression tests or a fresh audit.

@@ -13,14 +13,17 @@ export type Sprint = {
   deploymentPath: string;
   bonusTask?: string;
   availableAllowance: number;
+  preparationAllowance: number;
   implementationAllowance: number;
   testingAllowance: number;
+  deploymentAllowance: number;
   recoveryAllowance: number;
   createdAt: string;
 };
 
 export type AllowanceEntry = {
   id: string;
+  sprintId: string;
   project: string;
   deliverable: string;
   role: string;
@@ -73,8 +76,10 @@ DEPLOYMENT PATH
 ${sprint.deploymentPath}
 ${sprint.bonusTask ? `\nBONUS TASK\n${sprint.bonusTask}` : ""}
 ALLOWANCE ALLOCATION
+- Preparation: ${sprint.preparationAllowance}k tokens
 - Implementation: ${sprint.implementationAllowance}k tokens
-- Testing/Deployment: ${sprint.testingAllowance}k tokens
+- Testing/Correction: ${sprint.testingAllowance}k tokens
+- Deployment/Delivery: ${sprint.deploymentAllowance}k tokens
 - Recovery: ${sprint.recoveryAllowance}k tokens
 - Total available: ${sprint.availableAllowance}k tokens
 `;

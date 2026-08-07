@@ -20,9 +20,11 @@ function baseSprint(overrides: Partial<Sprint> = {}): Sprint {
     requiredChecks: ["npm test", "npm run build"],
     deploymentPath: "vercel (auto on push)",
     availableAllowance: 200,
-    implementationAllowance: 100,
-    testingAllowance: 50,
-    recoveryAllowance: 50,
+    preparationAllowance: 20,
+    implementationAllowance: 80,
+    testingAllowance: 40,
+    deploymentAllowance: 20,
+    recoveryAllowance: 40,
     createdAt: "2026-08-05T00:00:00.000Z",
     ...overrides,
   };
@@ -79,9 +81,11 @@ describe("generateTaskPacket", () => {
     expect(packet).toContain("npm test");
     expect(packet).toContain("npm run build");
     expect(packet).toContain("vercel (auto on push)");
-    expect(packet).toContain("Implementation: 100k tokens");
-    expect(packet).toContain("Testing/Deployment: 50k tokens");
-    expect(packet).toContain("Recovery: 50k tokens");
+    expect(packet).toContain("Preparation: 20k tokens");
+    expect(packet).toContain("Implementation: 80k tokens");
+    expect(packet).toContain("Testing/Correction: 40k tokens");
+    expect(packet).toContain("Deployment/Delivery: 20k tokens");
+    expect(packet).toContain("Recovery: 40k tokens");
     expect(packet).toContain("Total available: 200k tokens");
   });
 
@@ -95,6 +99,7 @@ describe("generateReport — proof-of-work report generation", () => {
   function entry(overrides: Partial<AllowanceEntry> = {}): AllowanceEntry {
     return {
       id: "e1",
+      sprintId: "1",
       project: "some-repo",
       deliverable: "Fix the thing",
       role: "implementation",

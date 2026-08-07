@@ -95,9 +95,11 @@ export default function FiveHourSprintClient() {
       requiredChecks: ["npm test", "npm run lint", "npm run build", "git diff --check"],
       deploymentPath: "vercel (auto on push)",
       availableAllowance: 200,
+      preparationAllowance: 20,
       implementationAllowance: 100,
-      testingAllowance: 50,
-      recoveryAllowance: 50,
+      testingAllowance: 40,
+      deploymentAllowance: 20,
+      recoveryAllowance: 20,
       createdAt: new Date().toISOString(),
     };
     setSprints([...sprints, newSprint]);
@@ -124,12 +126,22 @@ export default function FiveHourSprintClient() {
   }
 
   const reportSprint = sprints.find((s) => s.id === reportSprintId) ?? null;
-  const reportEntries = reportSprint ? entries.filter((e) => e.project === reportSprint.repository) : [];
+  // Match by sprint id (the reliable checkpoint link). Entries saved before
+  // this field existed have no sprintId — fall back to the old repository-
+  // name match so nobody's already-logged work disappears from their report.
+  const reportEntries = reportSprint
+    ? entries.filter((e) => (e.sprintId ? e.sprintId === reportSprint.id : e.project === reportSprint.repository))
+    : [];
 
   return (
     <main style={{ minHeight: "100vh", background: "var(--bg, #0f172a)", color: "var(--ink, #e8edf5)", padding: "20px" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 28, fontWeight: 900, marginBottom: 24 }}>Five Hour Sprint</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0 }}>Five Hour Sprint</h1>
+          <a href="/account#feedback" style={{ fontSize: 13, fontWeight: 800, color: "var(--gold, #f59e0b)", textDecoration: "none" }}>
+            Give feedback →
+          </a>
+        </div>
 
         <div style={{ display: "flex", gap: 12, marginBottom: 24, borderBottom: "1px solid rgba(148,163,184,0.2)", paddingBottom: 12, flexWrap: "wrap" }}>
           {(["planner", "ledger", "report", "studies"] as const).map((tab) => (
@@ -296,6 +308,7 @@ export default function FiveHourSprintClient() {
 
             {entryFormOpen && (
               <LedgerEntryForm
+                sprints={sprints}
                 onSave={(entry) => {
                   addEntry(entry);
                   setEntryFormOpen(false);
@@ -477,18 +490,28 @@ function SprintForm({ sprint, onSave, onClose }: { sprint: Sprint; onSave: (s: S
             <input type="text" value={form.deploymentPath} onChange={(e) => setForm({ ...form, deploymentPath: e.target.value })} style={fieldStyle} />
           </label>
 
+          <label>
+            <span style={labelStyle}>Available allowance (k) *</span>
+            <input type="number" value={form.availableAllowance} onChange={(e) => setForm({ ...form, availableAllowance: Number(e.target.value) })} style={fieldStyle} />
+          </label>
+
+          <span style={{ ...labelStyle, marginTop: 4 }}>Reserve the available allowance across:</span>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <label>
-              <span style={labelStyle}>Available (k)</span>
-              <input type="number" value={form.availableAllowance} onChange={(e) => setForm({ ...form, availableAllowance: Number(e.target.value) })} style={fieldStyle} />
+              <span style={labelStyle}>Preparation (k)</span>
+              <input type="number" value={form.preparationAllowance} onChange={(e) => setForm({ ...form, preparationAllowance: Number(e.target.value) })} style={fieldStyle} />
             </label>
             <label>
               <span style={labelStyle}>Implementation (k)</span>
               <input type="number" value={form.implementationAllowance} onChange={(e) => setForm({ ...form, implementationAllowance: Number(e.target.value) })} style={fieldStyle} />
             </label>
             <label>
-              <span style={labelStyle}>Testing/Deploy (k)</span>
+              <span style={labelStyle}>Testing/Correction (k)</span>
               <input type="number" value={form.testingAllowance} onChange={(e) => setForm({ ...form, testingAllowance: Number(e.target.value) })} style={fieldStyle} />
+            </label>
+            <label>
+              <span style={labelStyle}>Deployment/Delivery (k)</span>
+              <input type="number" value={form.deploymentAllowance} onChange={(e) => setForm({ ...form, deploymentAllowance: Number(e.target.value) })} style={fieldStyle} />
             </label>
             <label>
               <span style={labelStyle}>Recovery (k)</span>
@@ -523,16 +546,16 @@ function SprintForm({ sprint, onSave, onClose }: { sprint: Sprint; onSave: (s: S
   );
 }
 
-function LedgerEntryForm({ onSave, onClose }: { onSave: (entry: AllowanceEntry) => void; onClose: () => void }) {
-  const [project, setProject] = useState("");
-  const [deliverable, setDeliverable] = useState("");
+function LedgerEntryForm({ sprints, onSave, onClose }: { sprints: Sprint[]; onSave: (entry: AllowanceEntry) => void; onClose: () => void }) {
+  const [sprintId, setSprintId] = useState(sprints[0]?.id ?? "");
   const [role, setRole] = useState("implementation");
   const [actualUsed, setActualUsed] = useState(0);
   const [verified, setVerified] = useState(false);
   const [outcomesText, setOutcomesText] = useState("");
   const [incidentsText, setIncidentsText] = useState("");
 
-  const canSave = project.trim().length > 0 && actualUsed > 0;
+  const sprint = sprints.find((s) => s.id === sprintId) ?? null;
+  const canSave = !!sprint && actualUsed > 0;
   const fieldStyle = { width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--ink, #e8edf5)", fontSize: 14 };
   const labelStyle = { fontSize: 12, fontWeight: 800, color: "var(--muted, #94a3b8)", display: "block" as const, marginBottom: 4 };
 
@@ -543,12 +566,16 @@ function LedgerEntryForm({ onSave, onClose }: { onSave: (entry: AllowanceEntry) 
 
         <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
           <label>
-            <span style={labelStyle}>Project / repository *</span>
-            <input type="text" value={project} onChange={(e) => setProject(e.target.value)} style={fieldStyle} />
-          </label>
-          <label>
-            <span style={labelStyle}>Deliverable</span>
-            <input type="text" value={deliverable} onChange={(e) => setDeliverable(e.target.value)} style={fieldStyle} />
+            <span style={labelStyle}>Sprint *</span>
+            {sprints.length === 0 ? (
+              <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: 0 }}>Create a sprint first — a checkpoint has to belong to one.</p>
+            ) : (
+              <select value={sprintId} onChange={(e) => setSprintId(e.target.value)} style={fieldStyle}>
+                {sprints.map((s) => (
+                  <option key={s.id} value={s.id}>{s.deliverable || "Untitled Sprint"} ({s.repository || "no repo"})</option>
+                ))}
+              </select>
+            )}
           </label>
           <label>
             <span style={labelStyle}>Role</span>
@@ -575,10 +602,12 @@ function LedgerEntryForm({ onSave, onClose }: { onSave: (entry: AllowanceEntry) 
         <div style={{ display: "flex", gap: 12 }}>
           <button
             onClick={() => {
+              if (!sprint) return;
               onSave({
                 id: Date.now().toString(),
-                project: project.trim(),
-                deliverable: deliverable.trim(),
+                sprintId: sprint.id,
+                project: sprint.repository,
+                deliverable: sprint.deliverable,
                 role: role.trim() || "implementation",
                 actualUsed,
                 verified,
