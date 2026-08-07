@@ -1,14 +1,15 @@
-// The Author's Room — owner-only entry to Story Partner.
+// The Author's Room — member access via Story Partner entry.
 //
-// The authorization check runs HERE, on the server, before any private UI is
-// rendered. An unauthorized visitor receives only the login shell: no project
-// data, no titles, no counts. (The manuscript itself never touches this
-// server at all — it lives in the owner's browser — but the working room is
-// still gated so the tooling, private prompts, and vault UI stay unlisted.)
+// Authorization check:
+// 1. Member session (via middleware → /members/login) — approved members enter
+// 2. OR legacy owner password (backward compat, same as owner session)
+//
+// An unauthorized visitor is redirected to login by middleware before reaching this page.
 
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { ownerPassword, SESSION_COOKIE, sessionSecret, verifySessionToken } from "./auth";
+import { verifyMemberSession } from "../members/session-verify";
 import AuthorLogin from "./AuthorLogin";
 import AuthorRoom from "./AuthorRoom";
 
@@ -20,10 +21,17 @@ export const metadata: Metadata = {
 };
 
 export default async function AuthorPage() {
+  // Check member session first (primary, no second password needed)
+  const memberSession = await verifyMemberSession();
+  if (memberSession) {
+    return <AuthorRoom />;
+  }
+
+  // Fallback to legacy owner password (backward compat during migration)
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
-  const authed = verifySessionToken(token, sessionSecret());
+  const ownerAuthed = verifySessionToken(token, sessionSecret());
 
-  if (!authed) return <AuthorLogin configured={!!ownerPassword()} />;
+  if (!ownerAuthed) return <AuthorLogin configured={!!ownerPassword()} />;
   return <AuthorRoom />;
 }
