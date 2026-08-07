@@ -137,10 +137,25 @@ Ranked by severity:
 5. **`/membership` full redesign** — deeper reframing (e.g., splitting into a dedicated `/beta` explainer vs. a pure future-pricing page) was considered but not done; the session-1 fix is the safe, minimal correction within the existing test-locked structure.
 6. **Feedback panel polish** — no pagination or filtering beyond new/reviewed; fine at private-beta volume, revisit if submissions grow.
 
+## Work completed — session 3 (Phase A + Phase B)
+
+**Phase A — production activation:**
+- Verified `migrations/002_feedback.sql` is additive/idempotent and schema-matches `PgMemberStore` before touching prod.
+- Applied it to the real production Neon DB directly via the project's own `pg` dependency (no `psql` locally; used the same driver the app itself uses). Confirmed via `information_schema` that the table landed correctly.
+- Pushed `928216e` + `78d3d0e` to `origin/main`; Vercel auto-deployed (confirmed live via `stepinthering.com` serving the new nav label and hero pill).
+- Live round-trip: member-side fully verified through the real UI (found an already-authenticated real test account in the browser session, submitted real feedback, got the success state, confirmed the row in prod Postgres). Owner-side UI click was **not** performed by Claude — entering the real production owner password into any field is outside what Claude will do, full stop (system-level rule, not a preference). Verified the equivalent server-side behavior directly against prod Postgres instead (insert → list → mark reviewed → reload-persists → cleanup, using a throwaway test user, all removed after). Also confirmed unauthorized access is blocked (`/owner/feedback` redirects, `/api/owner/feedback` 404s for anonymous requests). One clearly-labeled real test feedback submission (`"[Claude session verification 2026-08-06] ... safe to delete"`) was deliberately left in `/owner/feedback` for the owner to do the final visual confirmation + cleanup themselves.
+
+**Phase B — journey cleanup:**
+- Engine Room: added an optional `beginWith` field to the `Engine` type and the shared `EngineCard` ("To begin: …"), populated for 4 representative engines (Idea, Design Shop, How to Anything, Music — a mix of "Works" and "Beta"). The other 8 engines don't have it yet — **this is the mechanical sweep to hand to a later Haiku session** (see next-session note).
+- Navigation: added an "Account" entry to the shared nav links array (`app/layout.tsx`) so "reach the account" is obvious; relies on the existing `/account` redirect-to-`/membership`-when-signed-out behavior, no new logic.
+- Homepage: added a compact "What 'open beta' means" section (testable now / still being corrected / pricing TBD / feedback shapes what's next / don't rely on it yet for anything irreplaceable) plus two lightweight links — "Continue a saved project" (`/account`) and "Give feedback on the beta" (`/account#feedback`) — covering journey items 5–7 that the homepage previously skipped entirely.
+- Project continuation: Engine Room project-list rows now say "Continue" instead of "Open" and show a human-readable "Updated M/D/YYYY" line, so a returning tester can answer "what was I on, when, how do I continue" at a glance.
+- Did not touch: individual engine intake flows, `/how`, `/live`, `/about`, `/build`, `/shop`, `/five-hour-sprint-tool`, signed-out/empty states beyond what's noted above (all were already reasonable per the session-1 audit).
+
 ## Exact next-session starting point
 
 1. Read this file first.
-2. `git log --oneline -5` to confirm the two commits from sessions 1 and 2 landed (`feat: establish Step In The Ring beta foundation`, and the session-2 feedback commit).
-3. Priority: apply `migrations/002_feedback.sql` to the production Neon DB (deferred item #1) and verify the feedback loop against real prod data — sign in as a real account, submit feedback, confirm it appears in `/owner/feedback`.
-4. Then proceed engine-by-engine (Story Partner, Game Engine remain owner-only by design — confirm that's still intentional before changing).
-5. Do not reopen the pricing/beta-foundation or feedback-foundation work unless a new dollar amount, misleading CTA, or feedback-loop defect is found by the regression tests or a fresh audit.
+2. `git log --oneline -6` to confirm session 1–3 commits landed, including the Phase B commit (`feat: clarify Step In The Ring beta journey`) and whether it was pushed/deployed (check the final checkpoint in the session-3 transcript).
+3. Priority (bounded, mechanical — good Haiku candidate): add `beginWith` copy to the remaining 8 engines (Build, Sell, Launch, Fix, Grow, Plan, Game, Story Partner) following the exact pattern in `app/engines/engines.ts` — one plain sentence each, same field name, no other changes needed since `EngineCard` already renders it conditionally.
+4. After that: engine-by-engine internals (Story Partner, Game Engine remain owner-only by design — confirm that's still intentional before changing).
+5. Do not reopen the pricing/beta-foundation, feedback-foundation, or journey-cleanup work unless a new dollar amount, misleading CTA, or journey defect is found by the regression tests or a fresh audit.
