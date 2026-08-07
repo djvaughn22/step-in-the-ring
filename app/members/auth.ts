@@ -154,7 +154,7 @@ export async function signup(
   await store.createUser(user);
   await store.upsertEntitlement({
     userId: user.id,
-    status: "free",
+    status: "pending",
     source: "none",
     stripeCustomerId: null,
     stripeSubscriptionId: null,

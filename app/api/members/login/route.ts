@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { login, MEMBER_SESSION_COOKIE } from "../../../members/auth";
 import { memberCookieOptions } from "../../../members/session";
 import { getMemberStore } from "../../../members/store";
+import { resolveAccess } from "../../../members/entitlement";
 
 export const runtime = "nodejs";
 
@@ -27,6 +28,25 @@ export async function POST(req: NextRequest) {
   if (!result.ok) {
     return NextResponse.json({ ok: false, error: result.error }, { status: result.status });
   }
+
+  // Check entitlement status — pending accounts cannot proceed
+  const entitlement = await store.getEntitlement(result.userId);
+  const access = resolveAccess(entitlement);
+  if (access.status === "pending") {
+    return NextResponse.json(
+      { ok: false, error: "Account pending approval.", email: body.email },
+      { status: 403 },
+    );
+  }
+
+  // Revoked or expired accounts cannot proceed
+  if (!access.memberAccess && access.status !== "owner") {
+    return NextResponse.json(
+      { ok: false, error: "Access denied." },
+      { status: 403 },
+    );
+  }
+
   const res = NextResponse.json({ ok: true });
   res.cookies.set(MEMBER_SESSION_COOKIE, result.sessionToken, memberCookieOptions(result.expiresAt));
   return res;
