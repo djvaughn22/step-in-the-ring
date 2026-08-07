@@ -131,6 +131,9 @@ function EngineCard({
       </div>
       <h3 className="engine-name">{engine.name}</h3>
       <p className="engine-line">{engine.tagline}</p>
+      {engine.beginWith && (
+        <p className="engine-out"><span>To begin:</span> {engine.beginWith}</p>
+      )}
       {engine.output && (
         <p className="engine-out"><span>You finish with:</span> {engine.output}</p>
       )}
@@ -506,11 +509,12 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
                         <div style={{ minWidth: 0 }}>
                           <p style={{ fontSize: 17, fontWeight: 900, color: "var(--text)", margin: 0 }}>{e?.emoji} {p.name}</p>
                           <p style={{ fontSize: 13, color: "var(--muted)", margin: "2px 0 0" }}>{e?.name} · {p.stage} · {p.cycles.length} cycle{p.cycles.length !== 1 ? "s" : ""}{last ? ` · last: ${last.status}` : ""}</p>
+                          <p style={{ fontSize: 12, color: "var(--dim, var(--muted))", margin: "2px 0 0" }}>Updated {new Date(p.updatedAt).toLocaleDateString()}</p>
                         </div>
                         {/* Shrinkable so the row wraps inside a 320px phone
                             instead of pushing the card past the edge. */}
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", minWidth: 0 }}>
-                          <button onClick={() => openProject(p)} className="btn btn-gold btn-small">Open</button>
+                          <button onClick={() => openProject(p)} className="btn btn-gold btn-small">Continue</button>
                           <button onClick={() => { setProjects(duplicateProject(p.id)); say("Duplicated"); }} className="btn btn-ghost btn-small">Copy</button>
                           <button onClick={() => copy(exportProject(p), "Project JSON")} className="btn btn-ghost btn-small">Export</button>
                           <button onClick={() => { if (confirm(`Delete "${p.name}"?`)) { setProjects(deleteProject(p.id)); say("Deleted"); } }} className="btn btn-ghost btn-small">Delete</button>

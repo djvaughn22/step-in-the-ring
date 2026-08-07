@@ -46,6 +46,7 @@ export default function RootLayout({
             { emoji: "⚙️", name: "Engine Room (Beta)", href: "/engines" },
             { emoji: "📦", name: "Live Builds", href: "/live" },
             { emoji: "🧭", name: "How It Works", href: "/how" },
+            { emoji: "👤", name: "Account", href: "/account" },
             { emoji: "ℹ️", name: "About StepInTheRing", href: "/about" },
           ]}
         />

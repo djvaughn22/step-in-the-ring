@@ -89,6 +89,10 @@ export interface Engine {
   activation?: EngineActivation;
   /** What the person actually walks away holding. One plain sentence. */
   output?: string;
+  /** What to have ready before starting. One plain sentence. Optional —
+   *  populated for a representative sample first; see docs/step-in-the-ring-beta-reset.md
+   *  for the remaining mechanical sweep. */
+  beginWith?: string;
   /** Why the status is what it is. Shown when it isn't simply "works". */
   statusNote?: string;
   // Hidden engines stay defined (so old saved projects still open) but do not
@@ -129,6 +133,7 @@ export const ENGINES: Engine[] = [
     // handoff render in IdeaStudio, and idea.engine.test.ts covers the maths.
     activation: "working",
     output: "One decision: the version of the idea you're going with, and the first thing to do about it.",
+    beginWith: "A rough idea in your own words — a sentence is enough.",
     suggestedStage: "Spark",
     intake: [
       Q.name(),
@@ -333,6 +338,7 @@ export const ENGINES: Engine[] = [
     // and the Etsy draft comes out with a real title and tags.
     activation: "working",
     output: "A design package and an Etsy listing draft you can copy straight into a listing.",
+    beginWith: "A rough product idea and who it's for.",
   },
   {
     id: "game",
@@ -370,6 +376,7 @@ export const ENGINES: Engine[] = [
     activation: "beta",
     output: "A complete production package for one proven fix — voiceover script, shot list, YouTube title/description/tags, pinned comment, thumbnail plan, article, and social versions. You film it and press publish.",
     statusNote: "The package is real and downloadable. The camera and the YouTube upload button are yours — the engine prepares everything and keeps the record.",
+    beginWith: "One thing you already know how to fix or do — no filming yet.",
   },
   {
     id: "story",
@@ -406,6 +413,7 @@ export const ENGINES: Engine[] = [
     // vouching for a step we never watched happen.
     activation: "beta",
     output: "A preserved song project moving to a playable Version One — or your first exported beat. The audio comes out of your music software, not out of this page.",
+    beginWith: "Words, a melody in your head, a voice memo, or nothing at all.",
   },
 ];
 

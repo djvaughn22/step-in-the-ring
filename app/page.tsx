@@ -488,6 +488,22 @@ export default function StepInTheRing() {
           </section>
 
           <section className="home-section">
+            <span className="kicker">What &quot;open beta&quot; means</span>
+            <p className="section-lead">
+              Every engine here is testable now, and still being corrected. Pricing is
+              TBD — testing comes first. Tester feedback shapes what gets finished and
+              polished next. Because things are still moving, don&apos;t rely on Step In
+              The Ring yet for anything irreplaceable — treat saved projects carefully
+              during beta.
+            </p>
+            <p className="tiny" style={{ marginTop: 4 }}>
+              <a href="/account" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Continue a saved project →</a>
+              {" · "}
+              <a href="/account#feedback" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Give feedback on the beta →</a>
+            </p>
+          </section>
+
+          <section className="home-section">
             <span className="kicker">What people finish here</span>
             <div className="ex-grid">
               <a href="/products/five-hour-sprint" className="ex-card">
