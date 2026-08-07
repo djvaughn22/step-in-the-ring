@@ -26,9 +26,9 @@
 
 import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
 import type { MemberStore, UserRecord } from "./store";
+import { MEMBER_SESSION_COOKIE, MEMBER_SESSION_MAX_AGE_S } from "./constants";
 
-export const MEMBER_SESSION_COOKIE = "sitr-member-session";
-export const MEMBER_SESSION_MAX_AGE_S = 30 * 24 * 60 * 60; // 30 days
+export { MEMBER_SESSION_COOKIE, MEMBER_SESSION_MAX_AGE_S };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 10;
