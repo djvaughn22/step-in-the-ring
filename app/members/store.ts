@@ -46,7 +46,7 @@ export interface SessionRecord {
 export interface EntitlementRecord {
   userId: string;
   status: EntitlementStatus;
-  source: "stripe" | "tester-code" | "owner-grant" | "none";
+  source: "stripe" | "tester-code" | "owner-grant" | "beta-password" | "none";
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   currentPeriodEnd: string | null;
