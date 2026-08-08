@@ -5,8 +5,8 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-import { MemoryMemberStore } from "../../../members/store";
-import { resetRateLimiter } from "../../../members/auth";
+import { MemoryMemberStore, type EntitlementStatus } from "../../../members/store";
+import { resetRateLimiter, signup } from "../../../members/auth";
 import type { BetaLoginNotice } from "../../../members/login-notification";
 
 const BETA_PW = "invented-beta-door-password";
@@ -62,9 +62,10 @@ describe("successful beta login", () => {
     expect(notifySpy).toHaveBeenCalledTimes(1);
   });
 
-  it("passes the normalized entered email", async () => {
+  it("passes the normalized entered email, labelled as the beta door", async () => {
     await POST(loginReq("  Tester@Example.COM  ", BETA_PW));
     expect(notice().email).toBe("tester@example.com");
+    expect(notice().via).toBe("beta-password");
   });
 
   it("passes no password, no session token, and no other secret", async () => {
@@ -73,14 +74,20 @@ describe("successful beta login", () => {
     const sessionToken = /sitr-member-session=([^;]+)/.exec(cookie)?.[1] ?? "impossible";
 
     const payload = notice();
-    expect(Object.keys(payload).sort()).toEqual(["email", "newTester", "occurredAt", "site"]);
+    // The exact, complete field list — nothing secret can ride along unseen.
+    expect(Object.keys(payload).sort()).toEqual([
+      "email",
+      "newTester",
+      "occurredAt",
+      "site",
+      "via",
+    ]);
 
     const serialized = JSON.stringify(payload);
     expect(serialized).not.toContain(BETA_PW);
     expect(serialized).not.toContain(sessionToken);
-    expect(serialized).not.toContain("password");
-    expect(serialized).not.toContain("token");
     expect(serialized.toLowerCase()).not.toContain("postgres");
+    expect(serialized.toLowerCase()).not.toContain("scrypt");
   });
 
   it("marks a returning tester as not new", async () => {
@@ -99,6 +106,49 @@ describe("successful beta login", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
     expect(res.headers.get("set-cookie")).toContain("sitr-member-session=");
+  });
+});
+
+describe("ordinary account-password login", () => {
+  const ACCOUNT_PW = "invented-account-password";
+
+  async function makeAccount(email: string, status: EntitlementStatus): Promise<void> {
+    const created = await signup(store, { email, password: ACCOUNT_PW }, { ip: "192.0.2.1" });
+    if (!created.ok) throw new Error("test account setup failed");
+    const entitlement = await store.getEntitlement(created.userId);
+    await store.upsertEntitlement({ ...entitlement!, status, updatedAt: new Date().toISOString() });
+    notifySpy.mockClear();
+  }
+
+  it("notifies once, labelled as the account door", async () => {
+    await makeAccount("member@example.com", "active");
+    const res = await POST(loginReq("Member@Example.com", ACCOUNT_PW, "192.0.2.2"));
+    expect(res.status).toBe(200);
+    expect(notifySpy).toHaveBeenCalledTimes(1);
+    expect(notice().email).toBe("member@example.com");
+    expect(notice().via).toBe("account-password");
+    expect(JSON.stringify(notice())).not.toContain(ACCOUNT_PW);
+  });
+
+  it("stays quiet on a wrong account password", async () => {
+    await makeAccount("member2@example.com", "active");
+    const res = await POST(loginReq("member2@example.com", "wrong-account-password", "192.0.2.3"));
+    expect(res.status).toBe(401);
+    expect(notifySpy).not.toHaveBeenCalled();
+  });
+
+  it("stays quiet when the account is still pending", async () => {
+    await makeAccount("pending@example.com", "pending");
+    const res = await POST(loginReq("pending@example.com", ACCOUNT_PW, "192.0.2.4"));
+    expect(res.status).toBe(403);
+    expect(notifySpy).not.toHaveBeenCalled();
+  });
+
+  it("stays quiet when the account is revoked", async () => {
+    await makeAccount("gone@example.com", "revoked");
+    const res = await POST(loginReq("gone@example.com", ACCOUNT_PW, "192.0.2.5"));
+    expect(res.status).toBe(403);
+    expect(notifySpy).not.toHaveBeenCalled();
   });
 });
 
