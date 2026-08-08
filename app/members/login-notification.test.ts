@@ -27,7 +27,7 @@ function recorder() {
 
 describe("recipient", () => {
   it("is the owner mailbox, always", () => {
-    const mail = buildBetaLoginMessage({ email: "tester@example.com", occurredAt: AT }, {});
+    const mail = buildBetaLoginMessage({ email: "tester@example.com", occurredAt: AT, via: "beta-password" }, {});
     expect(mail?.to).toBe("ask@openmirrorllc.com");
     expect(mail?.to).toBe(OWNER_NOTIFICATION_EMAIL);
   });
@@ -42,7 +42,7 @@ describe("recipient", () => {
     ];
     for (const email of hostile) {
       const r = recorder();
-      await notifyBetaLogin({ email, occurredAt: AT }, { sender: r.sender, env: {} });
+      await notifyBetaLogin({ email, occurredAt: AT, via: "beta-password" }, { sender: r.sender, env: {} });
       for (const mail of r.sent) {
         expect(mail.to).toBe(OWNER_NOTIFICATION_EMAIL);
         // Nothing user-controlled can become a header line.
@@ -66,7 +66,7 @@ describe("recipient", () => {
 describe("message body", () => {
   it("carries the normalized entered email, the time, and the outcome", () => {
     const mail = buildBetaLoginMessage(
-      { email: "  Tester@Example.COM  ", occurredAt: AT, newTester: true },
+      { email: "  Tester@Example.COM  ", occurredAt: AT, via: "beta-password", newTester: true },
       {},
     );
     expect(mail?.text).toContain("Email entered:\ntester@example.com");
@@ -75,8 +75,23 @@ describe("message body", () => {
     expect(mail?.text).toContain("Tester:\nNew tester");
   });
 
+  it("says which door was used, without claiming more than happened", () => {
+    const account = buildBetaLoginMessage(
+      { email: "member@example.com", occurredAt: AT, via: "account-password" },
+      {},
+    );
+    expect(account?.subject).toBe("Step In The Ring — Sign In");
+    expect(account?.text).toContain("Someone signed in to Step In The Ring.");
+    expect(account?.text).toContain("Access:\nSuccessful sign in (account password)");
+    expect(account?.text).toContain("Email entered:\nmember@example.com");
+    expect(account?.text.toLowerCase()).not.toMatch(/verified|confirmed identity|email owner/);
+    // The account door is not the beta door — never label one as the other.
+    expect(account?.text).not.toContain("Successful beta login");
+    expect(account?.to).toBe(OWNER_NOTIFICATION_EMAIL);
+  });
+
   it("never claims the identity was verified", () => {
-    const mail = buildBetaLoginMessage({ email: "tester@example.com", occurredAt: AT }, {});
+    const mail = buildBetaLoginMessage({ email: "tester@example.com", occurredAt: AT, via: "beta-password" }, {});
     expect(mail?.text.toLowerCase()).not.toMatch(/verified|confirmed identity|email owner/);
     expect(mail?.text).toContain("Email entered:");
   });
@@ -86,9 +101,9 @@ describe("message body", () => {
   });
 
   it("is skipped entirely for an unusable email", async () => {
-    expect(buildBetaLoginMessage({ email: "nonsense", occurredAt: AT }, {})).toBeNull();
+    expect(buildBetaLoginMessage({ email: "nonsense", occurredAt: AT, via: "beta-password" }, {})).toBeNull();
     const r = recorder();
-    const result = await notifyBetaLogin({ email: 42, occurredAt: AT }, { sender: r.sender });
+    const result = await notifyBetaLogin({ email: 42, occurredAt: AT, via: "beta-password" }, { sender: r.sender });
     expect(result).toEqual({ sent: false, skipped: "invalid-email" });
     expect(r.sent).toHaveLength(0);
   });
@@ -98,7 +113,7 @@ describe("delivery", () => {
   it("sends exactly one message per notice", async () => {
     const r = recorder();
     const result = await notifyBetaLogin(
-      { email: "tester@example.com", occurredAt: AT },
+      { email: "tester@example.com", occurredAt: AT, via: "beta-password" },
       { sender: r.sender, env: {} },
     );
     expect(result).toEqual({ sent: true });
@@ -108,7 +123,7 @@ describe("delivery", () => {
   it("never throws when the provider fails", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const result = await notifyBetaLogin(
-      { email: "tester@example.com", occurredAt: AT },
+      { email: "tester@example.com", occurredAt: AT, via: "beta-password" },
       {
         sender: async () => {
           throw new Error("provider exploded");
@@ -126,7 +141,7 @@ describe("delivery", () => {
       .spyOn(console, "error")
       .mockImplementation((...args: unknown[]) => void lines.push(args.join(" ")));
     await notifyBetaLogin(
-      { email: "tester@example.com", occurredAt: AT },
+      { email: "tester@example.com", occurredAt: AT, via: "beta-password" },
       {
         sender: async () => {
           throw new Error("beta-login-notify: provider responded 500");
@@ -140,7 +155,7 @@ describe("delivery", () => {
   });
 
   it("skips quietly when no provider is configured", async () => {
-    const result = await notifyBetaLogin({ email: "tester@example.com", occurredAt: AT }, { env: {} });
+    const result = await notifyBetaLogin({ email: "tester@example.com", occurredAt: AT, via: "beta-password" }, { env: {} });
     expect(result).toEqual({ sent: false, skipped: "not-configured" });
   });
 });

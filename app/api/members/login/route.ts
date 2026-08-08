@@ -1,5 +1,5 @@
 import { after, NextRequest, NextResponse } from "next/server";
-import { login, MEMBER_SESSION_COOKIE } from "../../../members/auth";
+import { login, MEMBER_SESSION_COOKIE, normalizeEmail } from "../../../members/auth";
 import { betaAdmit } from "../../../members/beta-access";
 import { notifyBetaLogin, type BetaLoginNotice } from "../../../members/login-notification";
 import { memberCookieOptions } from "../../../members/session";
@@ -13,7 +13,7 @@ function clientIp(req: NextRequest): string {
 }
 
 /**
- * Tell the owner a beta login succeeded — once per successful admission, after
+ * Tell the owner a sign in succeeded — once per successful login, after
  * the session already exists. Non-blocking when the platform gives us a
  * post-response hook; otherwise the attempt is awaited. Either way the helper
  * swallows delivery failure, so mail can never invalidate a valid login.
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     await notifyOwner({
       email: beta.email,
       occurredAt: new Date(),
+      via: "beta-password",
       newTester: beta.newTester,
       site: process.env.MEMBER_APP_URL ?? "https://stepinthering.com",
     });
@@ -96,5 +97,13 @@ export async function POST(req: NextRequest) {
 
   const res = NextResponse.json({ ok: true });
   res.cookies.set(MEMBER_SESSION_COOKIE, result.sessionToken, memberCookieOptions(result.expiresAt));
+  // Every successful sign in tells the owner, not just the beta door. Same
+  // rules: session first, claimed email and time only, failure can't undo it.
+  await notifyOwner({
+    email: normalizeEmail(body.email) ?? "",
+    occurredAt: new Date(),
+    via: "account-password",
+    site: process.env.MEMBER_APP_URL ?? "https://stepinthering.com",
+  });
   return res;
 }

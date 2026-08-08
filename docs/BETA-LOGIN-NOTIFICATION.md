@@ -1,15 +1,18 @@
-# Beta login notification
+# Login notification
 
-When someone gets through the private-beta door, the owner gets one plain email.
+When someone signs in to Step In The Ring, the owner gets one plain email.
 
 ## The trigger
 
-Exactly one event: a **successful beta admission** on `POST /api/members/login` —
-correct shared beta password, email accepted, not revoked. The session is
-created first; the notification goes out after.
+Two events, both on `POST /api/members/login`, both only after the session
+cookie is set:
 
-Nothing else notifies. No page visit, no wrong password, no revoked email, no
-rate-limited attempt, and no ordinary account-password login.
+1. **Beta admission** — correct shared beta password, email accepted, not revoked.
+2. **Account-password sign in** — correct account password, and the entitlement
+   check passed (not pending, not revoked, not expired).
+
+Nothing else notifies. No page visit, no wrong password, no revoked or pending
+account, no rate-limited attempt.
 
 ## What it says
 
@@ -34,15 +37,20 @@ Site:
 https://stepinthering.com
 ```
 
-The beta door does not prove the person owns that inbox, so the message says
-**"Email entered"** — never verified, confirmed, or identified.
+An account-password sign in reads `Step In The Ring — Sign In`, "Someone signed
+in to Step In The Ring.", and `Successful sign in (account password)`, so the
+two doors are never confused in the inbox.
+
+Neither door proves the person owns that inbox, so the message says **"Email
+entered"** — never verified, confirmed, or identified.
 
 ## What it never says
 
-No beta password, no password hash, no session token or cookie, no database
-identifiers, no request headers, no device fingerprint, no location. The
-notification helper's input type has no field for any of them. Delivery
-failures log a status-only line — never the address, never the provider body.
+No beta password, no account password, no password hash, no session token or
+cookie, no database identifiers, no request headers, no device fingerprint, no
+location. The notification helper's input type has no field for any of them.
+Delivery failures log a status-only line — never the address, never the
+provider body.
 
 ## Configuration (server-only)
 
@@ -59,5 +67,5 @@ break authentication.
 ## Files
 
 - `app/members/login-notification.ts` — the helper (message, recipient, Resend adapter).
-- `app/api/members/login/route.ts` — the one call site, after the session exists.
+- `app/api/members/login/route.ts` — the two call sites, each after its session exists.
 - `app/members/login-notification.test.ts`, `app/api/members/login/beta-login-notify.test.ts` — tests.

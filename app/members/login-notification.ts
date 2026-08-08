@@ -1,11 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Owner notification — "somebody just came through the private-beta door."
+// Owner notification — "somebody just signed in."
 //
-// Deliberately small, and deliberately honest about what it knows:
+// Both doors report here: the shared private-beta password and an ordinary
+// account password. Deliberately small, and deliberately honest about what it
+// knows:
 //
-//   - The beta door accepts an email address WITHOUT proving the person owns
-//     that inbox. So nothing here ever says verified/confirmed. It says
-//     "Email entered", because that is all that happened.
+//   - Neither door proves the person owns that inbox. So nothing here ever
+//     says verified/confirmed. It says "Email entered", because that is all
+//     that happened.
 //   - The recipient is fixed owner infrastructure, resolved SERVER-SIDE only.
 //     The tester's submitted email is BODY CONTENT — never a recipient, never
 //     a header value, never concatenated into one.
@@ -35,10 +37,18 @@ export function ownerNotificationEmail(
   return raw && normalizeEmail(raw) ? raw.toLowerCase() : OWNER_NOTIFICATION_EMAIL;
 }
 
+/**
+ * Which door the person came through. Neither one proves inbox ownership, so
+ * neither one is ever described as verified — the account-password path only
+ * proves the account's own password was known.
+ */
+export type LoginVia = "beta-password" | "account-password";
+
 export type BetaLoginNotice = {
-  /** The email the tester typed. Claimed, not verified. */
+  /** The email the person typed. Claimed, not verified. */
   email: unknown;
   occurredAt: Date;
+  via: LoginVia;
   /** True when this admission created the tester record for the first time. */
   newTester?: boolean;
   site?: string;
@@ -78,8 +88,9 @@ export function buildBetaLoginMessage(
   const email = normalizeEmail(notice.email);
   if (!email) return null;
 
+  const beta = notice.via === "beta-password";
   const lines = [
-    "A tester entered Step In The Ring.",
+    beta ? "A tester entered Step In The Ring." : "Someone signed in to Step In The Ring.",
     "",
     "Email entered:",
     email,
@@ -88,7 +99,7 @@ export function buildBetaLoginMessage(
     formatCentralTimestamp(notice.occurredAt),
     "",
     "Access:",
-    "Successful beta login",
+    beta ? "Successful beta login" : "Successful sign in (account password)",
   ];
   if (notice.newTester !== undefined) {
     lines.push("", "Tester:", notice.newTester ? "New tester" : "Existing tester");
@@ -96,13 +107,13 @@ export function buildBetaLoginMessage(
   if (notice.site) lines.push("", "Site:", notice.site);
   lines.push(
     "",
-    "Note: the beta door does not prove inbox ownership. This is the address",
+    "Note: signing in does not prove inbox ownership. This is the address",
     "entered at sign in, nothing more.",
   );
 
   return {
     to: ownerNotificationEmail(env),
-    subject: "Step In The Ring — Beta Login",
+    subject: beta ? "Step In The Ring — Beta Login" : "Step In The Ring — Sign In",
     text: lines.join("\n"),
   };
 }
