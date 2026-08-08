@@ -73,7 +73,7 @@ export default function SignupContent() {
               Welcome, <b>{createdEmail}</b>.
             </p>
             <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, marginBottom: 20 }}>
-              Your account has been created and is pending owner approval. You'll receive access once it's approved.
+              Your account has been created and is pending owner approval. You&apos;ll receive access once it&apos;s approved.
             </p>
             <div className="actions">
               <button

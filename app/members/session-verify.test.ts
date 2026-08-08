@@ -4,6 +4,17 @@ import { MemoryMemberStore } from "./store";
 import { signup, login, hashSessionToken } from "./auth";
 import { resolveAccess } from "./entitlement";
 
+
+type TestAuthResult = Awaited<ReturnType<typeof signup>>;
+
+function assertAuthSuccess(
+  result: TestAuthResult,
+): asserts result is Extract<TestAuthResult, { ok: true }> {
+  expect(result.ok).toBe(true);
+  if (!result.ok) throw new Error("expected successful auth result");
+}
+
+
 describe("Member session verification", () => {
   it("should reject pending accounts even with valid session", async () => {
     const store = new MemoryMemberStore();
@@ -14,16 +25,14 @@ describe("Member session verification", () => {
       { email: "pending@example.com", password: "password123456" },
       { ip: "127.0.0.1" },
     );
-    expect(signupRes.ok).toBe(true);
-
+    assertAuthSuccess(signupRes);
     // User tries to login — login succeeds but session check should block
     const loginRes = await login(
       store,
       { email: "pending@example.com", password: "password123456" },
       { ip: "127.0.0.1" },
     );
-    expect(loginRes.ok).toBe(true);
-
+    assertAuthSuccess(loginRes);
     // Session exists in store
     const session = await store.getSession(hashSessionToken(loginRes.sessionToken));
     expect(session).toBeDefined();
@@ -44,6 +53,7 @@ describe("Member session verification", () => {
       { email: "active@example.com", password: "password123456" },
       { ip: "127.0.0.1" },
     );
+    assertAuthSuccess(signupRes);
 
     // Owner approves
     const entitlement = await store.getEntitlement(signupRes.userId);
@@ -59,8 +69,7 @@ describe("Member session verification", () => {
       { email: "active@example.com", password: "password123456" },
       { ip: "127.0.0.1" },
     );
-    expect(loginRes.ok).toBe(true);
-
+    assertAuthSuccess(loginRes);
     // Session and access both valid
     const session = await store.getSession(hashSessionToken(loginRes.sessionToken));
     expect(session).toBeDefined();
@@ -79,6 +88,7 @@ describe("Member session verification", () => {
       { email: "revoked@example.com", password: "password123456" },
       { ip: "127.0.0.1" },
     );
+    assertAuthSuccess(signupRes);
     const ent = await store.getEntitlement(signupRes.userId);
     await store.upsertEntitlement({
       ...ent!,
@@ -92,8 +102,7 @@ describe("Member session verification", () => {
       { email: "revoked@example.com", password: "password123456" },
       { ip: "127.0.0.1" },
     );
-    expect(loginRes.ok).toBe(true);
-
+    assertAuthSuccess(loginRes);
     // Then revoked
     const entAfter = await store.getEntitlement(loginRes.userId);
     await store.upsertEntitlement({

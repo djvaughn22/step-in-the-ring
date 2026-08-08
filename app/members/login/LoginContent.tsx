@@ -68,7 +68,7 @@ export default function LoginContent() {
               Your account <b>{email}</b> has been created. Access is pending approval from the owner.
             </p>
             <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, marginBottom: 20 }}>
-              You'll be able to sign in once your account is approved. Check back soon.
+              You&apos;ll be able to sign in once your account is approved. Check back soon.
             </p>
             <div className="actions">
               <button className="btn btn-gold" onClick={() => setStage("login")}>
