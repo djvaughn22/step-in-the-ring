@@ -27,7 +27,6 @@ import {
   normalizeEmail,
   rateLimited,
   recordAttempt,
-  type AuthResult,
 } from "./auth";
 import type { MemberStore, UserRecord } from "./store";
 
@@ -64,6 +63,24 @@ export function betaPasswordMatches(submitted: unknown, expected: string): boole
 const KEEPS_ITS_STATUS = new Set(["owner", "active", "canceled_active"]);
 
 /**
+ * Same shape as AuthResult, plus the two facts the owner notification needs:
+ * the NORMALIZED email that was entered (claimed, never verified) and whether
+ * this admission created the tester for the first time. No secret is added —
+ * the session token stays exactly where AuthResult already put it, and the
+ * shared beta password is never part of any result.
+ */
+export type BetaAdmitResult =
+  | {
+      ok: true;
+      userId: string;
+      sessionToken: string;
+      expiresAt: string;
+      email: string;
+      newTester: boolean;
+    }
+  | { ok: false; error: string; status: number };
+
+/**
  * Admit an email on the shared beta password, creating the identity and the
  * tester entitlement when needed, then issuing a normal member session.
  *
@@ -73,7 +90,7 @@ export async function betaAdmit(
   store: MemberStore,
   input: { email: unknown; password: unknown },
   opts: { ip: string; now?: Date; betaPassword?: string | null },
-): Promise<AuthResult> {
+): Promise<BetaAdmitResult> {
   const now = opts.now ?? new Date();
   const email = normalizeEmail(input.email);
 
@@ -143,5 +160,5 @@ export async function betaAdmit(
   }
 
   const session = await issueSession(store, user.id, now);
-  return { ok: true, userId: user.id, ...session };
+  return { ok: true, userId: user.id, ...session, email, newTester: !existingUser };
 }

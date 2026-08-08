@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { login, MEMBER_SESSION_COOKIE } from "../../../members/auth";
 import { betaAdmit } from "../../../members/beta-access";
+import { notifyBetaLogin, type BetaLoginNotice } from "../../../members/login-notification";
 import { memberCookieOptions } from "../../../members/session";
 import { getMemberStore } from "../../../members/store";
 import { resolveAccess } from "../../../members/entitlement";
@@ -9,6 +10,24 @@ export const runtime = "nodejs";
 
 function clientIp(req: NextRequest): string {
   return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
+/**
+ * Tell the owner a beta login succeeded — once per successful admission, after
+ * the session already exists. Non-blocking when the platform gives us a
+ * post-response hook; otherwise the attempt is awaited. Either way the helper
+ * swallows delivery failure, so mail can never invalidate a valid login.
+ */
+async function notifyOwner(notice: BetaLoginNotice): Promise<void> {
+  // The helper already swallows delivery failure; this second catch means even
+  // an unexpected throw cannot reach the login response.
+  const attempt = () => notifyBetaLogin(notice).catch(() => undefined);
+  try {
+    after(attempt);
+  } catch {
+    // No request scope (tests, or a runtime without after()) — await instead.
+    await attempt();
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -34,6 +53,14 @@ export async function POST(req: NextRequest) {
   if (beta.ok) {
     const res = NextResponse.json({ ok: true });
     res.cookies.set(MEMBER_SESSION_COOKIE, beta.sessionToken, memberCookieOptions(beta.expiresAt));
+    // Session first, notification second — and only the claimed email and the
+    // time go out. The password and the session token never leave this scope.
+    await notifyOwner({
+      email: beta.email,
+      occurredAt: new Date(),
+      newTester: beta.newTester,
+      site: process.env.MEMBER_APP_URL ?? "https://stepinthering.com",
+    });
     return res;
   }
   // A revoked account is denied outright — never fall through to any other
