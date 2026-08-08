@@ -1,5 +1,6 @@
 import { after, NextRequest, NextResponse } from "next/server";
-import { signup, MEMBER_SESSION_COOKIE, normalizeEmail } from "../../../members/auth";
+import { MEMBER_SESSION_COOKIE } from "../../../members/auth";
+import { betaAdmit } from "../../../members/beta-access";
 import {
   notifyBetaLogin,
   type BetaLoginNotice,
@@ -19,18 +20,17 @@ function clientIp(req: NextRequest): string {
 }
 
 /**
- * Tell the owner that a brand-new account is waiting for approval.
+ * Tell the owner a tester just joined through the shared-password door.
  * The notification contains only the claimed email, time, event type and site.
  * Passwords, password hashes, session tokens and database ids never enter it.
  *
- * Delivery is best-effort: account creation wins even if email delivery fails.
+ * Delivery is best-effort: admission wins even if email delivery fails.
  */
-async function notifyOwnerOfSignup(email: unknown): Promise<void> {
-  const normalized = normalizeEmail(email);
-  if (!normalized) return;
+async function notifyOwnerOfSignup(email: string): Promise<void> {
+  if (!email) return;
 
   const notice: BetaLoginNotice = {
-    email: normalized,
+    email,
     occurredAt: new Date(),
     via: "account-signup",
     site: process.env.MEMBER_APP_URL ?? "https://stepinthering.com",
@@ -58,6 +58,19 @@ async function notifyOwnerOfSignup(email: unknown): Promise<void> {
   }
 }
 
+/**
+ * Private-beta join door.
+ *
+ * Owner decision (2026-08-08, UAT): there is no approval queue. Anyone who
+ * knows the shared beta password is admitted as a tester immediately, exactly
+ * as the login route already does. This route therefore delegates to the SAME
+ * `betaAdmit` core rather than creating `pending` accounts of its own — one
+ * admission rule, one place to change it, no second weaker path.
+ *
+ * The owner's kill switch still outranks the shared password: `betaAdmit`
+ * denies a revoked entitlement with 403 and never downgrades an owner or a
+ * paid-active account to tester.
+ */
 export async function POST(req: NextRequest) {
   const store = await getMemberStore();
   if (!store) return NextResponse.json(UNCONFIGURED, { status: 503 });
@@ -69,16 +82,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Bad request." }, { status: 400 });
   }
 
-  const result = await signup(store, { email: body.email, password: body.password }, { ip: clientIp(req) });
-  if (!result.ok) {
-    return NextResponse.json({ ok: false, error: result.error }, { status: result.status });
+  const beta = await betaAdmit(
+    store,
+    { email: body.email, password: body.password },
+    { ip: clientIp(req) },
+  );
+  if (!beta.ok) {
+    return NextResponse.json({ ok: false, error: beta.error }, { status: beta.status });
   }
-  const res = NextResponse.json({ ok: true });
-  res.cookies.set(MEMBER_SESSION_COOKIE, result.sessionToken, memberCookieOptions(result.expiresAt));
 
-  // The account is now real and pending owner approval. Notify the owner once,
-  // here at creation — never from the Pending Approval page or a page reload.
-  await notifyOwnerOfSignup(body.email);
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set(MEMBER_SESSION_COOKIE, beta.sessionToken, memberCookieOptions(beta.expiresAt));
+
+  // The tester is now real and already has access. Notify the owner once, here
+  // at admission — never from a landing page or a page reload.
+  await notifyOwnerOfSignup(beta.email);
 
   try {
     await store.recordEvent({
@@ -87,7 +105,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     });
   } catch {
-    // analytics must never break signup
+    // analytics must never break admission
   }
   return res;
 }
