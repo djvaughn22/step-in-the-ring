@@ -109,6 +109,27 @@ describe("message body", () => {
   });
 });
 
+describe("account signup message", () => {
+  it("tells the fixed owner mailbox that a new account is pending approval", () => {
+    const mail = buildBetaLoginMessage(
+      {
+        email: "  NewMember@Example.COM ",
+        occurredAt: AT,
+        via: "account-signup",
+      },
+      {},
+    );
+
+    expect(mail?.to).toBe(OWNER_NOTIFICATION_EMAIL);
+    expect(mail?.to).toBe("ask@openmirrorllc.com");
+    expect(mail?.subject).toBe("Step In The Ring — Account Pending Approval");
+    expect(mail?.text).toContain("A new Step In The Ring account is waiting for approval.");
+    expect(mail?.text).toContain("Email entered:\nnewmember@example.com");
+    expect(mail?.text).toContain("Access:\nNew account awaiting owner approval");
+    expect(mail?.text.toLowerCase()).not.toMatch(/verified|confirmed identity|email owner/);
+  });
+});
+
 describe("delivery", () => {
   it("sends exactly one message per notice", async () => {
     const r = recorder();

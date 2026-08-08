@@ -42,7 +42,7 @@ export function ownerNotificationEmail(
  * neither one is ever described as verified — the account-password path only
  * proves the account's own password was known.
  */
-export type LoginVia = "beta-password" | "account-password";
+export type LoginVia = "beta-password" | "account-password" | "account-signup";
 
 export type BetaLoginNotice = {
   /** The email the person typed. Claimed, not verified. */
@@ -89,8 +89,13 @@ export function buildBetaLoginMessage(
   if (!email) return null;
 
   const beta = notice.via === "beta-password";
+  const signup = notice.via === "account-signup";
   const lines = [
-    beta ? "A tester entered Step In The Ring." : "Someone signed in to Step In The Ring.",
+    signup
+      ? "A new Step In The Ring account is waiting for approval."
+      : beta
+        ? "A tester entered Step In The Ring."
+        : "Someone signed in to Step In The Ring.",
     "",
     "Email entered:",
     email,
@@ -99,21 +104,29 @@ export function buildBetaLoginMessage(
     formatCentralTimestamp(notice.occurredAt),
     "",
     "Access:",
-    beta ? "Successful beta login" : "Successful sign in (account password)",
+    signup
+      ? "New account awaiting owner approval"
+      : beta
+        ? "Successful beta login"
+        : "Successful sign in (account password)",
   ];
-  if (notice.newTester !== undefined) {
+  if (notice.newTester !== undefined && !signup) {
     lines.push("", "Tester:", notice.newTester ? "New tester" : "Existing tester");
   }
   if (notice.site) lines.push("", "Site:", notice.site);
   lines.push(
     "",
-    "Note: signing in does not prove inbox ownership. This is the address",
-    "entered at sign in, nothing more.",
+    "Note: this does not prove inbox ownership. This is the email address",
+    signup ? "entered during account creation, nothing more." : "entered at sign in, nothing more.",
   );
 
   return {
     to: ownerNotificationEmail(env),
-    subject: beta ? "Step In The Ring — Beta Login" : "Step In The Ring — Sign In",
+    subject: signup
+      ? "Step In The Ring — Account Pending Approval"
+      : beta
+        ? "Step In The Ring — Beta Login"
+        : "Step In The Ring — Sign In",
     text: lines.join("\n"),
   };
 }
