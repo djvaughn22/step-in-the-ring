@@ -1,110 +1,79 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { safeRedirectDestination } from "../../lib/safe-redirect";
 
-type Stage = "form" | "success" | "error";
+const FIELD_STYLE = {
+  width: "100%",
+  boxSizing: "border-box" as const,
+  padding: "10px 12px",
+  borderRadius: 8,
+  border: "1px solid var(--line)",
+  background: "var(--surface)",
+  color: "var(--text)",
+  fontFamily: "inherit",
+  fontSize: 15,
+};
 
+/**
+ * Private-beta join door.
+ *
+ * There is no approval queue during UAT: email + the shared tester password
+ * admits immediately and signs the tester in, so this form deliberately has no
+ * "confirm password" field and no password-strength rule. Those belong to
+ * account creation, and this is not account creation — the shared password is
+ * an admission credential checked by the server, and the server is the only
+ * thing that knows it.
+ */
 export default function SignupContent() {
   const router = useRouter();
   const search = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [stage, setStage] = useState<Stage>("form");
-  const [createdEmail, setCreatedEmail] = useState("");
-  const returnTo = search.get("returnTo") || "/members/login";
+  const returnTo = safeRedirectDestination(search.get("returnTo"), "/engines");
 
-  async function handleSignup(e: FormEvent) {
+  async function handleJoin(e: FormEvent) {
     e.preventDefault();
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords don't match.");
-      return;
-    }
-
-    if (password.length < 10) {
-      setError("Password must be at least 10 characters.");
-      return;
-    }
-
     setLoading(true);
 
     try {
       const res = await fetch("/api/members/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, source: "signup-page" }),
       });
-
       const data = await res.json();
 
       if (res.ok) {
-        setCreatedEmail(email);
-        setStage("success");
-        // Auto-redirect to login in 4 seconds, or let them click
-        setTimeout(() => {
-          router.replace("/members/login");
-        }, 4000);
-      } else {
-        setError(data.error || "Signup failed. Please try again.");
-        setStage("error");
+        // Already signed in — the session cookie came back on this response.
+        router.replace(returnTo);
+        return;
       }
-    } catch (err) {
+      setError(data.error || "Could not sign you in. Please try again.");
+    } catch {
       setError("Network error. Please try again.");
-      setStage("error");
     } finally {
       setLoading(false);
     }
-  }
-
-  if (stage === "success") {
-    return (
-      <main>
-        <div className="page" style={{ maxWidth: 500, margin: "0 auto", paddingTop: 60 }}>
-          <div className="card" style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 48, marginBottom: 20 }}>✓</div>
-            <h1 style={{ marginBottom: 12 }}>Account created</h1>
-            <p style={{ fontSize: 15, color: "var(--text)", lineHeight: 1.6, marginBottom: 20 }}>
-              Welcome, <b>{createdEmail}</b>.
-            </p>
-            <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, marginBottom: 20 }}>
-              Your account has been created and is pending owner approval. You&apos;ll receive access once it&apos;s approved.
-            </p>
-            <div className="actions">
-              <button
-                className="btn btn-gold"
-                onClick={() => {
-                  router.replace("/members/login");
-                }}
-              >
-                Sign in
-              </button>
-            </div>
-            <p style={{ fontSize: 12, color: "var(--dim)", marginTop: 16 }}>
-              Redirecting automatically in a moment…
-            </p>
-          </div>
-        </div>
-      </main>
-    );
   }
 
   return (
     <main>
       <div className="page" style={{ maxWidth: 500, margin: "0 auto", paddingTop: 60 }}>
         <section style={{ marginBottom: 40 }}>
-          <h1 style={{ marginBottom: 8 }}>Create your account</h1>
+          <h1 style={{ marginBottom: 8 }}>Join the test</h1>
           <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 0 }}>
-            Step In The Ring. Email and password.
+            Step In The Ring is in private testing. Enter your email and the
+            tester password you were given.
           </p>
         </section>
 
-        <form className="card stack" onSubmit={handleSignup}>
+        <form className="card stack" onSubmit={handleJoin}>
           <div>
             <label htmlFor="email" className="field-label">
               Email
@@ -117,83 +86,45 @@ export default function SignupContent() {
               placeholder="your@email.com"
               disabled={loading}
               required
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-                padding: "10px 12px",
-                borderRadius: 8,
-                border: "1px solid var(--line)",
-                background: "var(--surface)",
-                color: "var(--text)",
-                fontFamily: "inherit",
-                fontSize: 15,
-              }}
+              style={FIELD_STYLE}
             />
           </div>
 
           <div>
             <label htmlFor="password" className="field-label">
-              Password
+              Tester password
             </label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 10 characters"
+              placeholder="The password you were given"
               disabled={loading}
               required
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-                padding: "10px 12px",
-                borderRadius: 8,
-                border: "1px solid var(--line)",
-                background: "var(--surface)",
-                color: "var(--text)",
-                fontFamily: "inherit",
-                fontSize: 15,
-              }}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="field-label">
-              Confirm password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={loading}
-              required
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-                padding: "10px 12px",
-                borderRadius: 8,
-                border: "1px solid var(--line)",
-                background: "var(--surface)",
-                color: "var(--text)",
-                fontFamily: "inherit",
-                fontSize: 15,
-              }}
+              autoComplete="off"
+              style={FIELD_STYLE}
             />
           </div>
 
           {error && <div style={{ color: "var(--error)", fontSize: 14 }}>{error}</div>}
 
-          <button type="submit" className="btn btn-gold" disabled={loading || !email || !password || !confirmPassword}>
-            {loading ? "Creating account…" : "Create account"}
+          <button
+            type="submit"
+            className="btn btn-gold"
+            disabled={loading || !email || !password}
+          >
+            {loading ? "Signing you in…" : "Start testing"}
           </button>
         </form>
 
         <div style={{ textAlign: "center", marginTop: 20 }}>
           <p style={{ fontSize: 14, color: "var(--muted)" }}>
-            Already have an account?{" "}
-            <Link href="/members/login" style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 700 }}>
+            Been here before?{" "}
+            <Link
+              href="/members/login"
+              style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 700 }}
+            >
               Sign in →
             </Link>
           </p>
