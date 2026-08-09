@@ -36,6 +36,8 @@ time.
 | `739537a` | Let an older build catch up, without touching a word of it |
 | `e7154a3` | The homepage knows you were here yesterday |
 | `c09935a` | Mobile tap targets, and a build you can log progress on |
+| `7247608` | Know a repair from a sentence about repairs |
+| `<this>`  | A build's words travel into the capability it opens |
 
 ---
 
@@ -57,6 +59,10 @@ time.
 - **Your Builds**: leads with the reading, one obvious **Continue →** per card.
 - **The workspace** answers what / where / now / next / what came out of it /
   what happened — and now holds artifacts and takes notes.
+- **Opening a capability carries the Build's words into it.** Same
+  `sitr-engine-seed` handoff the planner has always used — no second
+  convention — so the engine opens with the name and the idea already filled in
+  instead of an empty form.
 - **The homepage offers your most recent build first** if you have one, so a
   returning visitor continues instead of accidentally starting a second build.
 - **"Read my words again"** catches a Session 1 Build up to today's reading.
@@ -79,10 +85,10 @@ time.
 
 ## Gates
 
-814 tests / 47 files · typecheck clean · lint 0 errors (67 pre-existing warnings)
+824 tests / 49 files · typecheck clean · lint 0 errors (67 pre-existing warnings)
 · production build clean · `scan-public-bundles` clean.
 
-Baseline at session start was 746 tests. **+68**, all on this work.
+Baseline at session start was 746 tests. **+78**, all on this work.
 
 ## Production verified
 
@@ -120,11 +126,11 @@ Deployed and checked on `https://stepinthering.com` at 375×812:
 
 ## Next three, highest leverage
 
-1. **Carry the Build into the capability.** Opening an engine records the use but
-   the intent does not travel; the engine intake starts empty. This is the
-   integration that makes 22 capabilities feel like one product.
-2. **Artifacts that arrive on their own.** An engine that finishes something should
+1. **Artifacts that arrive on their own.** An engine that finishes something should
    attach it to the Build that asked for it. The seam is in
    (`add-artifact`, `isSafeRef`, the list) — nothing writes to it but a person.
-3. **Rename and delete a Build from the UI.** The member API already supports
+2. **Rename and delete a Build from the UI.** The member API already supports
    both, and a workspace you cannot tidy gets abandoned.
+3. **Turn a legacy object into a Build.** The bridge still only displays. A saved
+   plan already holds everything a Build needs; the conversion just has to be
+   non-destructive, and the `reshape` action is the pattern for that.

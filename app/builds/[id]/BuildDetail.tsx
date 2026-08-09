@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { capabilitiesForIntent } from "../../vnext/capabilities";
+import { capabilitiesForIntent, type Capability } from "../../vnext/capabilities";
+import { seedEngineFromBuild } from "../../vnext/engine-handoff";
 import {
   BUILD_STAGES, BUILD_STAGE_LABEL, BUILD_STAGE_LINE, isSafeRef,
   type BuildRecordV1, type BuildStage,
@@ -66,16 +67,16 @@ export default function BuildDetail({
    * recorded BEFORE the browser leaves. Firing the request and letting the
    * navigation cancel it mid-flight is how history quietly goes missing.
    */
-  async function openCapability(
-    e: React.MouseEvent<HTMLAnchorElement>,
-    capabilityId: string,
-    href: string,
-  ) {
+  async function openCapability(e: React.MouseEvent<HTMLAnchorElement>, capability: Capability) {
     // Let the person's own intent win: a new tab, or no ability to record.
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0 || !canEdit) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) {
+      seedEngineFromBuild(build, capability);
+      return;
+    }
     e.preventDefault();
-    await send({ type: "use-capability", capabilityId });
-    window.location.assign(href);
+    seedEngineFromBuild(build, capability);
+    if (canEdit) await send({ type: "use-capability", capabilityId: capability.id });
+    window.location.assign(capability.href);
   }
 
   return (
@@ -231,7 +232,7 @@ export default function BuildDetail({
                     key={c.id}
                     className="chip"
                     href={c.href}
-                    onClick={(e) => void openCapability(e, c.id, c.href)}
+                    onClick={(e) => void openCapability(e, c)}
                   >
                     <span aria-hidden="true">{c.emoji}</span> {c.name}
                   </a>
