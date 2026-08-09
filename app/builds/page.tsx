@@ -39,10 +39,17 @@ export default async function BuildsPage({
   const member = storeConfigured ? await currentMember() : null;
 
   let builds: BuildRecordV1[] = [];
+  let listFailed = false;
   if (member) {
-    const store = await getMemberStore();
-    if (store) {
-      builds = buildsFromProjects(await listOwnProjects(store, member.user.id), BUILD_ENGINE_ID);
+    try {
+      const store = await getMemberStore();
+      if (store) {
+        builds = buildsFromProjects(await listOwnProjects(store, member.user.id), BUILD_ENGINE_ID);
+      }
+    } catch {
+      // A database hiccup must not take the whole page down — and it must
+      // never be reported as "you have no builds". Say what actually happened.
+      listFailed = true;
     }
   }
 
@@ -54,6 +61,7 @@ export default async function BuildsPage({
       storeConfigured={storeConfigured}
       email={member?.user.email ?? null}
       initialIntent={initialIntent}
+      listFailed={listFailed}
     />
   );
 }

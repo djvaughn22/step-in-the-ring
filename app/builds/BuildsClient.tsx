@@ -72,6 +72,7 @@ export default function BuildsClient({
   storeConfigured,
   email,
   initialIntent,
+  listFailed,
 }: {
   builds: BuildRecordV1[];
   signedIn: boolean;
@@ -80,6 +81,8 @@ export default function BuildsClient({
   email: string | null;
   /** Handed over from the landing page as ?intent=, read on the server. */
   initialIntent: string;
+  /** The account list could not be read. NOT the same as having no builds. */
+  listFailed: boolean;
 }) {
   const [intent, setIntent] = useState(initialIntent);
   const [busy, setBusy] = useState(false);
@@ -128,6 +131,18 @@ export default function BuildsClient({
               : "What you're making lives here — from the first sentence to live."}
           </p>
         </section>
+
+        {listFailed && (
+          <section className="home-section">
+            <div className="card">
+              <h3>Your builds didn&apos;t load</h3>
+              <p>
+                Something went wrong reading your account — this is not the same as having
+                no builds, and nothing was lost. Reload in a moment.
+              </p>
+            </div>
+          </section>
+        )}
 
         {signedIn && builds.length > 0 && (
           <section className="home-section" aria-label="Your builds">
