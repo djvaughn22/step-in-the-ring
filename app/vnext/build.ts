@@ -121,6 +121,23 @@ export function readIntentText(raw: unknown): string | null {
   return clean;
 }
 
+/**
+ * Is this something we are willing to render as a link?
+ *
+ * An artifact's `ref` ends up in an href, so it is an injection surface: a
+ * `javascript:` or `data:` ref would run in the person's own session. Only two
+ * shapes are allowed — a page on this site, or an ordinary web address. This
+ * is enforced on the SERVER (app/vnext/actions.ts) as well as in the form,
+ * because a UI check protects nobody who doesn't use the UI.
+ */
+export function isSafeRef(ref: string): boolean {
+  const clean = ref.trim();
+  if (!clean || clean.length > 500) return false;
+  // A page here. "//evil.example" is protocol-relative, not a local path.
+  if (clean.startsWith("/")) return !clean.startsWith("//");
+  return /^https?:\/\/[^\s]+$/i.test(clean);
+}
+
 /** A title a person recognizes, derived from their own words. Never invented. */
 export function titleFromIntent(intent: string): string {
   const clean = intent.replace(/\s+/g, " ").trim();

@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { capabilitiesForIntent } from "../../vnext/capabilities";
 import {
-  BUILD_STAGES, BUILD_STAGE_LABEL, BUILD_STAGE_LINE, type BuildRecordV1, type BuildStage,
+  BUILD_STAGES, BUILD_STAGE_LABEL, BUILD_STAGE_LINE, isSafeRef,
+  type BuildRecordV1, type BuildStage,
 } from "../../vnext/build";
 import type { BuildAction } from "../../vnext/actions";
 
@@ -28,14 +29,17 @@ export default function BuildDetail({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nextAction, setNextAction] = useState("");
+  const [artifactLabel, setArtifactLabel] = useState("");
+  const [artifactRef, setArtifactRef] = useState("");
 
   const helps = useMemo(() => capabilitiesForIntent(build.intent, 4), [build.intent]);
   const stageIndex = BUILD_STAGES.indexOf(build.stage);
 
-  async function send(action: BuildAction) {
-    if (busy || !canEdit) return;
+  async function send(action: BuildAction): Promise<boolean> {
+    if (busy || !canEdit) return false;
     setBusy(true);
     setError(null);
+    let ok = false;
     try {
       const res = await fetch(`/api/builds/${build.id}`, {
         method: "POST",
@@ -48,11 +52,30 @@ export default function BuildDetail({
       } else {
         setBuild(data.build);
         setNextAction("");
+        ok = true;
       }
     } catch {
       setError("That didn't save. Check your connection and try again.");
     }
     setBusy(false);
+    return ok;
+  }
+
+  /**
+   * Opening a capability is a real event on the Build, so it has to be
+   * recorded BEFORE the browser leaves. Firing the request and letting the
+   * navigation cancel it mid-flight is how history quietly goes missing.
+   */
+  async function openCapability(
+    e: React.MouseEvent<HTMLAnchorElement>,
+    capabilityId: string,
+    href: string,
+  ) {
+    // Let the person's own intent win: a new tab, or no ability to record.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0 || !canEdit) return;
+    e.preventDefault();
+    await send({ type: "use-capability", capabilityId });
+    window.location.assign(href);
   }
 
   return (
@@ -182,7 +205,7 @@ export default function BuildDetail({
                     key={c.id}
                     className="chip"
                     href={c.href}
-                    onClick={() => void send({ type: "use-capability", capabilityId: c.id })}
+                    onClick={(e) => void openCapability(e, c.id, c.href)}
                   >
                     <span aria-hidden="true">{c.emoji}</span> {c.name}
                   </a>
@@ -191,16 +214,86 @@ export default function BuildDetail({
             </div>
           )}
 
-          {build.artifacts.length > 0 && (
-            <div className="card">
-              <div className="plan-label">What came out of it</div>
+          {/* WHAT CAME OUT OF IT — the point of the whole thing. A Build that
+              can't hold what it produced is a to-do list. */}
+          <div className="card">
+            <div className="plan-label">What came out of it</div>
+            {build.artifacts.length > 0 ? (
               <ul className="plan-list">
                 {build.artifacts.map((a) => (
-                  <li key={a.id}>{a.label}</li>
+                  <li key={a.id}>
+                    {isSafeRef(a.ref) ? (
+                      <a
+                        href={a.ref}
+                        target={a.ref.startsWith("/") ? undefined : "_blank"}
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--gold)", fontWeight: 700, textDecoration: "none" }}
+                      >
+                        {a.label} →
+                      </a>
+                    ) : (
+                      a.label
+                    )}
+                  </li>
                 ))}
               </ul>
-            </div>
-          )}
+            ) : (
+              <p className="field-help" style={{ marginTop: 0 }}>
+                Nothing yet. When something real exists — a page, a file, a draft, a link —
+                put it here so the build knows what it has.
+              </p>
+            )}
+            {canEdit && (
+              <form
+                className="stack"
+                style={{ marginTop: 14 }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const label = artifactLabel.trim();
+                  const ref = artifactRef.trim();
+                  if (!label || !ref) return;
+                  if (!isSafeRef(ref)) {
+                    setError("Give it a web link (https://…) or a page on this site (/…).");
+                    return;
+                  }
+                  void send({ type: "add-artifact", label, ref }).then(() => {
+                    setArtifactLabel("");
+                    setArtifactRef("");
+                  });
+                }}
+              >
+                <div className="row2">
+                  <div>
+                    <label className="sr-only" htmlFor="artifact-label">What is it?</label>
+                    <input
+                      id="artifact-label"
+                      value={artifactLabel}
+                      onChange={(e) => setArtifactLabel(e.target.value)}
+                      placeholder="What is it? e.g. The first draft"
+                    />
+                  </div>
+                  <div>
+                    <label className="sr-only" htmlFor="artifact-ref">Where is it?</label>
+                    <input
+                      id="artifact-ref"
+                      value={artifactRef}
+                      onChange={(e) => setArtifactRef(e.target.value)}
+                      placeholder="https://… or /a-page-here"
+                    />
+                  </div>
+                </div>
+                <div className="actions">
+                  <button
+                    type="submit"
+                    className="btn btn-ghost btn-small"
+                    disabled={busy || !artifactLabel.trim() || !artifactRef.trim()}
+                  >
+                    Add it
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
 
           {/* Their words, kept whole and always reachable. The reading at the
               top is a reading — this is the thing it was read from. */}

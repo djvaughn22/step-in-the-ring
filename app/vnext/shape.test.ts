@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { shapeIntent } from "./shape";
-import { newBuild, parseBuild, serializeBuild } from "./build";
+import { isSafeRef, newBuild, parseBuild, serializeBuild } from "./build";
+import { applyAction, parseAction } from "./actions";
 
 const GAME =
   "A game where you dodge falling tacos and try to beat your friend's score. " +
@@ -140,5 +141,55 @@ describe("a Build started from a shaping", () => {
     expect(back.capabilitiesUsed).toEqual(["idea"]);
     expect(back.reading).toBeUndefined();
     expect(back.versionOne).toBeUndefined();
+  });
+});
+
+describe("an artifact ref becomes an href, so it is a door", () => {
+  it("takes a page here or an ordinary web address", () => {
+    for (const ref of ["/builds/abc", "/live", "https://opendoku.com/slopedoku/", "http://example.com/x"]) {
+      expect(isSafeRef(ref)).toBe(true);
+    }
+  });
+
+  it("refuses anything that would run in the person's own session", () => {
+    for (const ref of [
+      "javascript:alert(1)",
+      "JavaScript:alert(1)",
+      "  javascript:alert(1)  ",
+      "data:text/html;base64,PHNjcmlwdD4=",
+      "vbscript:msgbox",
+      "file:///etc/passwd",
+      // Protocol-relative: looks local, goes somewhere else entirely.
+      "//evil.example/x",
+      "",
+      "   ",
+      `https://example.com/${"x".repeat(600)}`,
+    ]) {
+      expect(isSafeRef(ref)).toBe(false);
+    }
+  });
+
+  it("is enforced on the server, not only in the form", () => {
+    // parseAction is what the API route runs on an untrusted body.
+    expect(parseAction({ type: "add-artifact", label: "A page", ref: "javascript:alert(1)" })).toBeNull();
+    expect(parseAction({ type: "add-artifact", label: "A page", ref: "//evil.example" })).toBeNull();
+    expect(parseAction({ type: "add-artifact", label: "A page", ref: "https://example.com" })).toEqual({
+      type: "add-artifact",
+      label: "A page",
+      ref: "https://example.com",
+    });
+  });
+
+  it("records the artifact and says so in history", () => {
+    const b = newBuild("A site for my dog", "2026-08-08T00:00:00.000Z");
+    const action = parseAction({ type: "add-artifact", label: "The first draft", ref: "/builds/x" })!;
+    const result = applyAction(b, action, "2026-08-08T01:00:00.000Z");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.build.artifacts).toHaveLength(1);
+    expect(result.build.artifacts[0].label).toBe("The first draft");
+    expect(result.build.history.at(-1)!.note).toBe("Added The first draft.");
+    // The words are still theirs.
+    expect(result.build.intent).toBe("A site for my dog");
   });
 });
