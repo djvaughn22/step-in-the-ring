@@ -193,3 +193,86 @@ describe("an artifact ref becomes an href, so it is a door", () => {
     expect(result.build.intent).toBe("A site for my dog");
   });
 });
+
+describe("reading an older build again", () => {
+  const OLD = {
+    version: 1 as const,
+    id: "old-1",
+    title: "A one-page website for my dog",
+    intent:
+      "A one-page website for my dog. It shows his name, one great photo, and a running " +
+      "list of the socks he has stolen.",
+    stage: "shape" as const,
+    createdAt: "2026-08-01T00:00:00.000Z",
+    updatedAt: "2026-08-01T00:00:00.000Z",
+    currentAction: "Say more about it, or read it back and shape version one.",
+    capabilitiesUsed: ["build"],
+    artifacts: [],
+    history: [{ at: "2026-08-01T00:00:00.000Z", note: "You stepped in.", stage: "bring" as const }],
+  };
+
+  const reread = (b: typeof OLD | Record<string, unknown>) =>
+    applyAction(b as never, parseAction({ type: "reshape" })!, "2026-08-08T12:00:00.000Z");
+
+  it("fills in what a Session 1 build never had", () => {
+    const r = reread(OLD);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.build.reading).toBeTruthy();
+    expect(r.build.versionOne!.length).toBeGreaterThan(0);
+    expect(r.build.goal).toBeTruthy();
+    // Our old placeholder is ours to replace; a real first move is better.
+    expect(r.build.currentAction).not.toBe(OLD.currentAction);
+    expect(r.build.history.at(-1)!.note).toBe("Read your words again.");
+  });
+
+  it("changes nothing that was already there", () => {
+    const mine = {
+      ...OLD,
+      reading: "My own description of it",
+      goal: "My own definition of done",
+      audience: "My family",
+      versionOne: ["The one thing I decided"],
+      currentAction: "Call the printer back",
+    };
+    const r = reread(mine);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.build.reading).toBe("My own description of it");
+    expect(r.build.goal).toBe("My own definition of done");
+    expect(r.build.audience).toBe("My family");
+    expect(r.build.versionOne).toEqual(["The one thing I decided"]);
+    expect(r.build.currentAction).toBe("Call the printer back");
+    // Nothing changed, so nothing is written to history.
+    expect(r.build.history).toHaveLength(1);
+  });
+
+  it("never moves the stage, the words, the artifacts or the history", () => {
+    const withWork = {
+      ...OLD,
+      stage: "live" as const,
+      artifacts: [{ id: "a", label: "The live site", ref: "https://example.com", kind: "link" as const, createdAt: "x" }],
+    };
+    const r = reread(withWork);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.build.stage).toBe("live");
+    expect(r.build.intent).toBe(OLD.intent);
+    expect(r.build.title).toBe(OLD.title);
+    expect(r.build.artifacts).toHaveLength(1);
+    expect(r.build.capabilitiesUsed).toEqual(["build"]);
+    // History only ever grows.
+    expect(r.build.history.length).toBeGreaterThanOrEqual(OLD.history.length);
+    expect(r.build.history[0]).toEqual(OLD.history[0]);
+  });
+
+  it("is idempotent — reading twice says nothing the second time", () => {
+    const first = reread(OLD);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    const second = applyAction(first.build, { type: "reshape" }, "2026-08-08T13:00:00.000Z");
+    expect(second.ok).toBe(true);
+    if (!second.ok) return;
+    expect(second.build.history).toEqual(first.build.history);
+  });
+});

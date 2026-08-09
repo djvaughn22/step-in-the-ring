@@ -19,6 +19,16 @@ import {
   type BuildRecordV1, type BuildStage,
 } from "./build";
 import { capabilityById } from "./capabilities";
+import { shapeIntent } from "./shape";
+
+/**
+ * The `currentAction` a Session 1 Build was created with, before there was a
+ * reading to draw a real first move from. It is OUR placeholder, not the
+ * person's words, so a re-read is allowed to replace exactly this string and
+ * nothing else.
+ */
+const SESSION_ONE_DEFAULT_ACTION =
+  "Say more about it, or read it back and shape version one.";
 
 export type BuildAction =
   | { type: "advance"; stage: BuildStage; note?: string }
@@ -26,7 +36,8 @@ export type BuildAction =
   | { type: "note"; note: string }
   | { type: "use-capability"; capabilityId: string }
   | { type: "add-artifact"; label: string; ref: string }
-  | { type: "shape"; goal?: string; audience?: string; constraints?: string };
+  | { type: "shape"; goal?: string; audience?: string; constraints?: string }
+  | { type: "reshape" };
 
 export type ActionResult =
   | { ok: true; build: BuildRecordV1 }
@@ -70,6 +81,8 @@ export function parseAction(raw: unknown): BuildAction | null {
       // ordinary web address — the browser must never be handed a scheme.
       return label && ref && isSafeRef(ref) ? { type: "add-artifact", label, ref } : null;
     }
+    case "reshape":
+      return { type: "reshape" };
     case "shape": {
       const goal = text(r.goal) ?? undefined;
       const audience = text(r.audience) ?? undefined;
@@ -128,6 +141,50 @@ export function applyAction(
           history: [...build.history, { at: now, note: `Added ${action.label}.` }],
         },
       };
+    case "reshape": {
+      // Read their own words again with today's rules. This is the ONLY way an
+      // older Build catches up, and it is strictly additive: every field that
+      // already holds something keeps holding it. Nothing a person wrote is
+      // ever replaced, and neither is the stage, the history or the artifacts.
+      const shaping = shapeIntent(build.intent);
+      if (!shaping) return { ok: false, error: "There is nothing to read.", status: 422 };
+
+      const replaceableAction =
+        !build.currentAction || build.currentAction === SESSION_ONE_DEFAULT_ACTION;
+
+      const reread: BuildRecordV1 = {
+        ...build,
+        updatedAt: now,
+        reading: build.reading ?? shaping.reading,
+        goal: build.goal ?? shaping.realMeans,
+        audience: build.audience ?? shaping.forWhom ?? undefined,
+        versionOne:
+          build.versionOne && build.versionOne.length
+            ? build.versionOne
+            : shaping.versionOne.length
+              ? shaping.versionOne
+              : undefined,
+        currentAction: replaceableAction ? shaping.firstMove : build.currentAction,
+      };
+
+      // Nothing new to say? Then say nothing — a history full of "read it
+      // again" with no change is noise.
+      const changed =
+        reread.reading !== build.reading ||
+        reread.goal !== build.goal ||
+        reread.audience !== build.audience ||
+        reread.currentAction !== build.currentAction ||
+        (reread.versionOne ?? []).join("|") !== (build.versionOne ?? []).join("|");
+      if (!changed) return { ok: true, build };
+
+      return {
+        ok: true,
+        build: {
+          ...reread,
+          history: [...build.history, { at: now, note: "Read your words again." }],
+        },
+      };
+    }
     case "shape": {
       const shaped: BuildRecordV1 = {
         ...build,
