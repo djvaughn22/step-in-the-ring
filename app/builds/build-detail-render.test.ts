@@ -102,6 +102,15 @@ describe("an artifact never becomes a way in", () => {
   });
 });
 
+describe("what happened", () => {
+  it("shows the history newest first and lets you add to it", () => {
+    const html = render(build());
+    expect(html).toContain("What&#x27;s happened");
+    expect(html).toContain("You stepped in.");
+    expect(html).toContain("Write it down");
+  });
+});
+
 describe("read-only access can look but not change", () => {
   it("offers no way to move the stage or add anything", () => {
     const html = render(build(), false);
@@ -109,5 +118,6 @@ describe("read-only access can look but not change", () => {
     expect(html).not.toContain("Where it actually is");
     expect(html).not.toContain("Add it");
     expect(html).not.toContain("Save the next move");
+    expect(html).not.toContain("Write it down");
   });
 });
