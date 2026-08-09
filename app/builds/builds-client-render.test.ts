@@ -9,6 +9,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import BuildsClient from "./BuildsClient";
 import BuildDetail from "./[id]/BuildDetail";
+import ContinueStrip from "../vnext/ContinueStrip";
 import { newBuild, type BuildRecordV1 } from "../vnext/build";
 import { shapeIntent } from "../vnext/shape";
 
@@ -127,5 +128,13 @@ describe("catching an older build up", () => {
 
   it("never offers it to someone who cannot change anything", () => {
     expect(detail(bare, false)).not.toContain("Read my words again");
+  });
+});
+
+describe("the homepage's continue offer", () => {
+  it("adds nothing at all to the page a stranger is served", () => {
+    // It only ever appears after the Build API answers, so the static HTML
+    // the homepage ships must be byte-for-byte unaffected.
+    expect(renderToStaticMarkup(createElement(ContinueStrip))).toBe("");
   });
 });
