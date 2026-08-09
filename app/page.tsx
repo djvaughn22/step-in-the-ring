@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { interpret, type PlannerInput } from "./planner/interpret";
 import { buildBuilderPrompt } from "./planner/builder-prompt";
 import { recommendEngine } from "./planner/handoff";
+import CreationEntry from "./vnext/CreationEntry";
 import { deletePlan, loadPlans, savePlan, type SavedPlan } from "./planner/storage";
 import { BUILD_TYPE_LABEL, type Interpretation } from "./planner/types";
 import { adapterForType } from "./creation/adapters";
@@ -404,41 +405,21 @@ export default function StepInTheRing() {
               Open Mirror LLC
             </a>
             <h1>Step In The Ring</h1>
-            <span className="status-pill status-beta" style={{ display: "inline-block", margin: "8px 0 0" }}>
-              Open beta
-            </span>
-            <p className="hero-sub">
-              Take an idea and turn it into a real first build. Say it however it comes
-              out — you get back what it really is, the smartest first version, and the
-              tools it actually needs.
-            </p>
+            {/* The emotional threshold. It appears here and nowhere else on
+                this page — repeating it everywhere would kill it. */}
+            <p className="dream-line">Live your dream.</p>
+            <p className="hero-sub">Turn what&apos;s in your head into something real.</p>
           </section>
 
-          <section style={{ marginTop: 4 }} aria-label="Start a creation">
-            <form className="stack" onSubmit={handleShape}>
-              <div>
-                <label className="field-question" htmlFor="idea-description" style={{ display: "block" }}>
-                  What do you want to create today?
-                </label>
-                <p className="field-help" id="idea-help" style={{ marginBottom: 0 }}>
-                  An app, a game, a song, a story, a practice plan, a repair — messy is fine.
-                  If it belongs on a site you already have, say which one.
-                </p>
-              </div>
-              <textarea
-                id="idea-description"
-                ref={shapeRef}
-                aria-describedby="idea-help"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder='e.g. "A puzzle game where you pick a photo and drag the pieces back together."'
-                rows={5}
-                required
-              />
-              <div className="actions">
-                <button type="submit" className="btn btn-gold" disabled={!description.trim()}>
-                  Read my idea →
-                </button>
+          <CreationEntry
+            id="idea-description"
+            value={description}
+            onValueChange={setDescription}
+            onSubmit={handleShape}
+            inputRef={shapeRef}
+            starters={STARTERS}
+            actions={
+              <>
                 {hasLastCreation && (
                   <button type="button" className="btn btn-ghost btn-small" onClick={continueLast}>
                     Continue your last creation
@@ -449,80 +430,24 @@ export default function StepInTheRing() {
                     Your corner — {saved.length} saved
                   </button>
                 )}
-              </div>
-              <div className="chip-row" role="group" aria-label="Or start from what you want to make">
-                {STARTERS.map((s) => (
-                  <button
-                    key={s.label}
-                    type="button"
-                    className="chip"
-                    onClick={() => {
-                      setDescription(s.stem);
-                      setTimeout(() => {
-                        const el = shapeRef.current;
-                        if (!el) return;
-                        el.focus();
-                        el.setSelectionRange(s.stem.length, s.stem.length);
-                      }, 0);
-                    }}
-                  >
-                    <span aria-hidden="true">{s.emoji}</span> {s.label}
-                  </button>
-                ))}
-              </div>
-            </form>
-          </section>
+              </>
+            }
+          />
 
-          <section className="home-section" style={{ marginTop: 36 }}>
-            <a href="/engines" className="door-card">
-              <span className="door-emoji" aria-hidden="true">🧰</span>
-              <div>
-                <h3>Or open the Engine Room</h3>
-                <p>
-                  Work with one specialist directly — decide an idea, design a product, make a
-                  first beat. Open beta: sign up free or use a tester code to get in.
-                </p>
-              </div>
-              <span className="door-go" aria-hidden="true">→</span>
-            </a>
-          </section>
-
-          <section className="home-section">
-            <span className="kicker">What &quot;open beta&quot; means</span>
-            <p className="section-lead">
-              Every engine here is testable now, and still being corrected. Pricing is
-              TBD — testing comes first. Tester feedback shapes what gets finished and
-              polished next. Because things are still moving, don&apos;t rely on Step In
-              The Ring yet for anything irreplaceable — treat saved projects carefully
-              during beta.
-            </p>
-            <p className="tiny" style={{ marginTop: 4 }}>
-              <a href="/account" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Continue a saved project →</a>
+          <section className="home-section" style={{ marginTop: 34 }}>
+            <p className="tiny" style={{ textAlign: "center" }}>
+              <a href="/builds" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+                Your builds →
+              </a>
               {" · "}
-              <a href="/account#feedback" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Give feedback on the beta →</a>
+              <a href="/library" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
+                Everything under it
+              </a>
+              {" · "}
+              <a href="/how" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
+                How it works
+              </a>
             </p>
-          </section>
-
-          <section className="home-section">
-            <span className="kicker">What people finish here</span>
-            <div className="ex-grid">
-              <a href="/products/five-hour-sprint" className="ex-card">
-                <span className="ex-name">⏱️ Plan and finish a Five Hour Sprint</span>
-                <span className="ex-who">Use two AI tools with clear roles, a fixed budget, and proof of completion</span>
-              </a>
-              <a href="/engines?engine=idea" className="ex-card">
-                <span className="ex-name">💡 Choose and improve an idea</span>
-                <span className="ex-who">Weigh a few versions, leave with one decision</span>
-              </a>
-              <a href="/engines?engine=design-shop" className="ex-card">
-                <span className="ex-name">🛒 Create and export a design</span>
-                <span className="ex-who">A design package and an Etsy listing draft</span>
-              </a>
-              <a href="/engines?engine=music" className="ex-card">
-                <span className="ex-name">🎵 Make and export a first beat</span>
-                <span className="ex-who">Free tools, guided, to a real audio file</span>
-              </a>
-            </div>
           </section>
 
           <section className="home-section">
@@ -571,9 +496,45 @@ export default function StepInTheRing() {
             <p className="tiny" style={{ marginTop: 12 }}>
               <a href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>See every live product →</a>
               {" · "}
-              <a href="/how" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>How it works</a>
-              {" · "}
               <a href="/build" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Never built a web app? Start here</a>
+            </p>
+          </section>
+
+          {/* The machinery is still here, and still explained — it just isn't
+              the first question anymore. */}
+          <section className="home-section">
+            <span className="kicker">What&apos;s under it</span>
+            <div className="doors2">
+              <a href="/engines" className="door-card">
+                <span className="door-emoji" aria-hidden="true">🧰</span>
+                <div>
+                  <h3>The Engine Room</h3>
+                  <p>
+                    Work with one specialist directly — decide an idea, design a product,
+                    make a first beat. Open beta: sign up free or use a tester code.
+                  </p>
+                </div>
+                <span className="door-go" aria-hidden="true">→</span>
+              </a>
+              <a href="/library" className="door-card">
+                <span className="door-emoji" aria-hidden="true">📚</span>
+                <div>
+                  <h3>Your work &amp; everything we&apos;ve built</h3>
+                  <p>
+                    Every capability in one list, and anything you saved here before —
+                    plans, projects, songs, walkthroughs. Nothing was thrown away.
+                  </p>
+                </div>
+                <span className="door-go" aria-hidden="true">→</span>
+              </a>
+            </div>
+            <p className="section-lead" style={{ marginTop: 14 }}>
+              Open beta: everything here is testable now and still being corrected.
+              Pricing is TBD — testing comes first. Because things are still moving,
+              don&apos;t rely on Step In The Ring yet for anything irreplaceable.
+            </p>
+            <p className="tiny" style={{ marginTop: 4 }}>
+              <a href="/account#feedback" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Give feedback on the beta →</a>
             </p>
           </section>
 
@@ -689,6 +650,24 @@ export default function StepInTheRing() {
 
           <div className="stack">
             <UnderstoodCard i={plan} view={view} />
+
+            {/* BRING IT → the persistent object. The plan below is yours
+                either way; this is what makes it survive this browser. */}
+            <div className="card">
+              <div className="plan-label">Keep going with this</div>
+              <p style={{ fontSize: 14.5, color: "var(--text)", margin: "0 0 12px" }}>
+                Save it as a build and it&apos;s on your account — still here tomorrow, on
+                any device, with the next move on it.
+              </p>
+              <div className="actions">
+                <a
+                  className="btn btn-gold"
+                  href={`/builds?intent=${encodeURIComponent(description.trim().slice(0, 2000))}`}
+                >
+                  Make it a build →
+                </a>
+              </div>
+            </div>
 
             {plan.versionOne.length > 0 && (
               <div className="card">

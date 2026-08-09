@@ -11,6 +11,12 @@ const PROTECTED_ROUTES = [
 
 const PUBLIC_ROUTES = [
   "/",
+  // vNext: Your Builds and Your Work handle signed-out visitors themselves.
+  // /builds shows server-saved builds only to a signed-in member, but both
+  // pages also surface pre-vNext work that lives in the visitor's OWN browser
+  // — a gate here would lock people out of their own local files.
+  "/builds",
+  "/library",
   "/about",
   "/how",
   "/build",

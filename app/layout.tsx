@@ -41,12 +41,15 @@ export default function RootLayout({
         <OpenMirrorNav
           site="StepInTheRing.com"
           accent="#60A5FA"
+          /* vNext IA: three primary doors. Everything else — the Engine Room,
+             the Build Machine, live builds, the walkthroughs — is one level
+             down in Your Work (/library), which lists every capability with
+             its honest status. Nothing was removed; the menu stopped being
+             the product. */
           links={[
-            { emoji: "🥊", name: "Shape an Idea", href: "/" },
-            { emoji: "⚙️", name: "Engine Room (Beta)", href: "/engines" },
-            { emoji: "💻", name: "Build Machine", href: "/build-machine" },
-            { emoji: "📦", name: "Live Builds", href: "/live" },
-            { emoji: "🧭", name: "How It Works", href: "/how" },
+            { emoji: "🥊", name: "Create", href: "/" },
+            { emoji: "🏗️", name: "Your Builds", href: "/builds" },
+            { emoji: "📚", name: "Your Work", href: "/library" },
             { emoji: "👤", name: "Account", href: "/account" },
             { emoji: "ℹ️", name: "About StepInTheRing", href: "/about" },
           ]}
