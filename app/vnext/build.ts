@@ -233,7 +233,7 @@ export function advance(
 }
 
 /** Record that a Build reached for one of the existing capabilities. */
-export function useCapability(
+export function recordCapabilityUse(
   build: BuildRecordV1,
   capabilityId: string,
   now: string = new Date().toISOString(),
