@@ -15,7 +15,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
-  advance, recordCapabilityUse, BUILD_STAGES, BUILD_STAGE_LABEL,
+  advance, isSafeRef, recordCapabilityUse, BUILD_STAGES, BUILD_STAGE_LABEL,
   type BuildRecordV1, type BuildStage,
 } from "./build";
 import { capabilityById } from "./capabilities";
@@ -66,7 +66,9 @@ export function parseAction(raw: unknown): BuildAction | null {
     case "add-artifact": {
       const label = text(r.label);
       const ref = text(r.ref);
-      return label && ref ? { type: "add-artifact", label, ref } : null;
+      // A ref becomes an href. Refuse anything that isn't a page here or an
+      // ordinary web address — the browser must never be handed a scheme.
+      return label && ref && isSafeRef(ref) ? { type: "add-artifact", label, ref } : null;
     }
     case "shape": {
       const goal = text(r.goal) ?? undefined;
