@@ -79,6 +79,27 @@ function endWithStop(s: string): string {
 }
 
 /**
+ * Is this a REPAIR — something of theirs that is broken?
+ *
+ * The planner classifies on the bare verb "fix", which is right for its own
+ * purposes but too loose to hang a first move on: "teach people how to fix a
+ * bike tire" is a guide, not a repair, and telling that person to "write down
+ * exactly what goes wrong" is confidently wrong. So a repair has to look like
+ * one — a thing in a broken state, and not a sentence about teaching.
+ */
+const TEACHING =
+  /\b(how to|teach|teaching|tutorial|guide|explain|walkthrough|walk through|show (?:people|someone|others|you))\b/i;
+const BROKEN_STATE =
+  /\b(broken|broke|breaks|bug|buggy|doesn'?t work|does not work|not working|stopped working|fails|failing|error|crash(?:es|ing)?|glitch|busted|won'?t (?:open|load|save|close|start))\b/i;
+
+export function isRepair(view: CreationView): boolean {
+  if (view.interpretation.buildType.value !== "fix") return false;
+  const said = view.record.originalIdea;
+  if (TEACHING.test(said)) return false;
+  return BROKEN_STATE.test(said) || /\bfix (?:my|the|this|our|his|her|their)\b/i.test(said);
+}
+
+/**
  * The first move. Ordered rules, most honest first:
  *
  *   1. Something broken is not a blank page. The first move is reproducing it,
@@ -90,7 +111,7 @@ function endWithStop(s: string): string {
  *      let us — never fake a plan.
  */
 export function firstMoveFrom(view: CreationView, versionOne: string[]): string {
-  if (view.interpretation.buildType.value === "fix") {
+  if (isRepair(view)) {
     return "Write down exactly what goes wrong, and the one step that makes it happen every time.";
   }
   const test = view.software.nonSoftwareTest;
@@ -102,7 +123,9 @@ export function firstMoveFrom(view: CreationView, versionOne: string[]): string 
     return endWithStop(`Get this working first, and nothing else yet: ${lowerFirst(versionOne[0])}`);
   }
   const q = view.interpretation.openQuestions[0];
-  if (q) return endWithStop(q.question);
+  // The question is asked again right below this, so echoing it verbatim reads
+  // like a stutter. Point at it instead — it is still the one next thing.
+  if (q) return endWithStop(`Answer the one question below — ${lowerFirst(q.question)}`);
   return "Write one more sentence: who uses this, and what they do with it.";
 }
 
@@ -130,6 +153,22 @@ export function readingFrom(view: CreationView): string {
   if (first.length <= summary.length) return summary;
   const capped = first.length > 180 ? `${first.slice(0, 177).trimEnd()}…` : first;
   return capped.charAt(0).toUpperCase() + capped.slice(1);
+}
+
+/**
+ * What "real" means the first time.
+ *
+ * `smallestOutcome` is derived from the KIND of thing (a site, a game, a
+ * book), which is right for something being made and wrong for something being
+ * repaired: "a real visitor lands on it and knows what to do next" is the goal
+ * of building a site, not of fixing one. A repair has exactly one honest
+ * definition of done.
+ */
+function realMeansFrom(view: CreationView): string {
+  if (isRepair(view)) {
+    return "The thing that's broken works again, and you've watched it work.";
+  }
+  return view.smallestOutcome;
 }
 
 /** Worth saying out loud only when software isn't obviously the product. */
@@ -160,7 +199,7 @@ export function shapingFromView(view: CreationView): BuildShaping {
   // On a repair, "version one" bullets describe a thing that already exists.
   // Showing them as the plan would be inventing work nobody asked for.
   const versionOne =
-    i.buildType.value === "fix"
+    isRepair(view)
       ? []
       : i.versionOne.map((c) => c.value.trim()).filter(Boolean).slice(0, MAX_VERSION_ONE);
 
@@ -169,7 +208,7 @@ export function shapingFromView(view: CreationView): BuildShaping {
     reading: readingFrom(view),
     kind: CREATION_TYPE_LABEL[view.creationType],
     forWhom: view.primaryUser ?? i.audience?.value ?? null,
-    realMeans: view.smallestOutcome,
+    realMeans: realMeansFrom(view),
     versionOne,
     firstMove: firstMoveFrom(view, versionOne),
     helps: helpsFor(i.raw),
