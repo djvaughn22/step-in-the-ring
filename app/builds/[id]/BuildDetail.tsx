@@ -178,6 +178,29 @@ export default function BuildDetail({
             </div>
           )}
 
+          {/* An older Build predates the reading. Offer to catch it up — and
+              only offer it when there is genuinely something to gain. */}
+          {canEdit && !build.reading && (
+            <div className="card">
+              <div className="plan-label">This build started before we could read it</div>
+              <p style={{ fontSize: 14.5, color: "var(--text)", lineHeight: 1.6, margin: "0 0 12px" }}>
+                Step In The Ring can now read what you wrote and work out what it is, what
+                version one does, and the next move. Nothing you&apos;ve written or changed
+                gets touched — this only fills in what&apos;s blank.
+              </p>
+              <div className="actions">
+                <button
+                  type="button"
+                  className="btn btn-gold btn-small"
+                  disabled={busy}
+                  onClick={() => void send({ type: "reshape" })}
+                >
+                  {busy ? "Reading…" : "Read my words again"}
+                </button>
+              </div>
+            </div>
+          )}
+
           {build.versionOne && build.versionOne.length > 0 && (
             <div className="card">
               <div className="plan-label">What version one does</div>
