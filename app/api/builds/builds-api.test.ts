@@ -307,3 +307,40 @@ describe("the action route stays a state machine", () => {
     expect(rows[0].content).toBe(JSON.stringify({ lyrics: "mine" }));
   });
 });
+
+describe("a build is never handed to a cache", () => {
+  it("marks every response private and unstorable", async () => {
+    const { sessionToken } = await member("cache@example.com");
+
+    const responses = [
+      await GET(req("/api/builds")),                                   // 401
+      await GET(req("/api/builds", { token: sessionToken })),          // 200, their data
+      await POST(req("/api/builds", { method: "POST", token: sessionToken, body: { intent: GAME } })),
+      await POST(req("/api/builds", { method: "POST", token: sessionToken, body: {} })), // 422
+    ];
+
+    for (const res of responses) {
+      const cc = res.headers.get("cache-control") ?? "";
+      // Next's default is `public, max-age=0, must-revalidate`, which leaves a
+      // shared cache holding one member's builds and deciding for itself
+      // whether to revalidate. Say no instead of relying on good manners.
+      expect(cc).toContain("no-store");
+      expect(cc).toContain("private");
+      expect(cc).not.toContain("public");
+    }
+  });
+
+  it("marks the action route the same way", async () => {
+    const { sessionToken } = await member("cache2@example.com");
+    const { build } = await createBuild(sessionToken);
+    const res = await ACTION(
+      req(`/api/builds/${build.id}`, {
+        method: "POST",
+        token: sessionToken,
+        body: { action: { type: "advance", stage: "build" } },
+      }),
+      params(build.id),
+    );
+    expect(res.headers.get("cache-control")).toContain("no-store");
+  });
+});

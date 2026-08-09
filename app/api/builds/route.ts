@@ -22,6 +22,8 @@ import {
 import { shapeIntent } from "../../vnext/shape";
 
 export const runtime = "nodejs";
+// Reads a session cookie: never prerender, never cache.
+export const dynamic = "force-dynamic";
 
 /**
  * Answers to the one-question loop. More of the person's own words, so they
@@ -40,35 +42,46 @@ function readAnswers(raw: unknown): Record<string, string> {
   return out;
 }
 
+/**
+ * Every response here is one person's own work, behind their own session
+ * cookie. Next's default (`public, max-age=0, must-revalidate`) relies on a
+ * shared cache choosing to revalidate; `private, no-store` does not rely on
+ * anyone choosing anything. This is the class of mistake that serves one
+ * member's builds to another, so it is stated rather than assumed.
+ */
+function json(body: unknown, status = 200): NextResponse {
+  return NextResponse.json(body, {
+    status,
+    headers: { "Cache-Control": "private, no-store, max-age=0" },
+  });
+}
+
 export async function GET(req: NextRequest) {
   const store = await getMemberStore();
-  if (!store) return NextResponse.json({ ok: false, error: "Not available." }, { status: 503 });
+  if (!store) return json({ ok: false, error: "Not available." }, 503);
   const ctx = await memberFromRequest(req);
-  if (!ctx) return NextResponse.json({ ok: false, error: "Sign in first." }, { status: 401 });
+  if (!ctx) return json({ ok: false, error: "Sign in first." }, 401);
 
   const builds = buildsFromProjects(await listOwnProjects(store, ctx.user.id), BUILD_ENGINE_ID);
-  return NextResponse.json({ ok: true, builds });
+  return json({ ok: true, builds });
 }
 
 export async function POST(req: NextRequest) {
   const store = await getMemberStore();
-  if (!store) return NextResponse.json({ ok: false, error: "Not available." }, { status: 503 });
+  if (!store) return json({ ok: false, error: "Not available." }, 503);
   const ctx = await memberFromRequest(req);
-  if (!ctx) return NextResponse.json({ ok: false, error: "Sign in first." }, { status: 401 });
+  if (!ctx) return json({ ok: false, error: "Sign in first." }, 401);
 
   let body: Record<string, unknown> = {};
   try {
     body = (await req.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ ok: false, error: "Bad request." }, { status: 400 });
+    return json({ ok: false, error: "Bad request." }, 400);
   }
 
   const intent = readIntentText(body.intent);
   if (!intent) {
-    return NextResponse.json(
-      { ok: false, error: "Say what you want to create first." },
-      { status: 422 },
-    );
+    return json({ ok: false, error: "Say what you want to create first." }, 422);
   }
 
   // The reading is ours, computed here from their words. Nothing the browser
@@ -83,7 +96,7 @@ export async function POST(req: NextRequest) {
     content: serializeBuild(record),
   });
   if (!created.ok) {
-    return NextResponse.json({ ok: false, error: created.error }, { status: created.status });
+    return json({ ok: false, error: created.error }, created.status);
   }
 
   const build = {
@@ -93,5 +106,5 @@ export async function POST(req: NextRequest) {
     createdAt: created.value.createdAt,
     updatedAt: created.value.updatedAt,
   };
-  return NextResponse.json({ ok: true, build }, { status: 201 });
+  return json({ ok: true, build }, 201);
 }
