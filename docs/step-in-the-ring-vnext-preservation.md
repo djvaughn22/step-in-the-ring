@@ -23,6 +23,9 @@ to `LEGACY_SOURCES` in `app/vnext/legacy.ts`.
 | Capability registry | `app/vnext/capabilities.ts` | Metadata catalog over the existing engines + surfaces. Derived from `app/engines/engines.ts` — no capability logic is duplicated. `capabilitiesForIntent()` is deterministic substring matching, never a model call, and only ever returns something a visitor can actually open. |
 | Compatibility bridge | `app/vnext/legacy.ts` + `LegacyWork.tsx` | Read-only discovery of pre-vNext work in the visitor's browser. Test-locked against ever writing, clearing or migrating. |
 | Your Builds | `app/builds/` | The authenticated centre of gravity. Server-persistent. |
+| Build detail | `app/builds/[id]/` | One Build: "Right now" first (stage, threshold line, the next move), then what can help, what came out, and the full history. |
+| Transitions | `app/vnext/actions.ts` | Every change is a pure function of `(build, action, now)`. Unknown actions are refused, not ignored. |
+| Transition seam | `app/api/builds/[id]/route.ts` | POST an *action*, never a record. The server loads the Build, applies the transition, writes it back. Ownership/session/access rules are the member project store's, unchanged. |
 | Your Work | `app/library/` | Every capability, one level down from the question. |
 
 **Build persistence is server-backed today.** A Build saves through the EXISTING
@@ -78,16 +81,31 @@ Build.**
 
 ---
 
-## Next milestones (not done tonight, on purpose)
+## Verified, and what wasn't
 
-- **Build detail route** (`/builds/[id]`) with the full Bring → Shape → Build → Live →
-  Grow shell and a real "Right now" next-action model. The stage track and
-  `currentAction` field exist; the detail page does not.
-- **Build state transitions over an API** — `advance()` and `useCapability()` are pure
-  and tested, but nothing calls them from the UI yet. Builds are created and read;
-  they are not yet edited.
+Verified in the browser at 375px and desktop, both themes, against the production
+build and then against production itself: the hero, the creation entry (hero +
+question + Step in all land in the first phone screenful), the five-door nav, the
+legacy bridge finding real saved work, the planner flow end to end, `/library`
+filtering, every pre-vNext route resolving, no console errors, no horizontal scroll.
+On production: `POST /api/builds/[id]` refuses an anonymous write with 401 and
+`/builds/[id]` sends a logged-out visitor to sign in.
+
+**Not verified: the signed-in half.** There is no local database, and signing in as
+the owner is not something an agent should do. The Builds list, creating a Build,
+the detail page, and the transition seam are unit-tested and typechecked but have
+never been exercised against a real account. **DJ: sign in on a phone, create a
+build from the homepage's "Make it a build", open it, move a stage.** That is the
+one gate left on this work.
+
+## Next milestones
+
 - **Capability adapters** — a Build reaching a capability currently links out.
-  Carrying the Build's intent *into* the engine intake is the next real integration.
+  Carrying the Build's intent *into* the engine intake is the next real integration,
+  and the point where `capabilitiesUsed` starts earning its place.
+- **Artifacts that arrive on their own** — an engine finishing something should be
+  able to attach it to the Build that asked for it.
 - **Normalizing legacy objects into Builds** — deliberately not attempted. The bridge
   displays; it does not convert. A rushed migration that loses a saved plan is worse
   than a slightly ugly bridge.
+- **Rename or delete a Build** from the UI (the member API already supports both).
