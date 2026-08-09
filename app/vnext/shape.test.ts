@@ -46,6 +46,24 @@ describe("shapeIntent", () => {
     expect(s.realMeans.toLowerCase()).not.toContain("knows what to do next");
   });
 
+  it("never hands somebody their own problem back as the goal", () => {
+    // The planner lifts "Every win gets disputed" out of the complaint and
+    // marks it a STATED desired result. It is the problem, not done.
+    const s = shapeIntent(
+      "A leaderboard for family game night. Nobody remembers last week's score " +
+        "so every win gets disputed.",
+    )!;
+    expect(s.realMeans.toLowerCase()).not.toContain("gets disputed");
+    expect(s.realMeans.length).toBeGreaterThan(10);
+  });
+
+  it("still uses their own definition of done when they gave one", () => {
+    const s = shapeIntent(
+      "A website for my band. I'll know it works when someone books us from it.",
+    )!;
+    expect(s.realMeans.toLowerCase()).toContain("book");
+  });
+
   it("does not mistake teaching a repair for doing one", () => {
     // The planner classifies on the bare verb "fix". A guide is not a repair,
     // and "write down exactly what goes wrong" would be confidently wrong.
