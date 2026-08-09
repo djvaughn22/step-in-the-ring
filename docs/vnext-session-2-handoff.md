@@ -37,7 +37,7 @@ time.
 | `e7154a3` | The homepage knows you were here yesterday |
 | `c09935a` | Mobile tap targets, and a build you can log progress on |
 | `7247608` | Know a repair from a sentence about repairs |
-| `<this>`  | A build's words travel into the capability it opens |
+| `2b81d48` | A build's words travel into the capability it opens |
 
 ---
 
