@@ -423,6 +423,28 @@ export const ENGINES: Engine[] = [
     output: "A preserved song project moving to a playable Version One — or your first exported beat. The audio comes out of your music software, not out of this page.",
     beginWith: "Words, a melody in your head, a voice memo, or nothing at all.",
   },
+  {
+    // ── vNext plumbing, not an engine you open ──────────────────────────────
+    // A Build (app/vnext/build.ts) is the thing a person is making. It saves
+    // through the EXISTING account-linked project store, which validates
+    // engineId against this registry — so the Build needs a reserved row here
+    // rather than a second storage stack. Hidden from the picker on purpose:
+    // there is no intake and no studio behind it. Do not delete — deleting it
+    // orphans every saved Build.
+    id: "vnext-build",
+    name: "Builds",
+    emoji: "🏗️",
+    tagline: "What you're making, from the first sentence to live.",
+    blurb: "The persistent record of one thing you're making. Created the moment you say what you want, and kept through shaping, building, going live, and growing.",
+    technical: false,
+    hidden: true,
+    activation: "beta",
+    suggestedStage: "Spark",
+    intake: [],
+    specialties: [],
+    output: "One saved Build you can come back to.",
+    beginWith: "A sentence about what you want to make.",
+  },
 ];
 
 export const ENGINE_BY_ID = new Map(ENGINES.map((e) => [e.id, e]));

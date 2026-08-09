@@ -95,8 +95,22 @@ button, textarea, input, select { font: inherit; }
   .hero-compact { padding: 8px 0 14px; }
   .hero-compact .ring-mark { width: 56px; height: 56px; margin-bottom: 10px; }
   .hero-compact .ring-glove { font-size: 19px; }
-  .hero-compact .hero-sub { display: none; }
+  .hero-compact .hero-sub { font-size: 14px; margin-top: 8px; }
   .hero-compact .kicker { margin-bottom: 6px; }
+  .dream-line { font-size: 15px; margin-top: 8px; }
+}
+
+/* ── LIVE YOUR DREAM ──────────────────────────────────────────────────────
+   The emotional threshold. It sits directly under the name on the landing
+   hero and is used sparingly everywhere else — a promise loses its weight
+   when it's printed on every component. */
+.dream-line {
+  font-size: clamp(16px, 2.6vw, 20px);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 12px 0 0;
 }
 
 /* ── TYPE ── */
@@ -638,6 +652,15 @@ a[href]:hover {
   padding: 5px 11px;
 }
 
+/* The stage a Build is actually at, in the Bring → Shape → Build → Live →
+   Grow track. Only one pill is ever "now" — the track states where the work
+   is, it never flatters it. */
+.pill-now {
+  color: #0b1220;
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
 .plan-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
 
 .plan-list li {
@@ -802,6 +825,16 @@ html[data-om-theme="light"] .status-beta {
   color: #1d4ed8;
   border-color: #bfdbfe;
   background: #eff6ff;
+}
+
+/* The accent that reads beautifully on the dark background is too pale on the
+   flat light one. Same blue family, enough contrast to actually read. */
+html[data-om-theme="light"] .dream-line { color: #1d4ed8; }
+
+html[data-om-theme="light"] .pill-now {
+  color: #ffffff;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 html[data-om-theme="light"] .status-owner-only,
