@@ -39,6 +39,7 @@ time.
 | `7247608` | Know a repair from a sentence about repairs |
 | `2b81d48` | A build's words travel into the capability it opens |
 | `a4a7ea9` | Never hand somebody's builds to a cache |
+| `1456eae` | Never hand somebody their own problem back as the goal |
 
 ---
 
@@ -82,6 +83,11 @@ time.
   render. An artifact ref becomes an href, so `javascript:`, `data:` and
   protocol-relative `//host` are refused server-side and printed as plain text.
 - **`app/vnext/draft.ts`** (new): sessionStorage only, bounded, never called saved.
+- **`app/vnext/engine-handoff.ts`** (new): the Build → engine seed, using the
+  planner's existing `sitr-engine-seed` key. No second convention.
+- **One planner fix, at source** (`creation/classify.ts`): a "stated" desired
+  result that sits inside the stated need is the problem restated, not a
+  definition of done. Also corrects "Ready when" on the plan page.
 - **Both build routes answer `private, no-store`** and declare themselves
   dynamic. They were going out under Next's default `public, max-age=0,
   must-revalidate` — a cookie-authenticated JSON body with `public` on it.
@@ -89,10 +95,10 @@ time.
 
 ## Gates
 
-826 tests / 49 files · typecheck clean · lint 0 errors (67 pre-existing warnings)
+828 tests / 49 files · typecheck clean · lint 0 errors (67 pre-existing warnings)
 · production build clean · `scan-public-bundles` clean.
 
-Baseline at session start was 746 tests. **+80**, all on this work.
+Baseline at session start was 746 tests. **+82**, all on this work.
 
 ## Production verified
 
@@ -104,6 +110,8 @@ Deployed and checked on `https://stepinthering.com` at 375×812:
   audience pill and retired the question
 - "Keep this build" writes the draft and lands on `/builds` with the exact words
   shown back, honestly labelled as not yet saved
+- "Real means" no longer echoes the problem back: the family-leaderboard idea
+  now reads "Someone finishes one round and starts another without being asked"
 - the repair rules are right on live traffic: "teach people how to fix a bike
   tire" is read as a guide, a broken church site is read as a repair
 - `/library` renders, filters, no horizontal scroll
