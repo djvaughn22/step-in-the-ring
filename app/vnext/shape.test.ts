@@ -39,6 +39,41 @@ describe("shapeIntent", () => {
     expect(s.firstMove.toLowerCase()).not.toContain("version one");
   });
 
+  it("knows what done means for a repair, not what done means for a new thing", () => {
+    const s = shapeIntent("My church website is broken, the donate button does nothing on phones")!;
+    expect(s.realMeans.toLowerCase()).toContain("works again");
+    // The goal of BUILDING a site is not the goal of FIXING one.
+    expect(s.realMeans.toLowerCase()).not.toContain("knows what to do next");
+  });
+
+  it("does not mistake teaching a repair for doing one", () => {
+    // The planner classifies on the bare verb "fix". A guide is not a repair,
+    // and "write down exactly what goes wrong" would be confidently wrong.
+    const s = shapeIntent("I want to teach people how to fix a bike tire")!;
+    expect(s.firstMove.toLowerCase()).not.toContain("what goes wrong");
+    expect(s.realMeans.toLowerCase()).not.toContain("works again");
+    expect(s.helps.map((h) => h.id)).toContain("howto");
+  });
+
+  it("still knows a real repair when it sees one", () => {
+    for (const said of [
+      "my site is broken",
+      "My church website is broken, the donate button does nothing on phones",
+      "fix my checkout page, it crashes",
+    ]) {
+      const s = shapeIntent(said)!;
+      expect(s.firstMove.toLowerCase()).toContain("what goes wrong");
+      expect(s.versionOne).toEqual([]);
+    }
+  });
+
+  it("points at the one question instead of echoing it back", () => {
+    const s = shapeIntent("something cool")!;
+    expect(s.firstMove).toContain("Answer the one question below");
+    // And it is still the same question being asked underneath.
+    expect(s.question).toBeTruthy();
+  });
+
   it("puts the cheap real-world test first when software isn't the product", () => {
     const s = shapeIntent(BOOK)!;
     expect(s.firstMove.toLowerCase()).toContain("before building anything");
