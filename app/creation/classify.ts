@@ -228,12 +228,34 @@ export function assessSoftware(
 /* ── SMALLEST OUTCOME ──────────────────────────────────────────────────────
    The first moment this creation genuinely worked, in the creator's world. */
 
+/**
+ * The person's own definition of done — but only when it is one.
+ *
+ * "A leaderboard for family game night. Nobody remembers last week's score so
+ * every win gets disputed." yields a STATED desiredResult of "Every win gets
+ * disputed", lifted straight out of the complaint. Shown back as what success
+ * looks like, it is exactly backwards: that is the problem.
+ *
+ * The signal is precise — the stated result sits INSIDE the stated need — so
+ * the guard is narrow. When it fires we fall through to the honest outcome for
+ * this kind of thing rather than handing somebody their own pain as a goal.
+ */
+function statedOutcome(i: Interpretation): string | null {
+  const result = i.desiredResult;
+  if (result?.confidence !== "stated") return null;
+  const need = i.need?.confidence === "stated" ? i.need.value : "";
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  if (need && norm(need).includes(norm(result.value))) return null;
+  return result.value;
+}
+
 export function deriveSmallestOutcome(
   type: CreationType,
   i: Interpretation,
   caretaker: CaretakerRead,
 ): string {
-  if (i.desiredResult?.confidence === "stated") return i.desiredResult.value;
+  const stated = statedOutcome(i);
+  if (stated) return stated;
   // The caretaker outcome belongs to helper tools. A dog-walking SERVICE is
   // measured by a delivered walk, not by the dog's boredom level.
   const caretakerTypes: CreationType[] = ["tool", "app", "site", "list", "unknown"];
@@ -256,7 +278,7 @@ export function deriveSmallestOutcome(
     case "service": return "One real delivery, done start to finish, for one real customer.";
     case "sports-plan": return "One real practice runs on this plan, start to finish, and the team was better for it.";
     case "event-plan": return "The thing happens, people show up, and nobody's scrambling that morning.";
-    default: return i.desiredResult?.value ?? "One version of this exists in the world and someone real has used it.";
+    default: return statedOutcome(i) ?? "One version of this exists in the world and someone real has used it.";
   }
 }
 
