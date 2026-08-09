@@ -286,6 +286,18 @@ textarea:focus, input:focus {
   margin-bottom: 6px;
 }
 
+/* A disclosure row is a tap target before it is a label. `.plan-label` is
+   10px type, which as a bare <summary> is an 11px-tall hit area — unhittable
+   on a phone. The default list-item display is kept so the marker survives. */
+summary.plan-label {
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+@media (pointer: coarse) {
+  summary.plan-label { min-height: 44px; padding: 12px 0; }
+}
+
 .plan-value {
   font-size: 15px;
   font-weight: 600;

@@ -29,6 +29,7 @@ export default function BuildDetail({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nextAction, setNextAction] = useState("");
+  const [note, setNote] = useState("");
   const [artifactLabel, setArtifactLabel] = useState("");
   const [artifactRef, setArtifactRef] = useState("");
 
@@ -51,7 +52,6 @@ export default function BuildDetail({
         setError(data.error ?? "That didn't save.");
       } else {
         setBuild(data.build);
-        setNextAction("");
         ok = true;
       }
     } catch {
@@ -130,7 +130,10 @@ export default function BuildDetail({
                 style={{ marginTop: 12 }}
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (nextAction.trim()) void send({ type: "set-action", currentAction: nextAction.trim() });
+                  const said = nextAction.trim();
+                  // Clear only the box that was submitted — a stage change
+                  // must never wipe something half-typed somewhere else.
+                  if (said) void send({ type: "set-action", currentAction: said }).then((ok) => ok && setNextAction(""));
                 }}
               >
                 <label className="sr-only" htmlFor="next-move">Change the next move</label>
@@ -339,6 +342,30 @@ export default function BuildDetail({
                 </li>
               ))}
             </ul>
+            {canEdit && (
+              <form
+                className="stack"
+                style={{ marginTop: 14 }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const said = note.trim();
+                  if (said) void send({ type: "note", note: said }).then((ok) => ok && setNote(""));
+                }}
+              >
+                <label className="sr-only" htmlFor="build-note">Write down what happened</label>
+                <input
+                  id="build-note"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="What happened? e.g. Talked to three dog owners"
+                />
+                <div className="actions">
+                  <button type="submit" className="btn btn-ghost btn-small" disabled={busy || !note.trim()}>
+                    Write it down
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
           {!canEdit && (
