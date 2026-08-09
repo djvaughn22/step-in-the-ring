@@ -107,7 +107,7 @@ export default function LibraryClient({ capabilities }: { capabilities: Capabili
             Start something new →
           </Link>
           {" · "}
-          <a href="/builds" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Your builds</a>
+          <Link href="/builds" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Your builds</Link>
         </p>
       </div>
     </main>

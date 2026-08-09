@@ -11,7 +11,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import {
   advance, buildsFromProjects, newBuild, parseBuild, serializeBuild, titleFromIntent,
-  useCapability, BUILD_STAGES,
+  recordCapabilityUse, BUILD_STAGES,
 } from "./build";
 import { allCapabilities, capabilitiesForIntent, capabilityById, BUILD_ENGINE_ID } from "./capabilities";
 import { LEGACY_SOURCES, findLegacyWork } from "./legacy";
@@ -77,8 +77,8 @@ describe("Build — the one persistent object", () => {
 
   it("records a capability once, not every time it is opened", () => {
     const b = newBuild("a design for a shirt");
-    const once = useCapability(b, "design-shop");
-    const twice = useCapability(once, "design-shop");
+    const once = recordCapabilityUse(b, "design-shop");
+    const twice = recordCapabilityUse(once, "design-shop");
     expect(twice.capabilitiesUsed).toEqual(["design-shop"]);
   });
 

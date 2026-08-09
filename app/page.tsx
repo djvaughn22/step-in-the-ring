@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { interpret, type PlannerInput } from "./planner/interpret";
 import { buildBuilderPrompt } from "./planner/builder-prompt";
 import { recommendEngine } from "./planner/handoff";
+import Link from "next/link";
 import CreationEntry from "./vnext/CreationEntry";
 import { deletePlan, loadPlans, savePlan, type SavedPlan } from "./planner/storage";
 import { BUILD_TYPE_LABEL, type Interpretation } from "./planner/types";
@@ -436,9 +437,9 @@ export default function StepInTheRing() {
 
           <section className="home-section" style={{ marginTop: 34 }}>
             <p className="tiny" style={{ textAlign: "center" }}>
-              <a href="/builds" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+              <Link href="/builds" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
                 Your builds →
-              </a>
+              </Link>
               {" · "}
               <a href="/library" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
                 Everything under it

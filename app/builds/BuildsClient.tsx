@@ -33,7 +33,11 @@ function BuildCard({ build }: { build: BuildRecordV1 }) {
   return (
     <article className="card card-gold" style={{ marginBottom: 16 }}>
       <div className="plan-label">{BUILD_STAGE_LINE[build.stage]}</div>
-      <h2 style={{ marginBottom: 8 }}>{build.title}</h2>
+      <h2 style={{ marginBottom: 8 }}>
+        <Link href={`/builds/${build.id}`} style={{ color: "inherit", textDecoration: "none" }}>
+          {build.title}
+        </Link>
+      </h2>
       <p style={{ fontSize: 15, color: "var(--text)", lineHeight: 1.6 }}>{build.intent}</p>
       <StageTrack stage={build.stage} />
       {build.currentAction && (
@@ -61,6 +65,11 @@ function BuildCard({ build }: { build: BuildRecordV1 }) {
           ))}
         </ul>
       )}
+      <p className="tiny" style={{ marginTop: 12 }}>
+        <Link href={`/builds/${build.id}`} style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+          Open this build →
+        </Link>
+      </p>
     </article>
   );
 }
