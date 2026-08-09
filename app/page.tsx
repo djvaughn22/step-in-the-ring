@@ -7,6 +7,7 @@ import { recommendEngine } from "./planner/handoff";
 import Link from "next/link";
 import CreationEntry from "./vnext/CreationEntry";
 import SteppedIn from "./vnext/SteppedIn";
+import ContinueStrip from "./vnext/ContinueStrip";
 import { shapingFromView } from "./vnext/shape";
 import { saveDraft } from "./vnext/draft";
 import { deletePlan, loadPlans, savePlan, type SavedPlan } from "./planner/storage";
@@ -416,6 +417,10 @@ export default function StepInTheRing() {
             <p className="dream-line">Live your dream.</p>
             <p className="hero-sub">Turn what&apos;s in your head into something real.</p>
           </section>
+
+          {/* Somebody who was here yesterday sees their work first. A
+              stranger sees nothing extra and loses nothing. */}
+          <ContinueStrip />
 
           <CreationEntry
             id="idea-description"
