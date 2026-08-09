@@ -6,6 +6,9 @@ import { buildBuilderPrompt } from "./planner/builder-prompt";
 import { recommendEngine } from "./planner/handoff";
 import Link from "next/link";
 import CreationEntry from "./vnext/CreationEntry";
+import SteppedIn from "./vnext/SteppedIn";
+import { shapingFromView } from "./vnext/shape";
+import { saveDraft } from "./vnext/draft";
 import { deletePlan, loadPlans, savePlan, type SavedPlan } from "./planner/storage";
 import { BUILD_TYPE_LABEL, type Interpretation } from "./planner/types";
 import { adapterForType } from "./creation/adapters";
@@ -25,7 +28,7 @@ import {
   CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
 } from "./creation/types";
 
-type Stage = "landing" | "clarify" | "result" | "saved";
+type Stage = "landing" | "stepped" | "result" | "saved";
 
 /* Starters — outcome-first ways in. Each one drops an editable stem into the
    box: the person finishes the sentence in their own words, and the reading
@@ -222,7 +225,6 @@ export default function StepInTheRing() {
   const [stage, setStage] = useState<Stage>("landing");
   const [description, setDescription] = useState("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [questionDraft, setQuestionDraft] = useState("");
   const [saved, setSaved] = useState<SavedPlan[]>([]);
   const [flash, setFlash] = useState("");
   const [incoming, setIncoming] = useState<HandoffPayloadV1 | null>(null);
@@ -280,7 +282,9 @@ export default function StepInTheRing() {
   }, [description, answers, incoming]);
   // `plan` already interpreted these exact words — reuse it, don't recompute.
   const view = useMemo(() => (record ? viewOf(record, plan ?? undefined) : null), [record, plan]);
-  const question = plan?.openQuestions[0] ?? null;
+  /* The shaping IS the step-in moment. It reuses the view this page already
+     computed — one reading of their words, shown two ways. */
+  const shaping = useMemo(() => (view ? shapingFromView(view) : null), [view]);
   const engine = useMemo(() => (plan ? recommendEngine(plan) : null), [plan]);
   const engineRec = useMemo(() => (view ? recommendEngines(view) : null), [view]);
   /* Repo-touching work keeps the permission-aware brief (never claims access
@@ -328,30 +332,31 @@ export default function StepInTheRing() {
   function handleShape(e: FormEvent) {
     e.preventDefault();
     if (!description.trim()) return;
-    const fresh = interpret({ description, answers });
-    go(fresh.openQuestions.length ? "clarify" : "result");
+    go("stepped");
   }
 
-  function handleAnswer(e: FormEvent) {
-    e.preventDefault();
-    if (!question) return;
-    const next = { ...answers, [question.key]: questionDraft.trim() };
-    setAnswers(next);
-    setQuestionDraft("");
-    go("result");
+  /* Put the idea in flight so the sign-in round trip costs nothing, then let
+     the link navigate normally. sessionStorage, this tab — never described to
+     anyone as saved work. */
+  function keepThisBuild() {
+    saveDraft(description, answers);
+    track("build_kept_from_step_in", {});
   }
 
-  function skipQuestion() {
-    if (!question) return;
+  /* Answering the one question re-reads their words in place — the card above
+     it sharpens without a page move. Deterministic, instant, free. */
+  function answerQuestion(key: string, answer: string) {
+    setAnswers({ ...answers, [key]: answer });
+  }
+
+  function skipQuestion(key: string) {
     // Skipping is allowed — we already have a safe assumption for it.
-    setAnswers({ ...answers, [question.key]: "" });
-    go("result");
+    setAnswers({ ...answers, [key]: "" });
   }
 
   function startOver() {
     setDescription("");
     setAnswers({});
-    setQuestionDraft("");
     setIncoming(null);
     go("landing");
   }
@@ -552,48 +557,21 @@ export default function StepInTheRing() {
     );
   }
 
-  /* ── CLARIFY — what we understood, plus at most one question ── */
-  if (stage === "clarify" && plan && question) {
+  /* ── STEPPED IN — the moment after they said it. Deterministic, instant. ── */
+  if (stage === "stepped" && shaping) {
     return (
       <main>
         <div className="page">
-          <div className="topbar">
-            <span className="topbar-title">One question</span>
-            <button className="btn btn-ghost btn-small" onClick={startOver}>Exit</button>
-          </div>
-
-          <div className="stack">
-            <UnderstoodCard i={plan} view={view} />
-
-            <form className="card stack" onSubmit={handleAnswer}>
-              <div>
-                <label className="field-question" htmlFor="follow-up" style={{ display: "block" }}>
-                  {question.question}
-                </label>
-                <p className="field-help" id="follow-up-help">{question.help}</p>
-              </div>
-              <textarea
-                id="follow-up"
-                aria-describedby="follow-up-help"
-                value={questionDraft}
-                onChange={(e) => setQuestionDraft(e.target.value)}
-                placeholder={question.placeholder}
-                autoFocus
-                rows={3}
-              />
-              <div className="actions">
-                <button type="submit" className="btn btn-gold" disabled={!questionDraft.trim()}>
-                  That&apos;s it →
-                </button>
-                <button type="button" className="btn btn-ghost btn-small" onClick={skipQuestion}>
-                  Skip — decide for me
-                </button>
-                <button type="button" className="btn btn-ghost btn-small" onClick={() => go("landing")}>
-                  ← Change what I said
-                </button>
-              </div>
-            </form>
-          </div>
+          <SteppedIn
+            intent={description.trim()}
+            shaping={shaping}
+            onAnswer={answerQuestion}
+            onSkip={skipQuestion}
+            onChangeWords={() => go("landing")}
+            onSeeWholePlan={() => go("result")}
+            onKeep={keepThisBuild}
+            keepHref="/builds"
+          />
         </div>
       </main>
     );

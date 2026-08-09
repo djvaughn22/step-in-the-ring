@@ -64,14 +64,25 @@ export default function BuildDetail({
         </div>
 
         <div className="stack">
-          {/* RIGHT NOW — the whole point of the page. */}
+          {/* WHAT IT IS, WHERE IT IS, WHAT'S NEXT — in that order, one card. */}
           <div className="card card-gold">
-            <div className="plan-label">Right now</div>
+            <div className="plan-label">What you&apos;re making</div>
             <h1 style={{ fontSize: "clamp(24px, 5vw, 34px)", marginBottom: 8 }}>{build.title}</h1>
-            <p style={{ fontSize: 15, color: "var(--text)", lineHeight: 1.6 }}>{build.intent}</p>
+            <p style={{ fontSize: 15.5, color: "var(--text)", lineHeight: 1.6, fontWeight: 600 }}>
+              {build.reading ?? build.intent}
+            </p>
+            {build.audience && (
+              <div className="pill-row">
+                <span className="pill">For {build.audience}</span>
+              </div>
+            )}
             <div className="pill-row">
               {BUILD_STAGES.map((s, i) => (
-                <span key={s} className={`pill${i === stageIndex ? " pill-now" : ""}`}>
+                <span
+                  key={s}
+                  className={`pill${i === stageIndex ? " pill-now" : ""}`}
+                  aria-current={i === stageIndex ? "step" : undefined}
+                >
                   {BUILD_STAGE_LABEL[s]}
                 </span>
               ))}
@@ -79,6 +90,11 @@ export default function BuildDetail({
             <p className="field-help" style={{ marginTop: 10 }}>
               {THRESHOLD[build.stage]} {BUILD_STAGE_LINE[build.stage]}
             </p>
+            {build.goal && (
+              <p className="field-help" style={{ marginTop: 6 }}>
+                <b style={{ color: "var(--text)" }}>Real means:</b> {build.goal}
+              </p>
+            )}
             <div className="next-action" style={{ marginTop: 14 }}>
               <span className="kicker" style={{ marginBottom: 4 }}>The next move</span>
               <p style={{ color: "var(--text)", fontWeight: 700, margin: 0 }}>
@@ -139,6 +155,21 @@ export default function BuildDetail({
             </div>
           )}
 
+          {build.versionOne && build.versionOne.length > 0 && (
+            <div className="card">
+              <div className="plan-label">What version one does</div>
+              <p className="field-help" style={{ marginTop: 0 }}>
+                Read from your own words when you stepped in. It&apos;s the shortest honest
+                route to something real — not the whole thing you eventually want.
+              </p>
+              <ul className="plan-list">
+                {build.versionOne.map((v, n) => (
+                  <li key={n}>{v}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {helps.length > 0 && (
             <div className="card">
               <div className="plan-label">What can help</div>
@@ -170,6 +201,17 @@ export default function BuildDetail({
               </ul>
             </div>
           )}
+
+          {/* Their words, kept whole and always reachable. The reading at the
+              top is a reading — this is the thing it was read from. */}
+          <details className="card">
+            <summary className="plan-label" style={{ marginBottom: 0, cursor: "pointer" }}>
+              What you actually said
+            </summary>
+            <p style={{ fontSize: 14.5, color: "var(--text)", lineHeight: 1.6, margin: "10px 0 0" }}>
+              {build.intent}
+            </p>
+          </details>
 
           <div className="card">
             <div className="plan-label">What&apos;s happened</div>

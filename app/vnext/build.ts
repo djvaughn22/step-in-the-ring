@@ -61,6 +61,10 @@ export interface BuildRecordV1 {
   goal?: string;
   audience?: string;
   constraints?: string;
+  /** One plain sentence: what this actually is. A reading, never a rewrite. */
+  reading?: string;
+  /** What version one does. Plain bullets, from the deterministic reading. */
+  versionOne?: string[];
   /** The single next thing worth doing. Plain sentence. */
   currentAction?: string;
   /** Capability ids (app/vnext/capabilities.ts) this Build has reached for. */
@@ -91,12 +95,30 @@ export interface BuildEvent {
 
 const KNOWN_KEYS = new Set([
   "version", "id", "title", "intent", "stage", "createdAt", "updatedAt",
-  "goal", "audience", "constraints", "currentAction", "capabilitiesUsed",
-  "artifacts", "history", "extra",
+  "goal", "audience", "constraints", "reading", "versionOne", "currentAction",
+  "capabilitiesUsed", "artifacts", "history", "extra",
 ]);
 
 function str(v: unknown): string | undefined {
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
+}
+
+/** The longest first sentence a Build will take. Generous, but bounded. */
+export const MAX_INTENT = 2000;
+
+/**
+ * Read a person's own words off an untrusted body. Control characters go
+ * (they have no business in a sentence somebody typed) and whitespace is
+ * collapsed, but nothing else is touched — this is not a rewrite.
+ */
+export function readIntentText(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const clean = raw
+    .replace(/[\u0000-\u001f]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean || clean.length > MAX_INTENT) return null;
+  return clean;
 }
 
 /** A title a person recognizes, derived from their own words. Never invented. */
@@ -108,18 +130,43 @@ export function titleFromIntent(intent: string): string {
   return short.charAt(0).toUpperCase() + short.slice(1);
 }
 
+/**
+ * What a fresh Build is started FROM. Every field is a reading of the person's
+ * own words produced by app/vnext/shape.ts — deterministic, and optional, so a
+ * Build can always be created from nothing but a sentence.
+ */
+export interface NewBuildShaping {
+  title?: string;
+  reading?: string;
+  forWhom?: string | null;
+  realMeans?: string;
+  versionOne?: string[];
+  firstMove?: string;
+}
+
 /** A brand-new Build from what somebody said. `now` is injected so tests are stable. */
-export function newBuild(intent: string, now: string = new Date().toISOString()): BuildRecordV1 {
+export function newBuild(
+  intent: string,
+  now: string = new Date().toISOString(),
+  shaping?: NewBuildShaping,
+): BuildRecordV1 {
   const clean = intent.replace(/\s+/g, " ").trim();
+  const versionOne = (shaping?.versionOne ?? []).map((v) => v.trim()).filter(Boolean);
   return {
     version: BUILD_RECORD_VERSION,
     id: "",
-    title: titleFromIntent(clean),
+    // A shaped title still comes from their words; the fallback is the words.
+    title: str(shaping?.title) ?? titleFromIntent(clean),
     intent: clean,
     stage: "bring",
     createdAt: now,
     updatedAt: now,
-    currentAction: "Say more about it, or read it back and shape version one.",
+    ...(str(shaping?.reading) ? { reading: str(shaping?.reading) } : {}),
+    ...(str(shaping?.forWhom ?? undefined) ? { audience: str(shaping?.forWhom ?? undefined) } : {}),
+    ...(str(shaping?.realMeans) ? { goal: str(shaping?.realMeans) } : {}),
+    ...(versionOne.length ? { versionOne } : {}),
+    currentAction:
+      str(shaping?.firstMove) ?? "Say more about it, or read it back and shape version one.",
     capabilitiesUsed: [],
     artifacts: [],
     history: [{ at: now, note: "You stepped in.", stage: "bring" }],
@@ -159,6 +206,13 @@ export function parseBuild(raw: unknown): BuildRecordV1 | null {
     goal: str(r.goal),
     audience: str(r.audience),
     constraints: str(r.constraints),
+    reading: str(r.reading),
+    versionOne: Array.isArray(r.versionOne)
+      ? r.versionOne.flatMap((v) => {
+          const line = str(v);
+          return line ? [line] : [];
+        })
+      : undefined,
     currentAction: str(r.currentAction),
     capabilitiesUsed: Array.isArray(r.capabilitiesUsed)
       ? r.capabilitiesUsed.filter((c): c is string => typeof c === "string")
