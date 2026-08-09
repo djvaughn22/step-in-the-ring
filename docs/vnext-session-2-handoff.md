@@ -38,6 +38,7 @@ time.
 | `c09935a` | Mobile tap targets, and a build you can log progress on |
 | `7247608` | Know a repair from a sentence about repairs |
 | `2b81d48` | A build's words travel into the capability it opens |
+| `a4a7ea9` | Never hand somebody's builds to a cache |
 
 ---
 
@@ -81,14 +82,17 @@ time.
   render. An artifact ref becomes an href, so `javascript:`, `data:` and
   protocol-relative `//host` are refused server-side and printed as plain text.
 - **`app/vnext/draft.ts`** (new): sessionStorage only, bounded, never called saved.
+- **Both build routes answer `private, no-store`** and declare themselves
+  dynamic. They were going out under Next's default `public, max-age=0,
+  must-revalidate` — a cookie-authenticated JSON body with `public` on it.
 - No migration. No schema change. Nothing was deleted.
 
 ## Gates
 
-824 tests / 49 files · typecheck clean · lint 0 errors (67 pre-existing warnings)
+826 tests / 49 files · typecheck clean · lint 0 errors (67 pre-existing warnings)
 · production build clean · `scan-public-bundles` clean.
 
-Baseline at session start was 746 tests. **+78**, all on this work.
+Baseline at session start was 746 tests. **+80**, all on this work.
 
 ## Production verified
 
@@ -100,7 +104,14 @@ Deployed and checked on `https://stepinthering.com` at 375×812:
   audience pill and retired the question
 - "Keep this build" writes the draft and lands on `/builds` with the exact words
   shown back, honestly labelled as not yet saved
+- the repair rules are right on live traffic: "teach people how to fix a bike
+  tire" is read as a guide, a broken church site is read as a repair
 - `/library` renders, filters, no horizontal scroll
+- `GET /api/builds` answers 401 to a stranger, under `private, no-store`
+- 1280×900 desktop: no overflow, 720px measure, heading scales to 36px
+- every preserved route resolves (`/`, `/builds`, `/library`, `/live`, `/how`,
+  `/build`, `/build-machine`, `/about`, `/shop`, `/membership` → 200; the gated
+  ones → 307 to sign-in, as before)
 - no console errors, no horizontal scroll anywhere checked
 
 ## Blocked — needs a human
