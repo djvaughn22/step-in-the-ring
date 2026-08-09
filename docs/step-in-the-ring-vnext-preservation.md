@@ -79,6 +79,28 @@ Build.**
    people out of their own files. Server-saved Builds still require a verified member
    session, checked in the page's own server component.
 
+### Session 2 — what changed again
+
+1. **STEP IN now lands on the Build, not on a plan document.** The homepage's
+   `clarify` stage is gone: the one question it asked is asked *inline* on the
+   step-in moment instead, where answering it visibly sharpens the card above.
+   Nothing else about the planner moved. The full plan, the builder prompt, the
+   brief and record downloads, `Make it a project` and the engine handoff are all
+   still there, one tap behind **See the whole plan** → the unchanged `result`
+   stage.
+2. **`app/vnext/shape.ts`** — the bridge from the existing deterministic reading
+   (`planner/interpret` → `creation/record`'s `CreationView`) to the Build. No
+   model call, ever. Same words in, same shaping out.
+3. **`GET`/`POST /api/builds`** — creating a Build takes only the person's own
+   words; the title, reading, version one and first move are derived server-side.
+   `BuildsClient` no longer posts to the generic projects API.
+4. **`BuildRecordV1` gained `reading` and `versionOne`**, both optional. Every
+   Session 1 Build parses and renders exactly as before.
+5. **`reshape` action** — "Read my words again" catches an older Build up. Strictly
+   additive, idempotent, and it will not replace anything a person wrote.
+6. **`app/vnext/draft.ts`** — an idea in flight rides sessionStorage through the
+   sign-in round trip. Never described as saved work.
+
 ---
 
 ## Verified, and what wasn't
@@ -94,15 +116,25 @@ On production: `POST /api/builds/[id]` refuses an anonymous write with 401 and
 **Not verified: the signed-in half.** There is no local database, and signing in as
 the owner is not something an agent should do. The Builds list, creating a Build,
 the detail page, and the transition seam are unit-tested and typechecked but have
-never been exercised against a real account. **DJ: sign in on a phone, create a
-build from the homepage's "Make it a build", open it, move a stage.** That is the
-one gate left on this work.
+never been exercised against a real account.
+
+Session 2 closed as much of that gap as is closable without an account: both
+`/builds` and `/builds/[id]` are now **rendered** in tests through every state a
+person can land in (no builds, one, several, a database hiccup, no live access,
+signed out mid-idea, a store that is not switched on, an older Build with no
+reading, and read-only access), and the Build API is exercised end to end through
+**real sessions** rather than mocked auth. What is still unproven is the round trip
+against a real Postgres.
+
+**DJ: sign in on a phone, step in from the homepage, press "Keep this build",
+open it, move a stage, add a note.** That is the one gate left on this work.
 
 ## Next milestones
 
-- **Capability adapters** — a Build reaching a capability currently links out.
-  Carrying the Build's intent *into* the engine intake is the next real integration,
-  and the point where `capabilitiesUsed` starts earning its place.
+- **Capability adapters** — a Build reaching a capability currently links out. The
+  use is recorded before the browser leaves, but the Build's intent does not travel
+  with it. Carrying it *into* the engine intake is the next real integration, and
+  the point where `capabilitiesUsed` starts earning its place.
 - **Artifacts that arrive on their own** — an engine finishing something should be
   able to attach it to the Build that asked for it.
 - **Normalizing legacy objects into Builds** — deliberately not attempted. The bridge
