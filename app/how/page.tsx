@@ -10,6 +10,13 @@ export const metadata: Metadata = {
     "The whole road: say a rough idea in your own words, get a plan for version one and a builder prompt, build it with free tools, test it locally, send it to Open Mirror to push — and it lands on the Live page.",
 };
 
+/** The whole thing in three words. Everything below is the same road, slower. */
+const SIMPLE = [
+  { emoji: "🗣️", title: "Say it", body: "Type what you want to make, in your own words." },
+  { emoji: "🪞", title: "Shape it", body: "See what we understood, before any plan appears." },
+  { emoji: "🏗️", title: "Make it real", body: "Get the smallest real version, and the next move on it." },
+];
+
 const STEPS = [
   {
     n: "01",
@@ -63,8 +70,21 @@ export default function HowPage() {
           </p>
         </section>
 
-        <section className="home-section" style={{ marginTop: 28 }}>
-          <div className="stack">
+        <section className="home-section" style={{ marginTop: 20 }}>
+          <div className="row3">
+            {SIMPLE.map((s) => (
+              <div key={s.title} className="card" style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 28 }} aria-hidden="true">{s.emoji}</div>
+                <h3 style={{ margin: "8px 0 6px" }}>{s.title}</h3>
+                <p style={{ fontSize: 14, margin: 0 }}>{s.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="home-section" style={{ marginTop: 8 }}>
+          <span className="kicker">The same road, one step at a time</span>
+          <div className="stack" style={{ marginTop: 12 }}>
             {STEPS.map((s) => (
               <div key={s.n} className="card" style={{ display: "flex", gap: 20 }}>
                 <div style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", minWidth: 28, marginTop: 2 }}>
