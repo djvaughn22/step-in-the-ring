@@ -82,49 +82,57 @@ export default function BuildDetail({
   return (
     <main>
       <div className="page">
-        <div className="topbar">
-          <span className="topbar-title">🏗️ Your build</span>
-          <Link className="btn btn-ghost btn-small" href="/builds">All builds</Link>
+        {/* THE WORKBENCH. What it is, then the one move to make. Everything
+            else on this page is reference material and sits below. */}
+        <header className="bench-top">
+          <div>
+            <span className="kicker">What you&apos;re making</span>
+            <h1 className="bench-name">{build.title}</h1>
+            <p className="bench-read">{build.reading ?? build.intent}</p>
+          </div>
+          <Link className="btn btn-ghost" href="/builds">
+            All builds
+          </Link>
+        </header>
+
+        <div style={{ marginTop: 26 }}>
+          <div className="track" role="img" aria-label={`Stage: ${BUILD_STAGE_LABEL[build.stage]}`}>
+            {BUILD_STAGES.map((s, i) => (
+              <span
+                key={s}
+                className={`track-seg${i < stageIndex ? " done" : i === stageIndex ? " now" : ""}`}
+              />
+            ))}
+          </div>
+          <div className="track-labels" aria-hidden="true">
+            {BUILD_STAGES.map((s, i) => (
+              <span key={s} className={i === stageIndex ? "now" : undefined}>
+                {BUILD_STAGE_LABEL[s]}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div className="stack">
-          {/* WHAT IT IS, WHERE IT IS, WHAT'S NEXT — in that order, one card. */}
-          <div className="card card-gold">
-            <div className="plan-label">What you&apos;re making</div>
-            <h1 style={{ fontSize: "clamp(24px, 5vw, 34px)", marginBottom: 8 }}>{build.title}</h1>
-            <p style={{ fontSize: 15.5, color: "var(--text)", lineHeight: 1.6, fontWeight: 600 }}>
-              {build.reading ?? build.intent}
-            </p>
-            {build.audience && (
-              <div className="pill-row">
-                <span className="pill">For {build.audience}</span>
-              </div>
-            )}
-            <div className="pill-row">
-              {BUILD_STAGES.map((s, i) => (
-                <span
-                  key={s}
-                  className={`pill${i === stageIndex ? " pill-now" : ""}`}
-                  aria-current={i === stageIndex ? "step" : undefined}
-                >
-                  {BUILD_STAGE_LABEL[s]}
-                </span>
-              ))}
-            </div>
-            <p className="field-help" style={{ marginTop: 10 }}>
+        <div className="move">
+          <span className="move-l">The next move</span>
+          <p>{build.currentAction ?? "Decide the one next thing and write it down."}</p>
+        </div>
+
+        <div className="stack" style={{ marginTop: 16 }}>
+          <div className="card">
+            <p className="field-help" style={{ marginTop: 0 }}>
               {THRESHOLD[build.stage]} {BUILD_STAGE_LINE[build.stage]}
             </p>
-            {build.goal && (
+            {build.audience && (
               <p className="field-help" style={{ marginTop: 6 }}>
+                <b style={{ color: "var(--text)" }}>Who it&apos;s for:</b> {build.audience}
+              </p>
+            )}
+            {build.goal && (
+              <p className="field-help" style={{ marginTop: 6, marginBottom: 0 }}>
                 <b style={{ color: "var(--text)" }}>Real means:</b> {build.goal}
               </p>
             )}
-            <div className="next-action" style={{ marginTop: 14 }}>
-              <span className="kicker" style={{ marginBottom: 4 }}>The next move</span>
-              <p style={{ color: "var(--text)", fontWeight: 700, margin: 0 }}>
-                {build.currentAction ?? "Decide the one next thing and write it down."}
-              </p>
-            </div>
             {canEdit && (
               <form
                 className="stack"

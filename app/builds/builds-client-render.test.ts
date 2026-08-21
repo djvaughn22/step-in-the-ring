@@ -44,15 +44,15 @@ function page(props: Partial<Parameters<typeof BuildsClient>[0]> = {}) {
 describe("Your Builds", () => {
   it("invites a first build when there are none, without looking broken", () => {
     const html = page();
-    expect(html).toContain("Create something");
-    expect(html).toContain("What do you want to create?");
+    expect(html).toContain("Make something");
+    expect(html).toContain("What do you want to make?");
     expect(html).not.toContain("didn&#x27;t load");
   });
 
   it("leads with what you're making, and one obvious way to continue", () => {
     const html = page({ builds: [made(DOG, "b1")] });
-    expect(html).toContain("Continue →");
-    expect(html).toContain("Right now");
+    expect(html).toContain(">Open<");
+    expect(html).toContain("Next move");
     // The reading, not the raw sentence, carries the card.
     expect(html).toContain("A one-page website for my dog.");
     expect(html).toContain("Start another");
@@ -62,7 +62,7 @@ describe("Your Builds", () => {
     const html = page({ builds: [made(DOG, "b1"), made(GAME, "b2")] });
     expect(html).toContain('href="/builds/b1"');
     expect(html).toContain('href="/builds/b2"');
-    expect((html.match(/Continue →/g) ?? []).length).toBe(2);
+    expect((html.match(/>Open</g) ?? []).length).toBe(2);
   });
 
   it("never reports a database hiccup as having no builds", () => {
@@ -90,7 +90,7 @@ describe("Your Builds", () => {
 
   it("does not offer sign-in that cannot work", () => {
     const html = page({ signedIn: false, storeConfigured: false, initialIntent: DOG });
-    expect(html).toContain("aren&#x27;t switched on");
+    expect(html).toContain("are not switched on");
     expect(html).not.toContain("/members/login");
   });
 
