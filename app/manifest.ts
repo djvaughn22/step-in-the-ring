@@ -11,8 +11,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#0b1220",
-    theme_color: "#0b1220",
+    background_color: "#08182B",
+    theme_color: "#08182B",
     icons: [
       { src: "/icons/ring-512.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
       { src: "/icons/ring-512-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },

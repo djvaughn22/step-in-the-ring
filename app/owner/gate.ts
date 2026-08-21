@@ -16,7 +16,7 @@ export function hasOwnerSession(token: string | undefined, env: Env = process.en
 }
 
 /** The private roots an owner may be returned to after logging in. */
-export const PROTECTED_PREFIXES = ["/owner", "/author", "/engines", "/projects"] as const;
+export const PROTECTED_PREFIXES = ["/owner", "/author", "/engines/room", "/projects"] as const;
 
 /**
  * Validate a post-login destination so the login page can never be used as an

@@ -493,7 +493,11 @@ describe("membership surface honesty", () => {
   });
 
   it("the engines gate serves owner, member, and visitor differently — all server-side", () => {
-    const gate = read("engines/page.tsx");
+    // The gate moved DOWN one level when the catalog at /engines became
+    // public. /engines/room is where an engine actually runs and where the
+    // three-audience check lives; the catalog above it grants nothing.
+    const gate = read("engines/room/page.tsx");
+    expect(read("engines/page.tsx")).not.toMatch(/isOwnerAuthed/);
     expect(gate).toMatch(/isOwnerAuthed/);
     expect(gate).toMatch(/currentMember/);
     expect(gate).toMatch(/memberAccess/);

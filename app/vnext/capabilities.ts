@@ -22,6 +22,25 @@ import { ENGINES, type EngineActivation } from "../engines/engines";
 
 export type CapabilityKind = "engine" | "tool" | "surface";
 
+/**
+ * WHAT AN ENGINE HELPS YOU DO — the five shelves on /engines.
+ *
+ * These are verbs, not architecture. A person arriving with something in their
+ * head does not know whether they need "the Design Shop Engine"; they know
+ * they want to make something. Every group below is backed by real engines
+ * that actually run, and an engine with no group simply does not appear on the
+ * engines page (the Engine Room itself, the owner ledger, the shop).
+ */
+export type EngineGroup = "start" | "build" | "make" | "plan" | "out";
+
+export const ENGINE_GROUPS: { id: EngineGroup; title: string; note: string }[] = [
+  { id: "start", title: "Start it", note: "You have something in your head and you're not sure which version of it to build." },
+  { id: "build", title: "Build it", note: "Turn it into software that runs, and keep it running." },
+  { id: "make", title: "Make something", note: "A design, a song, a game, a story, a how-to. Things that are not code." },
+  { id: "plan", title: "Plan it", note: "Real-world work with dates, people and a finish line." },
+  { id: "out", title: "Put it out there", note: "It works. Now somebody else has to see it, use it, or buy it." },
+];
+
 export interface Capability {
   /** Stable id. For engines this IS the engine id — old saved work keys off it. */
   id: string;
@@ -38,7 +57,89 @@ export interface Capability {
   needs: string[];
   /** True when only the owner can actually use it (kept visible, labelled). */
   ownerOnly?: boolean;
+  /** Which shelf on /engines. Omitted means it is not a creation tool and
+   *  does not belong on that page. */
+  group?: EngineGroup;
+  /** "Use it when…" — the sentence that tells somebody this is their tool.
+   *  Written for a person who has never heard of any of these names. */
+  useWhen?: string;
+  /** A one-line concrete example so the card is not abstract. */
+  example?: string;
+  /** A plainer name for the card, when the internal one is not obvious. */
+  title?: string;
 }
+
+/** Which shelf each engine sits on, and when a person should reach for it. */
+const ENGINE_META: Record<string, { group: EngineGroup; useWhen: string; example: string; title?: string }> = {
+  idea: {
+    group: "start",
+    useWhen: "You have three versions of the same idea and keep going in circles.",
+    example: "\u201cA card game for my kids\u201d comes out as four versions, scored, and you leave with one.",
+  },
+  build: {
+    group: "build",
+    useWhen: "You know what you want to make and need the actual first build.",
+    example: "A site that tracks your kids' chores becomes an MVP scope and a prompt you paste into your coding tool.",
+  },
+  fix: {
+    group: "build",
+    useWhen: "Something you already made broke, and you do not want to break the rest of it.",
+    example: "\u201cThe login stopped working\u201d becomes a repair plan that inspects before it edits.",
+  },
+  "design-shop": {
+    group: "make",
+    title: "Design Shop",
+    useWhen: "You want to make something people can buy \u2014 a print, a shirt, a sticker, a mug.",
+    example: "One product idea becomes five directions, scored, and an Etsy listing you can paste in.",
+  },
+  music: {
+    group: "make",
+    useWhen: "You have words, a melody in your head, a voice memo, or nothing at all.",
+    example: "A hummed chorus becomes a song project with a real arrangement to record.",
+  },
+  game: {
+    group: "make",
+    useWhen: "You want to make a puzzle world and play it.",
+    example: "MineDoku was made this way and is live on OpenDoku.",
+  },
+  story: {
+    group: "make",
+    title: "Story Partner",
+    useWhen: "You want to turn things that actually happened into a book.",
+    example: "Memories go in in any order; characters, scenes and a chapter outline come out.",
+  },
+  howto: {
+    group: "make",
+    title: "How To Anything",
+    useWhen: "You already know how to fix something and want to teach it.",
+    example: "One repair you have done becomes a script, a shot list and a YouTube listing.",
+  },
+  plan: {
+    group: "plan",
+    useWhen: "The thing you are organising is not software \u2014 an event, a season, a move.",
+    example: "A fundraiser becomes phases, owners, dates and the next concrete action.",
+  },
+  sell: {
+    group: "out",
+    useWhen: "You want money to change hands and do not know what you are actually selling.",
+    example: "\u201cI could do this for people\u201d becomes a customer, an offer, a price and a first test.",
+  },
+  launch: {
+    group: "out",
+    useWhen: "It works on your screen and now real people have to see it.",
+    example: "A finished site becomes a readiness check, a blocker list and one number to watch.",
+  },
+  grow: {
+    group: "out",
+    useWhen: "It is live and quiet, and you want to move one real number.",
+    example: "Forty visitors a week becomes one hypothesis and the smallest test that proves it.",
+  },
+  etsy: {
+    group: "out",
+    useWhen: "Superseded by the Design Shop.",
+    example: "Kept so older saved work still opens.",
+  },
+};
 
 /** Extra vNext-facing metadata for engine rows, keyed by engine id. */
 const ENGINE_NEEDS: Record<string, string[]> = {
@@ -78,6 +179,9 @@ const SURFACES: Capability[] = [
     href: "/build-machine",
     activation: "working",
     needs: ["computer", "laptop", "setup", "old machine", "environment"],
+    group: "build",
+    useWhen: "The computer you own cannot build the thing yet.",
+    example: "An eight-year-old laptop ends up running the same tools this site was built with.",
   },
   {
     id: "first-app",
@@ -88,6 +192,10 @@ const SURFACES: Capability[] = [
     href: "/build",
     activation: "working",
     needs: ["beginner", "first", "never built", "step by step", "learn"],
+    group: "build",
+    title: "Your first build",
+    useWhen: "You have never built anything and want the whole thing walked through once.",
+    example: "Six short rounds that end with something real running on your own screen. No account.",
   },
   {
     id: "five-hour-sprint",
@@ -98,6 +206,9 @@ const SURFACES: Capability[] = [
     href: "/five-hour-sprint-tool",
     activation: "working",
     needs: ["focus", "finish", "deadline", "sprint", "today", "procrastinating"],
+    group: "plan",
+    useWhen: "You have one free evening and want to finish something instead of opening tabs.",
+    example: "Five hours becomes a packet: what you are making, in what order, and when to stop.",
   },
   {
     id: "live",
@@ -112,10 +223,10 @@ const SURFACES: Capability[] = [
   {
     id: "engine-room",
     kind: "surface",
-    name: "Engine Room",
+    name: "The Engine Room",
     emoji: "🧰",
-    what: "Every engine in one room, with an honest status on each one.",
-    href: "/engines",
+    what: "Where an engine actually runs, and where your engine projects are saved.",
+    href: "/engines/room",
     activation: "beta",
     needs: ["engines", "tools", "everything"],
   },
@@ -166,10 +277,14 @@ function fromEngines(): Capability[] {
     name: e.name,
     emoji: e.emoji,
     what: e.output ?? e.tagline,
-    href: `/engines?engine=${e.id}`,
+    href: `/engines/room?engine=${e.id}`,
     activation: e.activation ?? "beta",
     needs: ENGINE_NEEDS[e.id] ?? [],
     ownerOnly: (e.activation ?? "beta") === "owner-only",
+    group: ENGINE_META[e.id]?.group,
+    useWhen: ENGINE_META[e.id]?.useWhen,
+    example: ENGINE_META[e.id]?.example,
+    title: ENGINE_META[e.id]?.title,
   }));
 }
 
@@ -177,6 +292,33 @@ function fromEngines(): Capability[] {
 export function allCapabilities(): Capability[] {
   return [...SURFACES, ...fromEngines()];
 }
+
+/** The name to print on a card: the plainer one when there is one. */
+export function displayName(c: Capability): string {
+  return c.title ?? c.name;
+}
+
+/** Everything that belongs on the engines page, shelf by shelf, in order.
+ *  Hidden engines and surfaces without a group never appear. */
+export function enginesByGroup(): { id: EngineGroup; title: string; note: string; items: Capability[] }[] {
+  const all = allCapabilities();
+  return ENGINE_GROUPS.map((g) => ({
+    ...g,
+    // Working first, then beta, then owner-only. Nobody should have to scan
+    // past three things they cannot open to find the one they can.
+    items: all
+      .filter((c) => c.group === g.id && !HIDDEN_FROM_ENGINES.has(c.id))
+      .sort((a, b) => rank(a) - rank(b) || displayName(a).localeCompare(displayName(b))),
+  })).filter((g) => g.items.length > 0);
+}
+
+function rank(c: Capability): number {
+  if (c.ownerOnly) return 2;
+  return c.activation === "working" ? 0 : 1;
+}
+
+/** Superseded rows kept alive for old saved work, never advertised again. */
+const HIDDEN_FROM_ENGINES = new Set(["etsy"]);
 
 export function capabilityById(id: string): Capability | undefined {
   return allCapabilities().find((c) => c.id === id);

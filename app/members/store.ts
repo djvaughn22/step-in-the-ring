@@ -92,7 +92,7 @@ export interface FeedbackRecord {
   userId: string;
   category: FeedbackCategory;
   message: string;
-  contextUrl: string; // where the person was when they submitted, e.g. "/engines?engine=idea"
+  contextUrl: string; // where the person was when they submitted, e.g. "/engines/room?engine=idea"
   status: FeedbackStatus;
   createdAt: string;
 }

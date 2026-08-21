@@ -135,8 +135,26 @@ describe("the menu", () => {
     }
   });
 
-  it("starts at the front page", () => {
-    expect(navPages()[0].path).toBe("/");
+  it("leads with Create — the thing the product is for", () => {
+    // Home is the wordmark on the left of the bar, the way it is on every
+    // site. A fifth link pointing at the page you are already on buys nothing,
+    // and the first word in the menu should say what this place is for.
+    expect(navPages()[0].path).toBe("/create");
+    expect(navPages().map((p) => p.path)).toEqual([
+      "/create",
+      "/engines",
+      "/builds",
+      "/library",
+    ]);
+  });
+
+  it("says the same four words the product is organised around", () => {
+    expect(navPages().map((p) => p.name)).toEqual([
+      "Create",
+      "Engines",
+      "Builds",
+      "Library",
+    ]);
   });
 });
 

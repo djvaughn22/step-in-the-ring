@@ -238,7 +238,10 @@ describe("Preservation — pre-vNext work is still findable", () => {
 });
 
 describe("The new shell", () => {
-  const home = read("app/page.tsx");
+  // The creation flow lives in app/create/RingApp.tsx and is mounted twice —
+  // as the home page and as /create. app/page.tsx is a six-line wrapper, so
+  // the assertions about what the front door SAYS read the component.
+  const home = read("app/create/RingApp.tsx");
   const layout = read("app/layout.tsx");
 
   it("leads with Live your dream in the hero, once", () => {
@@ -253,8 +256,15 @@ describe("The new shell", () => {
 
   it("does not paste an engine catalog onto the hero", () => {
     const hero = home.slice(home.indexOf('stage === "landing"'), home.indexOf("What's under it"));
-    const engineLinks = hero.match(/\/engines\?engine=/g) ?? [];
+    const engineLinks = hero.match(/\/engines\/room\?engine=/g) ?? [];
     expect(engineLinks.length).toBe(0);
+  });
+
+  it("mounts one flow behind both front doors", () => {
+    // Two entrances, one component. If these ever diverge into two files the
+    // product has two different "start something" experiences again.
+    expect(read("app/page.tsx")).toContain('<RingApp mode="home" />');
+    expect(read("app/create/page.tsx")).toContain('<RingApp mode="create" />');
   });
 
   it("keeps primary navigation to a handful of doors", () => {
@@ -264,6 +274,8 @@ describe("The new shell", () => {
     const nav = navPages();
     expect(nav.length).toBeLessThanOrEqual(5);
     const paths = nav.map((p) => p.path);
+    expect(paths).toContain("/create");
+    expect(paths).toContain("/engines");
     expect(paths).toContain("/builds");
     expect(paths).toContain("/library");
     // Account moved out of the menu and into the directory: it is a member
@@ -283,11 +295,13 @@ describe("The new shell", () => {
     expect(phoneOnly).toContain(".ring-burger { display: block; }");
   });
 
-  it("still opens the Engine Room as an explained door, not a footnote", () => {
-    // It left the homepage when the homepage became a start screen, but it is
-    // a full explained row in the Library and in the directory — never a
-    // footnote, and never dropped.
-    expect(allCapabilities().some((c) => c.href === "/engines")).toBe(true);
+  it("explains the engines before asking anyone to sign in for them", () => {
+    // The Engine Room used to BE /engines: a locked door with a mysterious
+    // name, which a stranger had to make an account to see behind. The
+    // catalog is public now and the room is one level down.
+    expect(pageAt("/engines")?.access).toBe("public");
+    expect(pageAt("/engines/room")?.access).toBe("member");
+    expect(allCapabilities().some((c) => c.href === "/engines/room")).toBe(true);
     expect(pageAt("/engines")?.what.length ?? 0).toBeGreaterThan(20);
   });
 

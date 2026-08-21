@@ -26,15 +26,22 @@ describe("shared owner session", () => {
 
 describe("safeReturnTo — open-redirect prevention", () => {
   it("allows protected same-site paths, preserving the query string", () => {
-    expect(safeReturnTo("/engines")).toBe("/engines");
+    // /engines is the PUBLIC catalog now; the protected root is /engines/room,
+    // where an engine actually runs. A public page is not somewhere the owner
+    // login needs to return you to, so it is no longer on the allow list.
+    expect(safeReturnTo("/engines/room")).toBe("/engines/room");
     expect(safeReturnTo("/projects")).toBe("/projects");
     expect(safeReturnTo("/author")).toBe("/author");
-    expect(safeReturnTo("/engines?pkg=abc&x=1")).toBe("/engines?pkg=abc&x=1");
-    expect(safeReturnTo("/engines/sub?y=2")).toBe("/engines/sub?y=2");
+    expect(safeReturnTo("/engines/room?pkg=abc&x=1")).toBe("/engines/room?pkg=abc&x=1");
+    expect(safeReturnTo("/engines/room/sub?y=2")).toBe("/engines/room/sub?y=2");
+  });
+
+  it("sends a public path to the hub rather than back to itself", () => {
+    expect(safeReturnTo("/engines")).toBe("/owner");
   });
 
   it("drops fragments", () => {
-    expect(safeReturnTo("/engines#section")).toBe("/engines");
+    expect(safeReturnTo("/engines/room#section")).toBe("/engines/room");
   });
 
   it("falls back to the hub for absolute and protocol-relative URLs", () => {

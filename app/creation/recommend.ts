@@ -32,7 +32,7 @@ function choice(engineId: string, why: string): EngineChoice | null {
   if (!e || e.hidden) return null;
   // Never send a visitor into an engine that errors for them.
   if (e.activation === "owner-only" || e.activation === "planned" || e.activation === "unavailable") return null;
-  return { engineId, name: e.name, route: `/engines?engine=${engineId}`, why };
+  return { engineId, name: e.name, route: `/engines/room?engine=${engineId}`, why };
 }
 
 const push = (arr: EngineChoice[], c: EngineChoice | null) => { if (c) arr.push(c); };

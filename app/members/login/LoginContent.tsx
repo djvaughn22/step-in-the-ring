@@ -15,7 +15,7 @@ export default function LoginContent() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [stage, setStage] = useState<Stage>("login");
-  const returnTo = safeRedirectDestination(search.get("returnTo"), "/engines");
+  const returnTo = safeRedirectDestination(search.get("returnTo"), "/builds");
 
   useEffect(() => {
     const maybeToken = search.get("token");

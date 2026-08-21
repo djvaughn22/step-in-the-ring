@@ -1,31 +1,47 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   STEP IN THE RING — the workbench palette.
+   STEP IN THE RING — the blue palette.
 
-   This is a shop, not a dashboard. Warm charcoal instead of cool navy, real
-   amber instead of the pale SaaS blue, paper-white type instead of blue-grey.
-   Every page in the app reads these tokens, so the identity changes here.
+   Blue is the brand. Deep navy ground, one clear bright blue that does all the
+   work, near-white type. The light theme is the same identity on paper: warm
+   light neutral ground, dark ink, a deeper blue that holds its contrast.
+
+   About the token names: `--accent` is the real one. `--gold` and its two
+   companions are ALIASES kept alive because roughly fifty components and a
+   hundred CSS rules already say var(--gold). Repointing the alias turns the
+   whole site blue in one place; renaming it in every file would be a thousand
+   edits for no visible difference. New code should say --accent.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --bg: #14120E;
-  --surface: #14120E;
-  --panel: #1E1A14;
-  --panel2: #2A241B;
-  --text: #F6F2E9;
-  --muted: #ADA292;
+  --bg: #08182B;
+  --surface: #08182B;
+  --panel: #0F2439;
+  --panel2: #17324C;
+  --text: #EAF1F8;
+  --muted: #9DB2C6;
   /* Quiet but readable: holds 4.5:1 on --panel and on --bg. */
-  --dim: #8A8071;
-  --line: rgba(246, 242, 233, 0.13);
-  --line2: rgba(246, 242, 233, 0.26);
+  --dim: #7C93A9;
+  --line: rgba(234, 241, 248, 0.13);
+  --line2: rgba(234, 241, 248, 0.26);
 
-  /* The Ring accent. Amber, not blue. This one change is most of the reason
-     the site stops looking like every other AI product. */
-  --gold: #F5A524;
-  --gold-glow: rgba(245, 165, 36, 0.22);
-  --gold-soft: rgba(245, 165, 36, 0.10);
+  /* THE accent. One clear bright blue, not a pale wash and not Bootstrap.
+     Everything that wants attention on this site uses this and nothing else. */
+  --accent: #2BA6FF;
+  --accent-glow: rgba(43, 166, 255, 0.24);
+  --accent-soft: rgba(43, 166, 255, 0.10);
+  /* The deep end of the same blue, for large filled areas. */
+  --deep: #0B3A66;
+  /* The ink that sits ON the accent. Dark navy, 8:1 on the bright blue. */
+  --ink: #06121F;
 
-  --blue: #8FA3B0;
-  --green: #6FBF9B;
-  --portal: rgba(245, 165, 36, 0.26);
+  /* Compatibility aliases — see the note above. Do not give these their own
+     colour; they must always be the accent. */
+  --gold: var(--accent);
+  --gold-glow: var(--accent-glow);
+  --gold-soft: var(--accent-soft);
+
+  --blue: var(--accent);
+  --green: #4FC58B;
+  --portal: rgba(43, 166, 255, 0.26);
 
   --stage: 1180px;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -492,15 +508,15 @@ summary.plan-label {
    The Ring's own workbench palette instead of the cool family navy. The
    override MECHANISM is untouched — only the values it serves. */
 :root {
-  --om-bg: #14120E;
-  --om-surface: #1E1A14;
-  --om-surface-2: #2A241B;
-  --om-inset: #14120E;
-  --om-border: #3A3227;
-  --om-text: #F6F2E9;
-  --om-sub: #ADA292;
-  --om-accent: #F5A524;
-  --om-ink: #14120E;
+  --om-bg: #08182B;
+  --om-surface: #0F2439;
+  --om-surface-2: #17324C;
+  --om-inset: #08182B;
+  --om-border: #23405D;
+  --om-text: #EAF1F8;
+  --om-sub: #9DB2C6;
+  --om-accent: #2BA6FF;
+  --om-ink: #06121F;
 }
 
 html,
@@ -687,7 +703,7 @@ a[href]:hover {
    Grow track. Only one pill is ever "now" — the track states where the work
    is, it never flatters it. */
 .pill-now {
-  color: #1A1408;
+  color: var(--ink);
   background: var(--gold);
   border-color: var(--gold);
 }
@@ -843,7 +859,7 @@ a[href]:hover {
    only. 4.8:1 on the light bg, 5.4:1 on white cards. The :root doubles
    specificity so this outlives the theme's later <style> tag. */
 html[data-om-theme="light"]:root {
-  --dim: #5b6b85;
+  --dim: #5B6B7D;
 }
 
 html[data-om-theme="light"] .status-working {
@@ -1058,7 +1074,7 @@ body { font-synthesis-weight: none; }
   color: var(--text);
   margin: 0;
 }
-.ring-display .amber { color: var(--gold); }
+.ring-display .accent { color: var(--accent); }
 
 .ring-sub {
   font-size: clamp(16px, 1.9vw, 20px);
@@ -1091,10 +1107,10 @@ body { font-synthesis-weight: none; }
 
 .btn-gold, .btn-primary {
   background: var(--gold);
-  color: #1A1408;
+  color: var(--ink);
   border-color: var(--gold);
 }
-.btn-gold:hover, .btn-primary:hover { background: #FFB63C; }
+.btn-gold:hover, .btn-primary:hover { background: #5FBBFF; }
 
 .btn-ghost {
   background: transparent;
@@ -1404,13 +1420,15 @@ body { font-synthesis-weight: none; }
 }
 
 /* ═══ HEADER ═════════════════════════════════════════════════════════════ */
+/* The bar is the brand. Deep blue ground, a bright rule under it, and the
+   four doors printed on it — the product architecture is visible on a laptop
+   instead of hidden behind a menu button. */
 .ring-bar {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(20, 18, 14, 0.92);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
+  background: var(--deep);
+  border-bottom: 2px solid var(--accent);
 }
 .ring-bar-in {
   max-width: var(--stage);
@@ -1434,10 +1452,11 @@ body { font-synthesis-weight: none; }
   text-decoration: none;
   white-space: nowrap;
 }
+.ring-brand { color: #FFFFFF; }
 .ring-brand-glyph {
   width: 21px;
   height: 21px;
-  border: 2px solid var(--gold);
+  border: 2px solid var(--accent);
   border-radius: 3px;
   flex-shrink: 0;
 }
@@ -1455,8 +1474,13 @@ body { font-synthesis-weight: none; }
   border-radius: 4px;
   white-space: nowrap;
 }
-.ring-nav a:hover { color: var(--text); background: var(--panel); }
-.ring-nav a[aria-current="page"] { color: var(--gold); }
+.ring-nav a { color: rgba(255, 255, 255, 0.72); }
+.ring-nav a:hover { color: #FFFFFF; background: rgba(255, 255, 255, 0.10); }
+.ring-nav a[aria-current="page"] {
+  color: var(--ink);
+  background: var(--accent);
+  border-radius: 3px;
+}
 .ring-nav a:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 
 .ring-bar-end { margin-left: auto; display: flex; align-items: center; gap: 3px; }
@@ -1472,16 +1496,18 @@ body { font-synthesis-weight: none; }
   border-radius: 4px;
   white-space: nowrap;
 }
-.ring-bar-end a:hover { color: var(--gold); }
+.ring-bar-end a { color: rgba(255, 255, 255, 0.58); }
+.ring-bar-end a:hover { color: #FFFFFF; }
+.ring-bar-end a[aria-current="page"] { color: var(--accent); }
 .ring-bar-end a:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 
 .ring-burger {
   display: none;
   margin-left: auto;
   background: none;
-  border: 1px solid var(--line2);
+  border: 1px solid rgba(255, 255, 255, 0.34);
   border-radius: 4px;
-  color: var(--text);
+  color: #FFFFFF;
   padding: 9px 13px;
   font-family: var(--mono);
   font-size: 11px;
@@ -1495,10 +1521,11 @@ body { font-synthesis-weight: none; }
 @media (max-width: 860px) {
   .ring-nav, .ring-bar-end { display: none; }
   .ring-burger { display: block; }
+  /* The phone menu drops out of the bar, so it is the same blue object. */
   .ring-sheet.open {
     display: block;
-    border-top: 1px solid var(--line);
-    background: var(--bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    background: var(--deep);
     padding: 10px 18px 20px;
   }
   .ring-sheet.open a {
@@ -1506,36 +1533,69 @@ body { font-synthesis-weight: none; }
     padding: 15px 4px;
     font-size: 16px;
     font-weight: 800;
-    color: var(--text);
+    color: #FFFFFF;
     text-decoration: none;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
     min-height: 52px;
   }
   .ring-sheet.open a:last-child { border-bottom: 0; }
-  .ring-sheet.open a:hover { color: var(--gold); }
+  .ring-sheet.open a:hover { color: var(--accent); }
 }
 
-/* ═══ LIGHT THEME — warm paper ═══════════════════════════════════════════ */
-html[data-om-theme="light"] {
-  --bg: #F7F3EA;
-  --surface: #F7F3EA;
-  --panel: #FFFDF8;
-  --panel2: #F1EADC;
-  --text: #1A1712;
-  --muted: #5C5449;
-  --dim: #7C7365;
-  --line: rgba(26, 23, 18, 0.13);
-  --line2: rgba(26, 23, 18, 0.24);
-  --gold: #B8760A;
-  --gold-glow: rgba(184, 118, 10, 0.30);
-  --gold-soft: rgba(184, 118, 10, 0.09);
-  --green: #2F7D5B;
+/* ═══ LIGHT THEME ═══════════════════════════════════════════════════════ */
+/* The same identity on paper. Light neutral ground with a little warmth in
+   it, dark ink, and a deeper blue — the bright accent that sings on navy is
+   only 2.6:1 on white, so light gets its own blue rather than a washed one.
+   
+   The `:root` is not decoration. The shared theme component injects its own
+   html[data-om-theme="light"] block in a <style> tag AFTER this stylesheet,
+   carrying the family's cool grey. Same specificity would lose to it on order
+   alone; :root doubles ours so Step In The Ring keeps its own light ground.
+   The --om-* half matters just as much: the family override block near the
+   top of this file paints html/body from --om-bg with !important, so a light
+   theme that forgets to set it stays dark no matter what --bg says. */
+html[data-om-theme="light"]:root {
+  --bg: #F5F7FA;
+  --surface: #F5F7FA;
+  --panel: #FFFFFF;
+  --panel2: #E9EFF6;
+  --text: #0B1B2C;
+  --muted: #4A5C70;
+  --dim: #5B6B7D;
+  --line: rgba(11, 27, 44, 0.13);
+  --line2: rgba(11, 27, 44, 0.24);
+  --accent: #1257C4;
+  --accent-glow: rgba(18, 87, 196, 0.30);
+  --accent-soft: rgba(18, 87, 196, 0.08);
+  --deep: #0B3A66;
+  --ink: #FFFFFF;
+  --green: #1E7A52;
+
+  --om-bg: #F5F7FA;
+  --om-surface: #FFFFFF;
+  --om-surface-2: #E9EFF6;
+  --om-inset: #F5F7FA;
+  --om-border: #D3DEEA;
+  --om-text: #0B1B2C;
+  --om-sub: #4A5C70;
+  --om-accent: #1257C4;
+  --om-ink: #FFFFFF;
 }
-html[data-om-theme="light"] .ring-bar { background: rgba(247, 243, 234, 0.92); }
+/* The :root has to be on BOTH of these. The theme component paints the body
+   #eef2f7 !important from a later <style> tag; an equal-specificity rule here
+   loses on order and leaves a seam between the html ground and the body. */
+html[data-om-theme="light"]:root,
+html[data-om-theme="light"]:root body {
+  background: #F5F7FA !important;
+  color: #0B1B2C !important;
+}
+/* Light theme keeps the deep blue bar: the header is the brand and it is
+   the same object in both themes. */
+html[data-om-theme="light"] .ring-bar { background: var(--deep); }
 html[data-om-theme="light"] .btn-gold,
 html[data-om-theme="light"] .btn-primary { color: #FFFFFF; }
 html[data-om-theme="light"] .btn-gold:hover,
-html[data-om-theme="light"] .btn-primary:hover { background: #96600A; }
+html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 
 /* On a phone the question should arrive fast. The headline earns its space on
    a laptop; here it steps aside so the box is in the first screenful. */
@@ -1551,6 +1611,10 @@ html[data-om-theme="light"] .btn-primary:hover { background: #96600A; }
 
 /* Page masthead: big title, one line under it, rule beneath. */
 .mast { padding: clamp(44px, 5.5vw, 76px) 0 0; }
+/* For a page whose real content is a working tool rather than a document. */
+.mast-tight { padding: clamp(26px, 3vw, 40px) 0 22px; }
+.mast-tight .mast-title { font-size: clamp(32px, 4.4vw, 50px); }
+.mast-tight .mast-lead { margin-bottom: 0; }
 .mast-title {
   font-size: clamp(38px, 6.4vw, 76px);
   font-weight: 900;
@@ -1990,4 +2054,138 @@ html[data-om-theme="light"] .btn-primary:hover { background: #96600A; }
   padding: 14px 16px !important;
   font-size: 15px;
   margin-bottom: 18px;
+}
+
+/* ═══ ENGINES ════════════════════════════════════════════════════════════
+   One card shape, used for every engine and every tool. It answers four
+   things in a fixed order — what it is, what it does, when you'd reach for
+   it, and one concrete example — so scanning eight of them is scanning the
+   same four lines eight times instead of eight different layouts. */
+.eng-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+}
+.eng-grid-one { grid-template-columns: minmax(0, 620px); }
+.eng {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 22px;
+}
+.eng-head { display: flex; align-items: center; gap: 10px; }
+.eng-mark { font-size: 21px; line-height: 1; }
+.eng-name {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0;
+  flex: 1;
+}
+.eng-what { font-size: 14.5px; line-height: 1.6; color: var(--text); margin: 0; }
+.eng-when {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.eng-when-k {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 3px;
+}
+.eng-eg { font-size: 13px; line-height: 1.6; color: var(--dim); margin: 0; font-style: italic; }
+.eng-foot { margin-top: auto; padding-top: 6px; }
+/* An engine you cannot open says so in words instead of showing a button that
+   goes nowhere. A dead button is worse than an honest sentence. */
+.eng-shut {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.eng:has(.eng-shut) { border-left-color: var(--line2); }
+
+@media (max-width: 700px) {
+  .eng-grid, .eng-grid-one { grid-template-columns: 1fr; }
+  .eng { padding: 18px; }
+  /* A thumb, not a mouse. The small button that reads fine on a laptop is
+     under the 44px minimum on a phone, so on a phone it is a full-width one. */
+  .eng-foot .btn { width: 100%; min-height: 50px; font-size: 14px; }
+}
+
+/* ═══ CREATE — the workbench ═════════════════════════════════════════════
+   The box gets the width it needs and the starting points sit beside it, so
+   the person with an idea and the person without one are both served by the
+   first screen instead of one of them scrolling to find their half. */
+.work2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 52px);
+  align-items: start;
+  padding-top: 8px;
+}
+.sidecol {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  position: sticky;
+  top: 84px;
+}
+.side-title {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+.side-note { font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0 0 16px; }
+.side-foot { font-size: 13px; color: var(--dim); margin: 16px 0 0; line-height: 1.6; }
+.side-foot a { color: var(--accent); font-weight: 800; text-decoration: none; }
+.side-foot a:hover { text-decoration: underline; }
+
+.sp-list { display: flex; flex-direction: column; gap: 6px; }
+.sp {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 11px 12px;
+  cursor: pointer;
+  color: inherit;
+  /* Big enough to hit with a thumb. */
+  min-height: 52px;
+}
+.sp:hover { background: var(--panel2); border-color: var(--line); }
+.sp:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sp-mark { font-size: 17px; line-height: 1.35; }
+.sp-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sp-label { font-size: 14.5px; font-weight: 800; color: var(--text); }
+.sp-what { font-size: 12.5px; line-height: 1.5; color: var(--dim); }
+
+/* A quiet forward link. Used wherever a section hands off to a fuller page. */
+.more { color: var(--accent); font-weight: 800; text-decoration: none; }
+.more:hover { text-decoration: underline; }
+
+@media (max-width: 900px) {
+  .work2 { grid-template-columns: 1fr; }
+  .sidecol { position: static; }
 }
