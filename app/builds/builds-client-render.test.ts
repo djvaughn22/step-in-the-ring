@@ -51,7 +51,8 @@ describe("Your Builds", () => {
 
   it("leads with what you're making, and one obvious way to continue", () => {
     const html = page({ builds: [made(DOG, "b1")] });
-    expect(html).toContain(">Open<");
+    // "Continue" says what pressing it does. "Open" describes a file.
+    expect(html).toContain(">Continue<");
     expect(html).toContain("Next move");
     // The reading, not the raw sentence, carries the card.
     expect(html).toContain("A one-page website for my dog.");
@@ -62,7 +63,7 @@ describe("Your Builds", () => {
     const html = page({ builds: [made(DOG, "b1"), made(GAME, "b2")] });
     expect(html).toContain('href="/builds/b1"');
     expect(html).toContain('href="/builds/b2"');
-    expect((html.match(/>Open</g) ?? []).length).toBe(2);
+    expect((html.match(/>Continue</g) ?? []).length).toBe(2);
   });
 
   it("never reports a database hiccup as having no builds", () => {

@@ -9,7 +9,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import CreationEntry from "../vnext/CreationEntry";
 import LegacyWork from "../vnext/LegacyWork";
-import { capabilitiesForIntent } from "../vnext/capabilities";
+import { capabilitiesForIntent, displayName } from "../vnext/capabilities";
 import {
   BUILD_STAGE_LABEL, BUILD_STAGE_LINE, BUILD_STAGES, type BuildRecordV1,
 } from "../vnext/build";
@@ -57,13 +57,18 @@ function BuildCard({ build }: { build: BuildRecordV1 }) {
       )}
 
       {suggested.length > 0 && (
-        <div className="bc-help">
-          {suggested.map((c) => (
-            <a key={c.id} href={c.href}>
-              <span aria-hidden="true">{c.emoji}</span> {c.name}
-            </a>
-          ))}
-        </div>
+        <>
+          {/* Never a bare row of names. A person looking at their own build
+              needs to know why these three are here before they click one. */}
+          <span className="bc-help-l">Engines that fit this</span>
+          <div className="bc-help">
+            {suggested.map((c) => (
+              <a key={c.id} href={c.href}>
+                <span aria-hidden="true">{c.emoji}</span> {displayName(c)}
+              </a>
+            ))}
+          </div>
+        </>
       )}
 
       {build.artifacts.length > 0 && (
@@ -77,7 +82,7 @@ function BuildCard({ build }: { build: BuildRecordV1 }) {
       {/* One obvious action per card. Continuing is what this page is for. */}
       <div className="bc-foot">
         <Link className="btn btn-gold" href={`/builds/${build.id}`}>
-          Open
+          Continue
         </Link>
       </div>
     </article>
@@ -162,11 +167,11 @@ export default function BuildsClient({
         <header className="mast">
           <span className="kicker">Your work</span>
           <h1 className="mast-title">
-            {builds.length > 0 ? "What you're making" : "Nothing here yet"}
+            {builds.length > 0 ? "Your builds" : "Nothing here yet"}
           </h1>
           <p className="mast-lead">
             {builds.length > 0
-              ? "Every one of these is yours. Open one and pick up where you stopped."
+              ? "The things you're actually making. Open one and pick up where you stopped."
               : "This is where the things you are making live, from the first sentence all the way to live on the internet."}
           </p>
           <hr className="rule mast-rule" />
@@ -264,12 +269,12 @@ export default function BuildsClient({
                   <a className="btn btn-gold btn-big" href="/members/login?returnTo=%2Fbuilds">
                     Sign in
                   </a>
-                  <Link className="btn btn-ghost btn-big" href="/">
+                  <Link className="btn btn-ghost btn-big" href="/create">
                     {waiting ? "Change what I said" : "Start something"}
                   </Link>
                 </div>
               ) : (
-                <Link className="btn btn-gold btn-big" href="/">
+                <Link className="btn btn-gold btn-big" href="/create">
                   Start something
                 </Link>
               )}
@@ -283,9 +288,9 @@ export default function BuildsClient({
         <div className="divider" />
         <p className="tiny" style={{ textAlign: "center" }}>
           {email ? `Signed in as ${email}. ` : ""}
-          <a href="/library" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
-            Things you can use
-          </a>
+          Finished work you can use again is in your{" "}
+          <Link href="/library" className="more">Library</Link>. The tools are on{" "}
+          <Link href="/engines" className="more">Engines</Link>.
         </p>
       </div>
     </main>

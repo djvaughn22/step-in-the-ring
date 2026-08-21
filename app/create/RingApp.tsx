@@ -212,11 +212,27 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
         setTimeout(() => shapeRef.current?.focus(), 0);
         return;
       }
+      const params = new URLSearchParams(window.location.search);
       // Legacy handoff from iDontCry's Dream Lab: ?idea=... still works.
-      const idea = new URLSearchParams(window.location.search).get("idea");
+      const idea = params.get("idea");
       if (idea && idea.trim()) {
         setDescription(idea.trim().slice(0, 600));
         setTimeout(() => shapeRef.current?.focus(), 0);
+        return;
+      }
+      // A starting point taken from the Library arrives as ?stem=. It is a
+      // half-finished sentence, not an idea: the cursor goes to the END of it
+      // so the person carries straight on typing in their own words.
+      const stem = params.get("stem");
+      if (stem && stem.trim()) {
+        const text = stem.slice(0, 200);
+        setDescription(text);
+        setTimeout(() => {
+          const el = shapeRef.current;
+          if (!el) return;
+          el.focus();
+          el.setSelectionRange(text.length, text.length);
+        }, 0);
       }
     } catch {}
   }, []);
