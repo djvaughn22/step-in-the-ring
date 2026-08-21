@@ -10,14 +10,23 @@
 //
 // The links come from app/site/registry.ts, so this bar can never drift from
 // the Everything directory.
+//
+// Four doors on the left are the product: Create, Engines, Builds, Library.
+// The quieter set on the right is everything a person needs occasionally.
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { navPages } from "./registry";
+import OpenMirrorThemeToggle from "../OpenMirrorTheme";
 
+// The four doors in .ring-nav are the product. These three are the things a
+// person needs occasionally and should not have to hunt for: what this is,
+// where everything is, and their own account. Kept visually quieter on
+// purpose — they are not part of the making loop.
 const SECONDARY = [
-  { name: "Preview", href: "/preview" },
+  { name: "How", href: "/how" },
+  { name: "Everything", href: "/everything" },
   { name: "Account", href: "/account" },
 ];
 
@@ -57,6 +66,12 @@ export default function RingHeader() {
               {s.name}
             </Link>
           ))}
+          {/* The family light/dark toggle. It used to ride in the shared
+              Open Mirror bar; when Step In The Ring took its own header the
+              toggle went with the bar and light mode became unreachable here.
+              It also injects the theme's init script, which is what stops the
+              page flashing dark before a saved light choice is applied. */}
+          <OpenMirrorThemeToggle />
         </div>
 
         <button

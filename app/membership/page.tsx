@@ -65,7 +65,7 @@ export default async function MembershipPage({
   const enginesQs = new URLSearchParams();
   if (prefillEngine) enginesQs.set("engine", prefillEngine);
   if (typeof sp.cr === "string") enginesQs.set("cr", sp.cr);
-  const enginesHref = enginesQs.size ? `/engines?${enginesQs}` : "/engines";
+  const enginesHref = enginesQs.size ? `/engines/room?${enginesQs}` : "/engines/room";
 
   return (
     <Sheet>

@@ -37,13 +37,13 @@ export interface LegacyFinding extends LegacySource {
 export const LEGACY_SOURCES: LegacySource[] = [
   { key: "sitr-plans-v3", label: "Saved plans", emoji: "🥊", href: "/", storage: "local" },
   { key: "sitr-creation-current-v1", label: "Your last creation", emoji: "✨", href: "/", storage: "local" },
-  { key: "sitr-engine-projects-v1", label: "Engine Room projects", emoji: "🧰", href: "/engines", storage: "local" },
-  { key: "creation-engine-projects-v1", label: "Engine projects (earlier key)", emoji: "🧰", href: "/engines", storage: "local" },
+  { key: "sitr-engine-projects-v1", label: "Engine Room projects", emoji: "🧰", href: "/engines/room", storage: "local" },
+  { key: "creation-engine-projects-v1", label: "Engine projects (earlier key)", emoji: "🧰", href: "/engines/room", storage: "local" },
   { key: "sitr-projects-v1", label: "Project OS records", emoji: "🗂️", href: "/projects", storage: "local" },
-  { key: "sitr-music-songs-v1", label: "Songs", emoji: "🎵", href: "/engines?engine=music", storage: "local" },
+  { key: "sitr-music-songs-v1", label: "Songs", emoji: "🎵", href: "/engines/room?engine=music", storage: "local" },
   { key: "sitr-build-machine-v1", label: "Build Machine progress", emoji: "💻", href: "/build-machine", storage: "local" },
   { key: "sitr-first-app-v1", label: "First build walkthrough", emoji: "🧱", href: "/build", storage: "local" },
-  { key: "sitr-game-world-v1", label: "Game world", emoji: "🎮", href: "/engines?engine=game", storage: "local" },
+  { key: "sitr-game-world-v1", label: "Game world", emoji: "🎮", href: "/engines/room?engine=game", storage: "local" },
   { key: "sitr-builder-defaults-v1", label: "Builder defaults", emoji: "⚙️", href: "/", storage: "local" },
   { key: "sitr-story-partner", label: "Story Partner work", emoji: "📓", href: "/author", storage: "indexeddb" },
 ];

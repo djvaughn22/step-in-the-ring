@@ -11,7 +11,7 @@ export default function AppleIcon() {
     width: 18,
     height: 18,
     borderRadius: "50%",
-    background: "#60A5FA",
+    background: "#2BA6FF",
   };
   return new ImageResponse(
     (
@@ -19,7 +19,7 @@ export default function AppleIcon() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#0b1220",
+          background: "#08182B",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -30,8 +30,8 @@ export default function AppleIcon() {
             position: "relative",
             width: 116,
             height: 116,
-            background: "#141d2e",
-            border: "6px solid #60A5FA",
+            background: "#0F2439",
+            border: "6px solid #2BA6FF",
             borderRadius: 24,
             display: "flex",
             alignItems: "center",
@@ -42,14 +42,14 @@ export default function AppleIcon() {
             style={{
               width: 84,
               height: 84,
-              border: "3px solid #3a5a80",
+              border: "3px solid #2A5480",
               borderRadius: 16,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <div style={{ width: 54, height: 54, border: "3px solid #26324c", borderRadius: 10, display: "flex" }} />
+            <div style={{ width: 54, height: 54, border: "3px solid #1B3854", borderRadius: 10, display: "flex" }} />
           </div>
           <div style={{ ...post, top: -12, left: -12 }} />
           <div style={{ ...post, top: -12, right: -12 }} />

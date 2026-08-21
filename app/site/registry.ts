@@ -38,10 +38,26 @@ export type Access =
   /** The owner only. Enforced server-side in the page. Never downgraded. */
   | "owner";
 
-/** Where a page sits in the product, top to bottom. */
+/**
+ * Where a page sits in the product. These are the SAME eight words the menu,
+ * the Everything directory and the homepage use, in this order. A page that
+ * does not fit one of them does not have a home yet, which is the bug the
+ * group is there to expose.
+ *
+ *   create  — where you say what you want to make
+ *   engines — focused tools that make one part of a thing
+ *   builds  — the things you are actually making
+ *   library — work you saved and can use again
+ *   learn   — how this works, and what it is
+ *   proof   — real things that got made
+ *   account — signing in, membership, shared previews
+ *   owner   — the owner's own tools
+ */
 export type PageGroup =
-  | "start"
-  | "work"
+  | "create"
+  | "engines"
+  | "builds"
+  | "library"
   | "learn"
   | "proof"
   | "account"
@@ -67,100 +83,87 @@ export interface SitePage {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SITE_PAGES: SitePage[] = [
-  // ── Start ──────────────────────────────────────────────────────────────
+  // ── Create ─────────────────────────────────────────────────────────────
   {
     path: "/",
-    name: "Start",
-    what: "Say what you want to make. Get back what it really is and the first real move.",
+    name: "Home",
+    what: "The front door: say what you want to make, or pick up something you already started.",
     access: "public",
-    group: "start",
+    group: "create",
+  },
+  {
+    path: "/create",
+    name: "Create",
+    what: "Say what you want to make in your own words, or pick a starting point if you do not know yet.",
+    access: "public",
+    group: "create",
     inNav: true,
   },
 
-  // ── Your work ──────────────────────────────────────────────────────────
+  // ── Engines ────────────────────────────────────────────────────────────
   {
-    path: "/builds",
-    name: "Your builds",
-    what: "Everything you've kept. Open one and pick up where you stopped.",
+    path: "/engines",
+    name: "Engines",
+    what: "Every focused tool here, grouped by what it helps you do, with what it gives you back.",
     access: "public",
-    group: "work",
+    group: "engines",
     inNav: true,
   },
   {
-    path: "/library",
-    name: "Library",
-    what: "Every tool Step In The Ring has, with an honest label on each one, plus anything you saved here before.",
-    access: "public",
-    group: "work",
-    inNav: true,
+    path: "/engines/room",
+    name: "The Engine Room",
+    what: "Where an engine actually runs. Needs an account.",
+    access: "member",
+    group: "engines",
+    noindex: true,
   },
   {
-    path: "/build",
-    name: "Your first build, step by step",
-    what: "Six short rounds that end with something real running on your own screen. No account.",
-    access: "public",
-    group: "work",
+    path: "/five-hour-sprint-tool",
+    name: "Five Hour Sprint",
+    what: "Plan a single five-hour build window and walk out with the packet to run it.",
+    access: "member",
+    group: "engines",
   },
   {
     path: "/build-machine",
     name: "Build Machine",
     what: "Turn a computer you already have into one that can build what you're making.",
     access: "public",
-    group: "work",
+    group: "engines",
   },
   {
-    path: "/engines",
-    name: "Engine Room",
-    what: "Focused engines for when you already know what kind of thing you're making.",
-    access: "member",
-    group: "work",
-  },
-  {
-    path: "/five-hour-sprint-tool",
-    name: "Five Hour Sprint Tool",
-    what: "Plan a single five-hour build window and walk out with the packet to run it.",
-    access: "member",
-    group: "work",
+    path: "/build",
+    name: "Your first build, step by step",
+    what: "Six short rounds that end with something real running on your own screen. No account.",
+    access: "public",
+    group: "engines",
   },
 
-  // ── Proof ──────────────────────────────────────────────────────────────
+  // ── Builds ─────────────────────────────────────────────────────────────
   {
-    path: "/explore",
-    name: "Explore",
-    what: "Real things that got made. Open them — they're live.",
+    path: "/builds",
+    name: "Builds",
+    what: "The things you're actually making. Open one and pick up where you stopped.",
     access: "public",
-    group: "proof",
+    group: "builds",
     inNav: true,
   },
+
+  // ── Library ────────────────────────────────────────────────────────────
   {
-    path: "/live",
-    name: "Pushed live",
-    what: "Every build that went idea → tested locally → pushed live, newest first.",
+    path: "/library",
+    name: "Library",
+    what: "Work you saved and can use again, and the starting points you can run from.",
     access: "public",
-    group: "proof",
-  },
-  {
-    path: "/everything",
-    name: "Everything",
-    what: "The whole directory: every page, every product, every repository, and what's behind a door.",
-    access: "public",
-    group: "proof",
+    group: "library",
     inNav: true,
-  },
-  {
-    path: "/shop",
-    name: "Shop",
-    what: "Original products from the Design Shop. Nothing is listed yet — this is a work-in-progress preview.",
-    access: "preview",
-    group: "proof",
-    noindex: true,
   },
 
   // ── Learn ──────────────────────────────────────────────────────────────
   {
     path: "/how",
     name: "How it works",
-    what: "The build loop in three steps, then the longer version if you want it.",
+    what: "The whole loop in five steps, then the longer version if you want it.",
     access: "public",
     group: "learn",
   },
@@ -177,6 +180,37 @@ export const SITE_PAGES: SitePage[] = [
     what: "How to finish a real deliverable inside one focused window on a modest budget.",
     access: "public",
     group: "learn",
+  },
+
+  // ── Proof ──────────────────────────────────────────────────────────────
+  {
+    path: "/explore",
+    name: "Explore",
+    what: "Real things that got made. Open them — they're live.",
+    access: "public",
+    group: "proof",
+  },
+  {
+    path: "/live",
+    name: "Pushed live",
+    what: "Every build that went idea → tested locally → pushed live, newest first.",
+    access: "public",
+    group: "proof",
+  },
+  {
+    path: "/everything",
+    name: "Everything",
+    what: "The whole directory: every page in Step In The Ring and what's behind a door.",
+    access: "public",
+    group: "proof",
+  },
+  {
+    path: "/shop",
+    name: "Shop",
+    what: "Original products from the Design Shop. Nothing is listed yet — this is a work-in-progress preview.",
+    access: "preview",
+    group: "proof",
+    noindex: true,
   },
 
   // ── Account ────────────────────────────────────────────────────────────
@@ -258,7 +292,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/projects",
     name: "Project OS",
-    what: "The owner's project ledger — lifecycle, evidence and decisions above a build.",
+    what: "The owner's ledger ABOVE a build: lifecycle, evidence and decisions. Not a second copy of Builds.",
     access: "owner",
     group: "owner",
   },
@@ -277,11 +311,14 @@ export function pagesWithAccess(access: Access): SitePage[] {
 }
 
 /**
- * The primary menu, in the order a person actually needs it: what do I want to
- * make, what have I made, what has anyone made, what can this thing do, and
- * where is the rest of it. Derived from the registry, never hand-kept twice.
+ * The primary menu. Four words, and they are the product's four ideas in the
+ * order a person meets them: start something, use a tool on it, keep working
+ * on it, come back to what you saved. Home is the wordmark, not a menu item —
+ * every site puts home there and a fifth link buys nothing.
+ *
+ * Derived from the registry, never hand-kept twice.
  */
-const NAV_ORDER = ["/", "/builds", "/explore", "/library", "/everything"];
+const NAV_ORDER = ["/create", "/engines", "/builds", "/library"];
 
 export function navPages(): SitePage[] {
   return SITE_PAGES.filter((p) => p.inNav).sort(
@@ -334,6 +371,11 @@ export interface EcosystemProject {
   /** The product's own colour, so a wall of tiles doesn't read as one grey
    *  list. Each site already has an identity; the directory should show it. */
   accent: string;
+  /** Shown on the home page. A SHORT row of the strongest ones — the point is
+   *  "people really finish things here", and five makes that point as well as
+   *  ten. Step In The Ring is a product, not the Open Mirror portfolio; the
+   *  full list lives on /explore and on Open Mirror itself. */
+  featured?: boolean;
 }
 
 export const ECOSYSTEM: EcosystemProject[] = [
@@ -346,6 +388,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://crossheartpray.com",
     repoPublic: false,
     status: "live",
+    featured: true,
     accent: "#C9A94A",
   },
   {
@@ -357,6 +400,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://idontcry.com",
     repoPublic: false,
     status: "live",
+    featured: true,
     accent: "#F5A524",
   },
   {
@@ -368,6 +412,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://opendoku.com",
     repoPublic: false,
     status: "live",
+    featured: true,
     accent: "#6FBF9B",
   },
   {
@@ -379,6 +424,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://watchednotwatched.com",
     repoPublic: false,
     status: "live",
+    featured: true,
     accent: "#8FA3B0",
   },
   {
@@ -390,6 +436,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://dontclonemetom.com",
     repoPublic: false,
     status: "live",
+    featured: true,
     accent: "#E0894A",
   },
   {
@@ -445,7 +492,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://stepinthering.com",
     repoPublic: false,
     status: "live",
-    accent: "#F5A524",
+    accent: "#2BA6FF",
   },
 ];
 

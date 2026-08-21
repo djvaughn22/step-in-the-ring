@@ -57,7 +57,7 @@ export function recommendEngine(i: Interpretation): EngineHandoff | null {
     return {
       engineId: "idea",
       name: "Idea Engine",
-      route: "/engines?engine=idea",
+      route: "/engines/room?engine=idea",
       why: "It's still an early thought — the Idea Engine weighs a few versions and helps you pick one.",
       seed: seedEngine("idea", i),
     };
@@ -67,7 +67,7 @@ export function recommendEngine(i: Interpretation): EngineHandoff | null {
     return {
       engineId: "music",
       name: "Music Engine",
-      route: "/engines?engine=music",
+      route: "/engines/room?engine=music",
       why: "It walks you to a real exported audio file with free tools.",
       seed: seedEngine("music", i),
     };
@@ -77,7 +77,7 @@ export function recommendEngine(i: Interpretation): EngineHandoff | null {
     return {
       engineId: "design-shop",
       name: "Design Shop",
-      route: "/engines?engine=design-shop",
+      route: "/engines/room?engine=design-shop",
       why: "It takes a product idea to a design package and an Etsy listing draft.",
       seed: seedEngine("design-shop", i),
     };

@@ -34,7 +34,7 @@ export default function SignupContent() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const returnTo = safeRedirectDestination(search.get("returnTo"), "/engines");
+  const returnTo = safeRedirectDestination(search.get("returnTo"), "/builds");
 
   async function handleJoin(e: FormEvent) {
     e.preventDefault();

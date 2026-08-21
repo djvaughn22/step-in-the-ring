@@ -148,7 +148,7 @@ export default function AccountClient(props: {
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           {props.memberAccess && (
-            <a href="/engines" className="btn btn-primary">Enter the Engine Room</a>
+            <a href="/engines" className="btn btn-primary">Open the engines</a>
           )}
           {props.billingLive && (
             <button type="button" className="btn btn-ghost" onClick={portal} disabled={busy}>

@@ -2,7 +2,7 @@
  * Validate a redirect destination is internal (no open redirect vulnerability).
  * Returns the destination if safe, or a default if not.
  */
-export function safeRedirectDestination(destination: unknown, defaultTo = "/engines"): string {
+export function safeRedirectDestination(destination: unknown, defaultTo = "/builds"): string {
   if (typeof destination !== "string") return defaultTo;
 
   const trimmed = destination.trim();

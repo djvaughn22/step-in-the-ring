@@ -77,8 +77,10 @@ describe("owner login detour preserves an arriving creation", () => {
     }))}`;
     const before = readHandoffFromSearch(search);
     // What the owner is returned to after login is the same path + search.
-    const returned = safeReturnTo(`/engines${search}`);
-    expect(returned).toBe(`/engines${search}`);
+    // The room, not the public catalog: the login detour only ever returns
+    // somebody to a protected path.
+    const returned = safeReturnTo(`/engines/room${search}`);
+    expect(returned).toBe(`/engines/room${search}`);
     const after = readHandoffFromSearch(returned.slice(returned.indexOf("?")));
     expect(before).toEqual(after);
     expect(handoffToIntake("design-shop", after!).customer).toBe("Dog Lovers");
