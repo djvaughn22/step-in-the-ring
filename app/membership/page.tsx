@@ -20,6 +20,7 @@ import { memberStoreConfigured } from "../members/store";
 import { readStripeConfig, stripeConfigured } from "../members/stripeCore";
 import { ACTIVATION_LABEL } from "../engines/engines";
 import MembershipClient from "./MembershipClient";
+import { Sheet, PageHead, Section } from "../site/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -67,23 +68,15 @@ export default async function MembershipPage({
   const enginesHref = enginesQs.size ? `/engines?${enginesQs}` : "/engines";
 
   return (
-    <main style={{ minHeight: "100vh" }}>
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 20px 80px" }}>
-        <span className="kicker">Private beta</span>
-        <h1 style={{ fontSize: 28, fontWeight: 900, margin: "6px 0 8px", color: "var(--ink, #e8edf5)" }}>
-          {MEMBERSHIP_PRODUCT_NAME}
-        </h1>
-        <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted, #94a3b8)", margin: "0 0 20px" }}>
-          Take any idea — even one you dreamed up on iDontCry — and turn it
-          into a real first build. Membership is the working side of Step In
-          The Ring: guided engines, saved projects, and structured iteration
-          toward a real first working version. Your ideas, projects, and
-          output remain yours.
-        </p>
-
+    <Sheet>
+      <PageHead
+        kicker="Private beta"
+        title={MEMBERSHIP_PRODUCT_NAME}
+        lead="Take any idea — even one you dreamed up on iDontCry — and turn it into a real first build. Membership is the working side of Step In The Ring: guided engines, saved projects, and structured iteration toward a real first working version. Your ideas, projects, and output remain yours."
+      >
         {!billingLive && (
-          <div style={{ border: "1px solid rgba(245,158,11,0.4)", borderRadius: 14, padding: "14px 16px", marginBottom: 20 }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold, #f59e0b)", margin: 0, lineHeight: 1.6 }}>
+          <div style={{ border: "1px solid rgba(245,158,11,0.4)", borderRadius: 14, padding: "14px 16px", marginTop: 20 }}>
+            <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold)", margin: 0, lineHeight: 1.6 }}>
               Billing is not live yet. Membership is in private beta: invited
               testers use owner-issued codes, and nothing can be purchased on
               this page today. When billing opens, the exact terms below are
@@ -92,60 +85,58 @@ export default async function MembershipPage({
           </div>
         )}
 
-        <p style={{ fontSize: 14, fontWeight: 800, margin: "0 0 4px", color: "var(--muted, #94a3b8)" }}>
+        <p style={{ fontSize: 14, fontWeight: 800, margin: "20px 0 4px", color: "var(--muted)" }}>
           Future price: {MEMBERSHIP_PRICE_LABEL}
         </p>
-        <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 28px" }}>
+        <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>
           Monthly recurring billing, once billing opens. Cancel any time from
           the billing portal — paid access runs to the end of the period you
           already paid for.
         </p>
+      </PageHead>
 
-        <h2 style={{ fontSize: 16, fontWeight: 900, margin: "0 0 10px", color: "var(--ink, #e8edf5)" }}>
-          What stays free
-        </h2>
-        <ul style={{ margin: "0 0 24px", padding: 0, listStyle: "none" }}>
+      <Section title="What stays free">
+        <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {FREE_ALWAYS.map((x) => (
-            <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted, #94a3b8)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>
+            <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>
               <span style={{ position: "absolute", left: 0, color: "#34D399" }}>✓</span>
               {x}
             </li>
           ))}
         </ul>
+      </Section>
 
-        <h2 style={{ fontSize: 16, fontWeight: 900, margin: "0 0 10px", color: "var(--ink, #e8edf5)" }}>
-          What membership unlocks
-        </h2>
-        <ul style={{ margin: "0 0 24px", padding: 0, listStyle: "none" }}>
+      <Section title="What membership unlocks">
+        <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {MEMBERSHIP_UNLOCKS.map((x) => (
-            <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted, #94a3b8)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>
-              <span style={{ position: "absolute", left: 0, color: "var(--gold, #f59e0b)" }}>★</span>
+            <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>
+              <span style={{ position: "absolute", left: 0, color: "var(--gold)" }}>★</span>
               {x}
             </li>
           ))}
         </ul>
+      </Section>
 
-        <h2 style={{ fontSize: 16, fontWeight: 900, margin: "0 0 10px", color: "var(--ink, #e8edf5)" }}>
-          The engines, honestly labeled
-        </h2>
-        <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 12px", lineHeight: 1.6 }}>
-          Status labels come from the engine registry itself. A few engines
-          are owner-only workshop tools and are not part of membership.
-        </p>
-        <ul style={{ margin: "0 0 28px", padding: 0, listStyle: "none" }}>
+      <Section
+        title="The engines, honestly labeled"
+        lead="Status labels come from the engine registry itself. A few engines are owner-only workshop tools and are not part of membership."
+      >
+        <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {matrix.map((r) => (
             <li
               key={r.id}
               style={{ display: "flex", justifyContent: "space-between", gap: 12, border: "1px solid rgba(148,163,184,0.2)", borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}
             >
-              <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ink, #e8edf5)" }}>{r.name}</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: r.activation === "working" ? "#34D399" : "var(--gold, #f59e0b)" }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: "var(--text)" }}>{r.name}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: r.activation === "working" ? "#34D399" : "var(--gold)" }}>
                 {ACTIVATION_LABEL[r.activation]}
               </span>
             </li>
           ))}
         </ul>
+      </Section>
 
+      <div style={{ marginTop: 46 }}>
         <MembershipClient
           configured={configured}
           billingLive={billingLive}
@@ -158,10 +149,9 @@ export default async function MembershipPage({
           source={source}
           enginesHref={enginesHref}
         />
+      </div>
 
-        <h2 style={{ fontSize: 16, fontWeight: 900, margin: "28px 0 10px", color: "var(--ink, #e8edf5)" }}>
-          The fine print, plainly
-        </h2>
+      <Section title="The fine print, plainly">
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {[
             "Cancel any time in the billing portal. Paid access continues through the period you already paid for, then paid features close. Nothing else changes.",
@@ -172,13 +162,13 @@ export default async function MembershipPage({
             "You own your original ideas, project content, and resulting output. Open Mirror owns its software, platform, brands, and engine logic.",
             "Stored account data: your email, password hash, membership status, and the projects you choose to save. Export and deletion are self-serve; deletion requests are honored under the published retention policy.",
           ].map((x) => (
-            <li key={x} style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted, #94a3b8)", margin: "0 0 10px", paddingLeft: 16, position: "relative" }}>
+            <li key={x} style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 10px", paddingLeft: 16, position: "relative" }}>
               <span style={{ position: "absolute", left: 0 }}>·</span>
               {x}
             </li>
           ))}
         </ul>
-      </div>
-    </main>
+      </Section>
+    </Sheet>
   );
 }
