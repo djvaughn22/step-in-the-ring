@@ -451,8 +451,11 @@ export default function StepInTheRing() {
                 Your builds →
               </Link>
               {" · "}
-              <a href="/library" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
-                Everything under it
+              {/* The one secondary path that matters on arrival: proof. A
+                  stranger who isn't ready to type anything should still be
+                  able to go look at something real. */}
+              <a href="/explore" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
+                See what&apos;s been built
               </a>
               {" · "}
               <a href="/how" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
@@ -534,6 +537,19 @@ export default function StepInTheRing() {
                   <p>
                     Every capability in one list, and anything you saved here before —
                     plans, projects, songs, walkthroughs. Nothing was thrown away.
+                  </p>
+                </div>
+                <span className="door-go" aria-hidden="true">→</span>
+              </a>
+              {/* The whole map, including the doors you can't open. A person
+                  should never have to guess what else is here. */}
+              <a href="/everything" className="door-card">
+                <span className="door-emoji" aria-hidden="true">🗺️</span>
+                <div>
+                  <h3>Everything</h3>
+                  <p>
+                    Every page on this site, every product built with it, and a plain
+                    label on anything that sits behind a door.
                   </p>
                 </div>
                 <span className="door-go" aria-hidden="true">→</span>

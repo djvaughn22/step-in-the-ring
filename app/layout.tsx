@@ -3,6 +3,16 @@ import "./globals.css";
 import OpenMirrorFooter from "./OpenMirrorFooter";
 import OpenMirrorNav from "./OpenMirrorNav";
 import Script from "next/script";
+import { navPages } from "./site/registry";
+
+/** Menu emoji live here, not in the registry — the registry is product data. */
+const NAV_EMOJI: Record<string, string> = {
+  "/": "🥊",
+  "/builds": "🏗️",
+  "/explore": "🔭",
+  "/library": "📚",
+  "/everything": "🗺️",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://stepinthering.com"),
@@ -41,18 +51,17 @@ export default function RootLayout({
         <OpenMirrorNav
           site="StepInTheRing.com"
           accent="#60A5FA"
-          /* vNext IA: three primary doors. Everything else — the Engine Room,
-             the Build Machine, live builds, the walkthroughs — is one level
-             down in Your Work (/library), which lists every capability with
-             its honest status. Nothing was removed; the menu stopped being
-             the product. */
-          links={[
-            { emoji: "🥊", name: "Create", href: "/" },
-            { emoji: "🏗️", name: "Your Builds", href: "/builds" },
-            { emoji: "📚", name: "Your Work", href: "/library" },
-            { emoji: "👤", name: "Account", href: "/account" },
-            { emoji: "ℹ️", name: "About StepInTheRing", href: "/about" },
-          ]}
+          /* Five doors, and they answer five questions in order: what do I
+             want to make, what have I made, what has anyone made, what can
+             this thing do, and where is the rest of it. Everything else lives
+             one level down and is reachable from Everything — the menu is not
+             the product. Nav order is derived from app/site/registry.ts so it
+             can't drift from the directory; see navPages(). */
+          links={navPages().map((p) => ({
+            emoji: NAV_EMOJI[p.path],
+            name: p.name,
+            href: p.path,
+          }))}
         />
         {children}
         <OpenMirrorFooter />
