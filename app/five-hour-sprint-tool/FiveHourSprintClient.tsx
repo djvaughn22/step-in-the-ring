@@ -134,16 +134,20 @@ export default function FiveHourSprintClient() {
     : [];
 
   return (
-    <main style={{ minHeight: "100vh", background: "var(--bg, #0f172a)", color: "var(--ink, #e8edf5)", padding: "20px" }}>
-      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0 }}>Five Hour Sprint</h1>
-          <a href="/account#feedback" style={{ fontSize: 13, fontWeight: 800, color: "var(--gold, #f59e0b)", textDecoration: "none" }}>
-            Give feedback →
-          </a>
-        </div>
+    <main>
+      <div className="page">
+        <header className="mast">
+          <span className="kicker">A way to work</span>
+          <h1 className="mast-title">Five Hour Sprint</h1>
+          <p className="mast-lead">
+            Focus the work. Build for five hours. Finish something real. Plan the
+            run below, keep the ledger while it happens, then write down what
+            actually came out of it.
+          </p>
+          <hr className="rule mast-rule" />
+        </header>
 
-        <div style={{ display: "flex", gap: 12, marginBottom: 24, borderBottom: "1px solid rgba(148,163,184,0.2)", paddingBottom: 12, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 6, margin: "26px 0 24px", borderBottom: "1px solid var(--line)", paddingBottom: 12, flexWrap: "wrap" }}>
           {(["planner", "ledger", "report", "studies"] as const).map((tab) => (
             <button
               key={tab}
@@ -152,11 +156,11 @@ export default function FiveHourSprintClient() {
                 padding: "8px 16px",
                 border: "none",
                 background: activeTab === tab ? "rgba(245,158,11,0.2)" : "transparent",
-                color: activeTab === tab ? "var(--gold, #f59e0b)" : "var(--muted, #94a3b8)",
+                color: activeTab === tab ? "var(--gold)" : "var(--muted)",
                 fontSize: 14,
                 fontWeight: 800,
                 cursor: "pointer",
-                borderRadius: 8,
+                borderRadius: 4,
               }}
             >
               {tab === "planner" && "Sprint Planner"}
@@ -175,10 +179,10 @@ export default function FiveHourSprintClient() {
                 onClick={createSprint}
                 style={{
                   padding: "8px 16px",
-                  background: "var(--gold, #f59e0b)",
-                  color: "#0f172a",
+                  background: "var(--gold)",
+                  color: "#1A1408",
                   border: "none",
-                  borderRadius: 8,
+                  borderRadius: 4,
                   fontWeight: 800,
                   cursor: "pointer",
                 }}
@@ -188,7 +192,7 @@ export default function FiveHourSprintClient() {
             </div>
 
             {sprints.length === 0 ? (
-              <p style={{ color: "var(--muted, #94a3b8)", marginTop: 20 }}>No sprints yet. Create one to begin.</p>
+              <p style={{ color: "var(--muted)", marginTop: 20 }}>No sprints yet. Create one to begin.</p>
             ) : (
               <div style={{ display: "grid", gap: 12 }}>
                 {sprints.map((sprint) => (
@@ -200,21 +204,21 @@ export default function FiveHourSprintClient() {
                     }}
                     style={{
                       padding: 16,
-                      border: "1px solid rgba(148,163,184,0.25)",
-                      borderRadius: 12,
+                      border: "1px solid var(--line2)",
+                      borderRadius: 5,
                       cursor: "pointer",
                       background: currentSprint?.id === sprint.id ? "rgba(245,158,11,0.1)" : "rgba(148,163,184,0.05)",
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                       <div style={{ flex: 1 }}>
-                        <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>
+                        <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 6px", color: "var(--text)" }}>
                           {sprint.deliverable || "Untitled Sprint"}
                         </h3>
-                        <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 4px" }}>
+                        <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 4px" }}>
                           {sprint.repository} @ {sprint.branch}
                         </p>
-                        <p style={{ fontSize: 13, color: sprintReadyState(sprint) ? "#34D399" : "var(--gold, #f59e0b)", fontWeight: 800, margin: 0 }}>
+                        <p style={{ fontSize: 13, color: sprintReadyState(sprint) ? "#34D399" : "var(--gold)", fontWeight: 800, margin: 0 }}>
                           {sprintReadyState(sprint) ? "✓ Ready for Claude" : "⊘ Not ready yet"}
                         </p>
                       </div>
@@ -261,34 +265,34 @@ export default function FiveHourSprintClient() {
               <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Usage Ledger</h2>
               <button
                 onClick={() => setEntryFormOpen(true)}
-                style={{ padding: "8px 16px", background: "var(--gold, #f59e0b)", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}
+                style={{ padding: "8px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
               >
                 Log Entry
               </button>
             </div>
-            <p style={{ color: "var(--muted, #94a3b8)", fontSize: 13 }}>
+            <p style={{ color: "var(--muted)", fontSize: 13 }}>
               No fabricated data — only actual measured tokens and real, verified results.
             </p>
 
             {entries.length === 0 ? (
-              <p style={{ color: "var(--muted, #94a3b8)", marginTop: 20 }}>No ledger entries yet.</p>
+              <p style={{ color: "var(--muted)", marginTop: 20 }}>No ledger entries yet.</p>
             ) : (
               <div style={{ display: "grid", gap: 12, marginTop: 20 }}>
                 {entries.map((entry) => (
-                  <div key={entry.id} style={{ padding: 16, border: "1px solid rgba(148,163,184,0.25)", borderRadius: 12 }}>
+                  <div key={entry.id} style={{ padding: 16, border: "1px solid var(--line2)", borderRadius: 12 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                       <div style={{ flex: 1 }}>
                         <h3 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 4px" }}>
                           {entry.project} — {entry.deliverable || "untitled"}
                         </h3>
-                        <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 4px" }}>
+                        <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 4px" }}>
                           {entry.role} · {entry.actualUsed}k tokens ·{" "}
-                          <span style={{ color: entry.verified ? "#34D399" : "var(--gold, #f59e0b)", fontWeight: 800 }}>
+                          <span style={{ color: entry.verified ? "#34D399" : "var(--gold)", fontWeight: 800 }}>
                             {entry.verified ? "verified" : "unverified"}
                           </span>
                         </p>
                         {entry.outcomes.length > 0 && (
-                          <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: 0 }}>Outcomes: {entry.outcomes.join("; ")}</p>
+                          <p style={{ fontSize: 12, color: "var(--muted)", margin: 0 }}>Outcomes: {entry.outcomes.join("; ")}</p>
                         )}
                         {entry.incidents.length > 0 && (
                           <p style={{ fontSize: 12, color: "#ef4444", margin: "4px 0 0" }}>Incidents: {entry.incidents.join("; ")}</p>
@@ -322,7 +326,7 @@ export default function FiveHourSprintClient() {
         {activeTab === "report" && (
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20 }}>Proof-of-Work Report</h2>
-            <p style={{ color: "var(--muted, #94a3b8)", fontSize: 13, marginBottom: 16 }}>
+            <p style={{ color: "var(--muted)", fontSize: 13, marginBottom: 16 }}>
               Choose a sprint. The report pulls its ledger entries automatically (matched by repository) and includes
               commits, checks, deployment path, actual allowance used, and verified outcomes.
             </p>
@@ -333,7 +337,7 @@ export default function FiveHourSprintClient() {
                 setReportSprintId(e.target.value);
                 setReportText("");
               }}
-              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--ink, #e8edf5)", fontSize: 14, marginBottom: 16 }}
+              style={{ width: "100%", padding: "8px 12px", borderRadius: 4, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--text)", fontSize: 14, marginBottom: 16 }}
             >
               <option value="">Select a sprint…</option>
               {sprints.map((s) => (
@@ -346,7 +350,7 @@ export default function FiveHourSprintClient() {
             {reportSprint && (
               <button
                 onClick={() => setReportText(generateReport(reportSprint, reportEntries))}
-                style={{ padding: "10px 16px", background: "var(--gold, #f59e0b)", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
+                style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
               >
                 Generate Report
               </button>
@@ -359,8 +363,8 @@ export default function FiveHourSprintClient() {
                     whiteSpace: "pre-wrap",
                     fontSize: 13,
                     padding: 16,
-                    border: "1px solid rgba(148,163,184,0.25)",
-                    borderRadius: 12,
+                    border: "1px solid var(--line2)",
+                    borderRadius: 5,
                     background: "rgba(148,163,184,0.05)",
                     fontFamily: "monospace",
                   }}
@@ -373,7 +377,7 @@ export default function FiveHourSprintClient() {
                       alert("Couldn't copy to clipboard. Select and copy manually.");
                     });
                   }}
-                  style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}
+                  style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
                 >
                   Copy Report
                 </button>
@@ -385,30 +389,30 @@ export default function FiveHourSprintClient() {
         {activeTab === "studies" && (
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20 }}>Case Studies</h2>
-            <p style={{ color: "var(--muted, #94a3b8)" }}>Real verified work from this session.</p>
+            <p style={{ color: "var(--muted)" }}>Real verified work from this session.</p>
             <div style={{ display: "grid", gap: 20, marginTop: 24 }}>
               {CASE_STUDIES.map((study, idx) => (
-                <div key={idx} style={{ border: "1px solid rgba(148,163,184,0.25)", borderRadius: 12, padding: 16 }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 12px", color: "var(--ink, #e8edf5)" }}>{study.title}</h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13, color: "var(--muted, #94a3b8)" }}>
+                <div key={idx} style={{ border: "1px solid var(--line2)", borderRadius: 5, padding: 16 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 12px", color: "var(--text)" }}>{study.title}</h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13, color: "var(--muted)" }}>
                     <div>
-                      <p style={{ fontWeight: 800, color: "var(--ink, #e8edf5)", margin: "0 0 4px" }}>Repo</p>
+                      <p style={{ fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>Repo</p>
                       <p style={{ margin: 0 }}>{study.repository}</p>
                     </div>
                     <div>
-                      <p style={{ fontWeight: 800, color: "var(--ink, #e8edf5)", margin: "0 0 4px" }}>Commits</p>
+                      <p style={{ fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>Commits</p>
                       <p style={{ margin: 0 }}>{study.startCommit.slice(0, 7)} → {study.endCommit.slice(0, 7)}</p>
                     </div>
                     <div>
-                      <p style={{ fontWeight: 800, color: "var(--ink, #e8edf5)", margin: "0 0 4px" }}>Tests</p>
+                      <p style={{ fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>Tests</p>
                       <p style={{ margin: 0, color: "#34D399" }}>{study.testsPassed}</p>
                     </div>
                     <div>
-                      <p style={{ fontWeight: 800, color: "var(--ink, #e8edf5)", margin: "0 0 4px" }}>Build</p>
+                      <p style={{ fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>Build</p>
                       <p style={{ margin: 0, color: "#34D399" }}>{study.buildResult}</p>
                     </div>
                     <div style={{ gridColumn: "1 / -1" }}>
-                      <p style={{ fontWeight: 800, color: "var(--ink, #e8edf5)", margin: "0 0 4px" }}>Acceptance Case</p>
+                      <p style={{ fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>Acceptance Case</p>
                       <p style={{ margin: 0 }}>{study.acceptanceCase}</p>
                     </div>
                   </div>
@@ -441,13 +445,13 @@ function SprintForm({ sprint, onSave, onClose }: { sprint: Sprint; onSave: (s: S
     });
   }
 
-  const fieldStyle = { width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--ink, #e8edf5)", fontSize: 14 };
-  const labelStyle = { fontSize: 12, fontWeight: 800, color: "var(--muted, #94a3b8)", display: "block" as const, marginBottom: 4 };
+  const fieldStyle = { width: "100%", padding: "8px 12px", borderRadius: 4, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--text)", fontSize: 14 };
+  const labelStyle = { fontSize: 12, fontWeight: 800, color: "var(--muted)", display: "block" as const, marginBottom: 4 };
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, overflowY: "auto" }}>
-      <div style={{ background: "var(--bg, #0f172a)", border: "1px solid rgba(148,163,184,0.25)", borderRadius: 16, padding: 24, maxWidth: 520, maxHeight: "90vh", overflowY: "auto" }}>
-        <h3 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 16px", color: "var(--ink, #e8edf5)" }}>Edit Sprint</h3>
+      <div style={{ background: "var(--bg)", border: "1px solid var(--line2)", borderRadius: 6, padding: 24, maxWidth: 520, maxHeight: "90vh", overflowY: "auto" }}>
+        <h3 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 16px", color: "var(--text)" }}>Edit Sprint</h3>
 
         <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
           <label>
@@ -526,18 +530,18 @@ function SprintForm({ sprint, onSave, onClose }: { sprint: Sprint; onSave: (s: S
               onSave(liveForm);
               onClose();
             }}
-            style={{ flex: 1, padding: "10px 16px", background: ready ? "var(--gold, #f59e0b)" : "rgba(148,163,184,0.3)", color: ready ? "#0f172a" : "var(--muted, #94a3b8)", border: "none", borderRadius: 8, fontWeight: 800, cursor: ready ? "pointer" : "not-allowed" }}
+            style={{ flex: 1, padding: "10px 16px", background: ready ? "var(--gold)" : "rgba(148,163,184,0.3)", color: ready ? "#0f172a" : "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: ready ? "pointer" : "not-allowed" }}
             disabled={!ready}
           >
             {ready ? "Save & Generate Packet" : "Complete required fields"}
           </button>
-          <button onClick={onClose} style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--muted, #94a3b8)", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}>
+          <button onClick={onClose} style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
             Cancel
           </button>
         </div>
 
         {ready && (
-          <button onClick={copyPacket} style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}>
+          <button onClick={copyPacket} style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
             Copy Task Packet
           </button>
         )}
@@ -556,19 +560,19 @@ function LedgerEntryForm({ sprints, onSave, onClose }: { sprints: Sprint[]; onSa
 
   const sprint = sprints.find((s) => s.id === sprintId) ?? null;
   const canSave = !!sprint && actualUsed > 0;
-  const fieldStyle = { width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--ink, #e8edf5)", fontSize: 14 };
-  const labelStyle = { fontSize: 12, fontWeight: 800, color: "var(--muted, #94a3b8)", display: "block" as const, marginBottom: 4 };
+  const fieldStyle = { width: "100%", padding: "8px 12px", borderRadius: 4, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--text)", fontSize: 14 };
+  const labelStyle = { fontSize: 12, fontWeight: 800, color: "var(--muted)", display: "block" as const, marginBottom: 4 };
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, overflowY: "auto" }}>
-      <div style={{ background: "var(--bg, #0f172a)", border: "1px solid rgba(148,163,184,0.25)", borderRadius: 16, padding: 24, maxWidth: 480, maxHeight: "90vh", overflowY: "auto" }}>
-        <h3 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 16px", color: "var(--ink, #e8edf5)" }}>Log Ledger Entry</h3>
+      <div style={{ background: "var(--bg)", border: "1px solid var(--line2)", borderRadius: 6, padding: 24, maxWidth: 480, maxHeight: "90vh", overflowY: "auto" }}>
+        <h3 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 16px", color: "var(--text)" }}>Log Ledger Entry</h3>
 
         <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
           <label>
             <span style={labelStyle}>Sprint *</span>
             {sprints.length === 0 ? (
-              <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: 0 }}>Create a sprint first — a checkpoint has to belong to one.</p>
+              <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>Create a sprint first — a checkpoint has to belong to one.</p>
             ) : (
               <select value={sprintId} onChange={(e) => setSprintId(e.target.value)} style={fieldStyle}>
                 {sprints.map((s) => (
@@ -587,7 +591,7 @@ function LedgerEntryForm({ sprints, onSave, onClose }: { sprints: Sprint[]; onSa
           </label>
           <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <input type="checkbox" checked={verified} onChange={(e) => setVerified(e.target.checked)} />
-            <span style={{ fontSize: 13, color: "var(--ink, #e8edf5)" }}>Outcome verified (tests/build/production checked)</span>
+            <span style={{ fontSize: 13, color: "var(--text)" }}>Outcome verified (tests/build/production checked)</span>
           </label>
           <label>
             <span style={labelStyle}>Outcomes (one per line)</span>
@@ -617,11 +621,11 @@ function LedgerEntryForm({ sprints, onSave, onClose }: { sprints: Sprint[]; onSa
               });
             }}
             disabled={!canSave}
-            style={{ flex: 1, padding: "10px 16px", background: canSave ? "var(--gold, #f59e0b)" : "rgba(148,163,184,0.3)", color: canSave ? "#0f172a" : "var(--muted, #94a3b8)", border: "none", borderRadius: 8, fontWeight: 800, cursor: canSave ? "pointer" : "not-allowed" }}
+            style={{ flex: 1, padding: "10px 16px", background: canSave ? "var(--gold)" : "rgba(148,163,184,0.3)", color: canSave ? "#0f172a" : "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: canSave ? "pointer" : "not-allowed" }}
           >
             Save Entry
           </button>
-          <button onClick={onClose} style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--muted, #94a3b8)", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}>
+          <button onClick={onClose} style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
             Cancel
           </button>
         </div>

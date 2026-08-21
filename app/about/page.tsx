@@ -14,12 +14,13 @@ export default function AboutPage() {
   return (
     <Sheet>
       <PageHead
+        kicker="About"
         title={
           <>
-            About StepInTheRing<span style={{ color: "var(--gold)" }}>.com</span>
+            Step In The Ring<span style={{ color: "var(--gold)" }}>.com</span>
           </>
         }
-        lead="StepInTheRing turns a rough idea into a real first build. Say it however it comes out — one box, at most one follow-up question — and get back a clear plan for version one."
+        lead="A place to take something you want to make and turn it into something real. Say it however it comes out, answer at most one question, and leave with a plan for version one."
       />
 
       <Section title="What you can do here">

@@ -22,12 +22,15 @@ export default async function AccountPage() {
   if (!member) redirect("/membership");
 
   return (
-    <main style={{ minHeight: "100vh" }}>
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 20px 80px" }}>
-        <span className="kicker">Your account</span>
-        <h1 style={{ fontSize: 24, fontWeight: 900, margin: "6px 0 16px", color: "var(--ink, #e8edf5)" }}>
-          {member.user.email}
-        </h1>
+    <main>
+      <div className="page" style={{ maxWidth: 760 }}>
+        <header className="mast">
+          <span className="kicker">Your account</span>
+          <h1 className="mast-title" style={{ fontSize: "clamp(26px, 3.6vw, 40px)", wordBreak: "break-word" }}>
+            {member.user.email}
+          </h1>
+          <hr className="rule mast-rule" />
+        </header>
         <AccountClient
           membershipStatus={member.access.status}
           memberAccess={member.access.memberAccess}

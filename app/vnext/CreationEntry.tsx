@@ -75,7 +75,7 @@ export default function CreationEntry({
   const ownRef = useRef<HTMLTextAreaElement | null>(null);
   const ref = inputRef ?? ownRef;
 
-  function useStem(stem: string) {
+  function applyStem(stem: string) {
     onValueChange(stem);
     // Put the cursor where the person keeps typing.
     setTimeout(() => {
@@ -118,7 +118,7 @@ export default function CreationEntry({
             Or start with{" "}
             {starters.map((s, i) => (
               <span key={s.label}>
-                <button type="button" onClick={() => useStem(s.stem)}>
+                <button type="button" onClick={() => applyStem(s.stem)}>
                   {s.label.toLowerCase()}
                 </button>
                 {i < starters.length - 2 ? ", " : i === starters.length - 2 ? " or " : "."}

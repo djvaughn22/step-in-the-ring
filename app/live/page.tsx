@@ -39,18 +39,17 @@ export default function LivePage() {
   return (
     <main>
       <div className="page">
-        <section className="hero" style={{ paddingBottom: 8 }}>
-          <span className="kicker">Step In The Ring</span>
-          <h1 style={{ fontSize: "clamp(32px, 7vw, 54px)" }}>
-            Live <span style={{ color: "var(--gold)" }}>Products</span>
-          </h1>
-          <p className="hero-sub">
-            Everything here started as a rough idea, got shaped into a plan,
-            tested locally, and pushed live. Real products, playable now.
+        <header className="mast">
+          <span className="kicker">Proof</span>
+          <h1 className="mast-title">Pushed live</h1>
+          <p className="mast-lead">
+            Every one of these started as a rough idea, got shaped into a plan,
+            got tested on a laptop, and then went live. Newest first.
           </p>
-        </section>
+          <hr className="rule mast-rule" />
+        </header>
 
-        <section className="home-section" style={{ marginTop: 28 }}>
+        <section className="band" style={{ paddingTop: 34 }}>
           <div className="stack">
             {items.map((p) => (
               <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="door-card">

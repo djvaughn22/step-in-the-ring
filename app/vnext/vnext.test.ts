@@ -300,7 +300,7 @@ describe("The new shell", () => {
 
   it("lets a signed-out visitor reach their own local work", () => {
     const mw = read("middleware.ts");
-    const publicList = mw.slice(mw.indexOf("PUBLIC_ROUTES"), mw.indexOf("function isPublicRoute"));
+    const publicList = mw.slice(mw.indexOf("PUBLIC_ROUTES"), mw.indexOf("function isProtectedRoute"));
     expect(publicList).toContain('"/builds"');
     expect(publicList).toContain('"/library"');
   });

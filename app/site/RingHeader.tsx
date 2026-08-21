@@ -13,7 +13,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { navPages } from "./registry";
 
 const SECONDARY = [
@@ -24,9 +24,6 @@ const SECONDARY = [
 export default function RingHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
-  // Close the sheet when the route changes underneath it.
-  useEffect(() => setOpen(false), [pathname]);
 
   const primary = navPages();
 
@@ -75,7 +72,7 @@ export default function RingHeader() {
 
       <div id="ring-sheet" className={open ? "ring-sheet open" : "ring-sheet"}>
         {[...primary.map((p) => ({ name: p.name, href: p.path })), ...SECONDARY].map((l) => (
-          <Link key={l.href} href={l.href}>
+          <Link key={l.href} href={l.href} onClick={() => setOpen(false)}>
             {l.name}
           </Link>
         ))}

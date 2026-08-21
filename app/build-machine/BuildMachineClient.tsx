@@ -70,14 +70,14 @@ function emptyRecord(): BuildMachineRecord {
 
 const STATUS_COLOR: Record<CandidateAssessment["status"], string> = {
   good: "#34D399",
-  likely: "var(--gold, #f59e0b)",
-  "needs-upgrade": "var(--gold, #f59e0b)",
+  likely: "var(--gold)",
+  "needs-upgrade": "var(--gold)",
   "not-recommended": "#ef4444",
 };
 
-const card: React.CSSProperties = { border: "1px solid rgba(148,163,184,0.25)", borderRadius: 12, padding: 16, marginBottom: 16 };
-const fieldStyle: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--ink, #e8edf5)", fontSize: 14 };
-const labelStyle: React.CSSProperties = { fontSize: 12, fontWeight: 800, color: "var(--muted, #94a3b8)", display: "block", marginBottom: 4 };
+const card: React.CSSProperties = { border: "1px solid var(--line2)", borderRadius: 5, padding: 16, marginBottom: 16 };
+const fieldStyle: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRadius: 4, border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "var(--text)", fontSize: 14 };
+const labelStyle: React.CSSProperties = { fontSize: 12, fontWeight: 800, color: "var(--muted)", display: "block", marginBottom: 4 };
 
 export default function BuildMachineClient() {
   const [tab, setTab] = useState<"assess" | "prepare" | "verify" | "report">("assess");
@@ -120,28 +120,28 @@ export default function BuildMachineClient() {
   const installDone = allChecked(INSTALL_CHECKLIST_ITEMS, record.installState);
 
   return (
-    <main style={{ minHeight: "100vh", background: "var(--bg, #0f172a)", color: "var(--ink, #e8edf5)", padding: 20 }}>
-      <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0 }}>Build Machine</h1>
-          <a href="/account#feedback" style={{ fontSize: 13, fontWeight: 800, color: "var(--gold, #f59e0b)", textDecoration: "none" }}>Give feedback →</a>
-        </div>
-        <p style={{ color: "var(--muted, #94a3b8)", fontSize: 14, marginBottom: 24, maxWidth: 560 }}>
-          Free, open beta. Turn a computer you already have into a real local build environment —
-          assess it honestly, prepare it safely, install the one supported Linux setup, verify it
-          works, then open the ecosystem and finish a first small build. Price for the full guided
-          bundle is TBD; this tool is free to use during the beta.
-        </p>
+    <main>
+      <div className="page" style={{ maxWidth: 860 }}>
+        <header className="mast">
+          <span className="kicker">Your machine</span>
+          <h1 className="mast-title">Build Machine</h1>
+          <p className="mast-lead">
+            Turn a computer you already have into one that can actually build
+            what you are making. Check what you have, get it ready safely,
+            install the one setup we support, then prove it works.
+          </p>
+          <hr className="rule mast-rule" />
+        </header>
 
-        <div style={{ display: "flex", gap: 12, marginBottom: 24, borderBottom: "1px solid rgba(148,163,184,0.2)", paddingBottom: 12, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 6, margin: "26px 0 24px", borderBottom: "1px solid var(--line)", paddingBottom: 12, flexWrap: "wrap" }}>
           {(["assess", "prepare", "verify", "report"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               style={{
-                padding: "8px 16px", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 800, cursor: "pointer",
+                padding: "8px 16px", border: "none", borderRadius: 4, fontSize: 14, fontWeight: 800, cursor: "pointer",
                 background: tab === t ? "rgba(245,158,11,0.2)" : "transparent",
-                color: tab === t ? "var(--gold, #f59e0b)" : "var(--muted, #94a3b8)",
+                color: tab === t ? "var(--gold)" : "var(--muted)",
               }}
             >
               {t === "assess" && "1. Assess"}
@@ -155,7 +155,7 @@ export default function BuildMachineClient() {
         {tab === "assess" && (
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Is this computer a candidate?</h2>
-            <p style={{ color: "var(--muted, #94a3b8)", fontSize: 13, marginBottom: 16 }}>
+            <p style={{ color: "var(--muted)", fontSize: 13, marginBottom: 16 }}>
               Answer honestly — this only checks whether a Linux Mint 22 Build Machine is realistic for
               this exact computer. Nothing here is destructive.
             </p>
@@ -223,7 +223,7 @@ export default function BuildMachineClient() {
                   </select>
                 </label>
               )}
-              <button type="submit" style={{ padding: "10px 16px", background: "var(--gold, #f59e0b)", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}>
+              <button type="submit" style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
                 Check candidacy
               </button>
             </form>
@@ -236,21 +236,21 @@ export default function BuildMachineClient() {
                 {record.assessment.blockers.length > 0 && (
                   <div style={{ marginBottom: 10 }}>
                     <p style={{ fontSize: 12, fontWeight: 800, color: "#ef4444", margin: "0 0 4px" }}>Fix before proceeding</p>
-                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "var(--muted, #94a3b8)" }}>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "var(--muted)" }}>
                       {record.assessment.blockers.map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
                     </ul>
                   </div>
                 )}
                 {record.assessment.verifyItems.length > 0 && (
                   <div style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 12, fontWeight: 800, color: "var(--gold, #f59e0b)", margin: "0 0 4px" }}>Verify these</p>
-                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "var(--muted, #94a3b8)" }}>
+                    <p style={{ fontSize: 12, fontWeight: 800, color: "var(--gold)", margin: "0 0 4px" }}>Verify these</p>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "var(--muted)" }}>
                       {record.assessment.verifyItems.map((v, i) => <li key={i} style={{ marginBottom: 4 }}>{v}</li>)}
                     </ul>
                   </div>
                 )}
                 {record.assessment.notes.length > 0 && (
-                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--muted, #94a3b8)" }}>
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--muted)" }}>
                     {record.assessment.notes.map((n, i) => <li key={i} style={{ marginBottom: 4 }}>{n}</li>)}
                   </ul>
                 )}
@@ -262,7 +262,7 @@ export default function BuildMachineClient() {
         {tab === "prepare" && (
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Back up, then prepare</h2>
-            <p style={{ color: "var(--muted, #94a3b8)", fontSize: 13, marginBottom: 16 }}>
+            <p style={{ color: "var(--muted)", fontSize: 13, marginBottom: 16 }}>
               Every item below must be checked before the install checklist unlocks. Nothing on this
               machine is touched by checking a box — this is only a confirmation you&apos;ve done it.
             </p>
@@ -276,16 +276,16 @@ export default function BuildMachineClient() {
             </div>
 
             {!prepDone ? (
-              <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)" }}>
+              <p style={{ fontSize: 13, color: "var(--muted)" }}>
                 Complete every item above to unlock the installation checklist.
               </p>
             ) : (
               <div style={card}>
                 <p style={{ fontSize: 16, fontWeight: 900, margin: "0 0 8px" }}>Install: Linux Mint 22 (Cinnamon or Xfce)</p>
-                <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", marginBottom: 12 }}>
+                <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 12 }}>
                   The single supported path — built on an Ubuntu 24.04 base. The full step-by-step guide,
                   scripts, and troubleshooting live in the{" "}
-                  <a href="https://openmirrorllc.com/products/old-laptop-to-build-machine" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold, #f59e0b)" }}>
+                  <a href="https://openmirrorllc.com/products/old-laptop-to-build-machine" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)" }}>
                     Old Laptop → Build Machine guide
                   </a>{" — "}
                   this checklist tracks your progress through it.
@@ -297,7 +297,7 @@ export default function BuildMachineClient() {
                   </label>
                 ))}
                 {installDone && (
-                  <button onClick={() => setTab("verify")} style={{ marginTop: 8, padding: "10px 16px", background: "var(--gold, #f59e0b)", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}>
+                  <button onClick={() => setTab("verify")} style={{ marginTop: 8, padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
                     Continue to verification →
                   </button>
                 )}
@@ -309,7 +309,7 @@ export default function BuildMachineClient() {
         {tab === "verify" && (
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Verify, then open the ecosystem</h2>
-            <p style={{ color: "var(--muted, #94a3b8)", fontSize: 13, marginBottom: 16 }}>
+            <p style={{ color: "var(--muted)", fontSize: 13, marginBottom: 16 }}>
               Check each item only once you&apos;ve actually confirmed it on the machine.
             </p>
             <div style={card}>
@@ -323,18 +323,18 @@ export default function BuildMachineClient() {
 
             <div style={card}>
               <p style={{ fontSize: 16, fontWeight: 900, margin: "0 0 8px" }}>Open the ecosystem</p>
-              <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", marginBottom: 12 }}>
+              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 12 }}>
                 From this machine, open iDontCry to play and test ideas, and Step In The Ring to build one for real.
               </p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
-                <a href="https://www.idontcry.com" target="_blank" rel="noopener noreferrer" style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--ink, #e8edf5)", borderRadius: 8, fontWeight: 800, textDecoration: "none", fontSize: 14 }}>
+                <a href="https://www.idontcry.com" target="_blank" rel="noopener noreferrer" style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--text)", borderRadius: 4, fontWeight: 800, textDecoration: "none", fontSize: 14 }}>
                   Open iDontCry
                 </a>
-                <a href="/" target="_blank" rel="noopener noreferrer" style={{ padding: "10px 16px", background: "var(--gold, #f59e0b)", color: "#0f172a", borderRadius: 8, fontWeight: 800, textDecoration: "none", fontSize: 14 }}>
+                <a href="/" target="_blank" rel="noopener noreferrer" style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", borderRadius: 4, fontWeight: 800, textDecoration: "none", fontSize: 14 }}>
                   Open Step In The Ring
                 </a>
               </div>
-              <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", marginBottom: 10 }}>
+              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10 }}>
                 First build exercise: on the Step In The Ring homepage, shape one small idea from
                 start to a plan and builder prompt — a real first result, on this machine.
               </p>
@@ -355,25 +355,25 @@ export default function BuildMachineClient() {
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>Completion report</h2>
             <button
               onClick={() => setReportText(generateCompletionReport(record))}
-              style={{ padding: "10px 16px", background: "var(--gold, #f59e0b)", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
+              style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
             >
               Generate report
             </button>
             {reportText && (
               <div>
-                <pre style={{ whiteSpace: "pre-wrap", fontSize: 13, padding: 16, border: "1px solid rgba(148,163,184,0.25)", borderRadius: 12, background: "rgba(148,163,184,0.05)", fontFamily: "monospace" }}>
+                <pre style={{ whiteSpace: "pre-wrap", fontSize: 13, padding: 16, border: "1px solid var(--line2)", borderRadius: 5, background: "rgba(148,163,184,0.05)", fontFamily: "monospace" }}>
                   {reportText}
                 </pre>
                 <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
                   <button
                     onClick={() => navigator.clipboard.writeText(reportText).catch(() => alert("Couldn't copy. Select and copy manually."))}
-                    style={{ padding: "10px 16px", background: "#34D399", color: "#0f172a", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}
+                    style={{ padding: "10px 16px", background: "#34D399", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
                   >
                     Copy report
                   </button>
                   <button
                     onClick={() => download("build-machine-report.txt", reportText)}
-                    style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--ink, #e8edf5)", border: "none", borderRadius: 8, fontWeight: 800, cursor: "pointer" }}
+                    style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--text)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
                   >
                     Download report
                   </button>

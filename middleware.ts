@@ -9,6 +9,11 @@ const PROTECTED_ROUTES = [
   "/author",
 ];
 
+// Documentation, not enforcement: gating is PROTECTED_ROUTES below plus each
+// page's own server check. Kept because app/site/registry.test.ts reads this
+// list out of the source to catch a page that claims to be public while
+// middleware demands a session.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PUBLIC_ROUTES = [
   "/",
   // vNext: Your Builds and Your Work handle signed-out visitors themselves.
@@ -33,13 +38,6 @@ const PUBLIC_ROUTES = [
   "/members/signup",
   "/owner",
 ];
-
-function isPublicRoute(pathname: string): boolean {
-  // Check exact matches and prefixes
-  return PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(route + "/"),
-  );
-}
 
 function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_ROUTES.some(
