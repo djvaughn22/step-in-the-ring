@@ -1,42 +1,37 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// PAGE PRIMITIVES — the small set of shapes every page here is built from.
+// PAGE PRIMITIVES — the shapes every page here is built from.
 //
-// Why: pages used to be hand-styled one at a time. Some used the CSS classes
-// in globals.css, some carried inline styles with their own hardcoded colour
-// fallbacks, and the two drifted until it stopped looking like one product.
-// These five pieces are the whole system. Reach for them first.
-//
-//   <Sheet>        the page column: one width, one rhythm, one bottom margin
-//   <PageHead>     kicker → title → one lead sentence
-//   <Section>      a titled band inside a Sheet
-//   <DirectoryCard>  one row in a directory: name, sentence, where it goes
+//   <Sheet>        the page column. `wide` uses the full stage.
+//   <Masthead>     big title, one line under it, rule beneath
+//   <Band>         a titled section with a rule and an optional note
+//   <Rows>/<Row>   a list of places you can go: name, sentence, door, route
+//   <Tile>         a product, keeping its own colour
 //   <AccessPill>   what kind of door something is behind
 //
-// These are server components on purpose. Nothing here holds state, so nothing
-// here needs to ship JavaScript.
+// PageHead/Section/DirectoryCard/DirectoryGrid are kept as aliases so the
+// content pages that already use them pick up the new look for free.
+//
+// Server components: nothing here holds state, so nothing ships JavaScript.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import Link from "next/link";
-import type { ReactNode } from "react";
-import type { Access } from "./registry";
+import type { CSSProperties, ReactNode } from "react";
+import type { Access, EcosystemProject } from "./registry";
 import { ACCESS_LABEL } from "./registry";
 
-/** The page column. `wide` is for directories; everything else reads better narrow. */
-export function Sheet({
-  children,
-  wide = false,
-}: {
-  children: ReactNode;
-  wide?: boolean;
-}) {
+/** The page column. Directories and proof pages want `wide`. */
+export function Sheet({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   return (
-    <main className="sheet-main">
-      <div className={wide ? "sheet sheet-wide" : "sheet"}>{children}</div>
+    <main>
+      <div className="page" style={wide ? undefined : { maxWidth: 760 }}>
+        {children}
+      </div>
     </main>
   );
 }
 
-export function PageHead({
+/** Big title, one sentence, rule. The top of every page that isn't the home. */
+export function Masthead({
   kicker,
   title,
   lead,
@@ -48,15 +43,152 @@ export function PageHead({
   children?: ReactNode;
 }) {
   return (
-    <header className="page-head">
-      {kicker ? <p className="kicker">{kicker}</p> : null}
-      <h1 className="page-title">{title}</h1>
-      {lead ? <p className="page-lead">{lead}</p> : null}
+    <header className="mast">
+      {kicker ? <span className="kicker">{kicker}</span> : null}
+      <h1 className="mast-title">{title}</h1>
+      {lead ? <p className="mast-lead">{lead}</p> : null}
       {children}
+      <hr className="rule mast-rule" />
     </header>
   );
 }
 
+/** A titled section. */
+export function Band({
+  id,
+  title,
+  note,
+  children,
+}: {
+  id?: string;
+  title: string;
+  note?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="band" id={id}>
+      <div className="band-head">
+        <h2 className="band-title">{title}</h2>
+        {note ? <p className="band-note">{note}</p> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/** Links across the top of a long directory. */
+export function Jump({ items }: { items: { label: string; href: string }[] }) {
+  return (
+    <nav className="jump" aria-label="Jump to a section">
+      {items.map((i) => (
+        <a key={i.href} href={i.href}>
+          {i.label}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+export function AccessPill({ access }: { access: Access }) {
+  if (access === "public") return null;
+  return <span className={`access-pill access-${access}`}>{ACCESS_LABEL[access]}</span>;
+}
+
+export function Rows({ children }: { children: ReactNode }) {
+  return <div className="rows">{children}</div>;
+}
+
+/** One place you can go. The whole row is the target. */
+export function Row({
+  name,
+  what,
+  href,
+  access,
+  path,
+  external = false,
+}: {
+  name: string;
+  what: string;
+  href: string;
+  access?: Access;
+  /** Shown small and mono on the right. Secondary by design. */
+  path?: string;
+  external?: boolean;
+}) {
+  const inner = (
+    <>
+      <span className="row-name">{name}</span>
+      <span className="row-side">
+        {access ? <AccessPill access={access} /> : null}
+        {path ? <span className="row-path">{path}</span> : null}
+        <span aria-hidden="true" style={{ color: "var(--gold)", fontWeight: 900 }}>
+          {external ? "↗" : "→"}
+        </span>
+      </span>
+      <p className="row-what">{what}</p>
+    </>
+  );
+  if (external) {
+    return (
+      <a className="row" href={href} target="_blank" rel="noopener noreferrer">
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <Link className="row" href={href}>
+      {inner}
+    </Link>
+  );
+}
+
+/** Product colour as CSS custom properties, so a wall of tiles isn't grey. */
+export function accentVars(accent: string): CSSProperties {
+  return { "--tile-accent": accent, "--tile-soft": `${accent}1A` } as CSSProperties;
+}
+
+export function Tiles({ children }: { children: ReactNode }) {
+  return <div className="tiles">{children}</div>;
+}
+
+/** A product, with its own identity. */
+export function Tile({ p }: { p: EcosystemProject }) {
+  const body = (
+    <>
+      <span className="tile-mark" aria-hidden="true">
+        {p.emoji}
+      </span>
+      <h3 className="tile-name">{p.name}</h3>
+      <p className="tile-what">{p.what}</p>
+      <span className="tile-foot">
+        <span className={p.status === "live" ? "dot" : "dot dot-building"} />
+        {p.status === "live" ? "Live" : "Building"}
+        <span className="tile-open">Open</span>
+      </span>
+    </>
+  );
+  if (!p.liveUrl) {
+    return (
+      <div className="tile" style={accentVars(p.accent)}>
+        {body}
+      </div>
+    );
+  }
+  return (
+    <a
+      className="tile"
+      href={p.liveUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={accentVars(p.accent)}
+    >
+      {body}
+    </a>
+  );
+}
+
+// ── Kept names, new look ────────────────────────────────────────────────────
+export const PageHead = Masthead;
 export function Section({
   title,
   lead,
@@ -67,30 +199,18 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="sec">
-      <h2>{title}</h2>
-      {lead ? <p className="sec-lead">{lead}</p> : null}
+    <Band title={title} note={lead}>
       {children}
-    </section>
+    </Band>
   );
 }
-
-export function AccessPill({ access }: { access: Access }) {
-  if (access === "public") return null;
-  return (
-    <span className={`access-pill access-${access}`}>{ACCESS_LABEL[access]}</span>
-  );
+export function DirectoryGrid({ children }: { children: ReactNode }) {
+  return <div className="rows">{children}</div>;
 }
-
-/**
- * One row in a directory. External links carry a safe rel and say so; internal
- * links use the router. The whole card is the target — no hover-only actions.
- */
 export function DirectoryCard({
   name,
   what,
   href,
-  emoji,
   access,
   note,
   external = false,
@@ -103,40 +223,13 @@ export function DirectoryCard({
   note?: string;
   external?: boolean;
 }) {
-  const inner = (
-    <>
-      <div className="dir-top">
-        {emoji ? <span className="dir-emoji">{emoji}</span> : null}
-        <span className="dir-name">{name}</span>
-        {access ? <AccessPill access={access} /> : null}
-        <span className="dir-go" aria-hidden="true">
-          {external ? "↗" : "→"}
-        </span>
-      </div>
-      <p className="dir-what">{what}</p>
-      {note ? <p className="dir-note">{note}</p> : null}
-    </>
-  );
-
-  if (external) {
-    return (
-      <a
-        className="dir-card"
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {inner}
-      </a>
-    );
-  }
   return (
-    <Link className="dir-card" href={href}>
-      {inner}
-    </Link>
+    <Row
+      name={name}
+      what={note ? `${what} ${note}` : what}
+      href={href}
+      access={access}
+      external={external}
+    />
   );
-}
-
-export function DirectoryGrid({ children }: { children: ReactNode }) {
-  return <div className="dir-grid">{children}</div>;
 }

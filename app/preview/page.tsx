@@ -1,22 +1,22 @@
-// The front door for shared previews. Someone handed a passcode can land here
-// directly, unlock once, and then open any page the registry marks `preview`
+// The front door for shared previews. Someone handed a code lands here,
+// unlocks once, and can then open any page the registry marks `preview`
 // without typing it again.
 //
-// If they're already unlocked, don't make them prove it twice — show what the
-// passcode opens.
+// If they're already unlocked, don't make them prove it twice: show what the
+// code opens.
 
 import type { Metadata } from "next";
 import Link from "next/link";
 import PreviewGate from "./PreviewGate";
 import { isPreviewAuthorized } from "./previewAuth";
 import { pagesWithAccess, EXTERNAL_PREVIEWS } from "../site/registry";
-import { Sheet, PageHead, Section, DirectoryCard, DirectoryGrid } from "../site/ui";
+import { Sheet, Masthead, Band, Rows, Row } from "../site/ui";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Preview access",
-  description: "Open a shared preview with the passcode you were given.",
+  description: "Open a shared preview with the code you were given.",
   robots: { index: false, follow: false },
 };
 
@@ -26,7 +26,8 @@ export default async function PreviewPage() {
   if (!unlocked) {
     return (
       <PreviewGate
-        what="Some things here aren't finished enough to publish. If someone gave you a passcode, this opens them."
+        title="Have a preview code?"
+        what="Some things here are not finished enough to publish. If somebody gave you a code, this opens them."
         returnTo="/shop"
       />
     );
@@ -35,48 +36,45 @@ export default async function PreviewPage() {
   const pages = pagesWithAccess("preview");
 
   return (
-    <Sheet>
-      <PageHead
+    <Sheet wide>
+      <Masthead
         kicker="Preview"
         title="You're in"
-        lead="These are the unfinished pieces. Look around — nothing here is final."
+        lead="These are the unfinished pieces. Nothing here is final, and some of it will change or disappear."
       />
 
-      <Section title="On this site">
-        <DirectoryGrid>
+      <Band title="On this site">
+        <Rows>
           {pages.map((p) => (
-            <DirectoryCard key={p.path} name={p.name} what={p.what} href={p.path} />
+            <Row key={p.path} name={p.name} what={p.what} href={p.path} path={p.path} />
           ))}
-        </DirectoryGrid>
-      </Section>
+        </Rows>
+      </Band>
 
       {EXTERNAL_PREVIEWS.length > 0 ? (
-        <Section
+        <Band
           title="Somewhere else"
-          lead="These live on another site and keep their own door, so they'll ask for their own passcode."
+          note="These live on another site and keep their own door, so they will ask for their own code."
         >
-          <DirectoryGrid>
+          <Rows>
             {EXTERNAL_PREVIEWS.map((p) => (
-              <DirectoryCard
+              <Row
                 key={p.href}
-                name={p.name}
-                what={p.what}
-                note={`${p.why} Hosted on ${p.host}.`}
+                name={`${p.name} (example)`}
+                what={`${p.what} ${p.why} Hosted on ${p.host}.`}
                 href={p.href}
                 external
               />
             ))}
-          </DirectoryGrid>
-        </Section>
+          </Rows>
+        </Band>
       ) : null}
 
-      <Section title="Back">
-        <p className="sec-lead" style={{ marginBottom: 0 }}>
-          <Link href="/everything" style={{ color: "var(--gold)", fontWeight: 800 }}>
-            See everything else →
-          </Link>
-        </p>
-      </Section>
+      <section className="closing">
+        <Link href="/everything" className="btn btn-ghost btn-big">
+          See everything else
+        </Link>
+      </section>
     </Sheet>
   );
 }
