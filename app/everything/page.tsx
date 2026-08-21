@@ -1,13 +1,12 @@
-// EVERYTHING — the honest directory.
+// EVERYTHING — the map of the whole world.
 //
-// The point of this page is that nothing here is hidden by accident. Every
-// page of this site is listed, including the ones you can't open, with a plain
-// label saying what kind of door is in front of it. Listing a door is not
-// opening it: owner tools check the owner session on the server and are
-// unaffected by anything on this page.
+// Nothing here is hidden by accident. Every page of this site is listed,
+// including the ones you can't open, with a plain label saying what kind of
+// door is in front of it. Listing a door is not opening it: owner tools check
+// the owner session on the server and are unaffected by anything on this page.
 //
-// It reads entirely from app/site/registry.ts. Do not hand-add a link here —
-// add the row to the registry and it appears, and the route test keeps the
+// It reads entirely from app/site/registry.ts. Never hand-add a link here.
+// Add the row to the registry and it appears, and the route test keeps the
 // registry honest against the filesystem.
 
 import type { Metadata } from "next";
@@ -19,136 +18,171 @@ import {
   pagesWithAccess,
   type SitePage,
 } from "../site/registry";
-import { Sheet, PageHead, Section, DirectoryCard, DirectoryGrid } from "../site/ui";
+import { Sheet, Masthead, Band, Jump, Rows, Row, Tiles, Tile, accentVars } from "../site/ui";
 
 export const metadata: Metadata = {
   title: "Everything",
   description:
-    "Every page on Step In The Ring, every product built with it, and exactly what sits behind a door.",
+    "Every page on Step In The Ring, every product built with it, every repository behind it, and exactly what sits behind a door.",
 };
 
-function Pages({ pages }: { pages: SitePage[] }) {
+function PageRows({ pages }: { pages: SitePage[] }) {
   return (
-    <DirectoryGrid>
+    <Rows>
       {pages.map((p) => (
-        <DirectoryCard
+        <Row
           key={p.path}
           name={p.name}
           what={p.what}
           href={p.path}
           access={p.access}
+          path={p.path}
         />
       ))}
-    </DirectoryGrid>
+    </Rows>
   );
 }
 
 export default function EverythingPage() {
-  const owner = pagesInGroup("owner");
   const preview = pagesWithAccess("preview");
 
   return (
     <Sheet wide>
-      <PageHead
-        kicker="Directory"
+      <Masthead
+        kicker="The directory"
         title="Everything"
-        lead="Every page on this site, every product that came out of it, and what's behind each door. Nothing is hidden on purpose."
-      />
-
-      <Section title="Start here">
-        <Pages pages={pagesInGroup("start")} />
-      </Section>
-
-      <Section
-        title="Your work"
-        lead="The tools. Some need an account; the label says which."
+        lead="Every product, every page, every repository, and what kind of door is in front of each one. If it exists, it is on this page."
       >
-        <Pages pages={pagesInGroup("work")} />
-      </Section>
+        <Jump
+          items={[
+            { label: "Products", href: "#products" },
+            { label: "Make", href: "#make" },
+            { label: "Proof", href: "#proof" },
+            { label: "Reading", href: "#reading" },
+            { label: "Account", href: "#account" },
+            { label: "Previews", href: "#previews" },
+            { label: "Code", href: "#code" },
+            { label: "Owner", href: "#owner" },
+          ]}
+        />
+      </Masthead>
 
-      <Section title="What got made" lead="Finished things. They're live — open them.">
-        <Pages pages={pagesInGroup("proof")} />
-      </Section>
-
-      <Section title="Reading">
-        <Pages pages={pagesInGroup("learn")} />
-      </Section>
-
-      <Section title="Your account">
-        <Pages pages={pagesInGroup("account")} />
-      </Section>
-
-      <Section
+      <Band
+        id="products"
         title="Products"
-        lead="Ten sites under one company. Each one is a real product with real people using it."
+        note="Ten sites under one company. Every one is live and open to anyone."
       >
-        <DirectoryGrid>
+        <Tiles>
           {ECOSYSTEM.map((p) => (
-            <DirectoryCard
-              key={p.name}
-              emoji={p.emoji}
+            <Tile key={p.name} p={p} />
+          ))}
+        </Tiles>
+      </Band>
+
+      <Band id="make" title="Make something" note="The tools. The label says which need an account.">
+        <PageRows pages={[...pagesInGroup("start"), ...pagesInGroup("work")]} />
+      </Band>
+
+      <Band id="proof" title="What got made" note="Finished things. They are live, so open them.">
+        <PageRows pages={pagesInGroup("proof")} />
+      </Band>
+
+      <Band id="reading" title="Reading">
+        <PageRows pages={pagesInGroup("learn")} />
+      </Band>
+
+      <Band id="account" title="Your account">
+        <PageRows pages={pagesInGroup("account")} />
+      </Band>
+
+      <Band
+        id="previews"
+        title="Shared previews"
+        note="Unfinished pieces handed out one person at a time. A passcode opens them. It is not a login and it protects nothing private."
+      >
+        <Rows>
+          {preview.map((p) => (
+            <Row
+              key={p.path}
               name={p.name}
               what={p.what}
-              note={p.real}
-              href={p.liveUrl ?? "/explore"}
-              external={Boolean(p.liveUrl)}
+              href={p.path}
+              access="preview"
+              path={p.path}
             />
           ))}
-        </DirectoryGrid>
-      </Section>
-
-      <Section
-        title="Code"
-        lead="Every site above is built from its own repository. They're private for now — the products are the part meant to be public, and the repositories carry deployment settings that aren't."
-      >
-        <p className="dir-note" style={{ marginTop: 0 }}>
-          If a repository opens up, it gets a link here rather than a mention.
+          {EXTERNAL_PREVIEWS.map((p) => (
+            <Row
+              key={p.href}
+              name={`${p.name} (example)`}
+              what={`${p.what} ${p.why} Hosted on ${p.host}, with its own passcode.`}
+              href={p.href}
+              access="preview"
+              external
+            />
+          ))}
+        </Rows>
+        <p style={{ marginTop: 20, fontSize: 14 }}>
+          Got a code?{" "}
+          <Link href="/preview" style={{ color: "var(--gold)", fontWeight: 800 }}>
+            Put it in here
+          </Link>
+          .
         </p>
-      </Section>
+      </Band>
 
-      {preview.length > 0 || EXTERNAL_PREVIEWS.length > 0 ? (
-        <Section
-          title="Shared previews"
-          lead="Unfinished pieces the owner hands out one person at a time. A passcode opens them; it is not a login and it protects nothing private."
-        >
-          <DirectoryGrid>
-            {preview.map((p) => (
-              <DirectoryCard
-                key={p.path}
-                name={p.name}
-                what={p.what}
-                href={p.path}
-                access="preview"
-              />
-            ))}
-            {EXTERNAL_PREVIEWS.map((p) => (
-              <DirectoryCard
-                key={p.href}
-                name={p.name}
-                what={p.what}
-                note={`${p.why} Hosted on ${p.host}, with its own passcode.`}
-                href={p.href}
-                access="preview"
-                external
-              />
-            ))}
-          </DirectoryGrid>
-          <p className="dir-note">
-            Got a passcode?{" "}
-            <Link href="/preview" style={{ color: "var(--gold)", fontWeight: 800 }}>
-              Enter it here
-            </Link>
-            .
-          </p>
-        </Section>
-      ) : null}
-
-      <Section
-        title="Owner tools"
-        lead="Listed so this page isn't lying by omission. These check the owner's own sign-in on the server — a preview passcode never reaches them."
+      <Band
+        id="code"
+        title="The code"
+        note="Every product above is built from its own repository. Private for now: the products are the part meant to be public, and the repositories carry deployment settings that are not."
       >
-        <Pages pages={owner} />
-      </Section>
+        <div>
+          {ECOSYSTEM.map((p) => (
+            <div className="repo" key={p.name} style={accentVars(p.accent)}>
+              <span className="repo-mark" aria-hidden="true">
+                {p.emoji}
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <div className="repo-name">{p.name}</div>
+                <p className="repo-what">{p.what}</p>
+              </div>
+              <div className="repo-side">
+                <span className="repo-tag">
+                  {p.repoPublic ? "Public repo" : "Private repo"}
+                </span>
+                {p.repoUrl ? (
+                  <a
+                    className="repo-open"
+                    href={p.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Code
+                  </a>
+                ) : null}
+                {p.liveUrl ? (
+                  <a
+                    className="repo-open"
+                    href={p.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Band>
+
+      <Band
+        id="owner"
+        title="Owner tools"
+        note="Listed so this page is not lying by leaving them out. Each one checks the owner's own sign-in on the server. A preview passcode never reaches them."
+      >
+        <PageRows pages={pagesInGroup("owner")} />
+      </Band>
     </Sheet>
   );
 }

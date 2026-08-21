@@ -65,8 +65,9 @@ export default function PreviewGate({
   }
 
   return (
-    <main className="sheet-main">
+    <main>
       <form className="gate" onSubmit={submit}>
+        <span className="kicker">Preview</span>
         <h1>{title}</h1>
         <p>{what ?? "This one isn't public yet."}</p>
 
@@ -77,7 +78,7 @@ export default function PreviewGate({
         ) : null}
 
         <label htmlFor="preview-passcode" className="sr-only">
-          Passcode
+          Preview code
         </label>
         <input
           id="preview-passcode"
@@ -85,18 +86,24 @@ export default function PreviewGate({
           type="password"
           inputMode="numeric"
           autoComplete="one-time-code"
-          placeholder="Passcode"
+          placeholder="––––"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           disabled={busy}
           autoFocus
         />
 
-        <button type="submit" className="btn btn-gold" disabled={busy || !value.trim()}>
-          {busy ? "Opening…" : "Open preview"}
+        <button
+          type="submit"
+          className="btn btn-gold btn-big"
+          disabled={busy || !value.trim()}
+        >
+          {busy ? "Opening" : "Open"}
         </button>
 
-        <p className="gate-note">Use the passcode you were given.</p>
+        <p className="gate-note">
+          Use the code you were given. There is nothing to sign up for.
+        </p>
       </form>
     </main>
   );

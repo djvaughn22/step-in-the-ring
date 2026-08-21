@@ -1546,3 +1546,189 @@ html[data-om-theme="light"] .btn-primary:hover { background: #96600A; }
   .startbox { padding: 20px; }
   .startbox textarea { min-height: 112px; }
 }
+
+/* ═══ DIRECTORY PAGES ════════════════════════════════════════════════════ */
+
+/* Page masthead: big title, one line under it, rule beneath. */
+.mast { padding: clamp(44px, 5.5vw, 76px) 0 0; }
+.mast-title {
+  font-size: clamp(38px, 6.4vw, 76px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+  color: var(--text);
+  margin: 14px 0 0;
+}
+.mast-lead {
+  font-size: clamp(15px, 1.7vw, 19px);
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 56ch;
+  margin: 18px 0 0;
+}
+.mast-rule { margin-top: clamp(30px, 4vw, 48px); }
+
+/* Jump strip: section links across the top of a long directory. */
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 26px;
+}
+.jump a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 9px 13px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+}
+.jump a:hover { border-color: var(--gold); color: var(--gold); }
+
+/* A row in a list of pages: name, sentence, door label, route in mono. */
+.rows { border-top: 1px solid var(--line); }
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 22px;
+  align-items: baseline;
+  padding: 18px 4px;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  transition: background 0.12s ease, padding-left 0.12s ease;
+}
+.row:hover { background: var(--panel); padding-left: 12px; }
+.row:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.row-name { font-size: 17px; font-weight: 900; letter-spacing: -0.015em; color: var(--text); }
+.row-what { grid-column: 1; font-size: 13.5px; line-height: 1.5; color: var(--muted); margin: 0; }
+.row-side { grid-row: 1 / span 2; display: flex; align-items: center; gap: 12px; }
+.row-path {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+@media (max-width: 620px) { .row-path { display: none; } }
+
+/* Repository rows read like a shelf of real work. */
+.repo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.repo-mark {
+  width: 34px; height: 34px; border-radius: 5px;
+  display: grid; place-items: center; font-size: 17px;
+  background: var(--tile-soft, var(--gold-soft));
+  border: 1px solid var(--tile-accent, var(--gold-glow));
+  flex-shrink: 0;
+}
+.repo-name { font-size: 15.5px; font-weight: 900; color: var(--text); }
+.repo-what { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
+.repo-side { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.repo-tag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--dim);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 5px 9px;
+  white-space: nowrap;
+}
+.repo-open {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-decoration: none;
+  border: 1px solid var(--gold-glow);
+  border-radius: 3px;
+  padding: 5px 10px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+.repo-open:hover { background: var(--gold-soft); }
+
+/* Big feature tile for a single hero product on Explore. */
+.feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--panel);
+  text-decoration: none;
+}
+@media (max-width: 780px) { .feature { grid-template-columns: 1fr; } }
+.feature-body { padding: clamp(26px, 3.4vw, 44px); }
+.feature-art {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  font-size: clamp(64px, 9vw, 120px);
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--tile-soft, var(--gold-soft)) 0 14px,
+      transparent 14px 28px
+    );
+  border-left: 1px solid var(--line);
+}
+@media (max-width: 780px) { .feature-art { border-left: 0; border-top: 1px solid var(--line); min-height: 160px; } }
+.feature-name {
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  color: var(--text);
+  margin: 14px 0 10px;
+  line-height: 1.02;
+}
+.feature-what { font-size: 15.5px; line-height: 1.6; color: var(--muted); margin: 0 0 8px; }
+.feature-real { font-size: 13.5px; line-height: 1.55; color: var(--dim); margin: 0 0 22px; }
+
+/* The passcode door. */
+.gate { max-width: 400px; margin: 0 auto; padding: clamp(56px, 9vw, 110px) 20px 90px; }
+.gate h1 {
+  font-size: clamp(30px, 4.6vw, 44px);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.03;
+  margin: 16px 0 12px;
+  text-align: left;
+}
+.gate p { font-size: 15px; line-height: 1.6; color: var(--muted); margin: 0 0 26px; }
+.gate input {
+  width: 100%;
+  padding: 20px 18px;
+  border-radius: 5px;
+  border: 2px solid var(--line2);
+  background: var(--panel);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  margin-bottom: 14px;
+}
+.gate input:focus-visible { outline: none; border-color: var(--gold); }
+.gate .btn { width: 100%; }
+.gate-note { font-size: 13px; color: var(--dim); margin: 20px 0 0; }
+.gate-error { font-size: 14px; color: var(--gold); margin: 0 0 14px; font-weight: 800; }

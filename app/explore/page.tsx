@@ -1,17 +1,17 @@
 // EXPLORE — proof, not marketing.
 //
-// Every card on this page points at something a visitor can open right now.
-// That is the whole test: if you can't click it and use it, it doesn't belong
-// here. No testimonials, no logos, no counts, no "trusted by".
+// One rule: every card on this page points at something a visitor can open
+// right now. If you can't click it and use it, it doesn't belong here. No
+// testimonials, no logos, no counts, no "trusted by".
 //
 // Products come from app/site/registry.ts. Individual builds come from
-// app/live/live-products.json, which is appended by the Game Engine's publish
-// route — so this page grows when something actually ships.
+// app/live/live-products.json, which the Game Engine's publish route appends
+// to, so this page grows when something actually ships.
 
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ECOSYSTEM } from "../site/registry";
-import { Sheet, PageHead, Section, DirectoryCard, DirectoryGrid } from "../site/ui";
+import { Sheet, Masthead, Band, Tiles, Tile, accentVars } from "../site/ui";
 import liveProducts from "../live/live-products.json";
 
 export const metadata: Metadata = {
@@ -30,68 +30,93 @@ type LiveProduct = {
 };
 
 export default function ExplorePage() {
-  const builds = (liveProducts as LiveProduct[]).slice(0, 6);
+  // The arcade is the fullest thing anyone can walk into, so it leads.
+  const featured = ECOSYSTEM.find((p) => p.name === "iDontCry");
+  const rest = ECOSYSTEM.filter((p) => p.liveUrl && p !== featured);
+  const builds = (liveProducts as LiveProduct[]).slice(0, 8);
 
   return (
     <Sheet wide>
-      <PageHead
+      <Masthead
         kicker="Explore"
         title="Things that got made"
-        lead="Every one of these started as a rough idea in a box like the one on the front page. They're all open — go look."
+        lead="Every one of these started as a rough idea in a box like the one on the front page. They are all open. Go look."
       />
 
-      <Section
-        title="Products"
-        lead="Full sites, each one for a different kind of person."
-      >
-        <DirectoryGrid>
-          {ECOSYSTEM.filter((p) => p.liveUrl).map((p) => (
-            <DirectoryCard
-              key={p.name}
-              emoji={p.emoji}
-              name={p.name}
-              what={p.what}
-              note={`For ${p.who} · ${p.real}`}
-              href={p.liveUrl!}
-              external
-            />
-          ))}
-        </DirectoryGrid>
-      </Section>
+      {featured ? (
+        <section className="band">
+          <a
+            className="feature"
+            href={featured.liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={accentVars(featured.accent)}
+          >
+            <div className="feature-body">
+              <span className="kicker">Start here</span>
+              <h2 className="feature-name">{featured.name}</h2>
+              <p className="feature-what">{featured.what}</p>
+              <p className="feature-real">{featured.real}</p>
+              <span className="btn btn-gold">Open the arcade</span>
+            </div>
+            <div className="feature-art" aria-hidden="true">
+              {featured.emoji}
+            </div>
+          </a>
+        </section>
+      ) : null}
 
-      <Section
-        title="Recently pushed live"
-        lead="Individual builds that went idea → tested on a laptop → live on the internet."
+      <Band
+        title="The other products"
+        note="Each one is for a different person. Nothing here is a demo."
       >
-        <DirectoryGrid>
-          {builds.map((b) => (
-            <DirectoryCard
-              key={b.id}
-              emoji={b.emoji}
-              name={b.name}
-              what={b.blurb}
-              note={`Pushed ${b.pushedAt}`}
-              href={b.url}
-              external
-            />
+        <Tiles>
+          {rest.map((p) => (
+            <Tile key={p.name} p={p} />
           ))}
-        </DirectoryGrid>
-        <p className="dir-note">
+        </Tiles>
+      </Band>
+
+      <Band
+        title="Pushed live"
+        note="Individual builds that went idea, then tested on a laptop, then live on the internet."
+      >
+        <Tiles>
+          {builds.map((b) => (
+            <a
+              key={b.id}
+              className="tile"
+              href={b.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={accentVars("#6FBF9B")}
+            >
+              <span className="tile-mark" aria-hidden="true">
+                {b.emoji}
+              </span>
+              <h3 className="tile-name">{b.name}</h3>
+              <p className="tile-what">{b.blurb}</p>
+              <span className="tile-foot">
+                <span className="dot" />
+                {b.pushedAt}
+                <span className="tile-open">Play</span>
+              </span>
+            </a>
+          ))}
+        </Tiles>
+        <p style={{ marginTop: 20, fontSize: 14 }}>
           <Link href="/live" style={{ color: "var(--gold)", fontWeight: 800 }}>
-            See all of them →
+            Every push, newest first
           </Link>
         </p>
-      </Section>
+      </Band>
 
-      <Section title="Your turn">
-        <p className="sec-lead">
-          None of these were obvious at the start. Say what you want to make and
-          find out what it actually is.
-        </p>
-        <Link href="/" className="btn btn-gold">
-          Start a build
+      <section className="closing">
+        <p>None of these were obvious at the start.</p>
+        <Link href="/" className="btn btn-gold btn-big">
+          Make something
         </Link>
-      </Section>
+      </section>
     </Sheet>
   );
 }
