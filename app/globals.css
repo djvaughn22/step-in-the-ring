@@ -1,21 +1,34 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   STEP IN THE RING — the workbench palette.
+
+   This is a shop, not a dashboard. Warm charcoal instead of cool navy, real
+   amber instead of the pale SaaS blue, paper-white type instead of blue-grey.
+   Every page in the app reads these tokens, so the identity changes here.
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --bg: #0b1220;
-  --surface: #0c1220;
-  --panel: #141d2e;
-  --panel2: #1c2740;
-  --text: #e8edf5;
-  --muted: #94a3b8;
-  /* Quiet-but-readable: 4.6:1 on --panel, 5.1:1 on --bg (small-text minimum
-     is 4.5:1 — the old #3a4a6a sat at 1.9:1 and real help text used it). */
-  --dim: #7186a8;
-  --line: rgba(232, 237, 245, 0.10);
-  --line2: rgba(232, 237, 245, 0.18);
-  --gold: #60A5FA;
-  --gold-glow: rgba(96, 165, 250, 0.18);
-  --gold-soft: rgba(96, 165, 250, 0.08);
-  --blue: #6ea8d4;
-  --green: #7ec9a8;
-  --portal: rgba(96, 165, 250, 0.22);
+  --bg: #14120E;
+  --surface: #14120E;
+  --panel: #1E1A14;
+  --panel2: #2A241B;
+  --text: #F6F2E9;
+  --muted: #ADA292;
+  /* Quiet but readable: holds 4.5:1 on --panel and on --bg. */
+  --dim: #8A8071;
+  --line: rgba(246, 242, 233, 0.13);
+  --line2: rgba(246, 242, 233, 0.26);
+
+  /* The Ring accent. Amber, not blue. This one change is most of the reason
+     the site stops looking like every other AI product. */
+  --gold: #F5A524;
+  --gold-glow: rgba(245, 165, 36, 0.22);
+  --gold-soft: rgba(245, 165, 36, 0.10);
+
+  --blue: #8FA3B0;
+  --green: #6FBF9B;
+  --portal: rgba(245, 165, 36, 0.26);
+
+  --stage: 1180px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -474,16 +487,20 @@ summary.plan-label {
 
 
 /* OPEN MIRROR FAMILY STYLE OVERRIDE START */
+/* These carry !important on html/body/main, so they decide the base colour of
+   the whole site no matter what anything else says. They now point at Step In
+   The Ring's own workbench palette instead of the cool family navy. The
+   override MECHANISM is untouched — only the values it serves. */
 :root {
-  --om-bg: #0b1220;
-  --om-surface: #141d2e;
-  --om-surface-2: #1c2740;
-  --om-inset: #0c1220;
-  --om-border: #26324c;
-  --om-text: #e8edf5;
-  --om-sub: #94a3b8;
-  --om-accent: #60A5FA;
-  --om-ink: #0b1220;
+  --om-bg: #14120E;
+  --om-surface: #1E1A14;
+  --om-surface-2: #2A241B;
+  --om-inset: #14120E;
+  --om-border: #3A3227;
+  --om-text: #F6F2E9;
+  --om-sub: #ADA292;
+  --om-accent: #F5A524;
+  --om-ink: #14120E;
 }
 
 html,
@@ -670,7 +687,7 @@ a[href]:hover {
    Grow track. Only one pill is ever "now" — the track states where the work
    is, it never flatters it. */
 .pill-now {
-  color: #0b1220;
+  color: #1A1408;
   background: var(--gold);
   border-color: var(--gold);
 }
@@ -1004,3 +1021,528 @@ html[data-om-theme="light"] .access-pill { color: #64748b; border-color: #cbd5e1
 html[data-om-theme="light"] .access-preview { background: #eff6ff; border-color: #bfdbfe; }
 html[data-om-theme="light"] .access-member { color: #047857; border-color: #a7f3d0; }
 html[data-om-theme="light"] .gate input { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE RING SYSTEM
+   Redefines the core shapes. These come last in the file on purpose: every
+   page already uses .page / .hero / .btn / .card / .kicker, so redefining
+   them here re-skins the whole product in one move.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body { font-synthesis-weight: none; }
+
+/* ── Stage: use the actual screen ── */
+.page { width: min(var(--stage), 100%); max-width: none; margin: 0 auto; padding: 0 28px 96px; }
+@media (max-width: 700px) { .page { padding: 0 18px 72px; } }
+
+.rule { height: 1px; background: var(--line); border: 0; margin: 0; }
+
+/* ── Label: small mono caps. Reads "made", not "marketed". ── */
+.kicker,
+.sec > h2 {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dim);
+  display: block;
+}
+
+/* ── Display type: big, tight, confident ── */
+.ring-display {
+  font-size: clamp(40px, 7.2vw, 92px);
+  line-height: 0.94;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  color: var(--text);
+  margin: 0;
+}
+.ring-display .amber { color: var(--gold); }
+
+.ring-sub {
+  font-size: clamp(16px, 1.9vw, 20px);
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 46ch;
+  margin: 0;
+}
+
+/* ── Buttons: rectangular, heavy, obviously pressable ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 15px 26px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+  touch-action: manipulation;
+  min-height: 50px;
+}
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.btn-gold, .btn-primary {
+  background: var(--gold);
+  color: #1A1408;
+  border-color: var(--gold);
+}
+.btn-gold:hover, .btn-primary:hover { background: #FFB63C; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line2);
+}
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+.btn-small { padding: 10px 16px; font-size: 13px; min-height: 40px; }
+.btn-big { padding: 19px 40px; font-size: 16px; min-height: 60px; }
+
+/* ── Framed panel: a place, not a floating card ── */
+.card {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 22px;
+}
+.card-gold { border-color: var(--gold-glow); background: var(--gold-soft); }
+
+/* ═══ HOME ═══════════════════════════════════════════════════════════════ */
+
+/* ── The stage: brand left, start box right on desktop ── */
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 64px;
+  align-items: center;
+  padding: clamp(48px, 7vw, 104px) 0 clamp(40px, 5vw, 72px);
+}
+@media (max-width: 940px) {
+  .stage { grid-template-columns: 1fr; gap: 36px; padding: 40px 0 32px; }
+}
+
+.stage-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  margin-bottom: 22px;
+}
+.stage-mark::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: var(--gold);
+}
+
+/* ── The start box: the focal point of the whole product ── */
+.startbox {
+  border: 2px solid var(--line2);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 26px;
+  position: relative;
+}
+.startbox:focus-within { border-color: var(--gold); }
+/* Corner posts. The ring, stated quietly. */
+.startbox::before,
+.startbox::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--gold);
+  pointer-events: none;
+}
+.startbox::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+.startbox::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+
+.startbox label {
+  display: block;
+  font-size: clamp(19px, 2.3vw, 25px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.startbox textarea {
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 16px;
+  font-size: 16.5px;
+  line-height: 1.6;
+}
+.startbox textarea::placeholder { color: var(--dim); }
+.startbox textarea:focus-visible { outline: none; border-color: var(--gold); }
+
+.startbox-go { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.startbox-go .btn-gold { flex: 1; min-width: 200px; }
+
+.startbox-eg {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--dim);
+  line-height: 1.9;
+}
+.startbox-eg button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--line2);
+}
+.startbox-eg button:hover { color: var(--gold); text-decoration-color: var(--gold); }
+
+/* ── Four doors ── */
+.doors {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+@media (max-width: 900px) { .doors { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .doors { grid-template-columns: 1fr; } }
+
+.door {
+  display: block;
+  padding: 30px 26px 34px;
+  text-decoration: none;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  transition: background 0.15s ease;
+  position: relative;
+}
+.doors > .door:last-child { border-right: 0; }
+@media (max-width: 900px) {
+  .door { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .doors > .door:nth-child(2n) { border-right: 0; }
+}
+@media (max-width: 520px) { .door { border-right: 0; } }
+.door:hover { background: var(--panel2); }
+.door:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+
+.door-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 16px;
+}
+.door-t {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 8px;
+  line-height: 1.15;
+}
+.door-d { font-size: 14px; line-height: 1.55; color: var(--muted); margin: 0; }
+.door-hint {
+  display: block;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+/* ── The loop ── */
+.loop {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--panel);
+}
+@media (max-width: 760px) { .loop { flex-direction: column; } }
+
+.loop-step {
+  flex: 1;
+  padding: 26px 22px;
+  border-right: 1px solid var(--line);
+  min-width: 0;
+}
+.loop-step:last-child { border-right: 0; }
+@media (max-width: 760px) {
+  .loop-step { border-right: 0; border-bottom: 1px solid var(--line); }
+  .loop-step:last-child { border-bottom: 0; }
+}
+.loop-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.14em;
+}
+.loop-t {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 10px 0 6px;
+}
+.loop-d { font-size: 13.5px; line-height: 1.5; color: var(--muted); margin: 0; }
+
+/* ── Section head ── */
+.band { padding: clamp(52px, 6vw, 88px) 0 0; }
+.band-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.band-title {
+  font-size: clamp(26px, 3.6vw, 40px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.05;
+}
+.band-note { font-size: 14px; color: var(--muted); margin: 0; max-width: 42ch; }
+
+/* ── Product tiles: each one keeps its own identity ── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 14px;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 22px;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  min-height: 178px;
+}
+.tile:hover { border-color: var(--tile-accent, var(--gold)); background: var(--panel2); }
+.tile:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.tile-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+  background: var(--tile-soft, var(--gold-soft));
+  border: 1px solid var(--tile-accent, var(--gold-glow));
+  margin-bottom: 15px;
+}
+.tile-name {
+  font-size: 17.5px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.tile-what { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 0 0 14px; flex: 1; }
+.tile-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.tile-open { margin-left: auto; color: var(--tile-accent, var(--gold)); }
+
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.dot-building { background: var(--gold); }
+
+/* ── Closing line ── */
+.closing {
+  padding: clamp(56px, 7vw, 96px) 0 0;
+  text-align: center;
+}
+.closing p {
+  font-size: clamp(24px, 3.4vw, 38px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin: 0 0 22px;
+}
+
+/* ═══ HEADER ═════════════════════════════════════════════════════════════ */
+.ring-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(20, 18, 14, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.ring-bar-in {
+  max-width: var(--stage);
+  margin: 0 auto;
+  padding: 0 28px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+@media (max-width: 700px) { .ring-bar-in { padding: 0 18px; height: 56px; gap: 14px; } }
+
+.ring-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14.5px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ring-brand-glyph {
+  width: 21px;
+  height: 21px;
+  border: 2px solid var(--gold);
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.ring-nav { display: flex; align-items: center; gap: 3px; margin-left: 4px; }
+.ring-nav a {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 9px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.ring-nav a:hover { color: var(--text); background: var(--panel); }
+.ring-nav a[aria-current="page"] { color: var(--gold); }
+.ring-nav a:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+.ring-bar-end { margin-left: auto; display: flex; align-items: center; gap: 3px; }
+.ring-bar-end a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  padding: 9px 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.ring-bar-end a:hover { color: var(--gold); }
+.ring-bar-end a:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+.ring-burger {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 9px 13px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  cursor: pointer;
+  min-height: 40px;
+}
+.ring-sheet { display: none; }
+
+@media (max-width: 860px) {
+  .ring-nav, .ring-bar-end { display: none; }
+  .ring-burger { display: block; }
+  .ring-sheet.open {
+    display: block;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+    padding: 10px 18px 20px;
+  }
+  .ring-sheet.open a {
+    display: block;
+    padding: 15px 4px;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+    min-height: 52px;
+  }
+  .ring-sheet.open a:last-child { border-bottom: 0; }
+  .ring-sheet.open a:hover { color: var(--gold); }
+}
+
+/* ═══ LIGHT THEME — warm paper ═══════════════════════════════════════════ */
+html[data-om-theme="light"] {
+  --bg: #F7F3EA;
+  --surface: #F7F3EA;
+  --panel: #FFFDF8;
+  --panel2: #F1EADC;
+  --text: #1A1712;
+  --muted: #5C5449;
+  --dim: #7C7365;
+  --line: rgba(26, 23, 18, 0.13);
+  --line2: rgba(26, 23, 18, 0.24);
+  --gold: #B8760A;
+  --gold-glow: rgba(184, 118, 10, 0.30);
+  --gold-soft: rgba(184, 118, 10, 0.09);
+  --green: #2F7D5B;
+}
+html[data-om-theme="light"] .ring-bar { background: rgba(247, 243, 234, 0.92); }
+html[data-om-theme="light"] .btn-gold,
+html[data-om-theme="light"] .btn-primary { color: #FFFFFF; }
+html[data-om-theme="light"] .btn-gold:hover,
+html[data-om-theme="light"] .btn-primary:hover { background: #96600A; }
+
+/* On a phone the question should arrive fast. The headline earns its space on
+   a laptop; here it steps aside so the box is in the first screenful. */
+@media (max-width: 700px) {
+  .stage { padding-top: 26px; }
+  .ring-display { font-size: clamp(34px, 10.5vw, 46px); }
+  .ring-sub { font-size: 15px; }
+  .startbox { padding: 20px; }
+  .startbox textarea { min-height: 112px; }
+}

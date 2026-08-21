@@ -1,18 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import OpenMirrorFooter from "./OpenMirrorFooter";
-import OpenMirrorNav from "./OpenMirrorNav";
+import RingHeader from "./site/RingHeader";
 import Script from "next/script";
-import { navPages } from "./site/registry";
-
-/** Menu emoji live here, not in the registry — the registry is product data. */
-const NAV_EMOJI: Record<string, string> = {
-  "/": "🥊",
-  "/builds": "🏗️",
-  "/explore": "🔭",
-  "/library": "📚",
-  "/everything": "🗺️",
-};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://stepinthering.com"),
@@ -35,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1220",
+  themeColor: "#14120E",
   width: "device-width",
   initialScale: 1,
 };
@@ -48,21 +38,10 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <body>
-        <OpenMirrorNav
-          site="StepInTheRing.com"
-          accent="#60A5FA"
-          /* Five doors, and they answer five questions in order: what do I
-             want to make, what have I made, what has anyone made, what can
-             this thing do, and where is the rest of it. Everything else lives
-             one level down and is reachable from Everything — the menu is not
-             the product. Nav order is derived from app/site/registry.ts so it
-             can't drift from the directory; see navPages(). */
-          links={navPages().map((p) => ({
-            emoji: NAV_EMOJI[p.path],
-            name: p.name,
-            href: p.path,
-          }))}
-        />
+        {/* Step In The Ring carries its own bar so the doors are visible on a
+            laptop instead of buried in a hamburger. Links derive from the site
+            registry, so the bar and the Everything directory can't disagree. */}
+        <RingHeader />
         {children}
         <OpenMirrorFooter />
         <Script

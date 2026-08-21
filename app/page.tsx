@@ -25,6 +25,7 @@ import {
 import { recommendEngines } from "./creation/recommend";
 import { projectFromCreation } from "./project/from-creation";
 import { saveProjectRecord } from "./project/store";
+import { ECOSYSTEM } from "./site/registry";
 import {
   CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
 } from "./creation/types";
@@ -406,173 +407,183 @@ export default function StepInTheRing() {
     return (
       <main>
         <div className="page">
-          <section className="hero hero-compact">
-            <RingMark />
-            <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" className="kicker" style={{ textDecoration: "none" }}>
-              Open Mirror LLC
-            </a>
-            <h1>Step In The Ring</h1>
-            {/* The emotional threshold. It appears here and nowhere else on
-                this page — repeating it everywhere would kill it. */}
-            <p className="dream-line">Live your dream.</p>
-            <p className="hero-sub">Turn what&apos;s in your head into something real.</p>
+          {/* ── THE STAGE. Name on the left, the box on the right. On a laptop
+              this fills the screen instead of stacking a phone column down the
+              middle of it. ── */}
+          <section className="stage">
+            <div>
+              <a
+                href="https://openmirrorllc.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="stage-mark"
+              >
+                Open Mirror LLC
+              </a>
+              <h1 className="ring-display">
+                Make
+                <br />
+                something
+                <br />
+                <span className="amber">real.</span>
+              </h1>
+              <p className="ring-sub" style={{ marginTop: 24 }}>
+                You have something in your head. Say it in your own words and
+                walk out with the smallest real version of it, plus the next
+                move to make on it.
+              </p>
+            </div>
+
+            <div>
+              <CreationEntry
+                id="idea-description"
+                heading="What do you want to make?"
+                help="Messy is fine."
+                placeholder="A puzzle game where you pick a photo and drag the pieces back together."
+                submitLabel="Step in"
+                rows={5}
+                value={description}
+                onValueChange={setDescription}
+                onSubmit={handleShape}
+                inputRef={shapeRef}
+                starters={STARTERS}
+                actions={
+                  <>
+                    {hasLastCreation && (
+                      <button type="button" className="btn btn-ghost" onClick={continueLast}>
+                        Pick up the last one
+                      </button>
+                    )}
+                    {saved.length > 0 && (
+                      <button type="button" className="btn btn-ghost" onClick={() => go("saved")}>
+                        Saved ({saved.length})
+                      </button>
+                    )}
+                  </>
+                }
+              />
+              {/* Somebody who was here yesterday sees their work first. A
+                  stranger sees nothing extra and loses nothing. */}
+              <ContinueStrip />
+            </div>
           </section>
 
-          {/* Somebody who was here yesterday sees their work first. A
-              stranger sees nothing extra and loses nothing. */}
-          <ContinueStrip />
+          {/* ── FOUR DOORS ── */}
+          <nav className="doors" aria-label="Where to go">
+            <Link href="/builds" className="door">
+              <span className="door-n">01</span>
+              <h2 className="door-t">Keep building</h2>
+              <p className="door-d">Open something you already started.</p>
+              <span className="door-hint">Your builds</span>
+            </Link>
+            <Link href="/explore" className="door">
+              <span className="door-n">02</span>
+              <h2 className="door-t">See what&apos;s real</h2>
+              <p className="door-d">Things that actually got made and shipped.</p>
+              <span className="door-hint">Explore</span>
+            </Link>
+            <Link href="/library" className="door">
+              <span className="door-n">03</span>
+              <h2 className="door-t">Things you can use</h2>
+              <p className="door-d">Every tool in here, with an honest label on it.</p>
+              <span className="door-hint">Library</span>
+            </Link>
+            <Link href="/preview" className="door">
+              <span className="door-n">04</span>
+              <h2 className="door-t">Have a code?</h2>
+              <p className="door-d">Open something somebody shared with you.</p>
+              <span className="door-hint">Preview</span>
+            </Link>
+          </nav>
 
-          <CreationEntry
-            id="idea-description"
-            value={description}
-            onValueChange={setDescription}
-            onSubmit={handleShape}
-            inputRef={shapeRef}
-            starters={STARTERS}
-            actions={
-              <>
-                {hasLastCreation && (
-                  <button type="button" className="btn btn-ghost btn-small" onClick={continueLast}>
-                    Continue your last creation
-                  </button>
-                )}
-                {saved.length > 0 && (
-                  <button type="button" className="btn btn-ghost btn-small" onClick={() => go("saved")}>
-                    Your corner — {saved.length} saved
-                  </button>
-                )}
-              </>
-            }
-          />
-
-          <section className="home-section" style={{ marginTop: 34 }}>
-            <p className="tiny" style={{ textAlign: "center" }}>
-              <Link href="/builds" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
-                Your builds →
-              </Link>
-              {" · "}
-              {/* The one secondary path that matters on arrival: proof. A
-                  stranger who isn't ready to type anything should still be
-                  able to go look at something real. */}
-              <a href="/explore" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
-                See what&apos;s been built
-              </a>
-              {" · "}
-              <a href="/how" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>
-                How it works
-              </a>
-            </p>
-          </section>
-
-          <section className="home-section">
-            <span className="kicker">Not sure yet? Start from one of these</span>
-            <p className="section-lead">Pick the closest one — it fills the box so you can edit and make it yours.</p>
-            <div className="ex-grid">
-              {EXAMPLES.map((ex) => (
-                <button
-                  key={ex.label}
-                  className="ex-card"
-                  onClick={() => {
-                    setDescription(ex.description);
-                    setAnswers({});
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                    shapeRef.current?.focus();
-                  }}
-                >
-                  <span className="ex-name">{ex.label}</span>
-                  <span className="ex-who">{ex.hint}</span>
-                </button>
+          {/* ── THE LOOP ── */}
+          <section className="band">
+            <div className="band-head">
+              <h2 className="band-title">How it goes</h2>
+              <p className="band-note">
+                The same five moves every time, whether it&apos;s an app, a song
+                or a practice plan.
+              </p>
+            </div>
+            <div className="loop">
+              {[
+                ["01", "Say it", "In your own words. No form to fill in."],
+                ["02", "Shape it", "See what it really is before any plan shows up."],
+                ["03", "Make it", "The smallest version that actually works."],
+                ["04", "Try it", "Use it yourself. If it doesn't work for you it isn't done."],
+                ["05", "Go again", "Fix it, grow it, or start the next one."],
+              ].map(([n, t, d]) => (
+                <div key={n} className="loop-step">
+                  <span className="loop-n">{n}</span>
+                  <h3 className="loop-t">{t}</h3>
+                  <p className="loop-d">{d}</p>
+                </div>
               ))}
             </div>
+            <p className="tiny" style={{ marginTop: 16 }}>
+              <Link href="/how" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+                The longer version
+              </Link>
+            </p>
           </section>
 
-          <section className="home-section">
-            <span className="kicker">Built through the Ring</span>
-            <p className="section-lead">Real things that started as rough ideas. Play them.</p>
-            <div className="proof-grid">
-              <a href="https://opendoku.com/slopedoku/" target="_blank" rel="noopener noreferrer" className="proof-card">
-                <span className="proof-name">⛷️ SlopeDoku</span>
-                <span className="proof-sub">Winter sudoku — two puzzles in every tile, plus Avalanche.</span>
-              </a>
-              <a href="https://opendoku.com/surfdoku/" target="_blank" rel="noopener noreferrer" className="proof-card">
-                <span className="proof-name">🌞 SurfDoku</span>
-                <span className="proof-sub">The beach remix — same brain, different weather.</span>
-              </a>
-              <a href="https://opendoku.com/minedoku/" target="_blank" rel="noopener noreferrer" className="proof-card">
-                <span className="proof-name">⛏️ MineDoku</span>
-                <span className="proof-sub">Built and pushed live from the Game Engine.</span>
-              </a>
-              <a href="https://www.idontcry.com/circuit" target="_blank" rel="noopener noreferrer" className="proof-card">
-                <span className="proof-name">⚡ Circuit</span>
-                <span className="proof-sub">One lap, one tap — catch the green light. Started in the Game Lab, specified through the Ring.</span>
-              </a>
+          {/* ── REAL THINGS. The proof is the work, not a testimonial. ── */}
+          <section className="band">
+            <div className="band-head">
+              <h2 className="band-title">Real things</h2>
+              <p className="band-note">
+                Every one of these is live right now. Open any of them.
+              </p>
             </div>
-            <p className="tiny" style={{ marginTop: 12 }}>
-              <a href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>See every live product →</a>
-              {" · "}
-              <a href="/build" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Never built a web app? Start here</a>
-            </p>
-          </section>
-
-          {/* The machinery is still here, and still explained — it just isn't
-              the first question anymore. */}
-          <section className="home-section">
-            <span className="kicker">What&apos;s under it</span>
-            <div className="doors2">
-              <a href="/engines" className="door-card">
-                <span className="door-emoji" aria-hidden="true">🧰</span>
-                <div>
-                  <h3>The Engine Room</h3>
-                  <p>
-                    Work with one specialist directly — decide an idea, design a product,
-                    make a first beat. Open beta: sign up free or use a tester code.
-                  </p>
-                </div>
-                <span className="door-go" aria-hidden="true">→</span>
-              </a>
-              <a href="/library" className="door-card">
-                <span className="door-emoji" aria-hidden="true">📚</span>
-                <div>
-                  <h3>Your work &amp; everything we&apos;ve built</h3>
-                  <p>
-                    Every capability in one list, and anything you saved here before —
-                    plans, projects, songs, walkthroughs. Nothing was thrown away.
-                  </p>
-                </div>
-                <span className="door-go" aria-hidden="true">→</span>
-              </a>
-              {/* The whole map, including the doors you can't open. A person
-                  should never have to guess what else is here. */}
-              <a href="/everything" className="door-card">
-                <span className="door-emoji" aria-hidden="true">🗺️</span>
-                <div>
-                  <h3>Everything</h3>
-                  <p>
-                    Every page on this site, every product built with it, and a plain
-                    label on anything that sits behind a door.
-                  </p>
-                </div>
-                <span className="door-go" aria-hidden="true">→</span>
-              </a>
+            <div className="tiles">
+              {ECOSYSTEM.filter((p) => p.liveUrl).map((p) => (
+                <a
+                  key={p.name}
+                  className="tile"
+                  href={p.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={
+                    {
+                      "--tile-accent": p.accent,
+                      "--tile-soft": `${p.accent}1A`,
+                    } as React.CSSProperties
+                  }
+                >
+                  <span className="tile-mark" aria-hidden="true">{p.emoji}</span>
+                  <h3 className="tile-name">{p.name}</h3>
+                  <p className="tile-what">{p.what}</p>
+                  <span className="tile-foot">
+                    <span className={p.status === "live" ? "dot" : "dot dot-building"} />
+                    {p.status === "live" ? "Live" : "Building"}
+                    <span className="tile-open">Open</span>
+                  </span>
+                </a>
+              ))}
             </div>
-            <p className="section-lead" style={{ marginTop: 14 }}>
-              Open beta: everything here is testable now and still being corrected.
-              Pricing is TBD — testing comes first. Because things are still moving,
-              don&apos;t rely on Step In The Ring yet for anything irreplaceable.
-            </p>
-            <p className="tiny" style={{ marginTop: 4 }}>
-              <a href="/account#feedback" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Give feedback on the beta →</a>
+            <p className="tiny" style={{ marginTop: 16 }}>
+              <Link href="/everything" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+                Everything, including the code behind it
+              </Link>
             </p>
           </section>
 
-          <div className="divider" />
-          <p className="tiny" style={{ textAlign: "center" }}>
-            Step In The Ring is part of{" "}
-            <a href="https://openmirrorllc.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)", textDecoration: "none" }}>
-              Open Mirror LLC
+          {/* ── CLOSE ── */}
+          <section className="closing">
+            <p>Live your dream.</p>
+            <a href="#idea-description" className="btn btn-gold btn-big">
+              Start something
             </a>
-            . Kids should build with a parent or trusted adult.
-          </p>
+            <p className="tiny" style={{ marginTop: 30, color: "var(--dim)" }}>
+              Open beta. Everything here works and is still being corrected, so
+              don&apos;t trust it yet with anything irreplaceable. Kids should
+              build with a parent.{" "}
+              <a href="/account#feedback" style={{ color: "var(--muted)", fontWeight: 800 }}>
+                Tell us what broke
+              </a>
+              .
+            </p>
+          </section>
         </div>
       </main>
     );
