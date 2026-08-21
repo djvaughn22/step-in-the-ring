@@ -10,9 +10,9 @@ import LibraryClient from "./LibraryClient";
 import { allCapabilities } from "../vnext/capabilities";
 
 export const metadata: Metadata = {
-  title: "Your work",
+  title: "Library",
   description:
-    "Every capability in Step In The Ring, and anything you saved here before — plans, projects, songs, walkthroughs. Nothing was thrown away.",
+    "Every tool in Step In The Ring with an honest label on it, plus anything you saved here before. Nothing was thrown away.",
 };
 
 export default function LibraryPage() {

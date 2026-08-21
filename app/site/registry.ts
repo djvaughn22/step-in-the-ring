@@ -276,9 +276,17 @@ export function pagesWithAccess(access: Access): SitePage[] {
   return SITE_PAGES.filter((p) => p.access === access);
 }
 
-/** The primary menu, in order. Derived — never hand-kept a second time. */
+/**
+ * The primary menu, in the order a person actually needs it: what do I want to
+ * make, what have I made, what has anyone made, what can this thing do, and
+ * where is the rest of it. Derived from the registry, never hand-kept twice.
+ */
+const NAV_ORDER = ["/", "/builds", "/explore", "/library", "/everything"];
+
 export function navPages(): SitePage[] {
-  return SITE_PAGES.filter((p) => p.inNav);
+  return SITE_PAGES.filter((p) => p.inNav).sort(
+    (a, b) => NAV_ORDER.indexOf(a.path) - NAV_ORDER.indexOf(b.path),
+  );
 }
 
 /** Paths a visitor with the shared preview passcode may open. */

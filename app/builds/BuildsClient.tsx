@@ -15,62 +15,69 @@ import {
 } from "../vnext/build";
 import { clearDraft, loadDraft } from "../vnext/draft";
 
+/* Where this build actually is. A filled track says it at a glance; the old
+   row of pills made every stage look equally true. */
 function StageTrack({ stage }: { stage: BuildRecordV1["stage"] }) {
   const at = BUILD_STAGES.indexOf(stage);
   return (
-    <div className="pill-row" aria-label={`Stage: ${BUILD_STAGE_LABEL[stage]}`}>
-      {BUILD_STAGES.map((s, i) => (
-        <span key={s} className={`pill${i === at ? " pill-now" : ""}`} aria-current={i === at ? "step" : undefined}>
-          {BUILD_STAGE_LABEL[s]}
-        </span>
-      ))}
-    </div>
+    <>
+      <div className="track" role="img" aria-label={`Stage: ${BUILD_STAGE_LABEL[stage]}`}>
+        {BUILD_STAGES.map((s, i) => (
+          <span key={s} className={`track-seg${i < at ? " done" : i === at ? " now" : ""}`} />
+        ))}
+      </div>
+      <div className="track-labels" aria-hidden="true">
+        {BUILD_STAGES.map((s, i) => (
+          <span key={s} className={i === at ? "now" : undefined}>
+            {BUILD_STAGE_LABEL[s]}
+          </span>
+        ))}
+      </div>
+    </>
   );
 }
 
 function BuildCard({ build }: { build: BuildRecordV1 }) {
   const suggested = useMemo(() => capabilitiesForIntent(build.intent, 3), [build.intent]);
   return (
-    <article className="card card-gold" style={{ marginBottom: 16 }}>
-      <div className="plan-label">{BUILD_STAGE_LINE[build.stage]}</div>
-      <h2 style={{ marginBottom: 8 }}>
-        <Link href={`/builds/${build.id}`} style={{ color: "inherit", textDecoration: "none" }}>
-          {build.title}
-        </Link>
+    <article className="buildcard">
+      <span className="bc-stage">{BUILD_STAGE_LINE[build.stage]}</span>
+      <h2 className="bc-name">
+        <Link href={`/builds/${build.id}`}>{build.title}</Link>
       </h2>
-      <p style={{ fontSize: 15, color: "var(--text)", lineHeight: 1.6 }}>
-        {build.reading ?? build.intent}
-      </p>
+      <p className="bc-read">{build.reading ?? build.intent}</p>
+
       <StageTrack stage={build.stage} />
+
       {build.currentAction && (
-        <div className="next-action" style={{ marginTop: 12 }}>
-          <span className="kicker" style={{ marginBottom: 4 }}>Right now</span>
-          <p style={{ color: "var(--text)", fontWeight: 600, margin: 0 }}>{build.currentAction}</p>
+        <div className="bc-now">
+          <span className="bc-now-l">Next move</span>
+          <p>{build.currentAction}</p>
         </div>
       )}
+
       {suggested.length > 0 && (
-        <div style={{ marginTop: 14 }}>
-          <span className="kicker" style={{ marginBottom: 6 }}>What can help</span>
-          <div className="chip-row">
-            {suggested.map((c) => (
-              <a key={c.id} className="chip" href={c.href}>
-                <span aria-hidden="true">{c.emoji}</span> {c.name}
-              </a>
-            ))}
-          </div>
+        <div className="bc-help">
+          {suggested.map((c) => (
+            <a key={c.id} href={c.href}>
+              <span aria-hidden="true">{c.emoji}</span> {c.name}
+            </a>
+          ))}
         </div>
       )}
+
       {build.artifacts.length > 0 && (
-        <ul className="plan-list" style={{ marginTop: 12 }}>
+        <ul className="plan-list" style={{ marginBottom: 16 }}>
           {build.artifacts.map((a) => (
             <li key={a.id}>{a.label}</li>
           ))}
         </ul>
       )}
+
       {/* One obvious action per card. Continuing is what this page is for. */}
-      <div className="actions" style={{ marginTop: 14 }}>
-        <Link className="btn btn-gold btn-small" href={`/builds/${build.id}`}>
-          Continue →
+      <div className="bc-foot">
+        <Link className="btn btn-gold" href={`/builds/${build.id}`}>
+          Open
         </Link>
       </div>
     </article>
@@ -152,15 +159,18 @@ export default function BuildsClient({
   return (
     <main>
       <div className="page">
-        <section className="hero hero-compact" style={{ textAlign: "left" }}>
-          <span className="kicker">Step In The Ring</span>
-          <h1 style={{ fontSize: "clamp(28px, 6vw, 44px)" }}>Your builds</h1>
-          <p className="hero-sub" style={{ margin: "10px 0 0", maxWidth: 520 }}>
+        <header className="mast">
+          <span className="kicker">Your work</span>
+          <h1 className="mast-title">
+            {builds.length > 0 ? "What you're making" : "Nothing here yet"}
+          </h1>
+          <p className="mast-lead">
             {builds.length > 0
-              ? "Keep going."
-              : "What you're making lives here — from the first sentence to live."}
+              ? "Every one of these is yours. Open one and pick up where you stopped."
+              : "This is where the things you are making live, from the first sentence all the way to live on the internet."}
           </p>
-        </section>
+          <hr className="rule mast-rule" />
+        </header>
 
         {listFailed && (
           <section className="home-section">
@@ -175,7 +185,7 @@ export default function BuildsClient({
         )}
 
         {signedIn && builds.length > 0 && (
-          <section className="home-section" aria-label="Your builds">
+          <section className="buildlist" aria-label="Your builds">
             {builds.map((b) => (
               <BuildCard key={b.id} build={b} />
             ))}
@@ -186,21 +196,23 @@ export default function BuildsClient({
           <section className="home-section">
             {/* They stepped in, then signed in. Their words came with them —
                 one tap finishes what they started, with nothing retyped. */}
-            <span className="kicker">
-              {waiting ? "Finish what you started" : builds.length > 0 ? "Start another" : "Create something"}
-            </span>
+            <div className="band-head">
+              <h2 className="band-title">
+                {waiting ? "Finish what you started" : builds.length > 0 ? "Start another" : "Make something"}
+              </h2>
+            </div>
             <CreationEntry
               id="new-build"
               value={intent}
               onValueChange={setIntent}
               onSubmit={createBuild}
-              heading={waiting ? "This is what you said. Keep it?" : "What do you want to create?"}
+              heading={waiting ? "This is what you said. Keep it?" : "What do you want to make?"}
               help={
                 waiting
                   ? "Still your words — edit them if you want, then keep it. It becomes a build on your account."
                   : "Say it however it comes out. It becomes a build you can come back to."
               }
-              submitLabel={busy ? "Saving…" : waiting ? "Keep this build →" : "Step in →"}
+              submitLabel={busy ? "Saving" : waiting ? "Keep this build" : "Step in"}
               disabled={busy || !canSave}
               rows={4}
               starters={waiting ? [] : undefined}
@@ -238,24 +250,28 @@ export default function BuildsClient({
                 </p>
               </div>
             )}
-            <div className="card">
-              <h3>{waiting ? "Sign in and it's yours" : "Sign in to keep your builds"}</h3>
+            <div className="empty">
+              <h2>{waiting ? "Sign in and it's yours" : "What do you want to make?"}</h2>
               <p>
                 {storeConfigured
-                  ? "A build saved to your account is on the server, not just this browser — so it's still there on your phone tomorrow."
-                  : "Accounts aren't switched on for this site yet. Anything you've made here is still in this browser, listed below."}
+                  ? "A build saved to your account lives on the server, not just in this browser, so it is still there on your phone tomorrow."
+                  : "Accounts are not switched on for this site yet. Anything you have made here is still in this browser and is listed below."}
               </p>
-              {storeConfigured && (
-                <div className="actions" style={{ marginTop: 12 }}>
+              {storeConfigured ? (
+                <div className="actions" style={{ justifyContent: "center" }}>
                   {/* The draft rides in sessionStorage, so the return trip is a
-                      plain /builds — no idea-sized URL, nothing to truncate. */}
-                  <a className="btn btn-gold" href="/members/login?returnTo=%2Fbuilds">
+                      plain /builds: no idea-sized URL, nothing to truncate. */}
+                  <a className="btn btn-gold btn-big" href="/members/login?returnTo=%2Fbuilds">
                     Sign in
                   </a>
-                  <Link className="btn btn-ghost btn-small" href="/">
-                    {waiting ? "Change what I said" : "Start something first"}
+                  <Link className="btn btn-ghost btn-big" href="/">
+                    {waiting ? "Change what I said" : "Start something"}
                   </Link>
                 </div>
+              ) : (
+                <Link className="btn btn-gold btn-big" href="/">
+                  Start something
+                </Link>
               )}
             </div>
           </section>
@@ -268,7 +284,7 @@ export default function BuildsClient({
         <p className="tiny" style={{ textAlign: "center" }}>
           {email ? `Signed in as ${email}. ` : ""}
           <a href="/library" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
-            Everything Step In The Ring can do →
+            Things you can use
           </a>
         </p>
       </div>

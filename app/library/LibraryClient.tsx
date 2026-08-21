@@ -54,61 +54,77 @@ export default function LibraryClient({ capabilities }: { capabilities: Capabili
   return (
     <main>
       <div className="page">
-        <section className="hero hero-compact" style={{ textAlign: "left" }}>
-          <span className="kicker">Step In The Ring</span>
-          <h1 style={{ fontSize: "clamp(28px, 6vw, 44px)" }}>Your work</h1>
-          <p className="hero-sub" style={{ margin: "10px 0 0", maxWidth: 560 }}>
-            Everything this place can do, and everything you saved here before. You never
-            have to start from this list — but nothing is hidden from you either.
+        <header className="mast">
+          <span className="kicker">Library</span>
+          <h1 className="mast-title">Things you can use</h1>
+          <p className="mast-lead">
+            Every tool in here, with an honest label on each one. You never have
+            to start from this list, but nothing is hidden from you either.
           </p>
-        </section>
+          <hr className="rule mast-rule" />
+        </header>
 
-        <LegacyWork />
-
-        <section className="home-section">
-          <span className="kicker">What it can do</span>
-          <label className="sr-only" htmlFor="library-filter">Filter capabilities</label>
+        <section className="band">
+          <div className="band-head">
+            <h2 className="band-title">Ready to use</h2>
+            <p className="band-note">
+              Open any of these directly, or just say what you want to make and
+              the right one gets suggested.
+            </p>
+          </div>
+          <label className="sr-only" htmlFor="library-filter">Filter tools</label>
           <input
             id="library-filter"
+            className="lib-search"
             type="search"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search — song, game, design, fix…"
-            style={{ marginBottom: 14 }}
+            placeholder="Search: song, game, design, fix"
           />
           {ready.length > 0 ? (
             <div className="engine-grid">{ready.map(card)}</div>
           ) : (
-            <p className="section-lead">Nothing matches that word. Clear the search to see everything.</p>
+            <p className="band-note">Nothing matches that word. Clear the search to see everything.</p>
           )}
         </section>
 
         {rest.length > 0 && (
-          <section className="home-section">
-            <span className="kicker">Being built</span>
+          <section className="band">
+            <div className="band-head">
+              <h2 className="band-title">Still being built</h2>
+            </div>
             <div className="engine-grid">{rest.map(card)}</div>
           </section>
         )}
 
         {ownerOnly.length > 0 && (
-          <section className="home-section">
-            <span className="kicker">Owner only</span>
-            <p className="section-lead">
-              These run on the owner&apos;s machine. They&apos;re listed so the record is honest,
-              not because you can use them yet.
-            </p>
+          <section className="band">
+            <div className="band-head">
+              <h2 className="band-title">Owner only</h2>
+              <p className="band-note">
+                These run on the owner&apos;s machine. Listed so the record is
+                honest, not because you can use them yet.
+              </p>
+            </div>
             <div className="engine-grid">{ownerOnly.map(card)}</div>
           </section>
         )}
 
-        <div className="divider" />
-        <p className="tiny" style={{ textAlign: "center" }}>
-          <Link href="/" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
-            Start something new →
-          </Link>
-          {" · "}
-          <Link href="/builds" style={{ color: "var(--muted)", fontWeight: 800, textDecoration: "none" }}>Your builds</Link>
-        </p>
+        <section className="band">
+          <div className="band-head">
+            <h2 className="band-title">Saved here before</h2>
+            <p className="band-note">
+              Work that lives in this browser from before builds existed. Nothing
+              was thrown away.
+            </p>
+          </div>
+          <LegacyWork />
+        </section>
+
+        <section className="closing">
+          <p>Know what you want to make?</p>
+          <Link href="/" className="btn btn-gold btn-big">Start something</Link>
+        </section>
       </div>
     </main>
   );
