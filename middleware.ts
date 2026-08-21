@@ -17,6 +17,12 @@ const PUBLIC_ROUTES = [
   // — a gate here would lock people out of their own local files.
   "/builds",
   "/library",
+  // The directory and the proof pages are the front of the product — they are
+  // public by definition. /shop is deliberately absent: it is a shared preview
+  // and gates itself in the page, which is where preview access belongs.
+  "/explore",
+  "/everything",
+  "/preview",
   "/about",
   "/how",
   "/build",

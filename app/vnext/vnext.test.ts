@@ -16,6 +16,7 @@ import {
 import { allCapabilities, capabilitiesForIntent, capabilityById, BUILD_ENGINE_ID } from "./capabilities";
 import { LEGACY_SOURCES, findLegacyWork } from "./legacy";
 import { ENGINES } from "../engines/engines";
+import { navPages, pageAt } from "../site/registry";
 
 const ROOT = join(__dirname, "..", "..");
 const read = (p: string) => readFileSync(join(ROOT, p), "utf8");
@@ -257,11 +258,19 @@ describe("The new shell", () => {
   });
 
   it("keeps primary navigation to a handful of doors", () => {
-    const links = layout.match(/\{ emoji: "[^"]+", name: "[^"]+", href: "[^"]+" \}/g) ?? [];
-    expect(links.length).toBeLessThanOrEqual(5);
-    expect(layout).toContain('href: "/builds"');
-    expect(layout).toContain('href: "/library"');
-    expect(layout).toContain('href: "/account"');
+    // The menu is derived from the site registry now rather than typed out
+    // here, so it cannot drift from the Everything directory. The shape rules
+    // it used to guard live in app/site/registry.test.ts.
+    expect(layout).toContain("navPages()");
+    const nav = navPages();
+    expect(nav.length).toBeLessThanOrEqual(5);
+    const paths = nav.map((p) => p.path);
+    expect(paths).toContain("/builds");
+    expect(paths).toContain("/library");
+    // Account moved out of the menu and into the directory: it is a member
+    // door, and a menu item that bounces a signed-out visitor to a login form
+    // is not a door, it is a wall. It stays reachable from /everything.
+    expect(pageAt("/account")?.group).toBe("account");
   });
 
   it("still opens the Engine Room as an explained door, not a footnote", () => {

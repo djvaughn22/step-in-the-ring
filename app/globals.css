@@ -858,3 +858,149 @@ html[data-om-theme="light"] .status-planned {
   border-color: #cbd5e1;
   background: #f8fafc;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PAGE SYSTEM — the shapes in app/site/ui.tsx.
+   One column width, one title treatment, one card. Pages that used to invent
+   their own inline styles now share these, so the product stops drifting.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sheet-main { min-height: 100vh; }
+
+.sheet {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px 88px;
+}
+.sheet-wide { max-width: 900px; }
+
+.page-head { margin-bottom: 34px; }
+
+.page-title {
+  font-size: clamp(26px, 5.2vw, 36px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+.page-lead {
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--muted);
+  max-width: 54ch;
+  margin: 0;
+}
+
+.sec { margin-top: 46px; }
+.sec > h2 {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 0 0 8px;
+}
+.sec-lead {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 16px;
+  max-width: 54ch;
+}
+
+/* ── Directory card ── */
+.dir-grid { display: grid; gap: 12px; }
+@media (min-width: 720px) {
+  .dir-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.dir-card {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  padding: 16px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.dir-card:hover,
+.dir-card:focus-visible { border-color: var(--gold); background: var(--panel2); }
+.dir-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.dir-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.dir-emoji { font-size: 18px; line-height: 1; }
+.dir-name { font-weight: 900; font-size: 15px; color: var(--text); }
+.dir-go { margin-left: auto; color: var(--gold); font-weight: 900; font-size: 17px; }
+.dir-what { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 0; }
+.dir-note { font-size: 12.5px; line-height: 1.5; color: var(--dim); margin: 8px 0 0; }
+
+/* ── Access pill: what kind of door this is ── */
+.access-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line2);
+  color: var(--dim);
+  white-space: nowrap;
+}
+.access-preview { color: var(--gold); border-color: var(--gold-glow); background: var(--gold-soft); }
+.access-member { color: var(--green); border-color: rgba(126, 201, 168, 0.28); }
+.access-owner { color: var(--dim); }
+
+/* ── The preview door ── */
+.gate { max-width: 380px; margin: 0 auto; padding: 64px 20px 90px; text-align: center; }
+.gate h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.02em; margin: 0 0 10px; }
+.gate p { font-size: 14.5px; line-height: 1.6; color: var(--muted); margin: 0 0 24px; }
+.gate input {
+  width: 100%;
+  padding: 15px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line2);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 17px;
+  text-align: center;
+  letter-spacing: 0.28em;
+  margin-bottom: 12px;
+}
+.gate input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
+.gate .btn { width: 100%; justify-content: center; }
+.gate-note { font-size: 12.5px; color: var(--dim); margin: 18px 0 0; }
+.gate-error { font-size: 13.5px; color: var(--text); margin: 0 0 12px; font-weight: 700; }
+
+/* ── Light theme ── */
+html[data-om-theme="light"] .page-title { color: #0f172a; }
+html[data-om-theme="light"] .page-lead,
+html[data-om-theme="light"] .sec-lead,
+html[data-om-theme="light"] .dir-what { color: #475569; }
+html[data-om-theme="light"] .sec > h2,
+html[data-om-theme="light"] .dir-note,
+html[data-om-theme="light"] .gate-note { color: #64748b; }
+html[data-om-theme="light"] .dir-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+html[data-om-theme="light"] .dir-card:hover,
+html[data-om-theme="light"] .dir-card:focus-visible {
+  background: #f8fafc;
+  border-color: #1d4ed8;
+}
+html[data-om-theme="light"] .dir-name { color: #0f172a; }
+html[data-om-theme="light"] .dir-go,
+html[data-om-theme="light"] .access-preview { color: #1d4ed8; }
+html[data-om-theme="light"] .access-pill { color: #64748b; border-color: #cbd5e1; }
+html[data-om-theme="light"] .access-preview { background: #eff6ff; border-color: #bfdbfe; }
+html[data-om-theme="light"] .access-member { color: #047857; border-color: #a7f3d0; }
+html[data-om-theme="light"] .gate input { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
