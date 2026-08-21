@@ -2189,3 +2189,29 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   .work2 { grid-template-columns: 1fr; }
   .sidecol { position: static; }
 }
+
+/* The starting-point column on /create, laid out as a grid where there is
+   room for one (the Library). Same tile, two shapes. */
+.sp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+}
+.sp-grid .sp {
+  border-color: var(--line);
+  background: var(--panel);
+  text-decoration: none;
+}
+
+/* The label above the engines offered on a build card. Without it the row of
+   names is three unexplained links on somebody's own work. */
+.bc-help-l {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 7px;
+}

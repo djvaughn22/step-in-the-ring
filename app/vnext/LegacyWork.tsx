@@ -9,7 +9,16 @@
 import { useEffect, useState } from "react";
 import { findLegacyWork, type LegacyFinding } from "./legacy";
 
-export default function LegacyWork({ heading = "Your earlier work" }: { heading?: string }) {
+export default function LegacyWork({
+  heading = "Your earlier work",
+  note = "Saved in this browser from before. Nothing was moved or changed — these open exactly where they always did.",
+}: {
+  heading?: string;
+  /** The line under the heading. Both live in here, not in the parent, so the
+   *  whole section disappears when there is nothing — a heading with an empty
+   *  space under it reads like something failed to load. */
+  note?: string;
+}) {
   const [found, setFound] = useState<LegacyFinding[] | null>(null);
 
   useEffect(() => {
@@ -22,12 +31,11 @@ export default function LegacyWork({ heading = "Your earlier work" }: { heading?
   if (found === null || found.length === 0) return null;
 
   return (
-    <section className="home-section" aria-label={heading}>
-      <span className="kicker">{heading}</span>
-      <p className="section-lead">
-        Saved in this browser from before. Nothing was moved or changed — these open
-        exactly where they always did.
-      </p>
+    <section className="band" aria-label={heading}>
+      <div className="band-head">
+        <h2 className="band-title">{heading}</h2>
+        <p className="band-note">{note}</p>
+      </div>
       <div className="ex-grid">
         {found.map((f) => (
           <a key={f.key} className="ex-card" href={f.href}>
