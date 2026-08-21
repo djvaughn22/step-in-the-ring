@@ -16,11 +16,24 @@ type ProjectSummary = {
   updatedAt: string;
 };
 
+// One panel shape for every block on this page. Account should be boring.
 const BOX: React.CSSProperties = {
-  border: "1px solid rgba(148,163,184,0.25)",
-  borderRadius: 14,
-  padding: "16px",
-  marginBottom: 16,
+  border: "1px solid var(--line)",
+  borderRadius: 6,
+  background: "var(--panel)",
+  padding: "22px",
+  marginBottom: 14,
+};
+
+/** Small mono caps, the same label treatment the rest of the product uses. */
+const LABEL: React.CSSProperties = {
+  fontFamily: "var(--mono)",
+  fontSize: 10.5,
+  fontWeight: 700,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "var(--dim)",
+  margin: "0 0 12px",
 };
 
 export default function AccountClient(props: {
@@ -128,8 +141,8 @@ export default function AccountClient(props: {
   return (
     <>
       <div style={BOX}>
-        <p style={{ fontSize: 14, fontWeight: 900, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>Membership</p>
-        <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 12px" }}>
+        <p style={LABEL}>Membership</p>
+        <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px" }}>
           Status: <strong>{props.membershipStatus}</strong>
           {props.activeUntil ? ` · access through ${new Date(props.activeUntil).toLocaleDateString()}` : ""}
         </p>
@@ -147,7 +160,7 @@ export default function AccountClient(props: {
           )}
         </div>
         {!props.billingLive && (
-          <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "10px 0 0", lineHeight: 1.6 }}>
+          <p style={{ fontSize: 12, color: "var(--muted)", margin: "10px 0 0", lineHeight: 1.6 }}>
             Billing is not live yet (private beta), so there is no billing
             portal to open. Cancellation, when billing exists, happens there —
             and canceling never disables a computer or this account.
@@ -156,11 +169,11 @@ export default function AccountClient(props: {
       </div>
 
       <div style={BOX}>
-        <p style={{ fontSize: 14, fontWeight: 900, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>Your projects</p>
+        <p style={LABEL}>Your work</p>
         {projects === null ? (
-          <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)" }}>Loading…</p>
+          <p style={{ fontSize: 13, color: "var(--muted)" }}>Loading…</p>
         ) : projects.length === 0 ? (
-          <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
             No saved projects yet. Projects you save from the Engine Room live
             here — and you can import work saved in this browser below.
           </p>
@@ -172,10 +185,10 @@ export default function AccountClient(props: {
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, borderTop: "1px solid rgba(148,163,184,0.15)", padding: "10px 0" }}
               >
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 14, fontWeight: 800, color: "var(--ink, #e8edf5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ display: "block", fontSize: 14, fontWeight: 800, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {p.title}
                   </span>
-                  <span style={{ fontSize: 11, color: "var(--muted, #94a3b8)" }}>
+                  <span style={{ fontSize: 11, color: "var(--muted)" }}>
                     {p.engineId} · updated {new Date(p.updatedAt).toLocaleDateString()}
                   </span>
                 </span>
@@ -197,7 +210,7 @@ export default function AccountClient(props: {
       </div>
 
       {message && (
-        <p role="status" style={{ fontSize: 13, fontWeight: 800, color: "var(--gold, #f59e0b)", margin: "0 0 12px" }}>
+        <p role="status" style={{ fontSize: 13, fontWeight: 800, color: "var(--gold)", margin: "0 0 12px" }}>
           {message}
         </p>
       )}
@@ -209,7 +222,7 @@ export default function AccountClient(props: {
         <button
           type="button"
           onClick={requestDeletion}
-          style={{ background: "none", border: "1px solid rgba(252,165,165,0.4)", borderRadius: 999, padding: "10px 18px", fontSize: 13, fontWeight: 800, color: "#fca5a5", cursor: "pointer" }}
+          style={{ background: "none", border: "1px solid var(--line2)", borderRadius: 4, padding: "13px 20px", minHeight: 46, fontSize: 13, fontWeight: 800, color: "var(--muted)", cursor: "pointer" }}
         >
           Request account deletion
         </button>

@@ -46,46 +46,6 @@ const STARTERS: { emoji: string; label: string; stem: string }[] = [
   { emoji: "💼", label: "Start a business", stem: "A service where I " },
 ];
 
-/* Examples are whole descriptions now — the way a person actually talks. */
-const EXAMPLES: { label: string; hint: string; description: string }[] = [
-  {
-    label: "A game you actually made",
-    hint: "For you and your friends",
-    description:
-      "A game where you dodge falling tacos and try to beat your friend's score. One player, a score counter, and it gets faster the longer you last. No levels or power-ups yet.",
-  },
-  {
-    label: "Your pet's own website",
-    hint: "For everyone who's met him",
-    description:
-      "A one-page website for my dog. It shows his name, one great photo, three facts about him, and a running list of the socks he has stolen. I already have the photos.",
-  },
-  {
-    label: "Game-night leaderboard",
-    hint: "For the family who argues about it",
-    description:
-      "A leaderboard for family game night. Nobody remembers last week's score so every win gets disputed. You add players, log who won tonight, and it shows the all-time standings.",
-  },
-  {
-    label: "Grandma's recipe box",
-    hint: "Before the cards fade",
-    description:
-      "Grandma's recipes saved online for our whole family, before the handwritten cards fade. I have photos of about 30 original cards. You pick a recipe and read it exactly as she wrote it.",
-  },
-];
-
-/* ── THE RING (flat top-down boxing ring — the brand mark) ── */
-function RingMark() {
-  return (
-    <div className="ring-mark" aria-hidden="true">
-      <span className="ring-post tl" />
-      <span className="ring-post tr" />
-      <span className="ring-post bl" />
-      <span className="ring-post br" />
-      <span className="ring-glove">🥊</span>
-    </div>
-  );
-}
 
 function CopyButton({ text, label, big }: { text: string; label: string; big?: boolean }) {
   const [copied, setCopied] = useState(false);

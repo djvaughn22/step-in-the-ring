@@ -19,7 +19,7 @@ import {
 // through an aria-live region.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = "var(--gold, #60A5FA)";
+const ACCENT = "var(--gold)";
 
 function isShareCancel(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
@@ -30,11 +30,12 @@ function isShareCancel(error: unknown): boolean {
 const actionBase: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  minHeight: 44,
-  borderRadius: 999,
-  padding: "10px 20px",
+  minHeight: 50,
+  borderRadius: 4,
+  padding: "14px 24px",
   fontSize: 14,
-  fontWeight: 900,
+  fontWeight: 800,
+  letterSpacing: "0.02em",
   cursor: "pointer",
 };
 
@@ -46,7 +47,7 @@ function DestinationLink({
   primary: boolean;
 }) {
   const style: CSSProperties = primary
-    ? { ...actionBase, background: ACCENT, color: "#0b1220", textDecoration: "none" }
+    ? { ...actionBase, background: ACCENT, color: "#1A1408", textDecoration: "none" }
     : {
         ...actionBase,
         padding: "10px 4px",
@@ -108,9 +109,9 @@ export default function AboutDestinationCard({
     <section
       aria-label={card.heading}
       style={{
-        background: "var(--panel, #141d2e)",
-        border: "1px solid var(--line, #26324c)",
-        borderRadius: 14,
+        background: "var(--panel)",
+        border: "1px solid var(--line)",
+        borderRadius: 6,
         padding: "18px 16px",
       }}
     >
@@ -142,7 +143,7 @@ export default function AboutDestinationCard({
           style={{
             fontSize: 15,
             lineHeight: 1.65,
-            color: "var(--muted, #94a3b8)",
+            color: "var(--muted)",
             margin: "12px 0 0",
           }}
         >
@@ -155,7 +156,7 @@ export default function AboutDestinationCard({
             fontSize: 15,
             lineHeight: 1.65,
             fontWeight: 700,
-            color: "var(--ink, #e8edf5)",
+            color: "var(--text)",
             margin: "12px 0 0",
           }}
         >
@@ -179,8 +180,8 @@ export default function AboutDestinationCard({
             style={{
               ...actionBase,
               background: "transparent",
-              border: "1px solid var(--line, #26324c)",
-              color: "var(--ink, #e8edf5)",
+              border: "1px solid var(--line)",
+              color: "var(--text)",
             }}
           >
             {card.share.label}
@@ -195,7 +196,7 @@ export default function AboutDestinationCard({
         role="status"
         style={{
           fontSize: 13,
-          color: "var(--muted, #94a3b8)",
+          color: "var(--muted)",
           minHeight: 20,
           margin: "12px 0 0",
         }}
@@ -203,7 +204,7 @@ export default function AboutDestinationCard({
         {status}
       </p>
       {card.attribution && (
-        <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "4px 0 0" }}>
+        <p style={{ fontSize: 12, color: "var(--muted)", margin: "4px 0 0" }}>
           {card.attribution}
         </p>
       )}

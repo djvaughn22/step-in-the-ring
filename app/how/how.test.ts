@@ -9,14 +9,14 @@ import { join } from "node:path";
 const src = readFileSync(join(__dirname, "page.tsx"), "utf8");
 
 describe("How It Works — simple model before the detailed one", () => {
-  it("defines a three-step simple model", () => {
-    expect(src).toMatch(/const SIMPLE = \[/);
-    const count = (src.match(/emoji:/g) ?? []).length;
-    expect(count).toBe(3);
+  it("defines the five-move loop, the same one the homepage shows", () => {
+    expect(src).toMatch(/const LOOP = \[/);
+    const loop = src.slice(src.indexOf("const LOOP = ["), src.indexOf("const STEPS"));
+    expect((loop.match(/n: "0\d"/g) ?? []).length).toBe(5);
   });
 
-  it("renders SIMPLE before the detailed STEPS list", () => {
-    const simpleAt = src.indexOf("{SIMPLE.map");
+  it("renders the loop before the detailed STEPS list", () => {
+    const simpleAt = src.indexOf("{LOOP.map");
     const stepsAt = src.indexOf("{STEPS.map");
     expect(simpleAt).toBeGreaterThan(-1);
     expect(stepsAt).toBeGreaterThan(-1);
@@ -24,9 +24,9 @@ describe("How It Works — simple model before the detailed one", () => {
   });
 
   it("still carries all seven detailed steps — nothing was thrown away", () => {
-    expect(src).toMatch(/n: "01"/);
-    expect(src).toMatch(/n: "07"/);
-    const count = (src.match(/n: "0\d"/g) ?? []).length;
-    expect(count).toBe(7);
+    const steps = src.slice(src.indexOf("const STEPS"));
+    expect(steps).toMatch(/n: "01"/);
+    expect(steps).toMatch(/n: "07"/);
+    expect((steps.match(/n: "0\d"/g) ?? []).length).toBe(7);
   });
 });

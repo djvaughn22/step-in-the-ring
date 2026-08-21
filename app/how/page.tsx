@@ -10,11 +10,15 @@ export const metadata: Metadata = {
     "The whole road: say a rough idea in your own words, get a plan for version one and a builder prompt, build it with free tools, test it locally, send it to Open Mirror to push — and it lands on the Live page.",
 };
 
-/** The whole thing in three words. Everything below is the same road, slower. */
-const SIMPLE = [
-  { emoji: "🗣️", title: "Say it", body: "Type what you want to make, in your own words." },
-  { emoji: "🪞", title: "Shape it", body: "See what we understood, before any plan appears." },
-  { emoji: "🏗️", title: "Make it real", body: "Get the smallest real version, and the next move on it." },
+/** The whole thing in five moves. Everything below is the same road, slower.
+    This is the same strip the homepage shows, so the product explains itself
+    the same way in both places. */
+const LOOP = [
+  { n: "01", title: "Say it", body: "In your own words. No form to fill in." },
+  { n: "02", title: "Shape it", body: "See what it really is before any plan shows up." },
+  { n: "03", title: "Make it", body: "The smallest version that actually works." },
+  { n: "04", title: "Try it", body: "Use it yourself. If it does not work for you it is not done." },
+  { n: "05", title: "Go again", body: "Fix it, grow it, or start the next one." },
 ];
 
 const STEPS = [
@@ -59,41 +63,41 @@ export default function HowPage() {
   return (
     <main>
       <div className="page">
-        <section className="hero" style={{ paddingBottom: 8 }}>
-          <span className="kicker">Step In The Ring</span>
-          <h1 style={{ fontSize: "clamp(32px, 7vw, 54px)" }}>
-            How It <span style={{ color: "var(--gold)" }}>Works</span>
-          </h1>
-          <p className="hero-sub">
-            The whole road, idea to live. No accounts, no cost — your plans stay
-            on your device.
+        <header className="mast">
+          <span className="kicker">How it works</span>
+          <h1 className="mast-title">Five moves</h1>
+          <p className="mast-lead">
+            The same five, whether it is an app, a song or a practice plan. No
+            account, no cost, and what you type stays on your device.
           </p>
-        </section>
+          <hr className="rule mast-rule" />
+        </header>
 
-        <section className="home-section" style={{ marginTop: 20 }}>
-          <div className="row3">
-            {SIMPLE.map((s) => (
-              <div key={s.title} className="card" style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 28 }} aria-hidden="true">{s.emoji}</div>
-                <h3 style={{ margin: "8px 0 6px" }}>{s.title}</h3>
-                <p style={{ fontSize: 14, margin: 0 }}>{s.body}</p>
+        <section className="band" style={{ paddingTop: 34 }}>
+          <div className="loop">
+            {LOOP.map((s) => (
+              <div key={s.n} className="loop-step">
+                <span className="loop-n">{s.n}</span>
+                <h3 className="loop-t">{s.title}</h3>
+                <p className="loop-d">{s.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="home-section" style={{ marginTop: 8 }}>
-          <span className="kicker">The same road, one step at a time</span>
-          <div className="stack" style={{ marginTop: 12 }}>
+        <section className="band">
+          <div className="band-head">
+            <h2 className="band-title">The longer version</h2>
+            <p className="band-note">Same road, one step at a time.</p>
+          </div>
+          <div className="bench-cols">
             {STEPS.map((s) => (
-              <div key={s.n} className="card" style={{ display: "flex", gap: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", minWidth: 28, marginTop: 2 }}>
-                  {s.n}
-                </div>
-                <div>
-                  <h3 style={{ marginBottom: 8 }}>{s.title}</h3>
-                  <p style={{ fontSize: 14 }}>{s.body}</p>
-                </div>
+              <div key={s.n} className="bench-col">
+                <h3>{s.n}</h3>
+                <p style={{ fontSize: 16, fontWeight: 900, color: "var(--text)", letterSpacing: "-0.02em", margin: "0 0 8px" }}>
+                  {s.title}
+                </p>
+                <p style={{ fontSize: 13.5, lineHeight: 1.55 }}>{s.body}</p>
               </div>
             ))}
           </div>

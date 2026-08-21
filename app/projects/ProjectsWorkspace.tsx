@@ -142,13 +142,15 @@ function ProjectList({
 
   return (
     <>
-      <header style={{ marginBottom: 20 }}>
-        <p className="kicker">Your projects</p>
-        <h1>Projects</h1>
-        <p className="field-help">
-          Each project keeps its whole story: your words, what we read into them,
-          the approved scope, and the evidence. Nothing here claims more than it can prove.
+      <header className="mast" style={{ paddingTop: 0 }}>
+        <span className="kicker">Owner</span>
+        <h1 className="mast-title">My work</h1>
+        <p className="mast-lead">
+          Each one keeps its whole story: your words, what we read into them, the
+          approved scope, and the evidence. Nothing here claims more than it can
+          prove.
         </p>
+        <hr className="rule mast-rule" />
       </header>
 
       <form onSubmit={handleCreate} className="card" style={{ marginBottom: 20 }}>
@@ -539,7 +541,7 @@ function ProjectDetail({
 function ReportSection({ title, items, strong }: { title: string; items: string[]; strong?: boolean }) {
   if (!items.length) return null;
   return (
-    <div className="card" style={{ marginBottom: 16, ...(strong ? { borderColor: "var(--accent, #60A5FA)" } : {}) }}>
+    <div className="card" style={{ marginBottom: 16, ...(strong ? { borderColor: "var(--gold)" } : {}) }}>
       <p className="plan-label">{title}</p>
       <ul className="plan-list" style={{ marginTop: 8 }}>
         {items.map((x, n) => <li key={n}>{x}</li>)}

@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const BOX: React.CSSProperties = {
   border: "1px solid rgba(148,163,184,0.25)",
-  borderRadius: 14,
+  borderRadius: 6,
   padding: "16px",
   marginBottom: 16,
 };
@@ -20,7 +20,7 @@ const INPUT: React.CSSProperties = {
   borderRadius: 10,
   padding: "10px 12px",
   fontSize: 14,
-  color: "var(--ink, #e8edf5)",
+  color: "var(--text)",
   marginBottom: 10,
 };
 
@@ -62,10 +62,10 @@ export default function FeedbackForm() {
 
   return (
     <div id="feedback" style={BOX}>
-      <p style={{ fontSize: 14, fontWeight: 900, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>
+      <p style={{ fontSize: 14, fontWeight: 900, margin: "0 0 6px", color: "var(--text)" }}>
         Give feedback on the beta
       </p>
-      <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 12px", lineHeight: 1.6 }}>
+      <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px", lineHeight: 1.6 }}>
         Hit something broken, confusing, or worth building? Say it here — it goes straight to the
         owner, not a queue.
       </p>
