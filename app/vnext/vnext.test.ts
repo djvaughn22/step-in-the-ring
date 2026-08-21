@@ -258,10 +258,9 @@ describe("The new shell", () => {
   });
 
   it("keeps primary navigation to a handful of doors", () => {
-    // The menu is derived from the site registry now rather than typed out
-    // here, so it cannot drift from the Everything directory. The shape rules
-    // it used to guard live in app/site/registry.test.ts.
-    expect(layout).toContain("navPages()");
+    // The bar is derived from the site registry, so it cannot drift from the
+    // Everything directory. The shape rules live in app/site/registry.test.ts.
+    expect(read("app/site/RingHeader.tsx")).toContain("navPages()");
     const nav = navPages();
     expect(nav.length).toBeLessThanOrEqual(5);
     const paths = nav.map((p) => p.path);
@@ -273,14 +272,30 @@ describe("The new shell", () => {
     expect(pageAt("/account")?.group).toBe("account");
   });
 
-  it("still opens the Engine Room as an explained door, not a footnote", () => {
-    expect(home).toContain("The Engine Room");
-    expect(home).toContain('href="/engines"');
+  it("shows the doors on a laptop instead of hiding them in a hamburger", () => {
+    // The shared Open Mirror bar is a 680px column with everything behind a
+    // menu button. Step In The Ring carries its own bar so the product
+    // architecture is visible on a wide screen; the burger is phone-only.
+    const header = read("app/site/RingHeader.tsx");
+    expect(header).toContain("ring-nav");
+    const css = read("app/globals.css");
+    const phoneOnly = css.slice(css.indexOf("@media (max-width: 860px)"));
+    expect(phoneOnly).toContain(".ring-burger { display: block; }");
   });
 
-  it("keeps the Open Mirror footer and nav mounted", () => {
+  it("still opens the Engine Room as an explained door, not a footnote", () => {
+    // It left the homepage when the homepage became a start screen, but it is
+    // a full explained row in the Library and in the directory — never a
+    // footnote, and never dropped.
+    expect(allCapabilities().some((c) => c.href === "/engines")).toBe(true);
+    expect(pageAt("/engines")?.what.length ?? 0).toBeGreaterThan(20);
+  });
+
+  it("keeps the Open Mirror footer mounted", () => {
+    // The family footer is a locked standard and stays. The nav does not:
+    // see the laptop-navigation test above.
     expect(layout).toContain("OpenMirrorFooter");
-    expect(layout).toContain("OpenMirrorNav");
+    expect(layout).toContain("RingHeader");
   });
 
   it("lets a signed-out visitor reach their own local work", () => {

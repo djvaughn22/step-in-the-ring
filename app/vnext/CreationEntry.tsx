@@ -75,19 +75,22 @@ export default function CreationEntry({
   const ownRef = useRef<HTMLTextAreaElement | null>(null);
   const ref = inputRef ?? ownRef;
 
+  function useStem(stem: string) {
+    onValueChange(stem);
+    // Put the cursor where the person keeps typing.
+    setTimeout(() => {
+      const el = ref.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(stem.length, stem.length);
+    }, 0);
+  }
+
   return (
-    <section aria-label="Start a creation" className="creation-entry">
-      <form className="stack" onSubmit={onSubmit}>
-        <div>
-          <label className="field-question" htmlFor={id} style={{ display: "block" }}>
-            {heading}
-          </label>
-          {help && (
-            <p className="field-help" id={`${id}-help`} style={{ marginBottom: 0 }}>
-              {help}
-            </p>
-          )}
-        </div>
+    <section aria-label="Start a creation" className="startbox">
+      <form onSubmit={onSubmit}>
+        <label htmlFor={id}>{heading}</label>
+
         <textarea
           id={id}
           ref={ref}
@@ -98,34 +101,30 @@ export default function CreationEntry({
           rows={rows}
           required
         />
-        <div className="actions">
-          <button type="submit" className="btn btn-gold" disabled={disabled || !value.trim()}>
+
+        <div className="startbox-go">
+          <button type="submit" className="btn btn-gold btn-big" disabled={disabled || !value.trim()}>
             {submitLabel}
           </button>
           {actions}
         </div>
+
+        {/* The ways in sit UNDER the box as a quiet sentence, not as a wall of
+            pills competing with the question. Each one drops an editable stem
+            in, so what comes back is still the person's own words. */}
         {starters.length > 0 && (
-          <div className="chip-row" role="group" aria-label="Or start from what you want to make">
-            {starters.map((s) => (
-              <button
-                key={s.label}
-                type="button"
-                className="chip"
-                onClick={() => {
-                  onValueChange(s.stem);
-                  // Put the cursor where the person keeps typing.
-                  setTimeout(() => {
-                    const el = ref.current;
-                    if (!el) return;
-                    el.focus();
-                    el.setSelectionRange(s.stem.length, s.stem.length);
-                  }, 0);
-                }}
-              >
-                <span aria-hidden="true">{s.emoji}</span> {s.label}
-              </button>
+          <p className="startbox-eg" id={`${id}-help`}>
+            {help ? `${help} ` : null}
+            Or start with{" "}
+            {starters.map((s, i) => (
+              <span key={s.label}>
+                <button type="button" onClick={() => useStem(s.stem)}>
+                  {s.label.toLowerCase()}
+                </button>
+                {i < starters.length - 2 ? ", " : i === starters.length - 2 ? " or " : "."}
+              </span>
             ))}
-          </div>
+          </p>
         )}
         {children}
       </form>

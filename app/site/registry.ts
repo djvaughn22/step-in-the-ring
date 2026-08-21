@@ -323,6 +323,9 @@ export interface EcosystemProject {
   repoUrl?: string;
   repoPublic: boolean;
   status: ProjectStatus;
+  /** The product's own colour, so a wall of tiles doesn't read as one grey
+   *  list. Each site already has an identity; the directory should show it. */
+  accent: string;
 }
 
 export const ECOSYSTEM: EcosystemProject[] = [
@@ -335,6 +338,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://crossheartpray.com",
     repoPublic: false,
     status: "live",
+    accent: "#C9A94A",
   },
   {
     name: "iDontCry",
@@ -345,6 +349,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://idontcry.com",
     repoPublic: false,
     status: "live",
+    accent: "#F5A524",
   },
   {
     name: "OpenDoku",
@@ -355,6 +360,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://opendoku.com",
     repoPublic: false,
     status: "live",
+    accent: "#6FBF9B",
   },
   {
     name: "WatchedNotWatched",
@@ -365,6 +371,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://watchednotwatched.com",
     repoPublic: false,
     status: "live",
+    accent: "#8FA3B0",
   },
   {
     name: "DontCloneMeTom",
@@ -375,6 +382,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://dontclonemetom.com",
     repoPublic: false,
     status: "live",
+    accent: "#E0894A",
   },
   {
     name: "TheDJCares",
@@ -385,6 +393,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://thedjcares.com",
     repoPublic: false,
     status: "live",
+    accent: "#7FB3D5",
   },
   {
     name: "PleaseBeReady",
@@ -395,6 +404,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://pleasebeready.com",
     repoPublic: false,
     status: "live",
+    accent: "#9CB380",
   },
   {
     name: "WhatAmIAI",
@@ -405,6 +415,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://whatamiai.com",
     repoPublic: false,
     status: "building",
+    accent: "#B0A695",
   },
   {
     name: "Open Mirror",
@@ -415,6 +426,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://openmirrorllc.com",
     repoPublic: false,
     status: "live",
+    accent: "#D6CDBE",
   },
   {
     name: "Step In The Ring",
@@ -425,6 +437,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://stepinthering.com",
     repoPublic: false,
     status: "live",
+    accent: "#F5A524",
   },
 ];
 
