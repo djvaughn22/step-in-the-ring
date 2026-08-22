@@ -75,7 +75,7 @@ export default async function MembershipPage({
         lead="Take any idea — even one you dreamed up on iDontCry — and turn it into a real first build. Membership is the working side of Step In The Ring: guided engines, saved projects, and structured iteration toward a real first working version. Your ideas, projects, and output remain yours."
       >
         {!billingLive && (
-          <div style={{ border: "1px solid rgba(245,158,11,0.4)", borderRadius: 14, padding: "14px 16px", marginTop: 20 }}>
+          <div style={{ border: "1px solid var(--gold-glow)", borderRadius: 14, padding: "14px 16px", marginTop: 20 }}>
             <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold)", margin: 0, lineHeight: 1.6 }}>
               Billing is not live yet. Membership is in private beta: invited
               testers use owner-issued codes, and nothing can be purchased on

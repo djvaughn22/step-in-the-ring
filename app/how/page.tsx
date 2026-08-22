@@ -107,10 +107,10 @@ export default function HowPage() {
 
         <section className="home-section" style={{ textAlign: "center" }}>
           <div className="actions center">
-            <Link href="/" className="btn btn-gold btn-big">🥊 Shape my idea</Link>
+            <Link href="/create" className="btn btn-gold btn-big">Start something</Link>
           </div>
           <p style={{ fontSize: 14, marginTop: 16 }}>
-            <Link href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+            <Link href="/live" className="more">
               See what already made it out — the Live page →
             </Link>
           </p>

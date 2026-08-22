@@ -140,7 +140,7 @@ export default function BuildMachineClient() {
               onClick={() => setTab(t)}
               style={{
                 padding: "8px 16px", border: "none", borderRadius: 4, fontSize: 14, fontWeight: 800, cursor: "pointer",
-                background: tab === t ? "rgba(245,158,11,0.2)" : "transparent",
+                background: tab === t ? "var(--gold-glow)" : "transparent",
                 color: tab === t ? "var(--gold)" : "var(--muted)",
               }}
             >
@@ -223,7 +223,7 @@ export default function BuildMachineClient() {
                   </select>
                 </label>
               )}
-              <button type="submit" style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
+              <button type="submit" style={{ padding: "10px 16px", background: "var(--gold)", color: "var(--ink)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
                 Check candidacy
               </button>
             </form>
@@ -297,7 +297,7 @@ export default function BuildMachineClient() {
                   </label>
                 ))}
                 {installDone && (
-                  <button onClick={() => setTab("verify")} style={{ marginTop: 8, padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
+                  <button onClick={() => setTab("verify")} style={{ marginTop: 8, padding: "10px 16px", background: "var(--gold)", color: "var(--ink)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
                     Continue to verification →
                   </button>
                 )}
@@ -355,7 +355,7 @@ export default function BuildMachineClient() {
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>Completion report</h2>
             <button
               onClick={() => setReportText(generateCompletionReport(record))}
-              style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
+              style={{ padding: "10px 16px", background: "var(--gold)", color: "var(--ink)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
             >
               Generate report
             </button>

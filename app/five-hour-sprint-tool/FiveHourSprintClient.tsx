@@ -138,35 +138,31 @@ export default function FiveHourSprintClient() {
     <main>
       <div className="page">
         <header className="mast">
-          <span className="kicker">A way to work</span>
           <a href="/engines#plan" className="breadcrumb">← All engines</a>
           <h1 className="mast-title">Five Hour Sprint</h1>
+          <p className="fhs-pitch">
+            One thing. Five hours. Make real progress.
+          </p>
           <p className="mast-lead">
-            Focus the work. Build for five hours. Finish something real. Plan the
-            run below, keep the ledger while it happens, then write down what
-            actually came out of it.
+            Plan the run below, keep track while it happens, then write down
+            what actually came out of it.
           </p>
           <hr className="rule mast-rule" />
         </header>
 
-        <div style={{ display: "flex", gap: 6, margin: "26px 0 24px", borderBottom: "1px solid var(--line)", paddingBottom: 12, flexWrap: "wrap" }}>
-          {(["planner", "ledger", "report", "studies"] as const).map((tab) => (
+        {/* A numbered progression, not a row of unlabeled tabs — plan, then
+            track, then report is the actual order a sprint happens in. */}
+        <div className="fhs-tabs">
+          {(["planner", "ledger", "report", "studies"] as const).map((tab, i) => (
             <button
               key={tab}
+              type="button"
+              className={`fhs-tab${activeTab === tab ? " active" : ""}`}
               onClick={() => setActiveTab(tab)}
-              style={{
-                padding: "8px 16px",
-                border: "none",
-                background: activeTab === tab ? "rgba(245,158,11,0.2)" : "transparent",
-                color: activeTab === tab ? "var(--gold)" : "var(--muted)",
-                fontSize: 14,
-                fontWeight: 800,
-                cursor: "pointer",
-                borderRadius: 4,
-              }}
             >
+              <span className="fhs-tab-n">{i + 1}</span>
               {tab === "planner" && "Plan"}
-              {tab === "ledger" && "Track it"}
+              {tab === "ledger" && "Track"}
               {tab === "report" && "Report"}
               {tab === "studies" && "Examples"}
             </button>
@@ -182,7 +178,7 @@ export default function FiveHourSprintClient() {
                 style={{
                   padding: "8px 16px",
                   background: "var(--gold)",
-                  color: "#1A1408",
+                  color: "var(--ink)",
                   border: "none",
                   borderRadius: 4,
                   fontWeight: 800,
@@ -209,7 +205,7 @@ export default function FiveHourSprintClient() {
                       border: "1px solid var(--line2)",
                       borderRadius: 5,
                       cursor: "pointer",
-                      background: currentSprint?.id === sprint.id ? "rgba(245,158,11,0.1)" : "rgba(148,163,184,0.05)",
+                      background: currentSprint?.id === sprint.id ? "var(--gold-soft)" : "rgba(148,163,184,0.05)",
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
@@ -267,7 +263,7 @@ export default function FiveHourSprintClient() {
               <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Usage Ledger</h2>
               <button
                 onClick={() => setEntryFormOpen(true)}
-                style={{ padding: "8px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
+                style={{ padding: "8px 16px", background: "var(--gold)", color: "var(--ink)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
               >
                 Log Entry
               </button>
@@ -352,7 +348,7 @@ export default function FiveHourSprintClient() {
             {reportSprint && (
               <button
                 onClick={() => setReportText(generateReport(reportSprint, reportEntries))}
-                style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
+                style={{ padding: "10px 16px", background: "var(--gold)", color: "var(--ink)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer", marginBottom: 16 }}
               >
                 Generate Report
               </button>
@@ -379,7 +375,7 @@ export default function FiveHourSprintClient() {
                       alert("Couldn't copy to clipboard. Select and copy manually.");
                     });
                   }}
-                  style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
+                  style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "var(--ink)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}
                 >
                   Copy Report
                 </button>
@@ -534,7 +530,7 @@ function SprintForm({ sprint, onSave, onClose }: { sprint: Sprint; onSave: (s: S
               onSave(liveForm);
               onClose();
             }}
-            style={{ flex: 1, padding: "10px 16px", background: ready ? "var(--gold)" : "rgba(148,163,184,0.3)", color: ready ? "#0f172a" : "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: ready ? "pointer" : "not-allowed" }}
+            style={{ flex: 1, padding: "10px 16px", background: ready ? "var(--gold)" : "rgba(148,163,184,0.3)", color: ready ? "var(--ink)" : "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: ready ? "pointer" : "not-allowed" }}
             disabled={!ready}
           >
             {ready ? "Save & Generate Packet" : "Complete required fields"}
@@ -545,7 +541,7 @@ function SprintForm({ sprint, onSave, onClose }: { sprint: Sprint; onSave: (s: S
         </div>
 
         {ready && (
-          <button onClick={copyPacket} style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "#1A1408", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
+          <button onClick={copyPacket} style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#34D399", color: "var(--ink)", border: "none", borderRadius: 4, fontWeight: 800, cursor: "pointer" }}>
             Copy Task Packet
           </button>
         )}
@@ -625,7 +621,7 @@ function LedgerEntryForm({ sprints, onSave, onClose }: { sprints: Sprint[]; onSa
               });
             }}
             disabled={!canSave}
-            style={{ flex: 1, padding: "10px 16px", background: canSave ? "var(--gold)" : "rgba(148,163,184,0.3)", color: canSave ? "#0f172a" : "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: canSave ? "pointer" : "not-allowed" }}
+            style={{ flex: 1, padding: "10px 16px", background: canSave ? "var(--gold)" : "rgba(148,163,184,0.3)", color: canSave ? "var(--ink)" : "var(--muted)", border: "none", borderRadius: 4, fontWeight: 800, cursor: canSave ? "pointer" : "not-allowed" }}
           >
             Save Entry
           </button>

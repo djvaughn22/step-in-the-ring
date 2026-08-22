@@ -73,7 +73,7 @@ export default function LivePage() {
             Your build lands here the same way: shape the idea, build it,
             test it locally, send it to Open Mirror to push.
           </p>
-          <Link href="/" className="btn btn-gold">🥊 Shape my idea</Link>
+          <Link href="/create" className="btn btn-gold">Start something</Link>
         </section>
 
         <div className="divider" />
