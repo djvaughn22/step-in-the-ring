@@ -412,7 +412,6 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://opendoku.com",
     repoPublic: false,
     status: "live",
-    featured: true,
     accent: "#6FBF9B",
   },
   {
@@ -436,7 +435,6 @@ export const ECOSYSTEM: EcosystemProject[] = [
     liveUrl: "https://dontclonemetom.com",
     repoPublic: false,
     status: "live",
-    featured: true,
     accent: "#E0894A",
   },
   {

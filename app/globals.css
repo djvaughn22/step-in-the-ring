@@ -2133,7 +2133,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
    first screen instead of one of them scrolling to find their half. */
 .work2 {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: clamp(24px, 4vw, 52px);
   align-items: start;
   padding-top: 8px;
@@ -2158,6 +2158,17 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .side-foot a { color: var(--accent); font-weight: 800; text-decoration: none; }
 .side-foot a:hover { text-decoration: underline; }
 
+/* Three named columns instead of eight equal cards — BUILD / CREATE / DO. */
+.sp-group + .sp-group { margin-top: 18px; }
+.sp-group-t {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 6px;
+}
 .sp-list { display: flex; flex-direction: column; gap: 6px; }
 .sp {
   display: flex;
@@ -2189,6 +2200,41 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   .work2 { grid-template-columns: 1fr; }
   .sidecol { position: static; }
 }
+
+/* ═══ HOME: QUICK START ══════════════════════════════════════════════════
+   Four doors, not eight — proof the site handles more than one kind of
+   thing, not a picker to study. Each tile is a fat target, not a pill. */
+.band-tight { padding-top: clamp(28px, 4vw, 44px); }
+.qs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.qs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  color: inherit;
+  min-height: 108px;
+}
+.qs:hover { border-color: var(--accent); background: var(--panel2); }
+.qs:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.qs-mark { font-size: 24px; line-height: 1; }
+.qs-label { font-size: 15.5px; font-weight: 900; color: var(--text); letter-spacing: -0.01em; }
+.qs-what { font-size: 12.5px; line-height: 1.5; color: var(--dim); }
+
+/* A featured-engine card on Home: the same shape as the full catalog card,
+   with the "when to use it" line and nothing else — Engines is one click
+   away for the rest of the honesty. */
+.eng-compact { min-height: 0; }
+.eng-compact .eng-when { border-top: none; padding-top: 0; }
 
 /* The starting-point column on /create, laid out as a grid where there is
    room for one (the Library). Same tile, two shapes. */

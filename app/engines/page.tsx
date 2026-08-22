@@ -25,31 +25,31 @@ export const metadata: Metadata = {
     "Focused tools for making one part of what you're building. Each one says what it does, when to use it, and what you leave with.",
 };
 
-function statusClass(c: Capability): string {
-  if (c.ownerOnly) return "status-pill status-owner-only";
-  return c.activation === "working" ? "status-pill status-working" : "status-pill status-beta";
-}
-
 function EngineCard({ c }: { c: Capability }) {
   const name = displayName(c);
   // An owner-only engine stays on the page — hiding it would make the catalog
   // a lie — but it does not pretend to be a door you can walk through.
   const openable = !c.ownerOnly;
+  // "Works" on a card that works is noise — it's the expectation, not news.
+  // A flag only earns its place when it says something other than that.
+  const flag = c.ownerOnly ? ACTIVATION_LABEL["owner-only"] : c.activation !== "working" ? ACTIVATION_LABEL[c.activation] : null;
   return (
     <article className="eng">
       <header className="eng-head">
         <span className="eng-mark" aria-hidden="true">{c.emoji}</span>
         <h3 className="eng-name">{name}</h3>
-        <span className={statusClass(c)}>
-          {c.ownerOnly ? ACTIVATION_LABEL["owner-only"] : ACTIVATION_LABEL[c.activation]}
-        </span>
+        {flag && (
+          <span className={`status-pill ${c.ownerOnly ? "status-owner-only" : "status-beta"}`}>
+            {flag}
+          </span>
+        )}
       </header>
 
       <p className="eng-what">{c.what}</p>
 
       {c.useWhen && (
         <p className="eng-when">
-          <span className="eng-when-k">Use it when</span>
+          <span className="eng-when-k">Use this to</span>
           {c.useWhen}
         </p>
       )}
