@@ -39,20 +39,23 @@ type Stage = "landing" | "stepped" | "result" | "saved";
 const STARTERS = QUICK_STARTERS;
 const FEATURED_ENGINES = featuredCapabilities();
 
-/** The beginning of a real brand mark: a plain glove, three flat shapes,
- *  one color. No seams, no shading, no laces — the point is that it reads
- *  at 28px next to a heading, not that it looks like an illustration. */
-function RingGloveMark() {
+/** The brand mark: the ring itself, read from above — a floor, a rope line,
+ *  four posts. The same three shapes the box on the right is framed with,
+ *  shrunk to an icon, so the name and the mark say the same thing twice. */
+function RingMark() {
   return (
     <svg
-      className="glove-mark"
+      className="ring-mark-icon"
       viewBox="0 0 40 40"
       aria-hidden="true"
       focusable="false"
     >
-      <rect x="9" y="26" width="22" height="9" rx="4" fill="currentColor" />
-      <rect x="7" y="7" width="26" height="22" rx="11" fill="currentColor" />
-      <rect x="1" y="14" width="13" height="10" rx="5" fill="currentColor" transform="rotate(-18 7.5 19)" />
+      <rect x="6" y="6" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" />
+      <rect x="11" y="11" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+      <rect x="1.5" y="1.5" width="7" height="7" fill="currentColor" />
+      <rect x="31.5" y="1.5" width="7" height="7" fill="currentColor" />
+      <rect x="1.5" y="31.5" width="7" height="7" fill="currentColor" />
+      <rect x="31.5" y="31.5" width="7" height="7" fill="currentColor" />
     </svg>
   );
 }
@@ -517,7 +520,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div>
               <span className="stage-mark">Step In The Ring</span>
               <h1 className="ring-display ring-brand">
-                <RingGloveMark />
+                <RingMark />
                 The Ring
               </h1>
               <p className="ring-tagline">A place to make things.</p>
