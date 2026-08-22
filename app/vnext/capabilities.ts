@@ -31,14 +31,13 @@ export type CapabilityKind = "engine" | "tool" | "surface";
  * that actually run, and an engine with no group simply does not appear on the
  * engines page (the Engine Room itself, the owner ledger, the shop).
  */
-export type EngineGroup = "start" | "build" | "make" | "plan" | "out";
+export type EngineGroup = "start" | "make" | "plan" | "finish";
 
 export const ENGINE_GROUPS: { id: EngineGroup; title: string; note: string }[] = [
-  { id: "start", title: "Start it", note: "You have something in your head and you're not sure which version of it to build." },
-  { id: "build", title: "Build it", note: "Turn it into software that runs, and keep it running." },
-  { id: "make", title: "Make something", note: "A design, a song, a game, a story, a how-to. Things that are not code." },
-  { id: "plan", title: "Plan it", note: "Real-world work with dates, people and a finish line." },
-  { id: "out", title: "Put it out there", note: "It works. Now somebody else has to see it, use it, or buy it." },
+  { id: "start", title: "Start", note: "Help me figure out what I'm making." },
+  { id: "make", title: "Make", note: "Help me create part of it — software, a design, a song, a story, a fix." },
+  { id: "plan", title: "Plan", note: "Help me work through it — dates, people, a finish line." },
+  { id: "finish", title: "Finish", note: "Help me get it out into the world." },
 ];
 
 export interface Capability {
@@ -67,6 +66,9 @@ export interface Capability {
   example?: string;
   /** A plainer name for the card, when the internal one is not obvious. */
   title?: string;
+  /** Shown on Home's "Tools for the job" row — the 4-5 broadly useful ones,
+   *  not all 12. Curation, not a reflection of every engine's real value. */
+  featured?: boolean;
 }
 
 /** Which shelf each engine sits on, and when a person should reach for it. */
@@ -77,12 +79,12 @@ const ENGINE_META: Record<string, { group: EngineGroup; useWhen: string; example
     example: "\u201cA card game for my kids\u201d comes out as four versions, scored, and you leave with one.",
   },
   build: {
-    group: "build",
+    group: "make",
     useWhen: "You know what you want to make and need the actual first build.",
     example: "A site that tracks your kids' chores becomes an MVP scope and a prompt you paste into your coding tool.",
   },
   fix: {
-    group: "build",
+    group: "make",
     useWhen: "Something you already made broke, and you do not want to break the rest of it.",
     example: "\u201cThe login stopped working\u201d becomes a repair plan that inspects before it edits.",
   },
@@ -120,22 +122,22 @@ const ENGINE_META: Record<string, { group: EngineGroup; useWhen: string; example
     example: "A fundraiser becomes phases, owners, dates and the next concrete action.",
   },
   sell: {
-    group: "out",
+    group: "finish",
     useWhen: "You want money to change hands and do not know what you are actually selling.",
     example: "\u201cI could do this for people\u201d becomes a customer, an offer, a price and a first test.",
   },
   launch: {
-    group: "out",
+    group: "finish",
     useWhen: "It works on your screen and now real people have to see it.",
     example: "A finished site becomes a readiness check, a blocker list and one number to watch.",
   },
   grow: {
-    group: "out",
+    group: "finish",
     useWhen: "It is live and quiet, and you want to move one real number.",
     example: "Forty visitors a week becomes one hypothesis and the smallest test that proves it.",
   },
   etsy: {
-    group: "out",
+    group: "finish",
     useWhen: "Superseded by the Design Shop.",
     example: "Kept so older saved work still opens.",
   },
@@ -179,7 +181,7 @@ const SURFACES: Capability[] = [
     href: "/build-machine",
     activation: "working",
     needs: ["computer", "laptop", "setup", "old machine", "environment"],
-    group: "build",
+    group: "make",
     useWhen: "The computer you own cannot build the thing yet.",
     example: "An eight-year-old laptop ends up running the same tools this site was built with.",
   },
@@ -192,7 +194,7 @@ const SURFACES: Capability[] = [
     href: "/build",
     activation: "working",
     needs: ["beginner", "first", "never built", "step by step", "learn"],
-    group: "build",
+    group: "make",
     title: "Your first build",
     useWhen: "You have never built anything and want the whole thing walked through once.",
     example: "Six short rounds that end with something real running on your own screen. No account.",
@@ -319,6 +321,14 @@ function rank(c: Capability): number {
 
 /** Superseded rows kept alive for old saved work, never advertised again. */
 const HIDDEN_FROM_ENGINES = new Set(["etsy"]);
+
+/** Home's "Tools for the job" row — curated, not the whole registry. */
+const FEATURED_IDS = ["idea", "build", "design-shop", "music", "five-hour-sprint"];
+
+export function featuredCapabilities(): Capability[] {
+  const all = allCapabilities();
+  return FEATURED_IDS.map((id) => all.find((c) => c.id === id)).filter((c): c is Capability => !!c);
+}
 
 export function capabilityById(id: string): Capability | undefined {
   return allCapabilities().find((c) => c.id === id);

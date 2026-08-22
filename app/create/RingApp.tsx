@@ -26,7 +26,8 @@ import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
 import { ECOSYSTEM } from "../site/registry";
-import { QUICK_STARTERS, STARTING_POINTS } from "./starting-points";
+import { QUICK_START, QUICK_STARTERS, STARTING_POINT_GROUPS, STARTING_POINTS } from "./starting-points";
+import { displayName, featuredCapabilities } from "../vnext/capabilities";
 import {
   CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
 } from "../creation/types";
@@ -36,6 +37,7 @@ type Stage = "landing" | "stepped" | "result" | "saved";
 /* The ways in. One list, shared with the Create page and the starting-point
    column, so the site can never offer two different sets of first moves. */
 const STARTERS = QUICK_STARTERS;
+const FEATURED_ENGINES = featuredCapabilities();
 
 function CopyButton({ text, label, big }: { text: string; label: string; big?: boolean }) {
   const [copied, setCopied] = useState(false);
@@ -450,27 +452,32 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </div>
 
             <aside className="sidecol" id="starting-points">
-              <h2 className="side-title">No idea yet?</h2>
+              <h2 className="side-title">Need an idea?</h2>
               <p className="side-note">
                 Pick one. It drops a half-finished sentence in the box and you
                 finish it.
               </p>
-              <div className="sp-list">
-                {STARTING_POINTS.map((sp) => (
-                  <button
-                    key={sp.label}
-                    type="button"
-                    className="sp"
-                    onClick={() => takeStartingPoint(sp.stem)}
-                  >
-                    <span className="sp-mark" aria-hidden="true">{sp.emoji}</span>
-                    <span className="sp-body">
-                      <span className="sp-label">{sp.label}</span>
-                      <span className="sp-what">{sp.what}</span>
-                    </span>
-                  </button>
-                ))}
-              </div>
+              {STARTING_POINT_GROUPS.map((g) => (
+                <div key={g.id} className="sp-group">
+                  <h3 className="sp-group-t">{g.title}</h3>
+                  <div className="sp-list">
+                    {STARTING_POINTS.filter((sp) => sp.group === g.id).map((sp) => (
+                      <button
+                        key={sp.label}
+                        type="button"
+                        className="sp"
+                        onClick={() => takeStartingPoint(sp.stem)}
+                      >
+                        <span className="sp-mark" aria-hidden="true">{sp.emoji}</span>
+                        <span className="sp-body">
+                          <span className="sp-label">{sp.label}</span>
+                          <span className="sp-what">{sp.what}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
               <p className="side-foot">
                 Looking for a specific tool instead?{" "}
                 <Link href="/engines">Open the engines</Link>.
@@ -512,33 +519,60 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </div>
           </section>
 
-          {/* ── FOUR WAYS IN. One for each kind of person who lands here. ── */}
-          <nav className="doors" aria-label="Ways in">
-            <Link href="/create" className="door">
-              <span className="door-n">01</span>
-              <h2 className="door-t">Start with an idea</h2>
-              <p className="door-d">Tell it what you&apos;re trying to make.</p>
-              <span className="door-hint">Create</span>
-            </Link>
-            <Link href="/engines" className="door">
-              <span className="door-n">02</span>
-              <h2 className="door-t">Use an engine</h2>
-              <p className="door-d">Go straight to a tool that makes one part of it.</p>
-              <span className="door-hint">Engines</span>
-            </Link>
-            <Link href="/builds" className="door">
-              <span className="door-n">03</span>
-              <h2 className="door-t">Keep building</h2>
-              <p className="door-d">Open something you already started.</p>
-              <span className="door-hint">Builds</span>
-            </Link>
-            <Link href="/create#starting-points" className="door">
-              <span className="door-n">04</span>
-              <h2 className="door-t">I need an idea</h2>
-              <p className="door-d">Browse real starting points and take one.</p>
-              <span className="door-hint">Starting points</span>
-            </Link>
-          </nav>
+          {/* ── QUICK START. Four doors, not eight — proof that this handles
+              more than one kind of thing, not a menu to study. Each one drops
+              a stem straight into the box above and puts the cursor in it, so
+              picking one is the SAME ACT as typing, not a detour into a
+              picker screen. ── */}
+          <section className="band band-tight">
+            <div className="band-head">
+              <h2 className="band-title">Quick start</h2>
+              <p className="band-note">Pick one and finish the sentence in the box above.</p>
+            </div>
+            <div className="qs-grid">
+              {QUICK_START.map((q) => (
+                <button key={q.label} type="button" className="qs" onClick={() => takeStartingPoint(q.stem)}>
+                  <span className="qs-mark" aria-hidden="true">{q.emoji}</span>
+                  <span className="qs-label">{q.label}</span>
+                  <span className="qs-what">{q.what}</span>
+                </button>
+              ))}
+            </div>
+            <p className="tiny" style={{ marginTop: 14 }}>
+              Know exactly what you want? <Link href="/create#starting-points" className="more">More starting points</Link>.
+            </p>
+          </section>
+
+          {/* ── TOOLS FOR THE JOB. Five, curated — not all twelve. The whole
+              catalog stays one click away for the person who wants it. ── */}
+          <section className="band">
+            <div className="band-head">
+              <h2 className="band-title">Tools for the job</h2>
+              <p className="band-note">Already know which part you're on? Go straight to the tool for it.</p>
+            </div>
+            <div className="eng-grid">
+              {FEATURED_ENGINES.map((c) => (
+                <article key={c.id} className="eng eng-compact">
+                  <header className="eng-head">
+                    <span className="eng-mark" aria-hidden="true">{c.emoji}</span>
+                    <h3 className="eng-name">{displayName(c)}</h3>
+                  </header>
+                  {c.useWhen && (
+                    <p className="eng-when">
+                      <span className="eng-when-k">Use this to</span>
+                      {c.useWhen}
+                    </p>
+                  )}
+                  <footer className="eng-foot">
+                    <Link href={c.href} className="btn btn-gold btn-small">Open</Link>
+                  </footer>
+                </article>
+              ))}
+            </div>
+            <p className="tiny" style={{ marginTop: 16 }}>
+              <Link href="/engines" className="more">See all engines</Link>
+            </p>
+          </section>
 
           {/* ── THE LOOP ── */}
           <section className="band">
