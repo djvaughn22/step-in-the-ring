@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ToolFooter from "../site/ToolFooter";
 import {
   type Sprint,
   type AllowanceEntry,
@@ -138,6 +139,7 @@ export default function FiveHourSprintClient() {
       <div className="page">
         <header className="mast">
           <span className="kicker">A way to work</span>
+          <a href="/engines#plan" className="breadcrumb">← All engines</a>
           <h1 className="mast-title">Five Hour Sprint</h1>
           <p className="mast-lead">
             Focus the work. Build for five hours. Finish something real. Plan the
@@ -421,6 +423,8 @@ export default function FiveHourSprintClient() {
             </div>
           </div>
         )}
+
+        <ToolFooter made="You have a sprint plan." />
       </div>
     </main>
   );

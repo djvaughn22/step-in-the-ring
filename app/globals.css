@@ -2215,3 +2215,59 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   color: var(--dim);
   margin-bottom: 7px;
 }
+
+/* ═══ THE END OF A TOOL ══════════════════════════════════════════════════
+   Mounted at the bottom of every creation surface. Same three doors every
+   time, so "now what?" has one answer in the whole product. */
+.toolfoot {
+  margin-top: 44px;
+  border-top: 2px solid var(--accent);
+  background: var(--panel);
+  border-radius: 0 0 8px 8px;
+  padding: 22px 24px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.toolfoot-l {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.toolfoot-p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+  max-width: 46ch;
+}
+.toolfoot .actions { margin: 0; }
+@media (max-width: 700px) {
+  .toolfoot { padding: 18px; }
+  .toolfoot .actions { width: 100%; }
+  .toolfoot .actions .btn { flex: 1; min-height: 48px; }
+}
+
+/* A tool page says where it sits before it says anything else. */
+.breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  margin-bottom: 14px;
+  min-height: 40px;
+}
+.breadcrumb:hover { color: var(--accent); }
