@@ -66,7 +66,7 @@ export default function SteppedIn({
   return (
     <div className="step-enter">
       <div className="topbar">
-        <span className="topbar-title">🥊 You stepped in</span>
+        <span className="topbar-title">You stepped in</span>
         <button type="button" className="btn btn-ghost btn-small" onClick={onChangeWords}>
           Change what I said
         </button>

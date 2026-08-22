@@ -761,7 +761,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
       <main>
         <div className="page">
           <div className="topbar">
-            <span className="topbar-title">🥊 Your plan</span>
+            <span className="topbar-title">Your plan</span>
             <button className="btn btn-ghost btn-small" onClick={startOver}>Start over</button>
           </div>
 

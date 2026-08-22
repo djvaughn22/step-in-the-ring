@@ -483,7 +483,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
   },
   {
     name: "Step In The Ring",
-    emoji: "🥊",
+    emoji: "🟦",
     what: "This site: say what you want to make, and leave with a real first build.",
     who: "Someone with something in their head and no idea what step one is.",
     real: "The idea reading, saved Builds, the Engine Room and the Build Machine all run today.",

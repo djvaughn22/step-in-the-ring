@@ -35,7 +35,7 @@ export interface LegacyFinding extends LegacySource {
  * Keep in sync with docs/step-in-the-ring-vnext-preservation.md.
  */
 export const LEGACY_SOURCES: LegacySource[] = [
-  { key: "sitr-plans-v3", label: "Saved plans", emoji: "🥊", href: "/", storage: "local" },
+  { key: "sitr-plans-v3", label: "Saved plans", emoji: "📋", href: "/", storage: "local" },
   { key: "sitr-creation-current-v1", label: "Your last creation", emoji: "✨", href: "/", storage: "local" },
   { key: "sitr-engine-projects-v1", label: "Engine Room projects", emoji: "🧰", href: "/engines/room", storage: "local" },
   { key: "creation-engine-projects-v1", label: "Engine projects (earlier key)", emoji: "🧰", href: "/engines/room", storage: "local" },

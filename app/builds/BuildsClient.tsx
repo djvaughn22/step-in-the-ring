@@ -165,7 +165,7 @@ export default function BuildsClient({
     <main>
       <div className="page">
         <header className="mast">
-          <span className="kicker">Your work</span>
+          <span className="kicker">Builds</span>
           <h1 className="mast-title">
             {builds.length > 0 ? "Your builds" : "Nothing here yet"}
           </h1>

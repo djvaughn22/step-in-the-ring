@@ -25,7 +25,6 @@ import {
   ECOSYSTEM,
   EXTERNAL_PREVIEWS,
   pagesInGroup,
-  pagesWithAccess,
   type SitePage,
 } from "../site/registry";
 import { Sheet, Masthead, Band, Jump, Rows, Row, Tiles, Tile } from "../site/ui";
@@ -54,7 +53,6 @@ function PageRows({ pages }: { pages: SitePage[] }) {
 }
 
 export default function EverythingPage() {
-  const preview = pagesWithAccess("preview");
   const featured = ECOSYSTEM.filter((p) => p.featured && p.liveUrl);
 
   return (
@@ -117,16 +115,6 @@ export default function EverythingPage() {
         note="Unfinished pieces handed out one person at a time. A passcode opens them. It is not a login and it protects nothing private."
       >
         <Rows>
-          {preview.map((p) => (
-            <Row
-              key={p.path}
-              name={p.name}
-              what={p.what}
-              href={p.path}
-              access="preview"
-              path={p.path}
-            />
-          ))}
           {EXTERNAL_PREVIEWS.map((p) => (
             <Row
               key={p.href}
