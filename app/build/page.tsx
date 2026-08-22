@@ -404,8 +404,7 @@ export default function FirstAppCoach() {
             </div>
             <p style={{ fontSize: 13, color: "var(--muted)", textAlign: "center" }}>
               You did it. Idea → live on the internet. 🥊{" "}
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a href="/" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Back to Step In The Ring →</a>
+              <a href="/create" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Start your next one →</a>
             </p>
           </section>
         )}

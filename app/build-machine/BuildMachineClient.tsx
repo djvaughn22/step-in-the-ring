@@ -330,12 +330,12 @@ export default function BuildMachineClient() {
                 <a href="https://www.idontcry.com" target="_blank" rel="noopener noreferrer" style={{ padding: "10px 16px", background: "rgba(148,163,184,0.1)", color: "var(--text)", borderRadius: 4, fontWeight: 800, textDecoration: "none", fontSize: 14 }}>
                   Open iDontCry
                 </a>
-                <a href="/" target="_blank" rel="noopener noreferrer" style={{ padding: "10px 16px", background: "var(--gold)", color: "#1A1408", borderRadius: 4, fontWeight: 800, textDecoration: "none", fontSize: 14 }}>
-                  Open Step In The Ring
+                <a href="/create" target="_blank" rel="noopener noreferrer" style={{ padding: "10px 16px", background: "var(--gold)", color: "var(--ink)", borderRadius: 4, fontWeight: 800, textDecoration: "none", fontSize: 14 }}>
+                  Start creating
                 </a>
               </div>
               <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10 }}>
-                First build exercise: on the Step In The Ring homepage, shape one small idea from
+                First build exercise: on the Create page, shape one small idea from
                 start to a plan and builder prompt — a real first result, on this machine.
               </p>
               <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14 }}>

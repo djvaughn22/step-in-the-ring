@@ -25,14 +25,12 @@ export default function AboutPage() {
 
       <Section title="What you can do here">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
-          <li>Shape an idea into a version-one plan and a ready-to-use builder prompt.</li>
-          <li>
-            Use the Engine Room&rsquo;s focused engines when you already know what kind of thing
-            you&rsquo;re making — open to everyone right now.
-          </li>
-          <li>Follow the first-app coach in six short rounds if you&rsquo;ve never built before.</li>
-          <li>See finished builds that started here.</li>
-          <li>Download your brief and creation record, and bring them back later to continue.</li>
+          <li>Say what you want to make and get back a plan for version one and a ready-to-use builder prompt.</li>
+          <li>Open a focused engine when you already know what kind of thing you&rsquo;re making.</li>
+          <li>Keep what you&rsquo;re making as a Build, and come back to it any time.</li>
+          <li>Save what an engine makes for you in your Library, and use it again.</li>
+          <li>Follow the first-build coach in six short rounds if you&rsquo;ve never built before.</li>
+          <li>See finished things that started here.</li>
         </ul>
       </Section>
 
