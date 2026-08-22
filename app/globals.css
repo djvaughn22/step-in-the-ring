@@ -2447,14 +2447,15 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .fhs-tab.active .fhs-tab-n { background: var(--accent); color: var(--ink); }
 
 /* ═══ BRAND MARK — THE RING ══════════════════════════════════════════════
-   The hero's headline plus a small, flat, three-shape glove — the
-   beginning of a real mark, not an illustration. Blue-led, no shading. */
+   The hero's headline plus the ring itself, read from above: a square
+   floor, one rope line, four corner posts. Same shapes as .ring-frame
+   around the box on the right, just small — the name and the mark agree. */
 .ring-brand {
   display: flex;
   align-items: center;
-  gap: 0.18em;
+  gap: 0.28em;
 }
-.glove-mark {
+.ring-mark-icon {
   width: clamp(30px, 4.6vw, 54px);
   height: clamp(30px, 4.6vw, 54px);
   color: var(--accent);
