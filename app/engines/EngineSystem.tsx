@@ -825,55 +825,83 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
         {cycle.status === "drafted" && <button onClick={onMarkSent} className="btn btn-gold btn-small">Mark as sent</button>}
         {(cycle.status === "sent" || cycle.status === "drafted") && <button onClick={onReturn} className="btn btn-gold btn-small">Return with results</button>}
         {cycle.status === "reviewed" && <button onClick={onNewCycle} className="btn btn-ghost btn-small">Manual new cycle</button>}
-        <a href={REQUEST_MAILTO(`Build this for me: ${project.name}`, packageToText(e, project.answers, p))} className="btn btn-ghost btn-small">💌 Send to Open Mirror to build free</a>
       </div>
 
-      {/* The road to live: build → test locally → return results → push */}
+      {/* WHAT'S NEXT — true for every engine, not an Open Mirror story.
+          Generating already saved this in Your projects, on this device;
+          bringing it into an account is a real, separate, existing action
+          (the import button on /account), not a new one invented here. */}
       <div style={{ ...card, marginTop: 14 }}>
         <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
-          The road to live
+          What&apos;s next
         </div>
-        <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 12px" }}>
-          Build it → <b style={{ color: "var(--text)" }}>test it locally</b> (the Verify tab is your checklist) →
-          return with results → send it to Open Mirror to push. Every push lands on the{" "}
-          <a href="/live" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Live page</a>.
+        <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
+          This is saved right here in Your projects — come back anytime to
+          continue or start another cycle. Take it with you using the copy
+          and download buttons above, or bring it into{" "}
+          <a href="/account" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>your account</a>{" "}
+          so it follows you to another device.
         </p>
-        {cycle.pushRequestedAt ? (
-          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--text)", margin: 0 }}>
-            🚀 Push requested {new Date(cycle.pushRequestedAt).toLocaleDateString()} — once Open Mirror pushes it,
-            it lands on <a href="/live" style={{ color: "var(--gold)", textDecoration: "none" }}>the Live page</a>.
-          </p>
-        ) : cycle.status === "reviewed" ? (
-          <a
-            href={REQUEST_MAILTO(
-              `Push this live: ${project.name}`,
-              [
-                `I built and TESTED this locally. Please push it live.`,
-                ``,
-                `PROJECT: ${project.name}`,
-                `ENGINE: ${e.name}`,
-                `CYCLE OBJECTIVE: ${cycle.objective}`,
-                ``,
-                `MY LOCAL TEST RESULTS:`,
-                cycle.ret?.raw || "(paste your test results here)",
-                ``,
-                `WHERE THE CODE LIVES (repo / zip / link):`,
-                ``,
-                `--- Full package below for reference ---`,
-                packageToText(e, project.answers, p),
-              ].join("\n"),
-            )}
-            onClick={onPushRequested}
-            className="btn btn-gold"
-          >
-            🚀 Tested locally? Send to Open Mirror to push it live
-          </a>
-        ) : (
-          <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>
-            🔒 The push button unlocks after you test locally and return with results.
-          </p>
-        )}
       </div>
+
+      {/* Software-specific and optional. Sell/Grow/Plan produce a plan a
+          person carries out themselves — this only applies to engines that
+          actually produce code someone might build or ship. */}
+      {e.technical && (
+        <div style={{ ...card, marginTop: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+            Optional — shipping this yourself
+          </div>
+          <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 12px" }}>
+            Build it, <b style={{ color: "var(--text)" }}>test it locally</b> (the Verify tab is
+            your checklist), then return with results. If you&apos;d rather someone else built or
+            deployed it, Open Mirror takes on a limited number of these by email.
+          </p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <a
+              href={REQUEST_MAILTO(`Build this for me: ${project.name}`, packageToText(e, project.answers, p))}
+              className="btn btn-ghost btn-small"
+            >
+              Email Open Mirror to build it
+            </a>
+            {cycle.pushRequestedAt ? (
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)", alignSelf: "center" }}>
+                Push requested {new Date(cycle.pushRequestedAt).toLocaleDateString()} — it lands on{" "}
+                <a href="/live" style={{ color: "var(--gold)", textDecoration: "none" }}>Things Made Here</a> once it&apos;s live.
+              </span>
+            ) : cycle.status === "reviewed" ? (
+              <a
+                href={REQUEST_MAILTO(
+                  `Push this live: ${project.name}`,
+                  [
+                    `I built and TESTED this locally. Please push it live.`,
+                    ``,
+                    `PROJECT: ${project.name}`,
+                    `ENGINE: ${e.name}`,
+                    `CYCLE OBJECTIVE: ${cycle.objective}`,
+                    ``,
+                    `MY LOCAL TEST RESULTS:`,
+                    cycle.ret?.raw || "(paste your test results here)",
+                    ``,
+                    `WHERE THE CODE LIVES (repo / zip / link):`,
+                    ``,
+                    `--- Full package below for reference ---`,
+                    packageToText(e, project.answers, p),
+                  ].join("\n"),
+                )}
+                onClick={onPushRequested}
+                className="btn btn-ghost btn-small"
+              >
+                Tested locally? Ask Open Mirror to push it live
+              </a>
+            ) : (
+              <span style={{ fontSize: 13, color: "var(--muted)", alignSelf: "center" }}>
+                Test it locally and return with results to unlock a push request.
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }
