@@ -165,10 +165,10 @@ export default function FiveHourSprintClient() {
                 borderRadius: 4,
               }}
             >
-              {tab === "planner" && "Sprint Planner"}
-              {tab === "ledger" && "Usage Ledger"}
-              {tab === "report" && "Proof-of-Work"}
-              {tab === "studies" && "Case Studies"}
+              {tab === "planner" && "Plan"}
+              {tab === "ledger" && "Track it"}
+              {tab === "report" && "Report"}
+              {tab === "studies" && "Examples"}
             </button>
           ))}
         </div>

@@ -169,13 +169,13 @@ export default function AccountClient(props: {
       </div>
 
       <div style={BOX}>
-        <p style={LABEL}>Your work</p>
+        <p style={LABEL}>Your saved data</p>
         {projects === null ? (
           <p style={{ fontSize: 13, color: "var(--muted)" }}>Loading…</p>
         ) : projects.length === 0 ? (
           <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
-            No saved projects yet. Projects you save from the Engine Room live
-            here — and you can import work saved in this browser below.
+            Nothing saved to export or delete yet. This is data management, not
+            your Builds or Library — those are still exactly where they were.
           </p>
         ) : (
           <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
