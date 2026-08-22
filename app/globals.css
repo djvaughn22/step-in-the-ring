@@ -2395,3 +2395,53 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .vs-go:hover { text-decoration: underline; }
 .vs-here .vs-go { color: var(--dim); text-decoration: none; }
 @media (max-width: 560px) { .vs-row { grid-template-columns: 1fr; } }
+
+/* ═══ FIVE HOUR SPRINT ═══════════════════════════════════════════════════ */
+.fhs-pitch {
+  font-size: clamp(19px, 2.6vw, 26px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  margin: 10px 0 0;
+}
+/* A numbered progression, not a row of plain tabs — the four steps a
+   sprint actually happens in, read left to right like a rail. */
+.fhs-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 28px 0 26px;
+  flex-wrap: wrap;
+}
+.fhs-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 18px 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.fhs-tab-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--panel2);
+  color: var(--dim);
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.fhs-tab.active {
+  border-color: var(--accent);
+  background: var(--gold-soft);
+  color: var(--text);
+}
+.fhs-tab.active .fhs-tab-n { background: var(--accent); color: var(--ink); }

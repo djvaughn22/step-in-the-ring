@@ -548,7 +548,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
           <section className="band">
             <div className="band-head">
               <h2 className="band-title">Tools for the job</h2>
-              <p className="band-note">Already know which part you're on? Go straight to the tool for it.</p>
+              <p className="band-note">Already know which part you&apos;re on? Go straight to the tool for it.</p>
             </div>
             <div className="eng-grid">
               {FEATURED_ENGINES.map((c) => (
