@@ -26,6 +26,7 @@ import { handoffToIntake, readHandoffFromSearch, recordToIntake } from "../creat
 import { readEtsyPackageFromSearch, type EtsyCreativePackageV1 } from "../creation/etsy-package";
 import { recordFromEngineIntake, viewOf } from "../creation/record";
 import { parseCreationRecord } from "../creation/types";
+import ToolFooter from "../site/ToolFooter";
 
 type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
@@ -462,9 +463,10 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
     <main>
       <div className="page">
         <header style={{ textAlign: "center", marginBottom: 24 }}>
-          <a href="https://stepinthering.com" className="kicker" style={{ textDecoration: "none" }}>Step In The Ring</a>
+          {/* Where you are, not an advert for the site you are already on. */}
+          <a href="/engines" className="breadcrumb">← All engines</a>
           <h1 style={{ fontSize: "clamp(1.9rem,8vw,2.6rem)", fontWeight: 900, color: "var(--text)", margin: "6px 0 8px", lineHeight: 1.05 }}>
-            Engine <span style={{ color: "var(--gold)" }}>Room</span>
+            The Engine <span style={{ color: "var(--gold)" }}>Room</span>
           </h1>
           <p className="hero-sub" style={{ maxWidth: 460, margin: "0 auto" }}>
             Pick an engine, answer a few real questions, and leave with a package you can act on today.
@@ -709,6 +711,8 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
             </div>
           </>
         )}
+
+        <ToolFooter />
       </div>
     </main>
   );
