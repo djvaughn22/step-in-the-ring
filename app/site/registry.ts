@@ -163,7 +163,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/how",
     name: "How it works",
-    what: "The whole loop in five steps, then the longer version if you want it.",
+    what: "The one loop, in five steps — start without an account, and where Create, Engines, Builds and Library fit in.",
     access: "public",
     group: "learn",
   },
@@ -192,8 +192,8 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     path: "/live",
-    name: "Pushed live",
-    what: "Every build that went idea → tested locally → pushed live, newest first.",
+    name: "Things made here",
+    what: "Real products that started as a rough idea and are live on the internet, newest first. Proof, not a required step.",
     access: "public",
     group: "proof",
   },

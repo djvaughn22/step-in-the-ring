@@ -628,7 +628,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               ))}
             </div>
             <p className="tiny" style={{ marginTop: 16 }}>
-              <Link href="/how" className="more">The longer version</Link>
+              <Link href="/how" className="more">More on how it works</Link>
             </p>
           </section>
 

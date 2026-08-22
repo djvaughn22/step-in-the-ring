@@ -86,9 +86,9 @@ export const PLAYBOOK_STEPS: PlaybookStep[] = [
 
 export function playbookMarkdown(): string {
   return [
-    "# The Repeatable Build Playbook",
+    "# The Software Build Playbook",
     "",
-    "The loop StepInTheRing actually runs: one idea at a time, interpreted before built, verified before shipped.",
+    "For people building software with Step In The Ring: one idea at a time, interpreted before built, verified before shipped.",
     "",
     ...PLAYBOOK_STEPS.flatMap((s) => [
       `## ${s.n}. ${s.title}`,
