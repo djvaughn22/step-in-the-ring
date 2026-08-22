@@ -46,7 +46,7 @@ describe("the Build workspace answers the questions it exists to answer", () => 
 
   it("says plainly when nothing has come out of it yet", () => {
     const html = render(build());
-    expect(html).toContain("What came out of it");
+    expect(html).toContain(">Made<");
     expect(html).toContain("Nothing yet.");
   });
 
@@ -105,7 +105,7 @@ describe("an artifact never becomes a way in", () => {
 describe("what happened", () => {
   it("shows the history newest first and lets you add to it", () => {
     const html = render(build());
-    expect(html).toContain("What&#x27;s happened");
+    expect(html).toContain("History");
     expect(html).toContain("You stepped in.");
     expect(html).toContain("Write it down");
   });

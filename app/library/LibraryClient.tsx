@@ -48,12 +48,26 @@ export default function LibraryClient({
           <span className="kicker">Library</span>
           <h1 className="mast-title">Your library</h1>
           <p className="mast-lead">
-            Things you made or saved that you can use again. Whatever you are
-            still actively making lives on{" "}
-            <Link href="/builds" className="more">Builds</Link>.
+            Things you made or saved that you can use again.
           </p>
           <hr className="rule mast-rule" />
         </header>
+
+        {/* The distinction, stated once, plainly — not a slogan buried in a
+            paragraph. A build and a library item are different kinds of
+            thing and this row is why the rest of the page can stay short. */}
+        <div className="vs-row">
+          <div className="vs vs-quiet">
+            <span className="vs-k">Builds</span>
+            <span className="vs-v">Things you&apos;re actively making</span>
+            <Link href="/builds" className="vs-go">Go there →</Link>
+          </div>
+          <div className="vs vs-here">
+            <span className="vs-k">Library</span>
+            <span className="vs-v">Things you saved and may reuse</span>
+            <span className="vs-go" aria-hidden="true">You&apos;re here</span>
+          </div>
+        </div>
 
         {listFailed && (
           <section className="band">
