@@ -24,17 +24,22 @@ export default function Playbook() {
         The steps above are one trip through the ring. This is how the same loop runs again and
         again — the actual method, written down so you can run it on your own machine.
       </p>
-      <div className="stack" style={{ marginTop: 14 }}>
-        {PLAYBOOK_STEPS.map((s) => (
-          <div key={s.n} className="card">
-            <div className="plan-label">{s.n} · {s.title}</div>
-            <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 10px" }}>{s.body}</p>
-            <ul className="plan-list">
-              {s.points.map((p, i) => <li key={i}>{p}</li>)}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <details className="card" style={{ marginTop: 14 }}>
+        <summary className="plan-label" style={{ cursor: "pointer" }}>
+          Read the full method ({PLAYBOOK_STEPS.length} steps)
+        </summary>
+        <div className="stack" style={{ marginTop: 14 }}>
+          {PLAYBOOK_STEPS.map((s) => (
+            <div key={s.n} className="card">
+              <div className="plan-label">{s.n} · {s.title}</div>
+              <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 10px" }}>{s.body}</p>
+              <ul className="plan-list">
+                {s.points.map((p, i) => <li key={i}>{p}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </details>
       <div className="actions" style={{ marginTop: 14 }}>
         <button className="btn btn-gold" onClick={downloadPlaybook}>
           Download the playbook (Markdown)

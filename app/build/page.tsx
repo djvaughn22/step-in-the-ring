@@ -219,7 +219,7 @@ export default function FirstAppCoach() {
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "36px 20px 80px" }}>
         <header style={{ textAlign: "center", marginBottom: 26 }}>
           <p style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold)", margin: "0 0 10px" }}>
-            🥊 Step In The Ring · First App
+            Step In The Ring · First App
           </p>
           <h1 style={{ fontSize: "clamp(1.7rem, 6vw, 2.6rem)", fontWeight: 900, margin: "0 0 10px", lineHeight: 1.1 }}>
             Build your first web app
@@ -243,7 +243,7 @@ export default function FirstAppCoach() {
 
         {round === 1 && (
           <section className="card" style={{ padding: 20 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Round 1 · What do you want to build?</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>What do you want to build?</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 14px" }}>No wrong answers. Pick the closest one.</p>
             {seededFromEngines && (
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--gold-soft)", border: "1px solid var(--gold)", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
@@ -287,7 +287,7 @@ export default function FirstAppCoach() {
 
         {round === 2 && (
           <section className="card" style={{ padding: 20 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Round 2 · Meet your corner team</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Meet your tools</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 16px" }}>Seven tools. Each does one job. That's the whole secret.</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10, marginBottom: 16 }}>
               {TOOLS.map((t) => (
@@ -306,7 +306,7 @@ export default function FirstAppCoach() {
 
         {round === 3 && (
           <section className="card" style={{ padding: 20 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Round 3 · Create the app on your computer</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Create the app on your computer</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 16px" }}>Open your terminal and run these, one at a time. Copy buttons do the typing.</p>
             <Command cmd="cd ~/OpenMirror" why="Go to the folder where your projects live." />
             <Command cmd={`npx create-next-app@latest ${folder}`} why="Create a brand-new Next.js app. Say yes to the defaults." />
@@ -318,7 +318,7 @@ export default function FirstAppCoach() {
 
         {round === 4 && (
           <section className="card" style={{ padding: 20 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Round 4 · Save it to GitHub</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Save it to GitHub</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 16px" }}>Git saves a snapshot; GitHub keeps it safe online.</p>
             <Command cmd="git add ." why="Gather every file for the snapshot." />
             <Command cmd={`git commit -m "First working version"`} why="Take the snapshot and label it." />
@@ -333,7 +333,7 @@ export default function FirstAppCoach() {
 
         {round === 5 && (
           <section className="card" style={{ padding: 20 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Round 5 · Deploy to Vercel</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Deploy to Vercel</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 14px" }}>No commands this round — Vercel does the lifting.</p>
             <ol style={{ fontSize: 14, lineHeight: 1.9, color: "var(--text)", paddingLeft: 20, margin: "0 0 14px" }}>
               <li>Go to <strong>vercel.com</strong> and sign in with GitHub (free).</li>
@@ -350,7 +350,7 @@ export default function FirstAppCoach() {
 
         {round === 6 && (
           <section className="card" style={{ padding: 20 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Round 6 · Connect your GoDaddy domain</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Connect your GoDaddy domain</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 14px" }}>
               GoDaddy is where the domain lives. Vercel is where the app lives. DNS points the domain to the app.
             </p>
@@ -403,7 +403,7 @@ export default function FirstAppCoach() {
               <PromptBlock title="Your error helper prompt" text={stuckPrompt} />
             </div>
             <p style={{ fontSize: 13, color: "var(--muted)", textAlign: "center" }}>
-              You did it. Idea → live on the internet. 🥊{" "}
+              You did it. Idea → live on the internet.{" "}
               <a href="/create" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Start your next one →</a>
             </p>
           </section>
