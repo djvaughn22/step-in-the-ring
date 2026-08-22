@@ -2445,3 +2445,63 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   color: var(--text);
 }
 .fhs-tab.active .fhs-tab-n { background: var(--accent); color: var(--ink); }
+
+/* ═══ BRAND MARK — THE RING ══════════════════════════════════════════════
+   The hero's headline plus a small, flat, three-shape glove — the
+   beginning of a real mark, not an illustration. Blue-led, no shading. */
+.ring-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.18em;
+}
+.glove-mark {
+  width: clamp(30px, 4.6vw, 54px);
+  height: clamp(30px, 4.6vw, 54px);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.ring-tagline {
+  font-size: clamp(17px, 2vw, 22px);
+  font-weight: 800;
+  color: var(--text);
+  margin: 14px 0 0;
+}
+
+/* ═══ THE RING FRAME — the creation box, read as a ring ═════════════════
+   A frame around the box, not a costume on it: a stronger outer edge, three
+   thin concentric lines standing in for ropes, four small corner posts.
+   The box itself (.startbox) is untouched — this only wraps it, and only
+   here on the home hero, so /create and every other mount of the same box
+   keeps its plain frame. */
+.ring-frame {
+  position: relative;
+  padding: 10px;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+}
+.ring-rope {
+  position: absolute;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+.ring-rope-1 { inset: 3px; }
+.ring-rope-2 { inset: 6px; }
+.ring-rope-3 { inset: 9px; }
+.ring-post {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: var(--accent);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.ring-post-tl { top: -4px; left: -4px; }
+.ring-post-tr { top: -4px; right: -4px; }
+.ring-post-bl { bottom: -4px; left: -4px; }
+.ring-post-br { bottom: -4px; right: -4px; }
+
+@media (max-width: 700px) {
+  .ring-brand { gap: 0.14em; }
+}

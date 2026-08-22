@@ -39,6 +39,24 @@ type Stage = "landing" | "stepped" | "result" | "saved";
 const STARTERS = QUICK_STARTERS;
 const FEATURED_ENGINES = featuredCapabilities();
 
+/** The beginning of a real brand mark: a plain glove, three flat shapes,
+ *  one color. No seams, no shading, no laces — the point is that it reads
+ *  at 28px next to a heading, not that it looks like an illustration. */
+function RingGloveMark() {
+  return (
+    <svg
+      className="glove-mark"
+      viewBox="0 0 40 40"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect x="9" y="26" width="22" height="9" rx="4" fill="currentColor" />
+      <rect x="7" y="7" width="26" height="22" rx="11" fill="currentColor" />
+      <rect x="1" y="14" width="13" height="10" rx="5" fill="currentColor" transform="rotate(-18 7.5 19)" />
+    </svg>
+  );
+}
+
 function CopyButton({ text, label, big }: { text: string; label: string; big?: boolean }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -498,21 +516,29 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
           <section className="stage">
             <div>
               <span className="stage-mark">Step In The Ring</span>
-              <h1 className="ring-display">
-                A place to
-                <br />
-                make
-                <br />
-                <span className="accent">things.</span>
+              <h1 className="ring-display ring-brand">
+                <RingGloveMark />
+                The Ring
               </h1>
-              <p className="ring-sub" style={{ marginTop: 24 }}>
+              <p className="ring-tagline">A place to make things.</p>
+              <p className="ring-sub" style={{ marginTop: 16 }}>
                 Say what you want to make. Leave with the smallest real version
                 of it and the next move. Come back and keep going.
               </p>
             </div>
 
             <div>
-              {theBox}
+              {/* The one visual nod to the name — a frame, not a costume. */}
+              <div className="ring-frame">
+                <span className="ring-post ring-post-tl" aria-hidden="true" />
+                <span className="ring-post ring-post-tr" aria-hidden="true" />
+                <span className="ring-post ring-post-bl" aria-hidden="true" />
+                <span className="ring-post ring-post-br" aria-hidden="true" />
+                <span className="ring-rope ring-rope-1" aria-hidden="true" />
+                <span className="ring-rope ring-rope-2" aria-hidden="true" />
+                <span className="ring-rope ring-rope-3" aria-hidden="true" />
+                {theBox}
+              </div>
               {/* Somebody who was here yesterday sees their work first. A
                   stranger sees nothing extra and loses nothing. */}
               <ContinueStrip />
