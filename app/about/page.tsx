@@ -7,7 +7,7 @@ import { Sheet, PageHead, Section } from "../site/ui";
 export const metadata: Metadata = {
   title: "About StepInTheRing",
   description:
-    "Say a rough idea however it comes out; get back a version-one plan and a ready-to-use builder prompt. Free, no account.",
+    "Say a rough idea however it comes out; get back a version-one plan and a ready-to-use builder prompt. Start without an account.",
 };
 
 export default function AboutPage() {
@@ -36,7 +36,10 @@ export default function AboutPage() {
 
       <Section title="Your work">
         <p style={{ border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, color: "var(--text)", margin: 0 }}>
-          Free, no account. What you type stays on this device unless you download it yourself.
+          Saying an idea and reading the plan back needs no account, and stays
+          on this device unless you download it. Opening an Engine or saving
+          a Build needs a sign-in, so your work can follow you to another
+          device — free during the open beta.
         </p>
       </Section>
 

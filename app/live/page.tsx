@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import products from "./live-products.json";
 
-// Live from the Ring — every product that went idea → local test → push.
-// Adding a product = one entry in live-products.json (the Game Engine's
-// publish route appends automatically; everything else is a one-line edit).
+// THINGS MADE HERE — optional proof, not a required step. Most creations
+// finish as a Build or a Library item and never need this page; this is
+// just evidence for anyone who wants it, that real things came out of real
+// ideas. Adding a product = one entry in live-products.json (the Game
+// Engine's publish route appends automatically; everything else is a
+// one-line edit).
 
 export const metadata: Metadata = {
-  title: "Live Products",
+  title: "Things Made Here",
   description:
-    "Everything that stepped into the ring and made it out alive: tested locally, pushed live by Open Mirror. Real products that started as rough ideas.",
+    "Real products that started as a rough idea in Step In The Ring and are live on the internet today. Proof, not a required step.",
 };
 
 const ENGINE_LABELS: Record<string, string> = {
@@ -41,10 +44,11 @@ export default function LivePage() {
       <div className="page">
         <header className="mast">
           <span className="kicker">Proof</span>
-          <h1 className="mast-title">Pushed live</h1>
+          <h1 className="mast-title">Things made here</h1>
           <p className="mast-lead">
-            Every one of these started as a rough idea, got shaped into a plan,
-            got tested on a laptop, and then went live. Newest first.
+            Every one of these started as a rough idea and is live on the
+            internet today. Newest first — open one and use it. This is
+            proof, not something every Build needs to reach.
           </p>
           <hr className="rule mast-rule" />
         </header>
@@ -70,8 +74,9 @@ export default function LivePage() {
 
         <section className="home-section" style={{ textAlign: "center" }}>
           <p style={{ fontSize: 14, marginBottom: 16 }}>
-            Your build lands here the same way: shape the idea, build it,
-            test it locally, send it to Open Mirror to push.
+            Most things you make here stay a Build or a Library item and
+            never need this page. If what you&apos;re making is software you
+            want live on the internet, this is where it can end up.
           </p>
           <Link href="/create" className="btn btn-gold">Start something</Link>
         </section>

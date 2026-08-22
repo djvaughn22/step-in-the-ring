@@ -10,7 +10,7 @@ export default function Playbook() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "repeatable-build-playbook.md";
+    a.download = "software-build-playbook.md";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -19,14 +19,15 @@ export default function Playbook() {
 
   return (
     <section className="home-section" style={{ marginTop: 40 }}>
-      <span className="kicker">The repeatable loop</span>
+      <span className="kicker">For people building software</span>
       <p className="section-lead">
-        The steps above are one trip through the ring. This is how the same loop runs again and
-        again — the actual method, written down so you can run it on your own machine.
+        The five steps above work for anything. If what you&apos;re making is
+        software and you want to run the whole build-and-ship workflow
+        yourself, here is the exact method, step by step.
       </p>
       <details className="card" style={{ marginTop: 14 }}>
         <summary className="plan-label" style={{ cursor: "pointer" }}>
-          Read the full method ({PLAYBOOK_STEPS.length} steps)
+          Read the technical workflow ({PLAYBOOK_STEPS.length} steps)
         </summary>
         <div className="stack" style={{ marginTop: 14 }}>
           {PLAYBOOK_STEPS.map((s) => (
@@ -42,7 +43,7 @@ export default function Playbook() {
       </details>
       <div className="actions" style={{ marginTop: 14 }}>
         <button className="btn btn-gold" onClick={downloadPlaybook}>
-          Download the playbook (Markdown)
+          Download the software playbook (Markdown)
         </button>
       </div>
     </section>
