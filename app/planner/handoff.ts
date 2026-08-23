@@ -4,11 +4,6 @@
 // reading the page. Sending someone into a placeholder — or into a tool that
 // only runs on the owner's machine — is worse than no recommendation, because
 // they trust it and lose the plan.
-//
-// The Game Engine is deliberately absent. Its publish route needs a local
-// OpenDoku checkout and returns 501 in production, and it only re-themes one
-// proven template — so it cannot take an arbitrary game idea from a visitor.
-// Verified by request, not assumed. See docs/ENGINE-STATUS.md.
 
 import type { Interpretation } from "./types";
 
@@ -49,6 +44,7 @@ function seedBuild(i: Interpretation) {
 }
 
 const MUSIC = /\b(song|beat|music|track|album|melody|chord|lyrics|producer|mpk|daw)\b/i;
+const GAME = /\b(game|arcade|puzzle|action|puzzle game|board game|card game|casino|sports game|strategy game|rpg|role.playing|minigame|mini game)\b/i;
 
 export function recommendEngine(i: Interpretation): EngineHandoff | null {
   const text = `${i.raw} ${i.summary}`;
@@ -70,6 +66,16 @@ export function recommendEngine(i: Interpretation): EngineHandoff | null {
       route: "/engines/room?engine=music",
       why: "It walks you to a real exported audio file with free tools.",
       seed: seedEngine("music", i),
+    };
+  }
+
+  if (GAME.test(text)) {
+    return {
+      engineId: "game",
+      name: "Game Engine",
+      route: "/engines/room?engine=game",
+      why: "Pick a game template, shape your world, play it live, and publish it.",
+      seed: seedEngine("game", i),
     };
   }
 
