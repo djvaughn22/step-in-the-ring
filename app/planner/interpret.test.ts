@@ -249,7 +249,7 @@ describe("game engine routing", () => {
   });
 
   it("does not route a video game review to Game Engine", () => {
-    const i = interpret({ description: "write a review of the best games of 2024", buildType: { value: "new" } as any });
+    const i = interpret({ description: "write a review of the best games of 2024" });
     const engine = recommendEngine(i);
     // This might still route to game if "game" appears, so the real test is that
     // the intent is not clearly about making/creating a game.
@@ -426,14 +426,14 @@ describe("specialized engine routing matrix", () => {
   });
 
   it("design/product intent routes to Design Shop, not Build", () => {
-    const i = interpret({ description: "I want to make printable stickers to sell on Etsy", buildType: { value: "sell" } as any });
+    const i = interpret({ description: "I want to make printable stickers to sell on Etsy" });
     const engine = recommendEngine(i);
     expect(engine?.engineId).toBe("design-shop");
     expect(engine?.engineId).not.toBe("build");
   });
 
   it("generic build intent with no destination falls back to Build Engine", () => {
-    const i = interpret({ description: "make a simple todo app", buildType: { value: "new" } as any });
+    const i = interpret({ description: "make a simple todo app" });
     const engine = recommendEngine(i);
     expect(engine?.engineId).toBe("build");
   });

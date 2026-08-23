@@ -131,6 +131,15 @@ function firstUnansweredStep(steps: Question[], a: Record<string, string>): numb
   return idx === -1 ? steps.length : idx;
 }
 
+/** Where a multi-question wizard earns a "here's where this is heading"
+ *  interruption: right after the first real answer (early value, not a
+ *  seven-field form), and again near the midpoint of a long one. */
+function valueCheckpoints(steps: Question[]): number[] {
+  if (steps.length <= 1) return [];
+  const mid = Math.floor((steps.length - 1) / 2);
+  return mid > 0 ? [0, mid] : [0];
+}
+
 /** A project name nobody had to type: the first real sentence of their first
  *  real answer, trimmed to a card-sized name. Still editable before saving. */
 function deriveName(e: Engine, a: Record<string, string>): string {
@@ -219,7 +228,9 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
   // bespoke studios below have their own flow)
   const [wizardStep, setWizardStep] = useState(0);
   const [wizardPhase, setWizardPhase] = useState<"ask" | "value">("ask");
-  const [valueShown, setValueShown] = useState(false);
+  // Steps after which a "here's where this is heading" checkpoint has
+  // already been shown, so going back and forward doesn't repeat it.
+  const [valueShownAt, setValueShownAt] = useState<number[]>([]);
   const [depth, setDepth] = useState<Depth>("full");
   const [destination, setDestination] = useState<Destination>("claude-code");
   const [objectiveEdit, setObjectiveEdit] = useState("");
@@ -270,7 +281,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
       setDestination(e.technical ? "claude-code" : "self");
       setWizardStep(start);
       setWizardPhase("ask");
-      setValueShown(start > 0);
+      setValueShownAt(valueCheckpoints(steps).filter((i) => i < start));
       setView("intake");
     }
   }, []);
@@ -300,7 +311,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
     track("engine_start", { engine: id });
     setEngineId(id); setAnswers({}); setStage(e.suggestedStage);
     setDestination(e.technical ? "claude-code" : e.id === "plan" || e.id === "grow" || e.id === "sell" || e.id === "idea" ? "chatgpt" : "self");
-    setWizardStep(0); setWizardPhase("ask"); setValueShown(false);
+    setWizardStep(0); setWizardPhase("ask"); setValueShownAt([]);
     setView("intake");
   };
 
@@ -411,7 +422,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
 
   // Game Engine: platform mode → template → world → live preview → real publish
   if (engineId === "game" && view === "intake") {
-    const prefill = consumePlannerSeed(engine);
+    const prefill = engine ? consumePlannerSeed(engine) : {};
     return (
       <GameStudio
         onBack={() => {
@@ -660,12 +671,19 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
                 {!atFinal && wizardPhase === "ask" && (() => {
                   const q = steps[wizardStep];
                   const canContinue = q.optional || filled(answers, q.key);
+                  const checkpoints = valueCheckpoints(steps);
                   return (
                     <>
                       {steps.length > 1 && (
-                        <p style={{ fontSize: 11.5, fontWeight: 800, color: "var(--dim, var(--muted))", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 10px" }}>
-                          Question {wizardStep + 1} of {steps.length}
-                        </p>
+                        <div style={{ display: "flex", gap: 5, marginBottom: 14 }} aria-hidden="true">
+                          {steps.map((_, i) => (
+                            <span key={i} style={{
+                              width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
+                              background: i < wizardStep ? "var(--gold)" : i === wizardStep ? "var(--text)" : "var(--line2)",
+                            }} />
+                          ))}
+                          <span className="sr-only">Step {wizardStep + 1} of {steps.length}</span>
+                        </div>
                       )}
                       <label htmlFor={`intake-${q.key}`} style={{ display: "block", fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>{q.label}{q.optional ? " (optional)" : ""}</label>
                       {q.help && <p id={`intake-${q.key}-help`} style={{ fontSize: 12.5, color: "var(--muted)", margin: "0 0 8px" }}>{q.help}</p>}
@@ -676,8 +694,8 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
                       )}
                       <button
                         onClick={() => {
-                          const showValue = !valueShown && filled(answers, q.key) && wizardStep === Math.min(2, steps.length - 1);
-                          if (showValue) { setValueShown(true); setWizardPhase("value"); }
+                          const showValue = filled(answers, q.key) && checkpoints.includes(wizardStep) && !valueShownAt.includes(wizardStep);
+                          if (showValue) { setValueShownAt([...valueShownAt, wizardStep]); setWizardPhase("value"); }
                           else advance();
                         }}
                         disabled={!canContinue}
@@ -692,13 +710,12 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
 
                 {!atFinal && wizardPhase === "value" && (() => {
                   const pkg = generatePackage(engine, answers, stage, depth, destination);
-                  const headline = pkg.direction.split("\n\n")[0];
                   return (
                     <>
-                      <span className="kicker">Here&apos;s where this is heading</span>
-                      <p style={{ fontSize: 14.5, color: "var(--text)", lineHeight: 1.6, margin: "8px 0 16px" }}>{headline}</p>
+                      <span className="kicker">{wizardStep === 0 ? "Here's a first read" : "Here's where this is heading"}</span>
+                      <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 14, color: "var(--text)", lineHeight: 1.6, margin: "8px 0 16px" }}>{pkg.direction}</pre>
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        <button onClick={() => copy(headline, "Direction")} className="btn btn-ghost btn-small">Copy</button>
+                        <button onClick={() => copy(pkg.direction, "Direction")} className="btn btn-ghost btn-small">Copy</button>
                         <button onClick={advance} className="btn btn-gold" style={{ flex: 1 }}>Keep going →</button>
                       </div>
                     </>
@@ -796,7 +813,8 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
               const start = e ? firstUnansweredStep(steps, activeProject.answers) : 0;
               setEngineId(activeProject.engineId);
               setAnswers(e && start === steps.length ? ensureNamed(e, activeProject.answers) : activeProject.answers);
-              setWizardStep(start); setWizardPhase("ask"); setValueShown(start > 0);
+              setWizardStep(start); setWizardPhase("ask");
+              setValueShownAt(valueCheckpoints(steps).filter((i) => i < start));
               setView("intake");
             }}
             onPushRequested={() => updateCycle({ pushRequestedAt: new Date().toISOString() })}

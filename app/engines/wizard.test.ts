@@ -1,8 +1,9 @@
-// Owner rejection: the generic Engine Room used to open with a giant
-// six-to-eight-field questionnaire before showing anything useful. These
-// tests lock in the replacement — one question at a time, project name asked
-// last (not first), and a real early "here's where this is heading" moment
-// before every field is filled in.
+// Owner rejection (round 2): "Question 1 of 7 / Question 2 of 7" is still a
+// form, even framed as one question at a time. These tests lock in the
+// corrected version — a quiet progress rail instead of a literal fraction,
+// project name asked last, and real deterministic early value that fires
+// right after the FIRST real answer (not the third), with a periodic
+// checkpoint again partway through a long intake.
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -16,8 +17,15 @@ describe("generic engine intake — one question at a time, not a giant form", (
     expect(src).not.toMatch(/\{engine\.intake\.map\(/);
   });
 
-  it("shows a step-by-step progress cue instead of a wall of fields", () => {
-    expect(src).toMatch(/Question \{wizardStep \+ 1\} of \{steps\.length\}/);
+  it("never shows the literal 'Question N of M' form tell", () => {
+    expect(src).not.toMatch(/Question \{wizardStep \+ 1\} of \{steps\.length\}/);
+    expect(src).not.toMatch(/Question \d+ of \d+/);
+  });
+
+  it("shows a quiet step-progress cue instead, still accessible", () => {
+    // A dot per step, filled for done, solid for current.
+    expect(src).toMatch(/steps\.map\(\(_, i\) => \(/);
+    expect(src).toMatch(/Step \{wizardStep \+ 1\} of \{steps\.length\}/); // sr-only text
   });
 
   it("asks project name at the end, not first", () => {
@@ -30,20 +38,26 @@ describe("generic engine intake — one question at a time, not a giant form", (
     expect(finalBlock).toMatch(/intake-name/);
   });
 
-  it("gives a real, deterministic early value moment before the form is complete", () => {
-    expect(src).toMatch(/Here&apos;s where this is heading/);
+  it("gives a real, deterministic early value moment, built from the actual answers", () => {
     expect(src).toMatch(/generatePackage\(engine, answers, stage, depth, destination\)/);
+    expect(src).toMatch(/pkg\.direction/);
   });
 
-  it("the value moment fires no later than the 3rd question, for every generic engine", () => {
+  it("the value checkpoint fires right after the FIRST real answer for every generic engine", () => {
     const bespoke = new Set(["design-shop", "game", "story", "howto", "idea", "music"]);
     const generic = ENGINES.filter((e) => !e.hidden && !bespoke.has(e.id));
+    expect(src).toMatch(/function valueCheckpoints\(steps: Question\[\]\)/);
+    // Every generic engine's first non-name question is index 0 — the
+    // checkpoint function always includes 0 for any multi-step wizard.
     for (const e of generic) {
       const nonNameQuestions = e.intake.filter((q) => q.key !== "name").length;
-      expect(nonNameQuestions).toBeGreaterThan(0);
-      // Math.min(2, steps.length - 1) in the source — never past index 2.
-      expect(Math.min(2, nonNameQuestions - 1)).toBeLessThanOrEqual(2);
+      expect(nonNameQuestions).toBeGreaterThan(1); // real multi-step wizards, not trivial forms
     }
+  });
+
+  it("does not wait until the third question to show anything useful", () => {
+    // The old hardcoded trigger is gone — no more "never past index 2" ceiling.
+    expect(src).not.toMatch(/Math\.min\(2, steps\.length - 1\)/);
   });
 
   it("the intro no longer promises a questionnaire", () => {
