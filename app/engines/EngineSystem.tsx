@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ACTIVATION_LABEL, DEPTH_LABELS, DESTINATION_LABELS, ENGINES, getEngine, STAGES,
-  type BuildStage, type Depth, type Destination, type Engine,
+  type BuildStage, type Depth, type Destination, type Engine, type Question,
 } from "./engines";
 import { generatePackage, packageToText } from "./generator";
 import {
@@ -111,6 +111,42 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
   }
 }
 
+/** Real content only — used to decide whether a question is already answered
+ *  and to find the first one still worth asking. */
+const filled = (a: Record<string, string>, key: string) => (a[key] ?? "").trim().length > 0;
+
+/** The sequential questions for a generic engine's working session: every
+ *  intake question except the project name, which is asked once, at the end,
+ *  and only because saving needs a label. */
+function wizardSteps(e: Engine): Question[] {
+  return e.intake.filter((q) => q.key !== "name");
+}
+
+/** Resume the session where real answers leave off, instead of re-asking what
+ *  a planner handoff or a saved project already told us. Returns
+ *  steps.length — the name/review screen — once every required question is
+ *  already answered. */
+function firstUnansweredStep(steps: Question[], a: Record<string, string>): number {
+  const idx = steps.findIndex((q) => !q.optional && !filled(a, q.key));
+  return idx === -1 ? steps.length : idx;
+}
+
+/** A project name nobody had to type: the first real sentence of their first
+ *  real answer, trimmed to a card-sized name. Still editable before saving. */
+function deriveName(e: Engine, a: Record<string, string>): string {
+  const first = wizardSteps(e).find((q) => q.type === "textarea" && filled(a, q.key));
+  if (!first) return "";
+  const sentence = (a[first.key] ?? "").split(/[.!?\n]/)[0].trim();
+  return sentence.length > 48 ? `${sentence.slice(0, 45)}…` : sentence;
+}
+
+/** Jumping straight to the final screen (a deep link or a saved project with
+ *  every field already filled) still needs a name — nobody sees the wizard's
+ *  own naming step in that path, so fill it in right here. */
+function ensureNamed(e: Engine, a: Record<string, string>): Record<string, string> {
+  return filled(a, "name") ? a : { ...a, name: deriveName(e, a) };
+}
+
 function EngineCard({
   engine, projects, onStart, onResume,
 }: {
@@ -179,6 +215,11 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
   const [engineId, setEngineId] = useState<string>("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [stage, setStage] = useState<BuildStage>("Building");
+  // one-question-at-a-time working session (generic engines only — the
+  // bespoke studios below have their own flow)
+  const [wizardStep, setWizardStep] = useState(0);
+  const [wizardPhase, setWizardPhase] = useState<"ask" | "value">("ask");
+  const [valueShown, setValueShown] = useState(false);
   const [depth, setDepth] = useState<Depth>("full");
   const [destination, setDestination] = useState<Destination>("claude-code");
   const [objectiveEdit, setObjectiveEdit] = useState("");
@@ -220,11 +261,16 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
       const prefill = handoff
         ? { ...handoffToIntake(e.id, handoff), ...consumePlannerSeed(e) }
         : consumePlannerSeed(e);
+      const steps = wizardSteps(e);
+      const start = firstUnansweredStep(steps, prefill);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEngineId(e.id);
-      setAnswers(prefill);
+      setAnswers(start === steps.length ? ensureNamed(e, prefill) : prefill);
       setStage(e.suggestedStage);
       setDestination(e.technical ? "claude-code" : "self");
+      setWizardStep(start);
+      setWizardPhase("ask");
+      setValueShown(start > 0);
       setView("intake");
     }
   }, []);
@@ -254,6 +300,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
     track("engine_start", { engine: id });
     setEngineId(id); setAnswers({}); setStage(e.suggestedStage);
     setDestination(e.technical ? "claude-code" : e.id === "plan" || e.id === "grow" || e.id === "sell" || e.id === "idea" ? "chatgpt" : "self");
+    setWizardStep(0); setWizardPhase("ask"); setValueShown(false);
     setView("intake");
   };
 
@@ -469,7 +516,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
             The Engine <span style={{ color: "var(--gold)" }}>Room</span>
           </h1>
           <p className="hero-sub" style={{ maxWidth: 460, margin: "0 auto" }}>
-            Pick an engine, answer a few real questions, and leave with a package you can act on today.
+            Pick the right engine. Start with what you know. Keep moving.
           </p>
           {/* Always mounted so screen readers hear the announcement, not just see it. */}
           <p role="status" aria-live="polite" style={{ color: "var(--gold)", fontWeight: 800, marginTop: 8, minHeight: 20, margin: "8px 0 0" }}>{flash}</p>
@@ -584,32 +631,94 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
           </>
         )}
 
-        {/* ---------- INTAKE ---------- */}
-        {view === "intake" && engine && (
-          <>
-            <button onClick={() => setView(activeProject ? "cycle" : "picker")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back</button>
-            <div style={card}>
-              <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{engine.emoji} {engine.name}</p>
-              <p style={{ fontSize: 14, color: "var(--muted)", margin: "4px 0 16px" }}>{engine.blurb}</p>
-              {engine.intake.map((q) => (
-                <div key={q.key} style={{ marginBottom: 14 }}>
-                  <label htmlFor={`intake-${q.key}`} style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>{q.label}{q.optional ? " (optional)" : ""}</label>
-                  {q.help && <p id={`intake-${q.key}-help`} style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 6px" }}>{q.help}</p>}
-                  {q.type === "textarea" ? (
-                    <textarea id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={{ ...input, minHeight: 66, resize: "vertical" }} />
-                  ) : (
-                    <input id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={input} />
-                  )}
-                </div>
-              ))}
-              <label htmlFor="intake-stage" style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>Current build stage</label>
-              <select id="intake-stage" value={stage} onChange={(ev) => setStage(ev.target.value as BuildStage)} style={input}>
-                {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-              <button onClick={toReview} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Review & customize →</button>
-            </div>
-          </>
-        )}
+        {/* ---------- INTAKE: one question at a time ---------- */}
+        {view === "intake" && engine && (() => {
+          const steps = wizardSteps(engine);
+          const atFinal = wizardStep >= steps.length;
+          const onWizardBack = () => {
+            if (wizardPhase === "value") { setWizardPhase("ask"); return; }
+            if (wizardStep > 0) { setWizardStep(wizardStep - 1); return; }
+            setView(activeProject ? "cycle" : "picker");
+          };
+          const advance = () => {
+            const next = Math.min(wizardStep + 1, steps.length);
+            if (next === steps.length && !filled(answers, "name")) {
+              setAnswers({ ...answers, name: deriveName(engine, answers) });
+            }
+            setWizardPhase("ask");
+            setWizardStep(next);
+          };
+          return (
+            <>
+              <button onClick={onWizardBack} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back</button>
+              <div style={card}>
+                <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{engine.emoji} {engine.name}</p>
+                <p style={{ fontSize: 14, color: "var(--muted)", margin: "4px 0 16px" }}>{engine.tagline}</p>
+
+                {!atFinal && wizardPhase === "ask" && (() => {
+                  const q = steps[wizardStep];
+                  const canContinue = q.optional || filled(answers, q.key);
+                  return (
+                    <>
+                      {steps.length > 1 && (
+                        <p style={{ fontSize: 11.5, fontWeight: 800, color: "var(--dim, var(--muted))", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 10px" }}>
+                          Question {wizardStep + 1} of {steps.length}
+                        </p>
+                      )}
+                      <label htmlFor={`intake-${q.key}`} style={{ display: "block", fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>{q.label}{q.optional ? " (optional)" : ""}</label>
+                      {q.help && <p id={`intake-${q.key}-help`} style={{ fontSize: 12.5, color: "var(--muted)", margin: "0 0 8px" }}>{q.help}</p>}
+                      {q.type === "textarea" ? (
+                        <textarea id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={{ ...input, minHeight: 110, resize: "vertical" }} />
+                      ) : (
+                        <input id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={input} />
+                      )}
+                      <button
+                        onClick={() => {
+                          const showValue = !valueShown && filled(answers, q.key) && wizardStep === Math.min(2, steps.length - 1);
+                          if (showValue) { setValueShown(true); setWizardPhase("value"); }
+                          else advance();
+                        }}
+                        disabled={!canContinue}
+                        className="btn btn-gold"
+                        style={{ width: "100%", marginTop: 16, opacity: canContinue ? 1 : 0.5 }}
+                      >
+                        {wizardStep === 0 ? "Start →" : "Continue →"}
+                      </button>
+                    </>
+                  );
+                })()}
+
+                {!atFinal && wizardPhase === "value" && (() => {
+                  const pkg = generatePackage(engine, answers, stage, depth, destination);
+                  const headline = pkg.direction.split("\n\n")[0];
+                  return (
+                    <>
+                      <span className="kicker">Here&apos;s where this is heading</span>
+                      <p style={{ fontSize: 14.5, color: "var(--text)", lineHeight: 1.6, margin: "8px 0 16px" }}>{headline}</p>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button onClick={() => copy(headline, "Direction")} className="btn btn-ghost btn-small">Copy</button>
+                        <button onClick={advance} className="btn btn-gold" style={{ flex: 1 }}>Keep going →</button>
+                      </div>
+                    </>
+                  );
+                })()}
+
+                {atFinal && (
+                  <>
+                    <p style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", margin: "0 0 12px" }}>One last thing before we build the package.</p>
+                    <label htmlFor="intake-name" style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>Project name (optional)</label>
+                    <input id="intake-name" value={answers.name ?? deriveName(engine, answers)} onChange={(ev) => setAnswers({ ...answers, name: ev.target.value })} placeholder={engine.name} style={input} />
+                    <label htmlFor="intake-stage" style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", margin: "14px 0 4px" }}>Current build stage</label>
+                    <select id="intake-stage" value={stage} onChange={(ev) => setStage(ev.target.value as BuildStage)} style={input}>
+                      {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    <button onClick={toReview} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Review & customize →</button>
+                  </>
+                )}
+              </div>
+            </>
+          );
+        })()}
 
         {/* ---------- REVIEW BEFORE GENERATION ---------- */}
         {view === "review" && engine && previewPackage && (
@@ -679,7 +788,15 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
             onMarkSent={() => updateCycle({ status: "sent" })}
             onReturn={() => { setReview({ completed: true, correctLive: true, broke: "", wrong: "", deferred: "", readyForPublic: false, raw: "" }); setView("return"); }}
             onNext={generateNextCycle}
-            onNewCycle={() => { setEngineId(activeProject.engineId); setAnswers(activeProject.answers); setView("intake"); }}
+            onNewCycle={() => {
+              const e = getEngine(activeProject.engineId);
+              const steps = e ? wizardSteps(e) : [];
+              const start = e ? firstUnansweredStep(steps, activeProject.answers) : 0;
+              setEngineId(activeProject.engineId);
+              setAnswers(e && start === steps.length ? ensureNamed(e, activeProject.answers) : activeProject.answers);
+              setWizardStep(start); setWizardPhase("ask"); setValueShown(start > 0);
+              setView("intake");
+            }}
             onPushRequested={() => updateCycle({ pushRequestedAt: new Date().toISOString() })}
             onBack={() => setView("list")}
           />
