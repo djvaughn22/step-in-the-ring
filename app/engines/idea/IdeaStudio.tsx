@@ -24,6 +24,13 @@ type Stage = "projects" | "start" | "ideas" | "compare" | "decide" | "done";
 
 const ENGINE_ID = "idea";
 
+/** A project name nobody had to type: the first sentence of the idea,
+ *  trimmed to a card-sized name. Still editable. */
+function deriveIdeaName(seed: string): string {
+  const sentence = seed.split(/[.!?\n]/)[0].trim();
+  return sentence.length > 48 ? `${sentence.slice(0, 45)}…` : sentence || "Untitled idea";
+}
+
 interface IdeaContent {
   candidates?: IdeaCandidate[];
   selectedId?: string;
@@ -97,13 +104,16 @@ export default function IdeaStudio({
 
   // ---- START ----
   const submitStart = () => {
-    if (!answers.name || !answers.seed || !answers.who) { say("Fill in required fields"); return; }
+    if (!answers.seed?.trim()) { say("Say the idea however it comes out"); return; }
+    const name = answers.name?.trim() || deriveIdeaName(answers.seed);
+    const filledAnswers = { ...answers, name };
     let p = project;
-    if (!p) { p = createProject(ENGINE_ID, answers.name, answers); setProject(p); }
+    if (!p) { p = createProject(ENGINE_ID, name, filledAnswers); setProject(p); }
     const seedCandidate: IdeaCandidate = { id: uid(), text: answers.seed, origin: "yours" };
     const initial = candidates.length > 0 ? candidates : [seedCandidate];
     setCandidates(initial);
-    const next = { ...p, name: answers.name, answers, status: "exploring" as const, buildContent: { candidates: initial } };
+    setAnswers(filledAnswers);
+    const next = { ...p, name, answers: filledAnswers, status: "exploring" as const, buildContent: { candidates: initial } };
     updateProject(next); setProject(next); setSaved(getProjectsByEngine(ENGINE_ID));
     setStage("ideas");
   };
@@ -234,27 +244,26 @@ export default function IdeaStudio({
             {saved.length > 0 && (
               <button onClick={() => setStage("projects")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Saved ideas</button>
             )}
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>1. Where are you starting?</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>What are you thinking about?</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Say the idea however it comes out. You&apos;ll compare a few versions, pick one, and leave with a decision and a first action.
+              Say it however it comes out. You&apos;ll compare a few versions, pick one, and leave with a decision and a first action.
             </p>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>The idea, however it comes out</label>
+              <textarea value={answers.seed || ""} onChange={(e) => setAnswers({ ...answers, seed: e.target.value })} placeholder="The thing you keep thinking about" style={{ ...input, minHeight: 90, resize: "vertical" }} />
+            </div>
             {([
-              ["name", "Project name *", "A working name is fine", "text"],
-              ["seed", "The idea, however it comes out *", "The thing you keep thinking about", "textarea"],
-              ["who", "Who is it for? *", "One specific person or group", "text"],
-              ["problem", "What problem or moment does it fit? (optional)", "Why it would matter to them", "text"],
-              ["constraint", "Biggest constraint right now? (optional)", "Time, money, skills, a deadline", "text"],
-            ] as const).map(([key, label, placeholder, kind]) => (
+              ["who", "Who is it for? (optional)", "One specific person or group"],
+              ["problem", "What problem or moment does it fit? (optional)", "Why it would matter to them"],
+              ["name", "Project name (optional)", "A working name is fine"],
+              ["constraint", "Biggest constraint right now? (optional)", "Time, money, skills, a deadline"],
+            ] as const).map(([key, label, placeholder]) => (
               <div key={key} style={{ marginBottom: 14 }}>
                 <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>{label}</label>
-                {kind === "textarea" ? (
-                  <textarea value={answers[key] || ""} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })} placeholder={placeholder} style={{ ...input, minHeight: 66, resize: "vertical" }} />
-                ) : (
-                  <input value={answers[key] || ""} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })} placeholder={placeholder} style={input} />
-                )}
+                <input value={answers[key] || ""} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })} placeholder={placeholder} style={input} />
               </div>
             ))}
-            <button onClick={submitStart} className="btn btn-gold" style={{ width: "100%", marginTop: 8 }}>
+            <button onClick={submitStart} disabled={!answers.seed?.trim()} style={{ width: "100%", marginTop: 8, opacity: !answers.seed?.trim() ? 0.5 : 1 }} className="btn btn-gold">
               Collect the ideas →
             </button>
           </div>

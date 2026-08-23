@@ -88,6 +88,13 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "design";
 }
 
+/** A project name nobody had to type: the first sentence of what they said
+ *  they need to design, trimmed to a card-sized name. Still editable. */
+function deriveDesignName(idea: string): string {
+  const sentence = idea.split(/[.!?\n]/)[0].trim();
+  return sentence.length > 48 ? `${sentence.slice(0, 45)}…` : sentence || "Untitled design";
+}
+
 export default function DesignShopStudio({
   onBack,
   card,
@@ -188,23 +195,26 @@ export default function DesignShopStudio({
 
   // ---- SPARK ----
   const handleSparkSubmit = async () => {
-    if (!answers.name || !answers.idea || !answers.customer || !answers.spark || !answers.productType) {
-      say("Fill in required fields");
+    if (!answers.idea?.trim()) {
+      say("Say what you need to design");
       return;
     }
     setLoading(true);
     try {
-      const dirs = await generateProductDirections(
-        answers.idea, answers.customer, answers.productType, answers.theme || "",
-      );
+      const name = answers.name?.trim() || deriveDesignName(answers.idea);
+      const customer = answers.customer?.trim() || "the person you have in mind";
+      const productType = answers.productType?.trim() || "product";
+      const filledAnswers = { ...answers, name };
+      const dirs = await generateProductDirections(answers.idea, customer, productType, answers.theme || "");
       setDirections(dirs);
+      setAnswers(filledAnswers);
       // Create or update the saved project.
       let p = project;
       if (!p) {
-        p = createProject(ENGINE_ID, answers.name, answers);
+        p = createProject(ENGINE_ID, name, filledAnswers);
         setProject(p);
       }
-      const next: CreationProject = { ...p, name: answers.name, answers, directions: dirs, status: "exploring" };
+      const next: CreationProject = { ...p, name, answers: filledAnswers, directions: dirs, status: "exploring" };
       updateProject(next);
       setProject(next);
       refreshList();
@@ -431,49 +441,53 @@ ${listing.ipChecklist.join("\n")}
             {saved.length > 0 && (
               <button onClick={() => setStage("projects")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Saved designs</button>
             )}
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>1. The Spark</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>What do you need to design?</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Answer these questions about your product idea. You&apos;ll get 5 directions to explore. Progress saves on this device.
+              One idea is enough to start — you&apos;ll get 5 directions to explore. Everything below is optional detail that sharpens them.
             </p>
 
-            {([
-              ["name", "Project Name *", "A working name is fine", "text"],
-              ["idea", "Rough Product Idea *", "The thing you're thinking about creating", "textarea"],
-              ["theme", "Theme or Inspiration (optional)", "e.g., Faith, Family, Fitness, Dogs, Dads", "text"],
-              ["customer", "Who Would Use / Buy This? *", "The person with the problem or need", "text"],
-              ["occasion", "Occasion or Context (optional)", "e.g., Gift, Holiday, Party, Game Night", "text"],
-            ] as const).map(([key, label, placeholder, kind]) => (
-              <div key={key} style={{ marginBottom: 14 }}>
-                <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>{label}</label>
-                {kind === "textarea" ? (
-                  <textarea value={answers[key] || ""} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })} placeholder={placeholder} style={{ ...input, minHeight: 66, resize: "vertical" }} />
-                ) : (
-                  <input value={answers[key] || ""} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })} placeholder={placeholder} style={input} />
-                )}
-              </div>
-            ))}
-
             <div style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>Product Type *</label>
-              <select value={answers.productType || ""} onChange={(e) => setAnswers({ ...answers, productType: e.target.value })} style={input}>
-                <option value="">— Choose —</option>
-                {["Printable / Digital", "Card Deck", "Game / Activity Pack", "Sticker Sheet", "T-Shirt / Apparel", "Mug / Drinkware", "Tote / Bag", "Wall Print / Art", "Journal / Planner", "Undecided / Mixed"].map((t) => (
-                  <option key={t} value={t}>{t}</option>
+              <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>Your idea</label>
+              <textarea
+                value={answers.idea || ""}
+                onChange={(e) => setAnswers({ ...answers, idea: e.target.value })}
+                placeholder="e.g., a simple logo for a family game night"
+                style={{ ...input, minHeight: 90, resize: "vertical" }}
+              />
+            </div>
+
+            <details style={{ marginBottom: 14 }}>
+              <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 800, color: "var(--gold)" }}>
+                Add detail (optional — sharpens the 5 directions)
+              </summary>
+              <div style={{ marginTop: 12 }}>
+                {([
+                  ["name", "Project name", "A working name is fine", "text"],
+                  ["customer", "Who would use or buy this?", "The person with the problem or need", "text"],
+                  ["productType", "Product type", "", "select"],
+                  ["theme", "Theme or inspiration", "e.g., Faith, Family, Fitness, Dogs, Dads", "text"],
+                  ["occasion", "Occasion or context", "e.g., Gift, Holiday, Party, Game Night", "text"],
+                  ["spark", "The spark — a joke, phrase, or problem it solves", "One core idea or phrase driving this", "text"],
+                  ["constraint", "Biggest constraint", "Time, design skill, production cost, etc.", "text"],
+                ] as const).map(([key, label, placeholder, kind]) => (
+                  <div key={key} style={{ marginBottom: 12 }}>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{label}</label>
+                    {kind === "select" ? (
+                      <select value={answers.productType || ""} onChange={(e) => setAnswers({ ...answers, productType: e.target.value })} style={input}>
+                        <option value="">— Choose —</option>
+                        {["Printable / Digital", "Card Deck", "Game / Activity Pack", "Sticker Sheet", "T-Shirt / Apparel", "Mug / Drinkware", "Tote / Bag", "Wall Print / Art", "Journal / Planner", "Undecided / Mixed"].map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input value={answers[key] || ""} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })} placeholder={placeholder} style={input} />
+                    )}
+                  </div>
                 ))}
-              </select>
-            </div>
+              </div>
+            </details>
 
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>The Spark (joke, phrase, problem it solves) *</label>
-              <input value={answers.spark || ""} onChange={(e) => setAnswers({ ...answers, spark: e.target.value })} placeholder="One core idea or phrase driving this" style={input} />
-            </div>
-
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>Biggest Constraint (optional)</label>
-              <input value={answers.constraint || ""} onChange={(e) => setAnswers({ ...answers, constraint: e.target.value })} placeholder="Time, design skill, production cost, etc." style={input} />
-            </div>
-
-            <button onClick={handleSparkSubmit} disabled={loading} style={{ width: "100%", marginTop: 16 }} className="btn btn-gold">
+            <button onClick={handleSparkSubmit} disabled={loading || !answers.idea?.trim()} style={{ width: "100%", marginTop: 4, opacity: !answers.idea?.trim() ? 0.5 : 1 }} className="btn btn-gold">
               {loading ? "Generating directions..." : "Generate 5 Directions →"}
             </button>
           </div>
