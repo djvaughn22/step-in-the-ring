@@ -831,7 +831,8 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
           </>
         )}
 
-        <ToolFooter />
+        {/* Only show ToolFooter after meaningful work — not during intake questions */}
+        {(view === "cycle" || view === "return") && <ToolFooter />}
       </div>
     </main>
   );
