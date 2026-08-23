@@ -408,3 +408,39 @@ describe("no invented repository access", () => {
     expect(p).toMatch(/inspect the OpenDoku repository/i);
   });
 });
+
+describe("specialized engine routing matrix", () => {
+  it("game intent routes to Game Engine, not Build or Idea", () => {
+    const i = interpret({ description: "make a fun family friendly game" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+    expect(engine?.engineId).not.toBe("build");
+    expect(engine?.engineId).not.toBe("idea");
+  });
+
+  it("music intent routes to Music Engine, not Build", () => {
+    const i = interpret({ description: "produce a hip-hop beat" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("music");
+    expect(engine?.engineId).not.toBe("build");
+  });
+
+  it("design/product intent routes to Design Shop, not Build", () => {
+    const i = interpret({ description: "I want to make printable stickers to sell on Etsy", buildType: { value: "sell" } as any });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("design-shop");
+    expect(engine?.engineId).not.toBe("build");
+  });
+
+  it("generic build intent with no destination falls back to Build Engine", () => {
+    const i = interpret({ description: "make a simple todo app", buildType: { value: "new" } as any });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("build");
+  });
+
+  it("multiple game keywords still route to Game Engine", () => {
+    const i = interpret({ description: "create a fun arcade board game puzzle game" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+  });
+});
