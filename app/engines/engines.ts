@@ -408,20 +408,20 @@ export const ENGINES: Engine[] = [
     id: "music",
     name: "Music Engine",
     emoji: "🎵",
-    tagline: "Bring your song to life — or make your first beat.",
-    blurb: "Arrive with words, a melody in your head, a voice memo, or nothing at all. The engine preserves your source exactly, meets you at your actual starting point, and guides you to a real playable result. Works with no equipment or with an MPK Mini.",
+    tagline: "Say what you want to make. Get one next move.",
+    blurb: "Tell it what you're making and what you're using — a reggae beat in BandLab, a piano idea in GarageBand, whatever it is. It gives you one clear next step, something to copy, and a place to paste back what happened. You do the work in your real music tool; the engine keeps you moving.",
     technical: false,
     suggestedStage: "Spark",
     intake: [],
     specialties: [],
-    // Verified: the device picker, the official tool links and the step
-    // tracking all load and save progress. Stays BETA on purpose — the beat
-    // itself gets exported from BandLab, which we can't verify from here, and
-    // music.engine.ts declares "beta" too. Claiming "works" would be us
-    // vouching for a step we never watched happen.
+    // Verified: the goal/tool intake, the one-step-at-a-time flow, copy, and
+    // paste-back all load and save progress locally. Stays BETA on purpose —
+    // the audio itself gets made and exported in the creator's own tool,
+    // which we can't verify from here. Claiming "works" would be us vouching
+    // for a step we never watched happen.
     activation: "beta",
-    output: "A preserved song project moving to a playable Version One — or your first exported beat. The audio comes out of your music software, not out of this page.",
-    beginWith: "Words, a melody in your head, a voice memo, or nothing at all.",
+    output: "One next move at a time toward a real exported track — plus, for a song already under way, a preserved source moving toward a playable Version One. The audio comes out of your music software, not out of this page.",
+    beginWith: "A one-line idea of what you want to make, and the tool you're using (or \"not sure yet\").",
   },
   {
     // ── vNext plumbing, not an engine you open ──────────────────────────────
