@@ -141,10 +141,11 @@ export default function MusicSession() {
         <h2 style={{ fontSize: 17, fontWeight: 900, color: "var(--text)", margin: "0 0 6px" }}>{move.title}</h2>
         <p style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.55, margin: "0 0 14px" }}>{move.detail}</p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <button onClick={() => copy(move.copyText)} className="btn btn-gold btn-small">Copy for ChatGPT / Claude</button>
+          <button onClick={() => copy(move.copyText)} className="btn btn-gold btn-small">Copy</button>
           <button onClick={() => setStuckOpen((v) => !v)} className="btn btn-ghost btn-small">I&apos;m stuck</button>
           {flash && <span style={{ fontSize: 12.5, color: "var(--gold)", fontWeight: 800 }}>{flash}</span>}
         </div>
+        <p style={{ ...sub, margin: "8px 0 0" }}>Paste it into ChatGPT, Claude, or wherever you get help.</p>
         {stuckOpen && (
           <div style={{ background: "var(--surface)", border: "1px solid var(--line2)", borderRadius: 10, padding: 12, marginTop: 12 }}>
             {stuckHelp(session.tool).map((tip, i) => (
