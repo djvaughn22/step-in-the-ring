@@ -411,6 +411,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
 
   // Game Engine: platform mode → template → world → live preview → real publish
   if (engineId === "game" && view === "intake") {
+    const prefill = consumePlannerSeed(engine);
     return (
       <GameStudio
         onBack={() => {
@@ -418,6 +419,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
           setAnswers({});
           setView("list");
         }}
+        initialAnswers={Object.keys(prefill).length > 0 ? prefill : undefined}
         card={card}
       />
     );
