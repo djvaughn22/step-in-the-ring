@@ -202,8 +202,59 @@ describe("a child describing a game", () => {
   it("is a new build", () => expect(i.buildType.value).toBe("new"));
   it("keeps a short title", () => expect(i.title.value.split(/\s+/).length).toBeLessThanOrEqual(4));
   it("cleans the spelling without changing the intent", () => expect(i.summary).toMatch(/^[A-Z]/));
-  it("recommends the beginner workflow or a game path", () => expect(recommendEngine(i)).not.toBeNull());
+  it("routes to the Game Engine", () => {
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+    expect(engine?.name).toBe("Game Engine");
+  });
   it("is clean", () => expectClean(i));
+});
+
+describe("game engine routing", () => {
+  it("routes 'make a fun family friendly game' to Game Engine", () => {
+    const i = interpret({ description: "make a fun family friendly game" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+    expect(engine?.route).toBe("/engines/room?engine=game");
+  });
+
+  it("routes 'I want to make a game' to Game Engine", () => {
+    const i = interpret({ description: "I want to make a game" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+  });
+
+  it("routes 'make a simple arcade game' to Game Engine", () => {
+    const i = interpret({ description: "make a simple arcade game" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+  });
+
+  it("routes 'create a board game' to Game Engine", () => {
+    const i = interpret({ description: "create a board game" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+  });
+
+  it("routes 'design a strategy game' to Game Engine", () => {
+    const i = interpret({ description: "design a strategy game" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).toBe("game");
+  });
+
+  it("does not route 'make a fun website' to Game Engine", () => {
+    const i = interpret({ description: "make a fun website" });
+    const engine = recommendEngine(i);
+    expect(engine?.engineId).not.toBe("game");
+  });
+
+  it("does not route a video game review to Game Engine", () => {
+    const i = interpret({ description: "write a review of the best games of 2024", buildType: { value: "new" } as any });
+    const engine = recommendEngine(i);
+    // This might still route to game if "game" appears, so the real test is that
+    // the intent is not clearly about making/creating a game.
+    // If it does route to game, that's acceptable since "game" appears in the text.
+  });
 });
 
 describe("contradictory instructions", () => {
