@@ -93,7 +93,9 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
     const record = seed.record ? parseCreationRecord(seed.record) : null;
     if (record) {
       const prefill = recordToIntake(e.id, record);
-      if (e.id === "idea") prefill.seed = record.originalIdea;
+      // The studios with no generic intake (empty intake: []) keep their own
+      // field names — IdeaStudio and GameStudio both read `seed`.
+      if (e.id === "idea" || e.id === "game") prefill.seed = record.originalIdea;
       return prefill;
     }
 
@@ -103,8 +105,9 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
     // The first free-text question is where the idea itself belongs.
     const firstProse = e.intake.find((q) => q.type === "textarea");
     if (firstProse) prefill[firstProse.key] = idea;
-    // The studios keep their own field names; IdeaStudio reads `seed`.
-    if (e.id === "idea") prefill.seed = idea;
+    // The studios with no generic intake (empty intake: []) keep their own
+    // field names — IdeaStudio and GameStudio both read `seed`.
+    if (e.id === "idea" || e.id === "game") prefill.seed = idea;
     return prefill;
   } catch {
     return {};
