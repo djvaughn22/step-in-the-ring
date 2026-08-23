@@ -20,7 +20,7 @@ import {
 import { downloadBuildPack, downloadCreationJson } from "../creation/build-pack";
 import { readHandoffFromSearch } from "../creation/handoff";
 import {
-  loadCurrentCreation, newRecord, saveCurrentCreation, viewOf, type CreationView,
+  newRecord, saveCurrentCreation, viewOf, type CreationView,
 } from "../creation/record";
 import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
@@ -215,14 +215,12 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
   const [saved, setSaved] = useState<SavedPlan[]>([]);
   const [flash, setFlash] = useState("");
   const [incoming, setIncoming] = useState<HandoffPayloadV1 | null>(null);
-  const [hasLastCreation, setHasLastCreation] = useState(false);
   const [defaults, setDefaults] = useState<BuilderDefaults>(loadBuilderDefaults);
   const shapeRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSaved(loadPlans());
-    setHasLastCreation(!!loadCurrentCreation());
     setDefaults(loadBuilderDefaults());
     try {
       // Versioned handoff (?cr=) first — it carries the whole creation.
@@ -310,22 +308,6 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
     // Once per arrival at the result, not per keystroke of a correction.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
-
-  function continueLast() {
-    const last = loadCurrentCreation();
-    if (!last) return;
-    setDescription(last.originalIdea);
-    setAnswers(last.answers);
-    if (last.source === "idontcry") {
-      setIncoming({
-        v: 1, source: "idontcry",
-        flow: last.sourceFlow === "dream-lab" || last.sourceFlow === "game-lab" || last.sourceFlow === "dream-shop" ? last.sourceFlow : "dream-lab",
-        idea: last.originalIdea, title: last.originalTitle,
-        facts: last.facts, exclusions: last.exclusions,
-      });
-    }
-    go("result");
-  }
 
   function go(next: Stage) {
     setStage(next);
@@ -420,11 +402,6 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
       starters={STARTERS}
       actions={
         <>
-          {hasLastCreation && (
-            <button type="button" className="btn btn-ghost" onClick={continueLast}>
-              Pick up the last one
-            </button>
-          )}
           {saved.length > 0 && (
             <button type="button" className="btn btn-ghost" onClick={() => go("saved")}>
               Saved ({saved.length})

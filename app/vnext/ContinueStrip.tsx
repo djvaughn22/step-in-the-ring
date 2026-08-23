@@ -1,7 +1,7 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PICK UP WHERE YOU LEFT OFF.
+// KEEP GOING.
 //
 // The homepage asks everyone the same question, which is right for a stranger
 // and wrong for somebody who was here yesterday. A person with a Build in
@@ -10,7 +10,11 @@
 // its own front door.
 //
 // So: after the page is up, ask the Build API whether this browser belongs to
-// somebody with builds. If it does, offer the most recent one first.
+// somebody with builds. If it does, offer to continue the most recent one —
+// but the front door never prints the Build's title, stage, or next-move
+// text. Home is the product's front door: safe to open in a meeting, show
+// someone, or screenshot. Specific project detail belongs on /builds or
+// inside the Build itself, after the person chooses to continue.
 //
 // Deliberately progressive enhancement, not a server session read:
 //   - the homepage stays static and fast for the stranger it is written for
@@ -21,7 +25,28 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BUILD_STAGE_LABEL, type BuildRecordV1 } from "./build";
+import type { BuildRecordV1 } from "./build";
+
+/** The card itself, kept separate from data-fetching so it's directly
+ *  testable: given a Build, it never renders its title or status. */
+export function KeepGoingCard({ latest }: { latest: BuildRecordV1 }) {
+  return (
+    <div className="card">
+      <div className="plan-label">Keep going</div>
+      <p style={{ fontSize: 14.5, color: "var(--text)", lineHeight: 1.5, margin: "6px 0 14px" }}>
+        Continue your latest build.
+      </p>
+      <div className="actions">
+        <Link className="btn btn-gold btn-small" href={`/builds/${latest.id}`}>
+          Continue →
+        </Link>
+        <Link className="btn btn-ghost btn-small" href="/builds">
+          Your builds
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 export default function ContinueStrip() {
   const [builds, setBuilds] = useState<BuildRecordV1[] | null>(null);
@@ -49,35 +74,10 @@ export default function ContinueStrip() {
   if (!builds || builds.length === 0) return null;
 
   // Newest first is already the API's order — the top one is what they were
-  // last doing, and that is the only one worth putting in front of them.
-  const latest = builds[0];
-  const others = builds.length - 1;
-
+  // last doing, and that is the only one worth offering to continue.
   return (
     <section className="home-section step-enter" style={{ marginTop: 0, marginBottom: 34 }} aria-label="Keep going">
-      <div className="card card-gold">
-        <div className="plan-label">Pick up where you left off</div>
-        <h2 style={{ fontSize: "clamp(19px, 4.5vw, 24px)", marginBottom: 6 }}>{latest.title}</h2>
-        <div className="pill-row" style={{ marginTop: 0 }}>
-          <span className="pill pill-now">{BUILD_STAGE_LABEL[latest.stage]}</span>
-        </div>
-        {latest.currentAction && (
-          <p style={{ fontSize: 14.5, color: "var(--text)", lineHeight: 1.6, margin: "12px 0 0" }}>
-            <b>Right now:</b> {latest.currentAction}
-          </p>
-        )}
-        <div className="actions" style={{ marginTop: 14 }}>
-          <Link className="btn btn-gold" href={`/builds/${latest.id}`}>
-            Continue →
-          </Link>
-          <Link className="btn btn-ghost btn-small" href="/builds">
-            {others > 0 ? `All ${builds.length} builds` : "Your builds"}
-          </Link>
-        </div>
-      </div>
-      <p className="tiny" style={{ marginTop: 10 }}>
-        Or start something new below.
-      </p>
+      <KeepGoingCard latest={builds[0]} />
     </section>
   );
 }
