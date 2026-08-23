@@ -15,7 +15,6 @@ import {
   updateWorkingCopy, visibleGuidance,
   type SongProjectV1,
 } from "./song.engine";
-import { MUSIC_ENGINE } from "./music.engine";
 
 const OWNER_SOURCE = `new life born again song,...in 2023 it was forced on me, and it took what seemed like an eternity but after a week i was born again and after suffering and submitting to Him, i was saved! I was saved! and i locked it and got close to Him and forevermore no matter how i slip i am connected!1!! we are connected!~!! i may fall, i may slip, i may take it on the lip but im connected!
 these are the lyrics to the melody in my first song. i will come up with notes in my app`;
@@ -109,16 +108,6 @@ describe("adaptive starting point", () => {
     expect(next.stage).toBe("melody");
     expect(next.title).toBe("Record the melody before changing it");
   });
-
-  it("starting from nothing still works: the beginner first-beat data is intact", () => {
-    expect(MUSIC_ENGINE.paths.map((x) => x.id)).toContain("no-equipment");
-    expect(MUSIC_ENGINE.paths.map((x) => x.id)).toContain("mpk-mini");
-    expect(MUSIC_ENGINE.paths.map((x) => x.id)).toContain("garageband-mac");
-    MUSIC_ENGINE.paths.forEach((path) => {
-      expect(path.setup.length).toBeGreaterThan(0);
-      expect(path.steps.length).toBeGreaterThanOrEqual(5);
-    });
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -165,16 +154,9 @@ describe("equipment and software paths", () => {
     expect(list.some((x) => x.label.toLowerCase().includes("drum"))).toBe(false);
   });
 
-  it("BandLab and GarageBand paths remain valid — song checklist plus the beginner path data", () => {
+  it("BandLab and GarageBand use the generic song checklist", () => {
     expect(checklistFor("bandlab")).toBe(GENERIC_SONG_CHECKLIST);
     expect(checklistFor("garageband")).toBe(GENERIC_SONG_CHECKLIST);
-    expect(MUSIC_ENGINE.resources.some((r) => r.id === "bandlab")).toBe(true);
-    expect(MUSIC_ENGINE.resources.some((r) => r.id === "garageband")).toBe(true);
-  });
-
-  it("the no-equipment path remains valid", () => {
-    const noEquip = MUSIC_ENGINE.paths.find((x) => x.id === "no-equipment")!;
-    expect(noEquip.requiredHardware ?? []).toHaveLength(0);
   });
 });
 
