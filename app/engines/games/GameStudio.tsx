@@ -19,7 +19,13 @@ const DRAFT_KEY = "sitr-game-world-v1";
 
 type Step = "mode" | "template" | "world" | "launchpad";
 
-export default function GameStudio({ onBack, card }: { onBack: () => void; card: React.CSSProperties }) {
+type GameStudioProps = {
+  onBack: () => void;
+  card: React.CSSProperties;
+  initialAnswers?: Record<string, string>;
+};
+
+export default function GameStudio({ onBack, card, initialAnswers }: GameStudioProps) {
   const [step, setStep] = useState<Step>("mode");
   const [mode, setMode] = useState<GameMode | null>(null);
   const [template, setTemplate] = useState<GameTemplate | null>(null);
@@ -29,6 +35,7 @@ export default function GameStudio({ onBack, card }: { onBack: () => void; card:
   const [busy, setBusy] = useState("");
   const [publishResult, setPublishResult] = useState<{ url: string; commit: string; updated: boolean } | null>(null);
   const [error, setError] = useState("");
+  const [seedNote, setSeedNote] = useState<string>("");
 
   useEffect(() => {
     try {
@@ -39,7 +46,11 @@ export default function GameStudio({ onBack, card }: { onBack: () => void; card:
         setSlugTouched(true);
       }
     } catch {}
-  }, []);
+    // Capture the initial idea from the planner seed
+    if (initialAnswers?.seed) {
+      setSeedNote(initialAnswers.seed);
+    }
+  }, [initialAnswers]);
 
   const saveWorld = (w: DokuWorld) => {
     setWorld(w);
@@ -106,6 +117,13 @@ export default function GameStudio({ onBack, card }: { onBack: () => void; card:
             by this engine.
           </p>
         </header>
+
+        {seedNote && (
+          <div style={{ ...card, maxWidth: 520, margin: "20px auto 20px", borderLeft: "4px solid var(--gold)" }}>
+            <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Your game idea</p>
+            <p style={{ fontSize: 14, color: "var(--text)", margin: 0, lineHeight: 1.6 }}>{seedNote}</p>
+          </div>
+        )}
 
         {/* ---------- STEP: MODE ---------- */}
         {step === "mode" && (
