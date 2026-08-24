@@ -505,6 +505,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                 Say what you want to make. Leave with the smallest real version
                 of it and the next move. Come back and keep going.
               </p>
+              <p className="tiny" style={{ marginTop: 14 }}>
+                Making something real is a fight. Work it here, or take it to
+                ChatGPT, Claude, or whatever&apos;s already in your corner.
+              </p>
             </div>
 
             <div>

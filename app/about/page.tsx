@@ -36,9 +36,9 @@ export default function AboutPage() {
 
       <Section title="Your work">
         <p style={{ border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, color: "var(--text)", margin: 0 }}>
-          Saying an idea and reading the plan back needs no account, and stays
-          on this device unless you download it. Opening an Engine or saving
-          a Build needs a sign-in, so your work can follow you to another
+          Saying an idea, reading the plan back, and opening any Engine needs
+          no account — that work stays on this device unless you download it.
+          Signing in is only for making a Build follow you to another
           device — free during the open beta.
         </p>
       </Section>
