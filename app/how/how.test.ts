@@ -47,9 +47,11 @@ describe("How It Works — one coherent loop", () => {
   });
 
   it("makes an honest, narrow account claim instead of a blanket one", () => {
-    // The old copy claimed "no account, no cost" for the whole product.
-    // Opening an Engine or saving a Build genuinely needs a sign-in.
-    expect(src).toMatch(/sign in when you want to (save a build|open an engine)/i);
+    // Superseded 2026-08-24: opening an Engine no longer needs a sign-in —
+    // only making a Build follow you to another device does.
+    expect(src).toMatch(/no account needed/i);
+    expect(src).toMatch(/sign in only if you want a\s*\n?\s*build to follow you/i);
+    expect(src.toLowerCase()).not.toContain("sign in when you want to");
   });
 
   it("keeps the technical playbook labeled as software-specific and opt-in", () => {

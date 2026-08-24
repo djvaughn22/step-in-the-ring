@@ -17,7 +17,7 @@ import Playbook from "./Playbook";
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "Say a rough idea, shape it, make it real, try it, and keep going. Start without an account — sign in when you want to save a Build or open an Engine.",
+    "Say a rough idea, shape it, make it real, try it, and keep going. No account needed — sign in only if you want a Build to follow you to another device.",
 };
 
 const LOOP = [
@@ -34,7 +34,7 @@ const LOOP = [
   {
     n: "03",
     title: "Make it",
-    body: "Turn it into something real — open an Engine if a focused tool helps, or keep it as a Build and work on it directly.",
+    body: "Turn it into something real — open an Engine if a focused tool helps, or take it to the AI already in your corner, like ChatGPT or Claude.",
   },
   {
     n: "04",
@@ -64,8 +64,8 @@ export default function HowPage() {
           <h1 className="mast-title">One loop, five steps</h1>
           <p className="mast-lead">
             The same five steps whether you&apos;re making an app, a song, a
-            game or a plan. Start without an account — sign in when you want
-            to save a Build or open an Engine.
+            game or a plan. No account needed — sign in only if you want a
+            Build to follow you to another device.
           </p>
           <hr className="rule mast-rule" />
         </header>

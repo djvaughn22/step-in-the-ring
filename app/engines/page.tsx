@@ -109,9 +109,9 @@ export default function EnginesPage() {
       </Band>
 
       <p className="tiny" style={{ marginTop: 34 }}>
-        Opening an engine needs an account, because the work has to be saved
-        somewhere it can come back to you. The account is free during the open
-        beta. <Link href="/membership">What that means</Link>.
+        No account needed — open any engine and your work saves to this
+        browser as you go. An account is only for making it follow you to
+        another device. <Link href="/membership">What that means</Link>.
       </p>
     </Sheet>
   );
