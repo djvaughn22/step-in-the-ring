@@ -214,9 +214,10 @@ function Section({ title, body }: { title: string; body: string }) {
   );
 }
 
-// memberMode: rendered for a paying member or private tester instead of the
-// owner. Owner-only engines are hidden and unpickable — the server decides
-// who gets which mode; this prop only mirrors that decision in the UI.
+// memberMode: rendered for everyone who is not the owner — signed in or not,
+// paying or not. Owner-only engines are hidden and unpickable — the server
+// decides who gets which mode (app/engines/room/page.tsx checks only
+// isOwnerAuthed); this prop only mirrors that decision in the UI.
 export default function EngineSystem({ memberMode = false }: { memberMode?: boolean } = {}) {
   const [ready, setReady] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
