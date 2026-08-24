@@ -19,6 +19,7 @@ import type { CreationProject } from "../shared/creation-engine.types";
 import {
   createProject, deleteProject, getProject, getProjectsByEngine, uid, updateProject,
 } from "../shared/persistence";
+import TaskSession from "./TaskSession";
 
 type Stage = "solutions" | "capture" | "proof" | "package" | "footage" | "publish" | "promote" | "learn";
 
@@ -41,6 +42,10 @@ export default function HowToStudio({
   onBack: () => void;
   card: React.CSSProperties;
 }) {
+  // "help": the default — help someone do something, right now, one step at
+  // a time. "document": the original retrospective evidence-capture flow,
+  // for turning something already solved into a YouTube package.
+  const [mode, setMode] = useState<"help" | "document">("help");
   const [ready, setReady] = useState(false);
   const [saved, setSaved] = useState<CreationProject[]>([]);
   const [project, setProject] = useState<CreationProject | null>(null);
@@ -166,6 +171,22 @@ export default function HowToStudio({
 
   if (!ready) return <div className="page"><div style={{ height: 200 }} /></div>;
 
+  if (mode === "help") {
+    return (
+      <main>
+        <div className="page">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <button onClick={onBack} className="btn btn-ghost btn-small">← Engine Room</button>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              How to Anything Engine
+            </span>
+          </div>
+          <TaskSession onDocumentInstead={() => setMode("document")} />
+        </div>
+      </main>
+    );
+  }
+
   const unlocked = (s: Stage): boolean => {
     switch (s) {
       case "capture": return true;
@@ -234,7 +255,8 @@ export default function HowToStudio({
         {stage === "solutions" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 6px" }}>One proven solution at a time</h2>
+              <button onClick={() => setMode("help")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Help me do something instead</button>
+              <h2 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 6px" }}>Document something you already solved</h2>
               <p style={{ fontSize: 13.5, color: "var(--muted)", margin: "0 0 14px", lineHeight: 1.55 }}>
                 Turn something you know into something that helps — and keep it working for you.
                 Capture what really happened, prove the fix, and leave with the full production package:

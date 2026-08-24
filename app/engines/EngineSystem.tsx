@@ -18,6 +18,7 @@ import GameStudio from "./games/GameStudio";
 import HowToStudio from "./howto/HowToStudio";
 import IdeaStudio from "./idea/IdeaStudio";
 import MusicStudio from "./music/MusicStudio";
+import WritingSession from "./writing/WritingSession";
 import { track } from "../lib/analytics";
 import { adapterFor } from "../creation/adapters";
 import { loadBuilderDefaults } from "../creation/builder-defaults";
@@ -95,7 +96,7 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
       const prefill = recordToIntake(e.id, record);
       // The studios with no generic intake (empty intake: []) keep their own
       // field names — IdeaStudio and GameStudio both read `seed`.
-      if (e.id === "idea" || e.id === "game") prefill.seed = record.originalIdea;
+      if (e.id === "idea" || e.id === "game" || e.id === "writing") prefill.seed = record.originalIdea;
       return prefill;
     }
 
@@ -107,7 +108,7 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
     if (firstProse) prefill[firstProse.key] = idea;
     // The studios with no generic intake (empty intake: []) keep their own
     // field names — IdeaStudio and GameStudio both read `seed`.
-    if (e.id === "idea" || e.id === "game") prefill.seed = idea;
+    if (e.id === "idea" || e.id === "game" || e.id === "writing") prefill.seed = idea;
     return prefill;
   } catch {
     return {};
@@ -480,6 +481,24 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
         }}
         card={card}
       />
+    );
+  }
+
+  // Writing Engine: say what you want to write, get a real shape back
+  // immediately — the public sibling to the private Story Partner.
+  if (engineId === "writing" && view === "intake") {
+    const seededIdea = engine ? consumePlannerSeed(engine).seed : undefined;
+    return (
+      <div className="page">
+        <button
+          onClick={() => { setEngineId(""); setAnswers({}); setView("list"); }}
+          className="btn btn-ghost btn-small"
+          style={{ marginBottom: 12 }}
+        >
+          ← Engine Room
+        </button>
+        <WritingSession seedIdea={seededIdea} />
+      </div>
     );
   }
 

@@ -42,6 +42,7 @@ describe("engine slug routing — every slug opens its own engine", () => {
       howto: "How to Anything Engine",
       story: "Story Partner",
       music: "Music Engine",
+      writing: "Writing Engine",
     };
     for (const [slug, name] of Object.entries(expected)) {
       expect(getEngine(slug)?.name).toBe(name);
@@ -49,7 +50,7 @@ describe("engine slug routing — every slug opens its own engine", () => {
   });
 
   it("every visible, non-bespoke engine actually reaches the generic intake wizard for its own slug", () => {
-    const bespoke = new Set(["design-shop", "game", "story", "howto", "idea", "music"]);
+    const bespoke = new Set(["design-shop", "game", "story", "howto", "idea", "music", "writing"]);
     const generic = ENGINES.filter((e) => !e.hidden && !bespoke.has(e.id));
     // These are the engines the generic wizard (EngineSystem's own render,
     // not a Studio) is responsible for routing correctly.
@@ -63,7 +64,7 @@ describe("engine slug routing — every slug opens its own engine", () => {
     // drifts from the dispatch branches, it means a slug was renamed on one
     // side and not the other, which is precisely how design-shop could start
     // resolving to whatever branch comes first instead.
-    expect(branchIds.sort()).toEqual(["design-shop", "game", "howto", "idea", "music", "story"]);
+    expect(branchIds.sort()).toEqual(["design-shop", "game", "howto", "idea", "music", "story", "writing"]);
     for (const id of branchIds) {
       expect(getEngine(id), `engineId === "${id}" branch references an id missing from the registry`).toBeTruthy();
     }
