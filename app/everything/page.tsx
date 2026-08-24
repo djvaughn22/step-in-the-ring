@@ -28,6 +28,9 @@ import {
   type SitePage,
 } from "../site/registry";
 import { Sheet, Masthead, Band, Jump, Rows, Row, Tiles, Tile } from "../site/ui";
+import { isPreviewAuthorized } from "../preview/previewAuth";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Everything",
@@ -52,8 +55,9 @@ function PageRows({ pages }: { pages: SitePage[] }) {
   );
 }
 
-export default function EverythingPage() {
+export default async function EverythingPage() {
   const featured = ECOSYSTEM.filter((p) => p.featured && p.liveUrl);
+  const unlocked = await isPreviewAuthorized();
 
   return (
     <Sheet wide>
@@ -88,7 +92,7 @@ export default function EverythingPage() {
       <Band
         id="engines"
         title="Engines"
-        note="Focused tools that make one part of something. The catalog is open to anyone; running one needs an account."
+        note="Focused tools that make one part of something. Open to anyone — no account to look, and none to use one."
       >
         <PageRows pages={pagesInGroup("engines")} />
       </Band>
@@ -111,24 +115,36 @@ export default function EverythingPage() {
 
       <Band
         id="previews"
-        title="Shared previews"
-        note="Unfinished pieces handed out one person at a time. A passcode opens them. It is not a login and it protects nothing private."
+        title="Protected preview"
+        note="The one thing on this site behind a shared code. Everything else here is open."
       >
         <Rows>
-          {EXTERNAL_PREVIEWS.map((p) => (
-            <Row
-              key={p.href}
-              name={`${p.name} (example)`}
-              what={`${p.what} ${p.why} Hosted on ${p.host}, with its own passcode.`}
-              href={p.href}
-              access="preview"
-              external
-            />
-          ))}
+          {EXTERNAL_PREVIEWS.map((p) =>
+            unlocked ? (
+              <Row
+                key={p.href}
+                name={`${p.name} (example)`}
+                what={`${p.what} ${p.why} Hosted on ${p.host}, with its own passcode.`}
+                href={p.href}
+                access="preview"
+                external
+              />
+            ) : (
+              <Row
+                key={p.href}
+                name={`${p.name} (example)`}
+                what={`${p.what} Enter the access code to open it.`}
+                href="/preview"
+                access="preview"
+              />
+            ),
+          )}
         </Rows>
-        <p style={{ marginTop: 20, fontSize: 14 }}>
-          Got a code? <Link href="/preview" className="more">Put it in here</Link>.
-        </p>
+        {!unlocked && (
+          <p style={{ marginTop: 20, fontSize: 14 }}>
+            Have a code? <Link href="/preview" className="more">Enter it here</Link>.
+          </p>
+        )}
       </Band>
 
       <Band id="account" title="Your account">

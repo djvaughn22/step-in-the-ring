@@ -32,18 +32,18 @@ export const metadata: Metadata = {
 
 const FREE_ALWAYS = [
   "iDontCry — the family playground stays free, no account needed",
-  "This page: seeing every engine and what it does",
-  "Starting an idea here and carrying it in with you",
+  "The Engine Room: every engine below, run end to end, no sign-in",
+  "The Five Hour Sprint tool and the Build Machine — no account needed",
   "Your Build Machine or any computer — the local software never needs a subscription, and cancellation never disables a computer",
-  "Your account, and exporting or deleting your own projects — even after a membership ends",
+  "Starting an idea here and carrying it in with you",
+  "Work saves to this browser as you go — it's there when you come back on this device",
 ];
 
 const MEMBERSHIP_UNLOCKS = [
-  "The Engine Room: the guided engines below, run end to end",
-  "Saving projects to your account — including one-click, always-asked-first import of work saved in this browser",
-  "Reopening and exporting saved projects from your account, in any signed-in browser",
-  "Structured, guided iteration toward a real first working version — an MVP1, not a promised business",
-  "Deleting your own projects whenever you choose",
+  "Your saved builds and projects follow you to another device or browser",
+  "One-click, always-asked-first import of work you already made in this browser",
+  "A place to reopen and export your own projects from any signed-in browser",
+  "Deleting your own account or projects whenever you choose",
 ];
 
 export default async function MembershipPage({
@@ -70,17 +70,16 @@ export default async function MembershipPage({
   return (
     <Sheet>
       <PageHead
-        kicker="Private beta"
+        kicker="Optional"
         title={MEMBERSHIP_PRODUCT_NAME}
-        lead="Take any idea — even one you dreamed up on iDontCry — and turn it into a real first build. Membership is the working side of Step In The Ring: guided engines, saved projects, and structured iteration toward a real first working version. Your ideas, projects, and output remain yours."
+        lead="You do not need an account to use Step In The Ring — the Engine Room, every engine, and the Five Hour Sprint tool are open right now, and your work saves to this browser as you go. An account is for one thing: making your saved builds follow you to another device. Your ideas, projects, and output remain yours either way."
       >
         {!billingLive && (
           <div style={{ border: "1px solid var(--gold-glow)", borderRadius: 14, padding: "14px 16px", marginTop: 20 }}>
             <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold)", margin: 0, lineHeight: 1.6 }}>
-              Billing is not live yet. Membership is in private beta: invited
-              testers use owner-issued codes, and nothing can be purchased on
-              this page today. When billing opens, the exact terms below are
-              what you&apos;ll see at checkout — nothing hidden.
+              Billing is not live yet — nothing on this page can be purchased
+              today. When it opens, the exact terms below are what
+              you&apos;ll see at checkout — nothing hidden.
             </p>
           </div>
         )}
@@ -106,7 +105,7 @@ export default async function MembershipPage({
         </ul>
       </Section>
 
-      <Section title="What membership unlocks">
+      <Section title="What an account adds">
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {MEMBERSHIP_UNLOCKS.map((x) => (
             <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>

@@ -84,9 +84,8 @@ export default function PreviewGate({
           id="preview-passcode"
           name="passcode"
           type="password"
-          inputMode="numeric"
           autoComplete="one-time-code"
-          placeholder="––––"
+          placeholder="Access code"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           disabled={busy}

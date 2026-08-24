@@ -295,12 +295,14 @@ describe("The new shell", () => {
     expect(phoneOnly).toContain(".ring-burger { display: block; }");
   });
 
-  it("explains the engines before asking anyone to sign in for them", () => {
+  it("explains the engines, and no one has to sign in to use them", () => {
     // The Engine Room used to BE /engines: a locked door with a mysterious
-    // name, which a stranger had to make an account to see behind. The
-    // catalog is public now and the room is one level down.
+    // name, which a stranger had to make an account to see behind. Then it
+    // required a paid/tester account to run one. As of the 2026-08-24 open-
+    // access reset, both the catalog and the room are public — work saves
+    // to the browser, and an account is only for optional cross-device sync.
     expect(pageAt("/engines")?.access).toBe("public");
-    expect(pageAt("/engines/room")?.access).toBe("member");
+    expect(pageAt("/engines/room")?.access).toBe("public");
     expect(allCapabilities().some((c) => c.href === "/engines/room")).toBe(true);
     expect(pageAt("/engines")?.what.length ?? 0).toBeGreaterThan(20);
   });

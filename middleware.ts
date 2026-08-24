@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { MEMBER_SESSION_COOKIE } from "./app/members/constants";
 
 const PROTECTED_ROUTES = [
-  // The engine CATALOG at /engines is public on purpose — nobody makes an
-  // account to find out what a tool is. Only the room where an engine runs
-  // asks for one.
-  "/engines/room",
+  // Normal Step In The Ring use — the engine catalog AND the room where an
+  // engine runs, Builds, Library, the Five Hour Sprint tool — needs no
+  // account. Only pages about YOUR account, or the owner's own tools, ask
+  // for a session.
   "/projects",
   "/project",
   "/account",
@@ -21,6 +21,8 @@ const PUBLIC_ROUTES = [
   "/",
   "/create",
   "/engines",
+  "/engines/room",
+  "/five-hour-sprint-tool",
   // vNext: Your Builds and Your Work handle signed-out visitors themselves.
   // /builds shows server-saved builds only to a signed-in member, but both
   // pages also surface pre-vNext work that lives in the visitor's OWN browser

@@ -1,22 +1,18 @@
 // THE ENGINE ROOM — where an engine actually runs.
 //
-// The catalog at /engines is public: a stranger has to be able to see what
-// these tools are before deciding whether an account is worth making. Running
-// one needs an account, and that check lives HERE, one level down, so the
-// explanation and the door are not the same page.
+// Open to anyone, no account. Work saves to this browser (see app/engines/
+// store.ts — "Local-first project memory. Saved on this device."). The only
+// thing the server checks is whether the visitor is the OWNER, which decides
+// nothing about entry — only whether the owner-only engines are in the list.
 //
-// The authorization check runs HERE, on the server, before any workspace UI
-// is rendered. A logged-out visitor is sent to the Owner Entrance and comes
-// back to this exact URL (query string included, so planner and engine
-// handoffs survive the login detour). The old client-side courtesy gate
-// (AccessGate/access.ts) is gone — its codes shipped in the public bundle,
-// which is not a security boundary.
+// The old member-paywall here — sending an anonymous visitor to /membership
+// without live paid access — is gone. Membership is now optional and about
+// cross-device account sync, not about unlocking the tools — see
+// app/membership/page.tsx.
 
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import EngineSystem from "../EngineSystem";
 import { isOwnerAuthed } from "../../owner/session";
-import { currentMember } from "../../members/session";
 
 export const dynamic = "force-dynamic";
 
@@ -27,28 +23,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default async function EnginesPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  // Three audiences, decided on the server:
-  //   owner            → the full Engine Room, owner-only engines included
-  //   live member      → the Engine Room with owner-only engines hidden
-  //   everyone else    → the public membership page (the free introduction)
+export default async function EnginesPage() {
+  // Two audiences, decided on the server:
+  //   owner        → the full Engine Room, owner-only engines included
+  //   everyone else → the same Engine Room, owner-only engines hidden
   if (await isOwnerAuthed()) {
     return <EngineSystem />;
   }
-  const member = await currentMember();
-  if (member?.access.memberAccess) {
-    return <EngineSystem memberMode />;
-  }
-  const sp = await searchParams;
-  const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(sp)) {
-    if (typeof v === "string") qs.set(k, v);
-    else if (Array.isArray(v)) for (const x of v) qs.append(k, x);
-  }
-  qs.set("from", "engines");
-  redirect(`/membership?${qs}`);
+  return <EngineSystem memberMode />;
 }

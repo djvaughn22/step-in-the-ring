@@ -1,14 +1,11 @@
-// The Shop is a shared preview: real work, nothing listed yet, not ready to
-// publish. The check runs HERE on the server before any shop UI is imported,
-// so an unauthorized response never contains the page. Same shape every
-// preview page uses — see app/preview/previewAuth.ts.
+// The Shop — open to anyone. It used to sit behind the shared preview
+// passcode; that door is now reserved for the one thing that actually needs
+// a courtesy gate (see app/everything/page.tsx, "Somewhere else"). A
+// storefront of the owner's own products is normal SITR product, not
+// something that needs a passcode.
 
 import type { Metadata } from "next";
 import ShopPreview from "./ShopPreview";
-import PreviewGate from "../preview/PreviewGate";
-import { isPreviewAuthorized } from "../preview/previewAuth";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -17,15 +14,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function ShopPage() {
-  if (!(await isPreviewAuthorized())) {
-    return (
-      <PreviewGate
-        title="The Shop isn't open yet"
-        what="It's being built. If someone gave you a passcode, this opens it."
-        returnTo="/shop"
-      />
-    );
-  }
+export default function ShopPage() {
   return <ShopPreview />;
 }
