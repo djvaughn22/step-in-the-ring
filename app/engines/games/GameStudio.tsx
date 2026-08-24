@@ -14,10 +14,15 @@ import {
   validateWorld, type DokuWorld, type GameMode, type GameTemplate,
 } from "./game-modes";
 import { canPublish, PRIVILEGE_NOTE } from "./privileges";
+import GameIdeaSession from "./GameIdeaSession";
 
 const DRAFT_KEY = "sitr-game-world-v1";
 
 type Step = "mode" | "template" | "world" | "launchpad";
+/** "choose": ambiguous, ask. "new": a fresh idea just arrived — shape it.
+ *  "existing": either a re-theme draft is already in progress, or the
+ *  creator chose to re-theme/ship a game they already have. */
+type Path = "choose" | "new" | "existing";
 
 type GameStudioProps = {
   onBack: () => void;
@@ -26,6 +31,7 @@ type GameStudioProps = {
 };
 
 export default function GameStudio({ onBack, card, initialAnswers }: GameStudioProps) {
+  const [path, setPath] = useState<Path>("choose");
   const [step, setStep] = useState<Step>("mode");
   const [mode, setMode] = useState<GameMode | null>(null);
   const [template, setTemplate] = useState<GameTemplate | null>(null);
@@ -38,9 +44,11 @@ export default function GameStudio({ onBack, card, initialAnswers }: GameStudioP
   const [seedNote, setSeedNote] = useState<string>("");
 
   useEffect(() => {
+    let hasDraft = false;
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (raw) {
+        hasDraft = true;
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setWorld(JSON.parse(raw));
         setSlugTouched(true);
@@ -50,6 +58,10 @@ export default function GameStudio({ onBack, card, initialAnswers }: GameStudioP
     if (initialAnswers?.seed) {
       setSeedNote(initialAnswers.seed);
     }
+    // A re-theme already in progress wins (don't interrupt it). Otherwise a
+    // fresh idea just handed over IS the "I want to make a new game" signal —
+    // no need to ask. Cold, seedless opens get the real choice.
+    setPath(hasDraft ? "existing" : initialAnswers?.seed ? "new" : "choose");
   }, [initialAnswers]);
 
   const saveWorld = (w: DokuWorld) => {
@@ -118,13 +130,39 @@ export default function GameStudio({ onBack, card, initialAnswers }: GameStudioP
           </p>
         </header>
 
-        {seedNote && (
+        {path === "existing" && seedNote && (
           <div style={{ ...card, maxWidth: 520, margin: "20px auto 20px", borderLeft: "4px solid var(--gold)" }}>
             <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Your game idea</p>
             <p style={{ fontSize: 14, color: "var(--text)", margin: 0, lineHeight: 1.6 }}>{seedNote}</p>
           </div>
         )}
 
+        {/* ---------- FORK: new game vs. an existing one to re-theme/ship ---------- */}
+        {path === "choose" && (
+          <>
+            <button onClick={onBack} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Engines</button>
+            <button onClick={() => setPath("new")} style={{ ...card, width: "100%", textAlign: "left", cursor: "pointer", borderLeft: "4px solid var(--gold)", marginBottom: 12 }}>
+              <span style={{ fontSize: 15, fontWeight: 900, color: "var(--text)" }}>🎲 I want to make a NEW game</span>
+              <p className="tiny" style={{ margin: "6px 0 0" }}>Say what sounds fun, and get a first playable shape back right away.</p>
+            </button>
+            <button onClick={() => setPath("existing")} style={{ ...card, width: "100%", textAlign: "left", cursor: "pointer", borderLeft: "4px solid var(--gold)" }}>
+              <span style={{ fontSize: 15, fontWeight: 900, color: "var(--text)" }}>🧩 I already have a game to change or ship</span>
+              <p className="tiny" style={{ margin: "6px 0 0" }}>Re-theme a proven template, play it here, and publish it for real.</p>
+            </button>
+          </>
+        )}
+
+        {/* ---------- NEW GAME: shape it, one question at a time ---------- */}
+        {path === "new" && (
+          <>
+            <button onClick={() => setPath("choose")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back</button>
+            <GameIdeaSession idea={seedNote} card={card} />
+          </>
+        )}
+
+        {/* ---------- EXISTING GAME: pick a platform → template → world → play → publish ---------- */}
+        {path === "existing" && (
+        <>
         {/* ---------- STEP: MODE ---------- */}
         {step === "mode" && (
           <>
@@ -307,6 +345,8 @@ export default function GameStudio({ onBack, card, initialAnswers }: GameStudioP
               )}
             </div>
           </>
+        )}
+        </>
         )}
       </div>
     </main>
