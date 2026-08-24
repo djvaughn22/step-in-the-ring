@@ -492,19 +492,23 @@ describe("membership surface honesty", () => {
     expect(page).toMatch(/iDontCry — the family playground stays free/);
   });
 
-  it("the engines gate serves owner, member, and visitor differently — all server-side", () => {
-    // The gate moved DOWN one level when the catalog at /engines became
-    // public. /engines/room is where an engine actually runs and where the
-    // three-audience check lives; the catalog above it grants nothing.
+  it("the Engine Room is open to everyone — the owner check only decides whether owner-only engines are in the list", () => {
+    // Superseded 2026-08-24: the Engine Room no longer requires an account.
+    // /engines/room checks isOwnerAuthed ONLY to decide whether the
+    // owner-only engines are included — it never redirects a visitor away.
     const gate = read("engines/room/page.tsx");
-    expect(read("engines/page.tsx")).not.toMatch(/isOwnerAuthed/);
     expect(gate).toMatch(/isOwnerAuthed/);
-    expect(gate).toMatch(/currentMember/);
-    expect(gate).toMatch(/memberAccess/);
-    expect(gate).toMatch(/redirect\(`\/membership\?\$\{qs\}`\)/);
+    expect(gate).not.toMatch(/currentMember/);
+    expect(gate).not.toMatch(/redirect/);
+    expect(read("engines/page.tsx")).not.toMatch(/isOwnerAuthed/);
     const system = read("engines/EngineSystem.tsx");
     expect(system).toMatch(/memberMode && e\.activation === "owner-only"/);
     expect(system).toMatch(/!memberMode && OWNER_ENGINES\.length > 0/);
+  });
+
+  it("the Five Hour Sprint tool is open to everyone too", () => {
+    const page = read("five-hour-sprint-tool/page.tsx");
+    expect(page).not.toMatch(/currentMember|memberAccess|redirect/);
   });
 
   it("owner tester-code routes require the owner session and never log raw codes", () => {

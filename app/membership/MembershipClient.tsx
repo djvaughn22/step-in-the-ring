@@ -156,16 +156,19 @@ export default function MembershipClient(props: Props) {
       ) : props.signedIn ? (
         <div style={BOX}>
           <p style={{ fontSize: 14, fontWeight: 900, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>
-            Your membership
+            Your account
           </p>
           <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 12px" }}>
             Status: <strong>{props.membershipStatus}</strong>
             {props.activeUntil ? ` · access through ${new Date(props.activeUntil).toLocaleDateString()}` : ""}
           </p>
-          {props.memberAccess ? (
-            <a href={props.enginesHref} className="btn btn-primary">Enter the Engine Room</a>
-          ) : (
-            <>
+          <a href={props.enginesHref} className="btn btn-primary">Enter the Engine Room</a>
+          {!props.memberAccess && (
+            <div style={{ marginTop: 14 }}>
+              <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "0 0 10px", lineHeight: 1.6 }}>
+                The Engine Room works with no account at all. This is only for
+                the optional cross-device sync described above.
+              </p>
               {billingButton(props.billingLive, busy, checkout)}
               <form onSubmit={redeem} style={{ marginTop: 14 }}>
                 <p style={{ fontSize: 13, fontWeight: 800, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>
@@ -180,7 +183,7 @@ export default function MembershipClient(props: Props) {
                 />
                 <button className="btn btn-ghost" disabled={busy || !code.trim()}>Redeem code</button>
               </form>
-            </>
+            </div>
           )}
           <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "12px 0 0" }}>
             <a href="/account" style={{ color: "var(--gold, #f59e0b)", fontWeight: 800 }}>Your account & projects →</a>

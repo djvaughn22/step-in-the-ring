@@ -40,7 +40,7 @@ const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX_ATTEMPTS = 8;
 
 // Best effort only: in-memory, resets on cold start, not shared between
-// serverless instances. Still better than no throttling on a 4-digit code.
+// serverless instances. Still better than no throttling on a short shared code.
 const attempts = new Map<string, { count: number; windowStart: number }>();
 
 /** The configured passcode, or null when the door is not configured at all. */

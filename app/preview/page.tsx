@@ -26,9 +26,9 @@ export default async function PreviewPage() {
   if (!unlocked) {
     return (
       <PreviewGate
-        title="Have a preview code?"
-        what="Some things here are not finished enough to publish. If somebody gave you a code, this opens them."
-        returnTo="/shop"
+        title="Protected preview"
+        what="Enter the access code you were given to open it."
+        returnTo="/everything"
       />
     );
   }
@@ -40,16 +40,18 @@ export default async function PreviewPage() {
       <Masthead
         kicker="Preview"
         title="You're in"
-        lead="These are the unfinished pieces. Nothing here is final, and some of it will change or disappear."
+        lead="Nothing on the normal site needed that code — this door only ever led here."
       />
 
-      <Band title="On this site">
-        <Rows>
-          {pages.map((p) => (
-            <Row key={p.path} name={p.name} what={p.what} href={p.path} path={p.path} />
-          ))}
-        </Rows>
-      </Band>
+      {pages.length > 0 ? (
+        <Band title="On this site">
+          <Rows>
+            {pages.map((p) => (
+              <Row key={p.path} name={p.name} what={p.what} href={p.path} path={p.path} />
+            ))}
+          </Rows>
+        </Band>
+      ) : null}
 
       {EXTERNAL_PREVIEWS.length > 0 ? (
         <Band
