@@ -44,7 +44,7 @@ describe("generic engine intake — one question at a time, not a giant form", (
   });
 
   it("the value checkpoint fires right after the FIRST real answer for every generic engine", () => {
-    const bespoke = new Set(["design-shop", "game", "story", "howto", "idea", "music"]);
+    const bespoke = new Set(["design-shop", "game", "story", "howto", "idea", "music", "writing"]);
     const generic = ENGINES.filter((e) => !e.hidden && !bespoke.has(e.id));
     expect(src).toMatch(/function valueCheckpoints\(steps: Question\[\]\)/);
     // Every generic engine's first non-name question is index 0 — the

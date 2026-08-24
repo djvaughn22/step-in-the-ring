@@ -290,11 +290,10 @@ describe("engine recommendations", () => {
     expect(rec.primary?.engineId).toBe("build");
   });
 
-  it("a story takes the prompt path and says why", () => {
+  it("a story routes to the Writing Engine, not a dead end", () => {
     const v = viewOf(newRecord("A short story about my grandpa's fishing boat."));
     const rec = recommendEngines(v);
-    expect(rec.primary).toBeNull();
-    expect(rec.promptPathWhy).toMatch(/Story Engine/i);
+    expect(rec.primary?.engineId).toBe("writing");
   });
 });
 

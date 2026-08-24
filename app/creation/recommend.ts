@@ -127,8 +127,7 @@ export function recommendEngines(v: CreationView): Recommendation {
       push(alternates, choice("idea", "Weigh a few versions of the piece and pick the one to finish."));
       push(alternates, choice("sell", "If the piece is meant to earn, shape the offer around it."));
       return {
-        primary: null,
-        promptPathWhy: "There's no Story Engine yet (it's planned, honestly not built). Your builder prompt below is the real path — it's written for the piece itself, not for an app.",
+        primary: choice("writing", "It gives you real material to write from immediately, then helps shape it piece by piece."),
         alternates,
       };
 

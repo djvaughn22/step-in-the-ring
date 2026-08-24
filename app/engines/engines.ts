@@ -405,6 +405,23 @@ export const ENGINES: Engine[] = [
     statusNote: "Private: the working room is password-protected and the writing is local-first — it stays in the author's browser and is not intentionally stored on this site's server.",
   },
   {
+    id: "writing",
+    name: "Writing Engine",
+    emoji: "✍️",
+    tagline: "Say what you want to write. Get real material back immediately.",
+    blurb: "A story, a note, an article — however it comes out. It gives you a real shape to write from right away, then helps with the opening, the problem, and the ending, one piece at a time. Public, and separate from the private Story Partner novel room.",
+    technical: false,
+    suggestedStage: "Spark",
+    intake: [],
+    specialties: [],
+    // Verified: the shape/opening/problem/ending flow is deterministic and
+    // loads/saves locally. Stays BETA — it's a starting shape to write from,
+    // not a finished, polished piece.
+    activation: "beta",
+    output: "A story (or note/article) shape you can keep writing from — premise, opening line, problem, and ending — plus a copy-ready prompt to keep going elsewhere.",
+    beginWith: "One line of what you want to write, however it comes out.",
+  },
+  {
     id: "music",
     name: "Music Engine",
     emoji: "🎵",
