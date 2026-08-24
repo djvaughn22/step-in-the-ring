@@ -122,7 +122,7 @@ export default async function EverythingPage() {
           {EXTERNAL_PREVIEWS.map((p) =>
             unlocked ? (
               <Row
-                key={p.href}
+                key={p.name}
                 name={`${p.name} (example)`}
                 what={`${p.what} ${p.why} Hosted on ${p.host}, with its own passcode.`}
                 href={p.href}
@@ -131,7 +131,7 @@ export default async function EverythingPage() {
               />
             ) : (
               <Row
-                key={p.href}
+                key={p.name}
                 name={`${p.name} (example)`}
                 what={`${p.what} Enter the access code to open it.`}
                 href="/preview"
