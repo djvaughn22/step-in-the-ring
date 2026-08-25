@@ -39,12 +39,21 @@ setTimeout(disarm,8000);
 
 // Apply the saved theme during HTML parse, before first paint, so light-mode
 // readers don't get a dark flash on every load. Runs where the nav renders
-// (top of <body>). Skips if a head script (CrossHeartPray's layout) already
-// set the theme — that script also handles ?theme= URL overrides and must win.
+// (top of <body>). Skips if a head script (app/layout.tsx's inline head
+// script, which is the FIRST thing in <head> — see its own comment for why
+// that positioning is the actual fix for the mobile white-flash bug) already
+// set the theme.
+//
+// Three stored states: "dark", "light", "system" (resolved live from
+// prefers-color-scheme). Anything else — including nothing saved at all —
+// is the product default, DARK. Never defaults an unset preference to
+// system or to prefers-color-scheme directly; a fresh visitor sees dark
+// regardless of their OS setting, full stop.
 const THEME_INIT_JS = `(function(){try{
 var d=document.documentElement;
 if(d.dataset.omTheme){d.style.colorScheme=d.dataset.omTheme;return;}
-var t=localStorage.getItem("om-theme")==="light"?"light":"dark";
+var m=localStorage.getItem("om-theme");
+var t=m==="light"?"light":m==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):"dark";
 d.dataset.omTheme=t;
 if(!d.dataset.chpVisualTheme)d.dataset.chpVisualTheme=t;
 d.style.colorScheme=t;
@@ -295,40 +304,85 @@ html[data-om-theme="light"] .om-theme-btn {
 }
 `;
 
-function applyTheme(theme: OmTheme) {
-  document.documentElement.dataset.omTheme = theme;
+/** The stored preference: an explicit choice, or "system" to live-follow the
+ *  OS. Never the default state for a fresh visitor — see THEME_INIT_JS. */
+export type ThemeMode = "dark" | "light" | "system";
+
+function systemPrefersDark(): boolean {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/** What a mode actually paints as right now. */
+function resolveMode(mode: ThemeMode): OmTheme {
+  return mode === "system" ? (systemPrefersDark() ? "dark" : "light") : mode;
+}
+
+function readSavedMode(): ThemeMode {
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  return raw === "light" || raw === "system" ? raw : "dark";
+}
+
+/** Paints the resolved theme and remembers the MODE (so "system" survives a
+ *  reload as "system", not as whatever it happened to resolve to today). */
+function applyMode(mode: ThemeMode) {
+  const resolved = resolveMode(mode);
+  document.documentElement.dataset.omTheme = resolved;
   // Keep the CrossHeartPray-style theme (data-chp-visual-theme CSS on the hub
   // and CHP) in agreement so pages that mix both systems light up together.
-  document.documentElement.dataset.chpVisualTheme = theme;
+  document.documentElement.dataset.chpVisualTheme = resolved;
   // Native chrome (scrollbar, form controls, iOS overscroll) follows this,
   // not the page's own background — keep it in sync with an explicit choice.
-  document.documentElement.style.colorScheme = theme;
-  window.localStorage.setItem("crossheartpray-visual-theme", theme);
+  document.documentElement.style.colorScheme = resolved;
+  window.localStorage.setItem(STORAGE_KEY, mode);
+  window.localStorage.setItem("crossheartpray-visual-theme", resolved);
+  window.dispatchEvent(new CustomEvent("om-theme", { detail: { mode, resolved } }));
+}
+
+/** Shared by the compact desktop toggle and the mobile Appearance control —
+ *  both read/write the same localStorage key and DOM state, so either can
+ *  drive the other without a React context. */
+function useThemeMode() {
+  const [mode, setMode] = useState<ThemeMode>("dark");
+
+  useEffect(() => {
+    const saved = readSavedMode();
+    applyMode(saved);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR renders the default; the saved mode can only be read from localStorage after mount
+    setMode(saved);
+
+    const follow = () => setMode(readSavedMode());
+    window.addEventListener("om-theme", follow);
+
+    // "system" keeps following the OS live while the tab is open, not just
+    // on the next reload.
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const followSystem = () => {
+      if (readSavedMode() === "system") applyMode("system");
+    };
+    mq.addEventListener("change", followSystem);
+
+    return () => {
+      window.removeEventListener("om-theme", follow);
+      mq.removeEventListener("change", followSystem);
+    };
+  }, []);
+
+  return [mode, applyMode] as const;
 }
 
 export default function OpenMirrorThemeToggle() {
-  const [theme, setTheme] = useState<OmTheme>("dark");
-
-  useEffect(() => {
-    const saved: OmTheme =
-      window.localStorage.getItem(STORAGE_KEY) === "light" ? "light" : "dark";
-    applyTheme(saved);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR renders the default; the saved theme can only be read from localStorage after mount
-    setTheme(saved);
-
-    const follow = () =>
-      setTheme(document.documentElement.dataset.omTheme === "light" ? "light" : "dark");
-    window.addEventListener("om-theme", follow);
-    return () => window.removeEventListener("om-theme", follow);
-  }, []);
+  const [mode, setMode] = useThemeMode();
+  const resolved = mode === "system" ? undefined : mode;
 
   function toggle() {
-    const next: OmTheme = theme === "dark" ? "light" : "dark";
-    applyTheme(next);
-    setTheme(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
-    window.dispatchEvent(new CustomEvent("om-theme", { detail: { theme: next } }));
+    // The compact icon only ever picks an explicit dark/light — "system" is
+    // chosen from the labeled Appearance control (AppearanceMenu below),
+    // never landed on by accident from a plain icon tap.
+    const current = resolved ?? (typeof document !== "undefined" && document.documentElement.dataset.omTheme === "light" ? "light" : "dark");
+    setMode(current === "dark" ? "light" : "dark");
   }
+
+  const displayDark = resolved !== "light";
 
   return (
     <>
@@ -338,13 +392,70 @@ export default function OpenMirrorThemeToggle() {
       <button
         type="button"
         onClick={toggle}
-        aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        title={theme === "dark" ? "Light mode" : "Dark mode"}
+        aria-label={displayDark ? "Switch to light mode" : "Switch to dark mode"}
+        title={displayDark ? "Light mode" : "Dark mode"}
         className="om-theme-btn"
         style={{ background: "none", border: "1px solid #26324c", borderRadius: 50, padding: "8px 13px", fontSize: 15, lineHeight: 1, cursor: "pointer", color: "#94a3b8", minHeight: 40, touchAction: "manipulation" }}
       >
-        {theme === "dark" ? "☀️" : "🌙"}
+        {displayDark ? "☀️" : "🌙"}
       </button>
     </>
+  );
+}
+
+const OPTIONS: { mode: ThemeMode; label: string }[] = [
+  { mode: "dark", label: "Dark" },
+  { mode: "light", label: "Light" },
+  { mode: "system", label: "System" },
+];
+
+/** The labeled, unambiguous appearance control — meant for the mobile menu,
+ *  where a bare sun/moon icon isn't enough on its own. Does NOT re-inject
+ *  the init script/CSS (OpenMirrorThemeToggle already does, once); both
+ *  read and write the same localStorage key and stay in sync via the
+ *  "om-theme" event. Safe to mount even when the icon toggle isn't (it
+ *  calls useThemeMode() itself, which applies the saved mode on its own
+ *  mount too). */
+export function AppearanceMenu() {
+  const [mode, setMode] = useThemeMode();
+
+  return (
+    <div role="group" aria-label="Appearance" style={{ padding: "14px 0 4px" }}>
+      <span
+        style={{
+          display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.11em",
+          textTransform: "uppercase", color: "rgba(255,255,255,0.5)", marginBottom: 8,
+        }}
+      >
+        Appearance
+      </span>
+      <div style={{ display: "flex", gap: 8 }}>
+        {OPTIONS.map((o) => {
+          const active = mode === o.mode;
+          return (
+            <button
+              key={o.mode}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setMode(o.mode)}
+              style={{
+                flex: 1,
+                minHeight: 44,
+                borderRadius: 8,
+                border: active ? "1px solid var(--accent, #2BA6FF)" : "1px solid rgba(255,255,255,0.24)",
+                background: active ? "var(--accent, #2BA6FF)" : "transparent",
+                color: active ? "var(--ink, #06121F)" : "#FFFFFF",
+                fontSize: 13.5,
+                fontWeight: 800,
+                cursor: "pointer",
+                touchAction: "manipulation",
+              }}
+            >
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }

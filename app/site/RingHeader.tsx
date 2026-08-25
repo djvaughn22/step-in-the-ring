@@ -18,7 +18,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { navPages } from "./registry";
-import OpenMirrorThemeToggle from "../OpenMirrorTheme";
+import OpenMirrorThemeToggle, { AppearanceMenu } from "../OpenMirrorTheme";
 
 // The four doors in .ring-nav are the product. These three are the things a
 // person needs occasionally and should not have to hunt for: what this is,
@@ -93,6 +93,9 @@ export default function RingHeader() {
             {l.name}
           </Link>
         ))}
+        {/* The clearly-labeled Dark/Light/System control — the bare sun/moon
+            icon up in the bar is reachable but not obvious on its own. */}
+        <AppearanceMenu />
       </div>
     </header>
   );
