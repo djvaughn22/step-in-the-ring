@@ -28,9 +28,11 @@ type GameStudioProps = {
   onBack: () => void;
   card: React.CSSProperties;
   initialAnswers?: Record<string, string>;
+  /** Server-decided, not guessed client-side — see privileges.ts. */
+  isOwner: boolean;
 };
 
-export default function GameStudio({ onBack, card, initialAnswers }: GameStudioProps) {
+export default function GameStudio({ onBack, card, initialAnswers, isOwner }: GameStudioProps) {
   const [path, setPath] = useState<Path>("choose");
   const [step, setStep] = useState<Step>("mode");
   const [mode, setMode] = useState<GameMode | null>(null);
@@ -116,18 +118,22 @@ export default function GameStudio({ onBack, card, initialAnswers }: GameStudioP
             🎮 Game <span style={{ color: "var(--gold)" }}>Engine</span>
           </h1>
           <p className="hero-sub" style={{ maxWidth: 520, margin: "0 auto" }}>
-            Pick a platform, shape a world on a proven game, and play it right here.
-            Dreams start on iDontCry and get built here.
+            Have a new idea? Shape it into something playable. Already have a
+            game? Re-theme a proven template and play it right here.
           </p>
-          {/* Say it before they spend twenty minutes on a world they can't
-              ship. Publishing needs the opendoku repo on the machine serving
-              this page, so on stepinthering.com preview and publish both fail
-              with a 501 — verified 2026-07-15. */}
-          <p className="tiny" style={{ maxWidth: 520, margin: "10px auto 0", lineHeight: 1.5 }}>
-            Publishing to OpenDoku runs from the owner&apos;s machine, so it only works there for now —
-            everywhere else the publish button returns an error. MineDoku on OpenDoku was published
-            by this engine.
-          </p>
+          {/* Say it before a non-owner spends twenty minutes on a re-theme
+              they can't ship. Preview AND publish both need the opendoku
+              repo on the machine serving this page — verified 2026-07-15.
+              isOwner comes from the server (see privileges.ts); this banner
+              only makes sense to show the people it actually limits. */}
+          {!isOwner && (
+            <p className="tiny" style={{ maxWidth: 520, margin: "10px auto 0", lineHeight: 1.5 }}>
+              Shaping a new game idea works right here, no account needed.
+              Re-theming an existing template and publishing it to OpenDoku
+              runs from the owner&apos;s machine, so that part only works
+              there — MineDoku on OpenDoku was published this way.
+            </p>
+          )}
         </header>
 
         {path === "existing" && seedNote && (
@@ -335,7 +341,7 @@ export default function GameStudio({ onBack, card, initialAnswers }: GameStudioP
                 </>
               ) : (
                 <button
-                  disabled={!canPublish() || !!busy || !previewHtml}
+                  disabled={!canPublish(isOwner) || !!busy || !previewHtml}
                   onClick={() => api("publish")}
                   className="btn btn-gold"
                   style={{ width: "100%" }}

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { shapeIntent } from "./shape";
 import { isSafeRef, newBuild, parseBuild, serializeBuild } from "./build";
 import { applyAction, parseAction } from "./actions";
+import { allCapabilities } from "./capabilities";
 
 const GAME =
   "A game where you dodge falling tacos and try to beat your friend's score. " +
@@ -130,9 +131,16 @@ describe("shapeIntent", () => {
   });
 
   it("only ever offers capabilities a person can actually open", () => {
-    // The Game Engine is owner-only; a game must never be routed into it.
-    const s = shapeIntent(GAME)!;
-    expect(s.helps.map((h) => h.id)).not.toContain("game");
+    // Game is deliberately NOT owner-only as of 2026-08-24 (its "new game
+    // idea" path is fully client-side) — assert the general property
+    // instead of hardcoding which engine is owner-only today: no `helps`
+    // entry, for any of these inputs, may be one a visitor can't open.
+    const ownerOnlyIds = new Set(allCapabilities().filter((c) => c.ownerOnly).map((c) => c.id));
+    expect(ownerOnlyIds.size).toBeGreaterThan(0); // the property is only meaningful if one exists
+    for (const said of [GAME, SITE, BOOK, BROKEN, VAGUE]) {
+      const s = shapeIntent(said)!;
+      for (const h of s.helps) expect(ownerOnlyIds.has(h.id), `${said} → ${h.id}`).toBe(false);
+    }
   });
 
   it("gives a first move for every kind of thing somebody might say", () => {

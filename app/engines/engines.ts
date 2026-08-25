@@ -350,21 +350,26 @@ export const ENGINES: Engine[] = [
     id: "game",
     name: "Game Engine",
     emoji: "🎮",
-    tagline: "Shape a doku world and play it. Publishing runs on the owner's machine.",
-    blurb: "Re-theme the proven Sum-Mine template into a new doku world and play it instantly. Publishing to OpenDoku runs from the owner's machine — MineDoku was published this way.",
+    tagline: "Shape a new game idea into a playable shape. Publishing an existing one runs on the owner's machine.",
+    blurb: "Have a fresh idea? Shape it into a real playable game concept, one question at a time — that part works for anyone. Already have a game to re-theme and ship to OpenDoku? That path needs the owner's machine — MineDoku was published this way.",
     technical: true,
     suggestedStage: "Building",
     intake: [],
     specialties: [],
-    // Tested both ways on 2026-07-15: the publish route returns a real playable
-    // game locally (opendoku repo present) but 501s in production, for preview
-    // AND publish, because the local-git driver needs that checkout. So it is
-    // genuinely owner-only until the github-api driver lands. MineDoku is real
-    // proof the pipeline works — it is not proof a visitor can use it.
-    activation: "owner-only",
-    output: "A playable doku world — published live to OpenDoku when run by the owner.",
-    beginWith: "A game idea, rule, or theme for a doku world.",
-    statusNote: "Publishing needs the OpenDoku repo on the machine running the site, so it only works for the owner right now. A visitor gets an error. MineDoku on OpenDoku was published by this engine.",
+    // Split 2026-08-22/23: GameStudio.tsx now forks into two real paths.
+    // "New game idea" (GameIdeaSession.tsx) is fully client-side, no API
+    // calls, and genuinely works for anyone. "I already have a game" is the
+    // re-theme/preview/publish pipeline against the OpenDoku repo — tested
+    // 2026-07-15, the local-git driver needs that checkout, so preview AND
+    // publish both correctly 401 for a non-owner (app/api/engines/games/
+    // publish/route.ts checks isOwnerRequest() before anything else — the
+    // real boundary; privileges.ts only shapes the UI on top of it).
+    // "beta" over "working": real output, but one whole path is genuinely
+    // owner-only, not a rough edge that will smooth itself out.
+    activation: "beta",
+    output: "A shaped new game idea for anyone; a playable doku world published live to OpenDoku when the owner runs the re-theme path.",
+    beginWith: "A game idea, or a game you already have to re-theme.",
+    statusNote: "Shaping a new game idea works for anyone. Re-theming an existing template and publishing it to OpenDoku needs the OpenDoku repo on the machine running the site, so that path only works for the owner right now — a visitor there gets an honest note, not a broken button. MineDoku on OpenDoku was published this way.",
   },
   {
     id: "howto",

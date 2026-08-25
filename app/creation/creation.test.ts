@@ -284,10 +284,13 @@ describe("engine recommendations", () => {
     expect(rec.alternates.length).toBeLessThanOrEqual(2);
   });
 
-  it("a game routes to the Build lane (game engine is owner-only)", () => {
+  it("a game routes straight to the Game Engine", () => {
+    // Superseded 2026-08-24: the Game Engine's "new game idea" path is
+    // fully client-side and works for anyone, so a game idea no longer
+    // detours through the Build lane. See app/engines/games/GameStudio.tsx.
     const v = viewOf(newRecord("A word game where you guess the missing lyric."));
     const rec = recommendEngines(v);
-    expect(rec.primary?.engineId).toBe("build");
+    expect(rec.primary?.engineId).toBe("game");
   });
 
   it("a story routes to the Writing Engine, not a dead end", () => {

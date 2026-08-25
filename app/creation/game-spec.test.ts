@@ -70,7 +70,7 @@ describe("the game adapter is a serious game-development package", () => {
     expect(search.length).toBeLessThanOrEqual(1800 + 4);
   });
 
-  it("preserves the creator's exact words end to end, and routes to the Build lane", () => {
+  it("preserves the creator's exact words end to end, and routes to the Game Engine", () => {
     const record = recordFromHandoff(GAME_LAB_PAYLOAD);
     expect(record.originalIdea).toBe(GAME_LAB_PAYLOAD.idea);
     expect(record.source).toBe("idontcry");
@@ -81,7 +81,7 @@ describe("the game adapter is a serious game-development package", () => {
     const v = viewOf(record);
     expect(v.creationType).toBe("game");
     expect(adapterForType(v.creationType).engineId).toBe("game");
-    expect(recommendEngines(v).primary?.engineId).toBe("build");
+    expect(recommendEngines(v).primary?.engineId).toBe("game");
 
     // A record survives a save/load round trip byte-identically where it counts.
     const revived = parseCreationRecord(JSON.parse(JSON.stringify(record)));
