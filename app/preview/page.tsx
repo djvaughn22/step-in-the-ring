@@ -8,7 +8,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PreviewGate from "./PreviewGate";
-import { isPreviewAuthorized } from "./previewAuth";
+import { isPreviewAuthorized, previewPasscode } from "./previewAuth";
+import { externalPreviewHref } from "./healthHandoff";
 import { pagesWithAccess, EXTERNAL_PREVIEWS } from "../site/registry";
 import { Sheet, Masthead, Band, Rows, Row } from "../site/ui";
 
@@ -56,15 +57,15 @@ export default async function PreviewPage() {
       {EXTERNAL_PREVIEWS.length > 0 ? (
         <Band
           title="Somewhere else"
-          note="These live on another site and keep their own door, so they will ask for their own code."
+          note="These live on another site — the code you just entered opens them too."
         >
           <Rows>
             {EXTERNAL_PREVIEWS.map((p) => (
               <Row
-                key={p.href}
+                key={p.name}
                 name={`${p.name} (example)`}
                 what={`${p.what} ${p.why} Hosted on ${p.host}.`}
-                href={p.href}
+                href={externalPreviewHref(p.href, p.sharedCode, previewPasscode())}
                 external
               />
             ))}

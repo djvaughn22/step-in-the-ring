@@ -498,9 +498,16 @@ export const ECOSYSTEM: EcosystemProject[] = [
 // SHARED PREVIEWS THAT LIVE ON ANOTHER SITE
 //
 // Some previews the owner hands out are not pages of this site. They are
-// listed so the directory is complete, and linked so they are findable — but
-// each keeps its OWN door and its own passcode. Nothing here weakens the
-// protection on the far side, and no passcode appears in this file.
+// listed so the directory is complete, and linked so they are findable.
+// Nothing here weakens the protection on the far side, and no passcode
+// appears in this file.
+//
+// `sharedCode: true` means the far side deliberately uses the SAME shared
+// code as this site's own preview door (see app/preview/healthHandoff.ts) —
+// a visitor who already unlocked here is handed straight through instead of
+// being asked to type the same code a second time. Only set this when the
+// destination has been set up to accept that handoff; a preview that keeps
+// a genuinely separate code must leave it false or unset.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface ExternalPreview {
@@ -511,6 +518,7 @@ export interface ExternalPreview {
   href: string;
   /** Which site actually holds the door. */
   host: string;
+  sharedCode?: boolean;
 }
 
 export const EXTERNAL_PREVIEWS: ExternalPreview[] = [
@@ -520,5 +528,6 @@ export const EXTERNAL_PREVIEWS: ExternalPreview[] = [
     why: "It's an anonymized demonstration of the format, not anyone's records, and it's shared one person at a time rather than published.",
     href: "https://idontcry.com/family/health-plan-example",
     host: "iDontCry",
+    sharedCode: true,
   },
 ];
