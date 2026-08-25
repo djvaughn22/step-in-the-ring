@@ -689,6 +689,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             onChangeWords={() => go("landing")}
             onSeeWholePlan={() => go("result")}
             onKeep={keepThisBuild}
+            onOpenHelp={seedEngineWithRecord}
             keepHref="/builds"
           />
         </div>

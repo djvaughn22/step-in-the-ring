@@ -2,10 +2,12 @@
 //
 // Hard rules carried over from the planner's handoff.ts:
 //  - Only recommend engines whose flow actually works for the person reading
-//    the page (activation working/beta). The Game Engine is owner-only, so a
-//    game idea routes to the Build Engine with a game specification — and we
-//    SAY that the Game Engine exists but publishes only from the owner's
-//    machine. Honesty beats tidiness.
+//    the page (activation working/beta). A game idea now routes straight to
+//    the Game Engine (beta, not owner-only as of 2026-08-24) — its "new game
+//    idea" path is fully client-side and works for anyone; only the separate
+//    re-theme-and-publish-to-OpenDoku path inside it needs the owner's
+//    machine, and it says so honestly right there rather than at this
+//    routing level. See app/engines/games/GameStudio.tsx.
 //  - Not every creation gets an engine. "The builder prompt is the handoff"
 //    is a legitimate primary path and is presented as one.
 
@@ -103,8 +105,9 @@ export function recommendEngines(v: CreationView): Recommendation {
 
     case "game": {
       push(alternates, choice("idea", "If the game concept is fuzzy, sharpen it into one version first."));
+      push(alternates, choice("build", "Prefer a general builder prompt over a guided game session? This gives you one."));
       return {
-        primary: choice("build", "You leave with a game specification and a builder prompt aimed at the smallest playable version."),
+        primary: choice("game", "Shape it into a real playable game, one question at a time — no account, no wait."),
         alternates,
       };
     }

@@ -437,6 +437,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
         }}
         initialAnswers={Object.keys(prefill).length > 0 ? prefill : undefined}
         card={card}
+        isOwner={!memberMode}
       />
     );
   }

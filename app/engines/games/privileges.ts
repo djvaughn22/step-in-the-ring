@@ -2,24 +2,27 @@
 //
 // The real boundary is the shared owner session: the publish API
 // (app/api/engines/games/publish/route.ts) rejects any request without a
-// valid owner cookie before reading the body, and the whole Engine Room UI
-// sits behind the server-side owner gate. These role helpers only shape the
-// UI for whoever is already inside; if visitor roles ever return, enforce
-// them server-side in the publish route as well, never only here.
+// valid owner cookie before reading the body, and that check is what
+// actually protects the local OpenDoku repo. These role helpers only shape
+// the UI for whoever is looking at it — GameStudio passes down the real
+// server-decided isOwner (see app/engines/room/page.tsx → EngineSystem →
+// GameStudio) so a non-owner sees an honest disabled button instead of one
+// that lies and then 401s. If this ever drifts, enforce the real boundary
+// server-side in the publish route, never only here.
 
 export type GameRole = "player" | "builder" | "publisher";
 
-export function currentRole(): GameRole {
-  return "publisher"; // inside the owner gate, the owner has full privileges
+export function currentRole(isOwner: boolean): GameRole {
+  return isOwner ? "publisher" : "builder";
 }
 
 export function canBuild(): boolean {
   return true;
 }
 
-export function canPublish(): boolean {
-  return currentRole() === "publisher";
+export function canPublish(isOwner: boolean): boolean {
+  return currentRole(isOwner) === "publisher";
 }
 
 export const PRIVILEGE_NOTE =
-  "The Engine Room is owner-only; publishing also re-checks the owner session on the server.";
+  "Publishing to OpenDoku runs on the owner's machine — the server checks the owner session again regardless of what this page shows.";

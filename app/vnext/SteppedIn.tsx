@@ -38,6 +38,11 @@ export interface SteppedInProps {
   onKeep: () => void;
   /** Where "keep this" goes. A real href, so it behaves like a link. */
   keepHref: string;
+  /** Put the idea in flight for a "what can help" engine before it navigates
+   *  there — the same reason onKeep exists for Builds. Without this, an
+   *  engine door opens to a blank intake and the person retypes what they
+   *  already said one screen ago. */
+  onOpenHelp: (engineId: string) => void;
   /** Signed in already? Then the button says what it really does. */
   signedIn?: boolean;
 }
@@ -51,6 +56,7 @@ export default function SteppedIn({
   onSeeWholePlan,
   onKeep,
   keepHref,
+  onOpenHelp,
   signedIn,
 }: SteppedInProps) {
   const [draft, setDraft] = useState("");
@@ -174,7 +180,7 @@ export default function SteppedIn({
             </p>
             <div className="chip-row">
               {shaping.helps.map((h) => (
-                <a key={h.id} className="chip" href={h.href}>
+                <a key={h.id} className="chip" href={h.href} onClick={() => onOpenHelp(h.id)}>
                   <span aria-hidden="true">{h.emoji}</span> {h.name}
                 </a>
               ))}

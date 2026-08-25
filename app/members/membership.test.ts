@@ -197,14 +197,21 @@ describe("entitlement", () => {
     expect(resolveAccess(record, new Date(LATER.getTime() + 1)).memberAccess).toBe(false);
   });
 
-  it("owner-only engines stay owner-only; member engines exclude them", () => {
+  it("owner-only engines stay owner-only; other engines don't", () => {
+    // "game" is deliberately NOT owner-only as of 2026-08-24: GameStudio
+    // forks into a fully client-side "new game idea" path (works for
+    // anyone) and a re-theme/publish path that needs the OpenDoku repo on
+    // the owner's machine — that path's own server route checks
+    // isOwnerRequest() itself (app/api/engines/games/publish/route.ts), so
+    // gating the whole engine at this level would have hidden the half that
+    // genuinely works for a visitor.
     const ids = memberEngineIds();
-    expect(ids).not.toContain("game");
+    expect(ids).toContain("game");
     expect(ids).not.toContain("story");
     expect(ids).toContain("idea");
     const noAccess = resolveAccess(null, NOW);
     const member = resolveAccess(ent({ status: "active", currentPeriodEnd: LATER.toISOString() }), NOW);
-    expect(mayUseEngine("game", member, false)).toBe(false);
+    expect(mayUseEngine("game", member, false)).toBe(true);
     expect(mayUseEngine("game", member, true)).toBe(true);
     expect(mayUseEngine("idea", member, false)).toBe(true);
     expect(mayUseEngine("idea", noAccess, false)).toBe(false);

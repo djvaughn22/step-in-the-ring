@@ -134,7 +134,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (action !== "publish") return bad(400, `Unknown action "${action}".`);
-  if (!canPublish()) return bad(403, "You don't have publish privileges.");
+  // isOwnerRequest(req) already passed above, so isOwner is genuinely true
+  // by the time we get here — this call is vestigial, kept for the shape.
+  if (!canPublish(true)) return bad(403, "You don't have publish privileges.");
 
   const gameDir = path.join(repo, world.slug);
   const exists = await fs.stat(gameDir).then(() => true).catch(() => false);

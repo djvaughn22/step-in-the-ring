@@ -144,7 +144,7 @@ const F: Fixture[] = [
     idea: "A browser game where you dodge falling tacos and beat your friend's score.",
     type: "game",
     adapter: "game",
-    engine: "build",
+    engine: "game",
     contains: [/Core loop/i, /playable/i, /win/i],
     bans: [/Etsy|listing|chapter/i],
   },
@@ -661,7 +661,7 @@ describe("quality fixtures — the product standard, executed", () => {
         if (f.engine === null) expect(rec.primary).toBeNull();
         else expect(rec.primary?.engineId).toBe(f.engine);
       }
-      if (rec.primary) expect(["idea", "build", "sell", "launch", "fix", "grow", "plan", "design-shop", "music", "writing", "first-build"]).toContain(rec.primary.engineId);
+      if (rec.primary) expect(["idea", "build", "sell", "launch", "fix", "grow", "plan", "design-shop", "music", "writing", "first-build", "game"]).toContain(rec.primary.engineId);
 
       // 4. Core reads exist and are non-empty.
       expect(v.smallestOutcome.length).toBeGreaterThan(10);
