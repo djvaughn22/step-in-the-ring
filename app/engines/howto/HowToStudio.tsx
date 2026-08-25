@@ -38,9 +38,11 @@ const STEPS: { id: Stage; label: string }[] = [
 export default function HowToStudio({
   onBack,
   card,
+  seedIdea,
 }: {
   onBack: () => void;
   card: React.CSSProperties;
+  seedIdea?: string;
 }) {
   // "help": the default — help someone do something, right now, one step at
   // a time. "document": the original retrospective evidence-capture flow,
@@ -181,7 +183,7 @@ export default function HowToStudio({
               How to Anything Engine
             </span>
           </div>
-          <TaskSession onDocumentInstead={() => setMode("document")} />
+          <TaskSession onDocumentInstead={() => setMode("document")} seedIdea={seedIdea} />
         </div>
       </main>
     );

@@ -40,6 +40,15 @@ describe("shapeIntent", () => {
     expect(s.firstMove.toLowerCase()).not.toContain("version one");
   });
 
+  it("reads 'works on X but not on Y' as a repair too, not just literal 'broken'", () => {
+    // Owner test 2026-08-24: this phrase read as a brand-new site to build,
+    // not a bug report, before app/planner/interpret.ts and this file's
+    // isRepair() both learned the pattern.
+    const s = shapeIntent("my website button works on desktop but not on my phone")!;
+    expect(s.versionOne).toEqual([]);
+    expect(s.firstMove.toLowerCase()).toContain("what goes wrong");
+  });
+
   it("knows what done means for a repair, not what done means for a new thing", () => {
     const s = shapeIntent("My church website is broken, the donate button does nothing on phones")!;
     expect(s.realMeans.toLowerCase()).toContain("works again");

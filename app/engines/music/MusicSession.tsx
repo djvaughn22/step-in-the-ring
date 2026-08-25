@@ -30,10 +30,12 @@ const sub = { fontSize: 12.5, color: "var(--muted)", lineHeight: 1.5 } as const;
 const GOAL_PLACEHOLDER =
   "a laid-back reggae beat\na simple piano idea\na first hip-hop loop\nbackground music for a game\na song from an idea I already have";
 
-export default function MusicSession() {
+export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<MusicSessionV1 | null>(null);
-  const [goalDraft, setGoalDraft] = useState("");
+  // Initial value only — a person editing their own draft should never have
+  // it overwritten if the seed prop happens to change identity later.
+  const [goalDraft, setGoalDraft] = useState(() => seedIdea ?? "");
   const [toolDraft, setToolDraft] = useState<Tool>("unsure");
   const [noteDraft, setNoteDraft] = useState("");
   const [stuckOpen, setStuckOpen] = useState(false);

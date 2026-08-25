@@ -91,12 +91,21 @@ const TEACHING =
   /\b(how to|teach|teaching|tutorial|guide|explain|walkthrough|walk through|show (?:people|someone|others|you))\b/i;
 const BROKEN_STATE =
   /\b(broken|broke|breaks|bug|buggy|doesn'?t work|does not work|not working|stopped working|fails|failing|error|crash(?:es|ing)?|glitch|busted|won'?t (?:open|load|save|close|start))\b/i;
+// Kept in sync with app/planner/interpret.ts's INCONSISTENT_BEHAVIOR by
+// hand — this file duplicates that file's fix-detection rather than
+// importing it (separate systems, same underlying question: "is this a
+// repair?"). "Works on X but not on Y" never says "broken" literally.
+const INCONSISTENT_BEHAVIOR = /\bworks?\b[^.!?]{0,60}\bbut\b[^.!?]{0,20}\bnot\b/i;
 
 export function isRepair(view: CreationView): boolean {
   if (view.interpretation.buildType.value !== "fix") return false;
   const said = view.record.originalIdea;
   if (TEACHING.test(said)) return false;
-  return BROKEN_STATE.test(said) || /\bfix (?:my|the|this|our|his|her|their)\b/i.test(said);
+  return (
+    BROKEN_STATE.test(said) ||
+    INCONSISTENT_BEHAVIOR.test(said) ||
+    /\bfix (?:my|the|this|our|his|her|their)\b/i.test(said)
+  );
 }
 
 /**

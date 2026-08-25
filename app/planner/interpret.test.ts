@@ -163,6 +163,17 @@ describe("broken mobile navigation on an existing site", () => {
   it("is clean", () => expectClean(i));
 });
 
+describe("a button that works on desktop but not on phone", () => {
+  // Real-life owner test, 2026-08-24: "works on X but not on Y" reads as a
+  // brand-new site to build before this fix — none of FIX_WORDS' literal
+  // phrases ("broken", "not working", etc.) appear in it.
+  const i = interpret({
+    description: "my website button works on desktop but not on my phone",
+  });
+  it("is a fix", () => expect(i.buildType.value).toBe("fix"));
+  it("is clean", () => expectClean(i));
+});
+
 describe("a printable Etsy workbook", () => {
   const i = interpret({
     description: "A printable workbook I could sell on Etsy to help people plan their week.",
