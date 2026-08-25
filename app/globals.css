@@ -49,6 +49,15 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  /* Redundant with the static viewport meta tag and the theme-init script
+     (belt and suspenders) — tells the browser the page is dark by default
+     so native chrome (scrollbar, form controls, iOS overscroll) doesn't
+     guess light from the OS setting while the actual page content is dark. */
+  color-scheme: dark;
+}
+html[data-om-theme="light"] { color-scheme: light; }
+
 html, body {
   min-height: 100%;
   background: var(--bg);
@@ -1503,7 +1512,10 @@ body { font-synthesis-weight: none; }
 
 .ring-burger {
   display: none;
-  margin-left: auto;
+  /* No margin-left: auto here — .ring-bar-end (theme toggle) is the one
+     flex item with auto margin at mobile widths now that it stays visible
+     there; a second auto margin on this button would split the free space
+     between the two and leave an odd gap between the toggle and the burger. */
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.34);
   border-radius: 4px;
@@ -1519,7 +1531,13 @@ body { font-synthesis-weight: none; }
 .ring-sheet { display: none; }
 
 @media (max-width: 860px) {
-  .ring-nav, .ring-bar-end { display: none; }
+  .ring-nav { display: none; }
+  /* .ring-bar-end itself stays visible on phone — only its links hide. The
+     theme toggle lives inside it and must survive; without this, mobile had
+     no way to change appearance at all (only found via the desktop-only
+     .ring-bar-end group). */
+  .ring-bar-end a { display: none; }
+  .ring-bar-end { gap: 8px; }
   .ring-burger { display: block; }
   /* The phone menu drops out of the bar, so it is the same blue object. */
   .ring-sheet.open {

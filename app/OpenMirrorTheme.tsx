@@ -43,10 +43,11 @@ setTimeout(disarm,8000);
 // set the theme — that script also handles ?theme= URL overrides and must win.
 const THEME_INIT_JS = `(function(){try{
 var d=document.documentElement;
-if(d.dataset.omTheme)return;
+if(d.dataset.omTheme){d.style.colorScheme=d.dataset.omTheme;return;}
 var t=localStorage.getItem("om-theme")==="light"?"light":"dark";
 d.dataset.omTheme=t;
 if(!d.dataset.chpVisualTheme)d.dataset.chpVisualTheme=t;
+d.style.colorScheme=t;
 }catch(e){}})();`.replace(/\n/g, "");
 
 export type OmTheme = "dark" | "light";
@@ -299,6 +300,9 @@ function applyTheme(theme: OmTheme) {
   // Keep the CrossHeartPray-style theme (data-chp-visual-theme CSS on the hub
   // and CHP) in agreement so pages that mix both systems light up together.
   document.documentElement.dataset.chpVisualTheme = theme;
+  // Native chrome (scrollbar, form controls, iOS overscroll) follows this,
+  // not the page's own background — keep it in sync with an explicit choice.
+  document.documentElement.style.colorScheme = theme;
   window.localStorage.setItem("crossheartpray-visual-theme", theme);
 }
 

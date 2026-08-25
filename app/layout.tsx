@@ -26,6 +26,17 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#08182B",
+  // Without this, mobile browsers guess the native chrome color (scrollbar,
+  // form controls, and on iOS the overscroll "rubber-band" area past the
+  // top/bottom of the page) from the OS's prefers-color-scheme — which
+  // defaults to light for most visitors — even though the page itself is
+  // already dark. That guess is what read as "mobile shows white": the page
+  // content was always dark, but the native chrome around/behind it wasn't
+  // told to be. Static here because it's in the server-rendered <head>
+  // before any JS runs, so there's no flash on first paint. The theme
+  // toggle (OpenMirrorTheme.tsx) updates document.documentElement.style.
+  // colorScheme to match after an explicit light choice.
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
