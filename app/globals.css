@@ -1084,13 +1084,13 @@ body { font-synthesis-weight: none; }
   margin: 0;
 }
 
-/* ── Buttons: rectangular, heavy, obviously pressable ── */
+/* ── Buttons: heavy, obviously pressable, family-shaped ── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border-radius: 4px;
+  border-radius: 999px;
   border: 1px solid transparent;
   padding: 15px 26px;
   font-size: 14px;
@@ -1125,7 +1125,7 @@ body { font-synthesis-weight: none; }
 /* ── Framed panel: a place, not a floating card ── */
 .card {
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--panel);
   padding: 22px;
 }
@@ -1240,7 +1240,7 @@ body { font-synthesis-weight: none; }
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 16px;
   overflow: hidden;
 }
 @media (max-width: 900px) { .doors { grid-template-columns: 1fr 1fr; } }
@@ -1296,7 +1296,7 @@ body { font-synthesis-weight: none; }
   align-items: stretch;
   gap: 0;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--panel);
 }
@@ -1361,7 +1361,7 @@ body { font-synthesis-weight: none; }
   display: flex;
   flex-direction: column;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--panel);
   padding: 22px;
   text-decoration: none;
@@ -1734,7 +1734,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--panel);
   text-decoration: none;
@@ -1805,7 +1805,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .buildcard {
   border: 1px solid var(--line);
   border-left: 4px solid var(--accent);
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--panel);
   padding: 24px 24px 20px;
   display: flex;
@@ -1897,7 +1897,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 /* Empty state: the same question the front page asks. */
 .empty {
   border: 2px dashed var(--line2);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: clamp(30px, 5vw, 56px);
   text-align: center;
 }
@@ -1940,7 +1940,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .move {
   border: 1px solid var(--gold-glow);
   background: var(--gold-soft);
-  border-radius: 6px;
+  border-radius: 16px;
   padding: clamp(22px, 3vw, 34px);
   margin-top: 30px;
 }
@@ -2014,7 +2014,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 }
 .bench-col {
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--panel);
   padding: 20px;
 }
@@ -2058,7 +2058,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   flex-direction: column;
   gap: 7px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--panel);
   padding: 20px;
   text-decoration: none;
@@ -2124,7 +2124,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   gap: 10px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--panel);
   padding: 22px;
 }
@@ -2191,7 +2191,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 }
 .sidecol {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 16px;
   background: var(--panel);
   padding: 22px;
   position: sticky;
@@ -2229,7 +2229,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   text-align: left;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 16px;
   padding: 11px 12px;
   cursor: pointer;
   color: inherit;
@@ -2269,7 +2269,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   text-align: left;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 20px;
   cursor: pointer;
   color: inherit;
@@ -2380,7 +2380,7 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
   margin: 26px 0 8px;
 }
 .vs {
-  border-radius: 6px;
+  border-radius: 16px;
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
