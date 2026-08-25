@@ -65,7 +65,7 @@ export default async function PreviewPage() {
                 key={p.name}
                 name={`${p.name} (example)`}
                 what={`${p.what} ${p.why} Hosted on ${p.host}.`}
-                href={externalPreviewHref(p.href, p.sharedCode, previewPasscode())}
+                href={externalPreviewHref(p.href, p.ssoHref, previewPasscode())}
                 external
               />
             ))}
