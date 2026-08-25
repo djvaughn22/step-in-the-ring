@@ -66,11 +66,13 @@ export default function RingHeader() {
               {s.name}
             </Link>
           ))}
-          {/* The family light/dark toggle. It used to ride in the shared
-              Open Mirror bar; when Step In The Ring took its own header the
-              toggle went with the bar and light mode became unreachable here.
-              It also injects the theme's init script, which is what stops the
-              page flashing dark before a saved light choice is applied. */}
+          {/* The family light/dark toggle. On phone, .ring-bar-end's LINKS
+              hide (see globals.css) but the container and this button stay
+              — the toggle used to vanish along with the whole group,
+              leaving no way to change appearance on mobile at all. It also
+              injects the theme's init script, which is what stops the page
+              flashing light before a saved choice (or the dark default) is
+              applied. */}
           <OpenMirrorThemeToggle />
         </div>
 
