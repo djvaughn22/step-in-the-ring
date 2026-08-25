@@ -28,7 +28,8 @@ import {
   type SitePage,
 } from "../site/registry";
 import { Sheet, Masthead, Band, Jump, Rows, Row, Tiles, Tile } from "../site/ui";
-import { isPreviewAuthorized } from "../preview/previewAuth";
+import { isPreviewAuthorized, previewPasscode } from "../preview/previewAuth";
+import { externalPreviewHref } from "../preview/healthHandoff";
 
 export const dynamic = "force-dynamic";
 
@@ -124,8 +125,8 @@ export default async function EverythingPage() {
               <Row
                 key={p.name}
                 name={`${p.name} (example)`}
-                what={`${p.what} ${p.why} Hosted on ${p.host}, with its own passcode.`}
-                href={p.href}
+                what={`${p.what} ${p.why} Hosted on ${p.host} — the code you just entered opens it too.`}
+                href={externalPreviewHref(p.href, p.sharedCode, previewPasscode())}
                 access="preview"
                 external
               />
