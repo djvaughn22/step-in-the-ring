@@ -96,7 +96,7 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
       const prefill = recordToIntake(e.id, record);
       // The studios with no generic intake (empty intake: []) keep their own
       // field names — IdeaStudio and GameStudio both read `seed`.
-      if (e.id === "idea" || e.id === "game" || e.id === "writing") prefill.seed = record.originalIdea;
+      if (["idea", "game", "writing", "music", "howto"].includes(e.id)) prefill.seed = record.originalIdea;
       return prefill;
     }
 
@@ -108,7 +108,7 @@ function consumePlannerSeed(e: Engine): Record<string, string> {
     if (firstProse) prefill[firstProse.key] = idea;
     // The studios with no generic intake (empty intake: []) keep their own
     // field names — IdeaStudio and GameStudio both read `seed`.
-    if (e.id === "idea" || e.id === "game" || e.id === "writing") prefill.seed = idea;
+    if (["idea", "game", "writing", "music", "howto"].includes(e.id)) prefill.seed = idea;
     return prefill;
   } catch {
     return {};
@@ -474,6 +474,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
 
   // How to Anything Engine: one proven solution → full production package
   if (engineId === "howto" && view === "intake") {
+    const howtoSeed = engine ? consumePlannerSeed(engine).seed : undefined;
     return (
       <HowToStudio
         onBack={() => {
@@ -482,6 +483,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
           setView("list");
         }}
         card={card}
+        seedIdea={howtoSeed}
       />
     );
   }
@@ -532,6 +534,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
   // Music Engine: adaptive front door — "bring your song to life" for
   // creators who already have material, or the original first-beat flow.
   if (engineId === "music" && view === "intake") {
+    const musicSeed = engine ? consumePlannerSeed(engine).seed : undefined;
     return (
       <MusicStudio
         onBack={() => {
@@ -539,6 +542,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
           setAnswers({});
           setView("list");
         }}
+        seedIdea={musicSeed}
       />
     );
   }

@@ -19,10 +19,18 @@ const input = {
 };
 const sub = { fontSize: 12.5, color: "var(--muted)", lineHeight: 1.5 } as const;
 
-export default function TaskSession({ onDocumentInstead }: { onDocumentInstead: () => void }) {
+export default function TaskSession({
+  onDocumentInstead,
+  seedIdea,
+}: {
+  onDocumentInstead: () => void;
+  seedIdea?: string;
+}) {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<TaskSessionV1 | null>(null);
-  const [goalDraft, setGoalDraft] = useState("");
+  // Initial value only — a person editing their own draft should never have
+  // it overwritten if the seed prop happens to change identity later.
+  const [goalDraft, setGoalDraft] = useState(() => seedIdea ?? "");
   const [noteDraft, setNoteDraft] = useState("");
   const [stuckOpen, setStuckOpen] = useState(false);
   const [flash, setFlash] = useState("");

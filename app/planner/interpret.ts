@@ -34,6 +34,13 @@ const lower = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
 
 const FIX_WORDS =
   /\b(broken|broke|breaks|bug|buggy|doesn'?t work|does not work|not working|stopped working|fails|failing|error|crash|glitch|busted|won'?t (open|load|save|close)|fix)\b/i;
+// "Works on X but not on Y" never says "broken" — it's the single most
+// common way someone describes a device/browser-specific bug. Caught live
+// 2026-08-24: "my website button works on desktop but not on my phone" read
+// as a brand-new site to build, not a repair, because none of FIX_WORDS'
+// literal phrases appear in it.
+const INCONSISTENT_BEHAVIOR =
+  /\bworks?\b[^.!?]{0,60}\bbut\b[^.!?]{0,20}\bnot\b/i;
 const IMPROVE_WORDS =
   /\b(improve|improvement|better|nicer|cleaner|upgrade|redo|revamp|polish|refresh|clean up|tidy|speed (it )?up|easier to use)\b/i;
 const ADD_WORDS = /\b(add|adding|new (feature|page|mode|section|game|tab)|another|extend|plug in)\b/i;
@@ -51,7 +58,9 @@ function classifyBuildType(
   shape: Shape,
   statedCount: number,
 ): Claim<BuildType> {
-  if (FIX_WORDS.test(text)) return stated("fix", "you described something that's broken");
+  if (FIX_WORDS.test(text) || INCONSISTENT_BEHAVIOR.test(text)) {
+    return stated("fix", "you described something that's broken");
+  }
   if (SELL_WORDS.test(text) || shape === "product") {
     return stated("sell", "you're describing something people would buy");
   }

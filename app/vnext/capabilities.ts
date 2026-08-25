@@ -149,15 +149,22 @@ const ENGINE_NEEDS: Record<string, string[]> = {
   build: ["build", "app", "website", "software", "code", "repo"],
   sell: ["sell", "price", "customers", "revenue", "money", "buyers"],
   launch: ["launch", "release", "announce", "go live", "publish"],
-  fix: ["fix", "broken", "repair", "bug", "stuck", "not working"],
+  fix: ["fix", "broken", "repair", "bug", "stuck", "not working", "but not on", "but not in", "used to work"],
   grow: ["grow", "audience", "traffic", "more people", "reach"],
   plan: ["plan", "schedule", "milestones", "timeline", "organize"],
   etsy: ["etsy", "listing", "shop", "product listing"],
   "design-shop": ["design", "artwork", "print", "shirt", "sticker", "mug", "merch", "logo"],
   game: ["game", "puzzle", "play", "arcade", "level"],
-  howto: ["how to", "tutorial", "teach", "guide", "video", "explain"],
+  howto: ["how to", "tutorial", "teach", "guide", "video", "explain", "bandlab", "garageband", "my first"],
   story: ["story", "book", "novel", "write", "memoir", "characters", "chapter"],
-  music: ["music", "song", "lyrics", "album", "melody", "record"],
+  // "story" above maps to the owner-only Story Partner (app/author) and is
+  // filtered out by usableNow() regardless of score. "writing" is the
+  // separate, public Writing Engine (app/engines/writing) — it needs its
+  // own keywords or a writing-shaped intent never surfaces ANY capability
+  // here, even though recommend.ts (the creationType-based router) already
+  // sends it to "writing" correctly.
+  writing: ["write", "story", "poem", "essay", "article", "blog", "bedtime story", "chapter", "book"],
+  music: ["music", "song", "lyrics", "album", "melody", "record", "beat", "track", "instrumental", "producer", "mix", "bandlab", "garageband"],
 };
 
 /** Non-engine surfaces that are real capabilities in their own right. */

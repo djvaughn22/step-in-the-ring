@@ -20,7 +20,7 @@ const card = { background: "var(--panel)", border: "1px solid var(--line)", bord
 
 type View = "door" | "song";
 
-export default function MusicStudio({ onBack }: { onBack: () => void }) {
+export default function MusicStudio({ onBack, seedIdea }: { onBack: () => void; seedIdea?: string }) {
   const [ready, setReady] = useState(false);
   const [songs, setSongs] = useState<SongProjectV1[]>([]);
   const [view, setView] = useState<View>("door");
@@ -88,7 +88,7 @@ export default function MusicStudio({ onBack }: { onBack: () => void }) {
           </div>
         )}
 
-        <MusicSession />
+        <MusicSession seedIdea={seedIdea} />
       </div>
     </main>
   );
