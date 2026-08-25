@@ -45,20 +45,20 @@ describe("mintHealthHandoffToken", () => {
 
 describe("externalPreviewHref", () => {
   const HREF = "https://idontcry.com/family/health-plan-example";
+  const SSO = "https://idontcry.com/api/family-health-plan/sso";
 
-  it("returns the plain href when the preview doesn't opt into the shared code", () => {
-    expect(externalPreviewHref(HREF, false, "23dkdkd")).toBe(HREF);
+  it("returns the plain page href when there's no SSO endpoint configured", () => {
     expect(externalPreviewHref(HREF, undefined, "23dkdkd")).toBe(HREF);
   });
 
-  it("returns the plain href when the passcode isn't configured, even if opted in", () => {
-    expect(externalPreviewHref(HREF, true, null)).toBe(HREF);
+  it("returns the plain href when the passcode isn't configured, even with an SSO endpoint set", () => {
+    expect(externalPreviewHref(HREF, SSO, null)).toBe(HREF);
   });
 
-  it("appends a working handoff token when opted in and configured", () => {
-    const href = externalPreviewHref(HREF, true, "23dkdkd");
-    expect(href.startsWith(`${HREF}?sitr=`)).toBe(true);
-    const token = decodeURIComponent(href.slice(`${HREF}?sitr=`.length));
+  it("points at the SSO endpoint with a working handoff token when both are set", () => {
+    const href = externalPreviewHref(HREF, SSO, "23dkdkd");
+    expect(href.startsWith(`${SSO}?sitr=`)).toBe(true);
+    const token = decodeURIComponent(href.slice(`${SSO}?sitr=`.length));
     expect(verifyLikeSibling(token, "23dkdkd")).toBe(true);
   });
 });

@@ -502,12 +502,16 @@ export const ECOSYSTEM: EcosystemProject[] = [
 // Nothing here weakens the protection on the far side, and no passcode
 // appears in this file.
 //
-// `sharedCode: true` means the far side deliberately uses the SAME shared
+// `ssoHref`, when set, means the far side deliberately uses the SAME shared
 // code as this site's own preview door (see app/preview/healthHandoff.ts) —
-// a visitor who already unlocked here is handed straight through instead of
-// being asked to type the same code a second time. Only set this when the
-// destination has been set up to accept that handoff; a preview that keeps
-// a genuinely separate code must leave it false or unset.
+// a visitor who already unlocked here is handed straight through that exact
+// endpoint (which verifies a short-lived signed token and sets the far
+// side's own session cookie) instead of being asked to type the same code a
+// second time. It is a distinct route from `href` on purpose — the sibling
+// app's SSO handoff lives at its own path, never the page itself, because
+// cookies can only be set from a route handler. Only set this when the
+// destination has actually been wired up to accept the handoff; a preview
+// that keeps a genuinely separate code must leave it unset.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface ExternalPreview {
@@ -518,7 +522,8 @@ export interface ExternalPreview {
   href: string;
   /** Which site actually holds the door. */
   host: string;
-  sharedCode?: boolean;
+  /** The far side's own SSO handoff endpoint — see note above. */
+  ssoHref?: string;
 }
 
 export const EXTERNAL_PREVIEWS: ExternalPreview[] = [
@@ -528,6 +533,6 @@ export const EXTERNAL_PREVIEWS: ExternalPreview[] = [
     why: "It's an anonymized demonstration of the format, not anyone's records, and it's shared one person at a time rather than published.",
     href: "https://idontcry.com/family/health-plan-example",
     host: "iDontCry",
-    sharedCode: true,
+    ssoHref: "https://idontcry.com/api/family-health-plan/sso",
   },
 ];

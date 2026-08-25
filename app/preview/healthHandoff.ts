@@ -33,16 +33,17 @@ export function mintHealthHandoffToken(
   return `${payload}.${signature}`;
 }
 
-/** The href to actually link to for one external preview row: plain when it
- *  doesn't opt into the shared-code handoff (or the passcode isn't
- *  configured), token-appended when it does. Used by every page that lists
- *  EXTERNAL_PREVIEWS so the handoff logic exists in exactly one place. */
+/** The href to actually link to for one external preview row: the plain
+ *  page when there's no SSO endpoint configured (or the passcode isn't
+ *  set), the far side's own SSO handoff endpoint with a fresh token when
+ *  there is. Used by every page that lists EXTERNAL_PREVIEWS so the handoff
+ *  logic exists in exactly one place. */
 export function externalPreviewHref(
   href: string,
-  sharedCode: boolean | undefined,
+  ssoHref: string | undefined,
   sharedPasscode: string | null,
 ): string {
-  if (!sharedCode) return href;
+  if (!ssoHref) return href;
   const token = mintHealthHandoffToken(sharedPasscode);
-  return token ? `${href}?sitr=${encodeURIComponent(token)}` : href;
+  return token ? `${ssoHref}?sitr=${encodeURIComponent(token)}` : href;
 }

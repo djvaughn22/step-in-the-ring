@@ -126,7 +126,7 @@ export default async function EverythingPage() {
                 key={p.name}
                 name={`${p.name} (example)`}
                 what={`${p.what} ${p.why} Hosted on ${p.host} — the code you just entered opens it too.`}
-                href={externalPreviewHref(p.href, p.sharedCode, previewPasscode())}
+                href={externalPreviewHref(p.href, p.ssoHref, previewPasscode())}
                 access="preview"
                 external
               />
