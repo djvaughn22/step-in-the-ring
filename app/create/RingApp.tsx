@@ -657,16 +657,14 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
 
           {/* ── CLOSE ── */}
           <section className="closing">
-            <p>Live your dream.</p>
+            <p>Made in The Ring.</p>
             <a href="#idea-description" className="btn btn-gold btn-big">
               Start something
             </a>
             <p className="tiny" style={{ marginTop: 30, color: "var(--dim)" }}>
-              Open beta. Everything here works and is still being corrected, so
-              don&apos;t trust it yet with anything irreplaceable. Kids should
-              build with a parent.{" "}
+              Open beta. Keep a copy of anything important.{" "}
               <a href="/account#feedback" style={{ color: "var(--muted)", fontWeight: 800 }}>
-                Tell us what broke
+                Send feedback
               </a>
               .
             </p>
