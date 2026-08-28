@@ -174,7 +174,7 @@ export default function SprintApplyForm() {
           disabled={busy}
           style={{ marginTop: 3 }}
         />
-        It&apos;s fine to email me other Step In The Ring updates. (Optional — applying works either way.)
+        It&apos;s fine to email me other Step In The Ring updates. (Optional. Applying works either way.)
       </label>
 
       {error && (
