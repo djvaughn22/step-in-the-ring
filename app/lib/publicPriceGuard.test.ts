@@ -3,11 +3,20 @@
 // TBD. Scans app/ source for a literal "$<number>" pattern.
 //
 // The allowlist below is a hand-reviewed, closed set of files where a
-// "$<digits>" pattern is structural, not a price: SQL positional
-// placeholders and regex replacement backreferences (both produce strings
-// like "$1", "$2" that are never rendered to a visitor), and one
-// server-only comment documenting the real dormant Stripe amount. Anything
-// added to this list must be re-verified as non-customer-visible.
+// "$<digits>" pattern is either structural, not a price (SQL positional
+// placeholders and regex replacement backreferences, both producing
+// strings like "$1", "$2" that are never rendered to a visitor), or a real
+// approved price rather than a TBD placeholder:
+//   - members/stripeCore.ts: server-only comment, the dormant Stripe amount.
+//   - products/five-hour-sprint/page.tsx (2026-08-27): the Five Hour Sprint
+//     service's Founding/Standard/Team prices are real and owner-approved,
+//     unlike the still-undecided membership price this guard was written
+//     to protect. There is still no live checkout on that page — the one
+//     action is "Apply for a Sprint" — so this does not claim billing is
+//     live, only that these are the real terms once an application is
+//     accepted.
+// Anything added to this list must be re-verified as non-customer-visible
+// or, per the Sprint page, an intentionally published real price.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -20,6 +29,7 @@ const ALLOWLIST = new Set(
     "planner/signals.ts", // regex replacement backreferences: $1
     "planner/normalize.ts", // regex replacement backreferences: $1
     "members/stripeCore.ts", // server-only comment, real dormant Stripe price
+    "products/five-hour-sprint/page.tsx", // real, owner-approved Sprint prices — see note above
   ].map((p) => path.join(APP_DIR, p)),
 );
 

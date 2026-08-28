@@ -16,6 +16,7 @@ const ROOMS = [
   { href: "/owner/members", emoji: "👥", name: "Manage Members", what: "Approve or revoke member accounts." },
   { href: "/owner/tester-codes", emoji: "🎟️", name: "Tester codes", what: "Create, view and revoke private-beta membership codes." },
   { href: "/owner/feedback", emoji: "🗣️", name: "Tester feedback", what: "Every structured feedback submission, newest first." },
+  { href: "/owner/sprint-applications", emoji: "🥊", name: "Sprint applications", what: "Every application to the paid Five Hour Sprint service, newest first." },
 ];
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
