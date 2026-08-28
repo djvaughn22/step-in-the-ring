@@ -15,6 +15,10 @@
 //     action is "Apply for a Sprint" — so this does not claim billing is
 //     live, only that these are the real terms once an application is
 //     accepted.
+//   - create/RingApp.tsx (2026-08-27 visual-conversion correction): the
+//     Home hero's opportunity panel shows the same real Sprint prices, by
+//     explicit owner instruction, so the paid path is obvious on the first
+//     screen instead of buried behind a click.
 // Anything added to this list must be re-verified as non-customer-visible
 // or, per the Sprint page, an intentionally published real price.
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -30,6 +34,7 @@ const ALLOWLIST = new Set(
     "planner/normalize.ts", // regex replacement backreferences: $1
     "members/stripeCore.ts", // server-only comment, real dormant Stripe price
     "products/five-hour-sprint/page.tsx", // real, owner-approved Sprint prices — see note above
+    "create/RingApp.tsx", // Home hero opportunity panel — see note above
   ].map((p) => path.join(APP_DIR, p)),
 );
 
