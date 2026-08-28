@@ -509,6 +509,13 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                 Making something real is a fight. Work it here, or take it to
                 ChatGPT, Claude, or whatever&apos;s already in your corner.
               </p>
+              <p className="tiny" style={{ marginTop: 14 }}>
+                Would rather not do it alone?{" "}
+                <Link href="/products/five-hour-sprint">
+                  Finish one thing in five hours, with the owner
+                </Link>
+                .
+              </p>
             </div>
 
             <div>

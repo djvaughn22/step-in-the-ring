@@ -113,6 +113,11 @@ export default function EnginesPage() {
         browser as you go. An account is only for making it follow you to
         another device. <Link href="/membership">What that means</Link>.
       </p>
+
+      <p className="tiny" style={{ marginTop: 10 }}>
+        Would rather the owner just finish it with you?{" "}
+        <Link href="/products/five-hour-sprint">The Five Hour Sprint</Link>.
+      </p>
     </Sheet>
   );
 }
