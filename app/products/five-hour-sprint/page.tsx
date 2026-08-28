@@ -38,20 +38,20 @@ const CAN_FINISH = [
 const INCLUDED = [
   "A short intake conversation before the window opens, to lock the one deliverable and what done means.",
   "Five focused hours of the owner's own work, start to finish, on that one deliverable.",
-  "Testing before it's called finished — the checks run, the thing is used, not just written.",
+  "Testing before it's called finished. The checks run, the thing is used, not just written.",
   "Plain documentation of what was built and how to use it.",
   "A short written record of the result at the end of the window.",
 ];
 
 const EXCLUDED = [
   "Ongoing maintenance or support after the window ends.",
-  "Open-ended scope — the deliverable is fixed before the clock starts.",
+  "Open-ended scope. The deliverable is fixed before the clock starts.",
   "Design or product decisions that need a stakeholder meeting mid-sprint.",
-  "Anything that cannot realistically finish in five hours — that gets scoped down first, honestly, before you book.",
+  "Anything that cannot realistically finish in five hours. That gets scoped down first, honestly, before you book.",
 ];
 
 const CUSTOMER_BRINGS = [
-  "One deliverable, described as clearly as you can manage — the intake call sharpens it, it doesn't invent it.",
+  "One deliverable, described as clearly as you can manage. The intake call sharpens it, it doesn't invent it.",
   "Access to whatever the work needs: an account, a repository, a document, a person to ask.",
   "Five hours of availability for questions, even if you are not watching the whole time.",
 ];
@@ -74,7 +74,7 @@ const TIERS = [
   {
     name: "Founding",
     price: "$1,500",
-    note: "Limited early slots — the first ten, at the founding rate.",
+    note: "Limited early slots: the first ten, at the founding rate.",
     detail: "One five-hour Sprint, one deliverable, the full process above.",
   },
   {
@@ -190,7 +190,7 @@ export default function FiveHourSprintPage() {
       {proof.length > 0 && (
         <Band
           title="Real proof"
-          note="Products built through Step In The Ring's own method. They are live — open one."
+          note="Products built through Step In The Ring's own method. They are live. Open one."
         >
           <Tiles>
             {proof.map((p) => (
