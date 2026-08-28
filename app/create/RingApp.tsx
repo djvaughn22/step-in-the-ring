@@ -494,33 +494,23 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
       <main>
         <div className="page">
           <section className="stage">
-            <div>
+            {/* ── LEFT: MAKE SOMETHING. The idea entry, its own working submit
+                button, and the one big "Start creating" CTA that scrolls to
+                and focuses it. ~60% of the hero. ── */}
+            <div className="stage-make">
               <span className="stage-mark">Step In The Ring</span>
               <h1 className="ring-display ring-brand">
                 <RingMark />
                 The Ring
               </h1>
-              <p className="ring-tagline">A place to make things.</p>
+              <p className="ring-tagline">Bring the idea. Leave with something real.</p>
               <p className="ring-sub" style={{ marginTop: 16 }}>
-                Say what you want to make. Leave with the smallest real version
-                of it and the next move. Come back and keep going.
+                Start with one sentence. Shape it, build it, and keep moving
+                until it works.
               </p>
-              <p className="tiny" style={{ marginTop: 14 }}>
-                Making something real is a fight. Work it here, or take it to
-                ChatGPT, Claude, or whatever&apos;s already in your corner.
-              </p>
-              <p className="tiny" style={{ marginTop: 14 }}>
-                Would rather not do it alone?{" "}
-                <Link href="/products/five-hour-sprint">
-                  Finish one thing in five hours, with the owner
-                </Link>
-                .
-              </p>
-            </div>
 
-            <div>
               {/* The one visual nod to the name — a frame, not a costume. */}
-              <div className="ring-frame">
+              <div className="ring-frame" style={{ marginTop: 26 }}>
                 <span className="ring-post ring-post-tl" aria-hidden="true" />
                 <span className="ring-post ring-post-tr" aria-hidden="true" />
                 <span className="ring-post ring-post-bl" aria-hidden="true" />
@@ -530,10 +520,58 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                 <span className="ring-rope ring-rope-3" aria-hidden="true" />
                 {theBox}
               </div>
+
+              <div className="stage-primary-row">
+                <a href="#idea-description" className="btn btn-gold btn-big">
+                  Start creating
+                </a>
+              </div>
+              <p className="tiny" style={{ marginTop: 12 }}>
+                Free during open beta. Keep a copy of anything important.
+              </p>
+
               {/* Somebody who was here yesterday sees their work first. A
                   stranger sees nothing extra and loses nothing. */}
               <ContinueStrip />
             </div>
+
+            {/* ── RIGHT: THREE WAYS IN. A visibly elevated, blue-lit
+                opportunity panel — not a row of plain text links. Five Hour
+                Sprint is deliberately the biggest, boldest card in it: the
+                flagship paid outcome, not a fourth engine. ~40% of the hero. ── */}
+            <aside className="opportunity-panel">
+              <h2 className="opportunity-heading">Choose your way in</h2>
+
+              <div className="opp-card opp-card-free">
+                <span className="opp-name">Start free</span>
+                <p className="opp-copy">Shape the idea and use the tools yourself.</p>
+                <span className="opp-label">Free during open beta</span>
+                <Link href="/create" className="btn btn-ghost opp-action">
+                  Start free
+                </Link>
+              </div>
+
+              <div className="opp-card opp-card-sprint">
+                <span className="opp-name">Five Hour Sprint</span>
+                <p className="opp-copy">
+                  Bring one valuable unfinished thing. Leave with a working,
+                  tested version and a clear next move.
+                </p>
+                <span className="opp-label">Hands-on help · from $1,500</span>
+                <Link href="/products/five-hour-sprint" className="btn opp-action opp-action-sprint">
+                  Finish it with help
+                </Link>
+              </div>
+
+              <div className="opp-card opp-card-team">
+                <span className="opp-name">Team Sprint</span>
+                <p className="opp-copy">Give the team one finish line and leave with a real result.</p>
+                <span className="opp-label">Team Sprint · $5,000</span>
+                <Link href="/products/five-hour-sprint/apply?format=team" className="btn btn-ghost opp-action">
+                  Bring a team
+                </Link>
+              </div>
+            </aside>
           </section>
 
           {/* ── QUICK START. Four doors, not eight — proof that this handles

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Sheet, Masthead, Band } from "../../../site/ui";
 import SprintApplyForm from "./SprintApplyForm";
 
@@ -16,7 +17,11 @@ export default function SprintApplyPage() {
         lead="No payment today. This sends the owner what you want finished, so the two of you can set up the intake conversation and pick a window."
       />
       <Band title="Tell the owner about it">
-        <SprintApplyForm />
+        {/* useSearchParams (to pre-fill "team" from ?format=team) needs a
+            Suspense boundary so this page can still prerender statically. */}
+        <Suspense fallback={null}>
+          <SprintApplyForm />
+        </Suspense>
       </Band>
     </Sheet>
   );

@@ -279,8 +279,8 @@ export default function BuildsClient({
                 </Link>
               )}
               <p className="tiny" style={{ marginTop: 16 }}>
-                Or skip the tab-switching:{" "}
-                <Link href="/products/five-hour-sprint">finish one thing in five hours with the owner</Link>.
+                Or get it finished for you:{" "}
+                <Link href="/products/five-hour-sprint">the Five Hour Sprint</Link>.
               </p>
             </div>
           </section>

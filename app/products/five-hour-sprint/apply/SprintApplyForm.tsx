@@ -6,6 +6,7 @@
 // submitting the application itself.
 
 import { FormEvent, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const FIELD_STYLE = {
   width: "100%",
@@ -25,12 +26,18 @@ type Timing = "asap" | "this-month" | "exploring";
 type TeamSize = "individual" | "team";
 
 export default function SprintApplyForm() {
+  const searchParams = useSearchParams();
+  // A visitor who clicked "Bring a team" or "Team Sprint" should not have to
+  // re-declare that — the query param only ever pre-fills a plain form field,
+  // never bypasses validation or submits anything by itself.
+  const initialTeamSize: TeamSize = searchParams.get("format") === "team" ? "team" : "individual";
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatToFinish, setWhatToFinish] = useState("");
   const [successLooksLike, setSuccessLooksLike] = useState("");
   const [timing, setTiming] = useState<Timing>("this-month");
-  const [teamSize, setTeamSize] = useState<TeamSize>("individual");
+  const [teamSize, setTeamSize] = useState<TeamSize>(initialTeamSize);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");

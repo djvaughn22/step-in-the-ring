@@ -101,7 +101,27 @@ export default function FiveHourSprintPage() {
         title="Five Hour Sprint"
         lead="Finish one valuable piece of work in one focused five-hour window. Leave with it built, tested, documented, and ready to use."
       >
-        <div className="actions" style={{ marginTop: 22 }}>
+        <p style={{ fontSize: 14, color: "var(--muted)", margin: "18px 0 0", lineHeight: 1.6 }}>
+          What can fit: a working tool, a first real version of a product, or
+          one clearly-scoped improvement. All inside one five-hour window.
+        </p>
+
+        <div className="price-strip" aria-label="Sprint pricing">
+          <div className="price-chip">
+            <span className="price-chip-name">Founding</span>
+            <span className="price-chip-amount">from $1,500</span>
+          </div>
+          <div className="price-chip">
+            <span className="price-chip-name">Standard</span>
+            <span className="price-chip-amount">$2,500</span>
+          </div>
+          <div className="price-chip">
+            <span className="price-chip-name">Team</span>
+            <span className="price-chip-amount">$5,000</span>
+          </div>
+        </div>
+
+        <div className="actions" style={{ marginTop: 20 }}>
           <Link href="/products/five-hour-sprint/apply" className="btn btn-gold btn-big">
             Apply for a Sprint
           </Link>

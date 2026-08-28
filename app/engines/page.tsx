@@ -115,7 +115,7 @@ export default function EnginesPage() {
       </p>
 
       <p className="tiny" style={{ marginTop: 10 }}>
-        Would rather the owner just finish it with you?{" "}
+        Want it finished, not just started?{" "}
         <Link href="/products/five-hour-sprint">The Five Hour Sprint</Link>.
       </p>
     </Sheet>
