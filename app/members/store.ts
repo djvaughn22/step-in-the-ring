@@ -97,6 +97,28 @@ export interface FeedbackRecord {
   createdAt: string;
 }
 
+export type SprintTiming = "asap" | "this-month" | "exploring";
+export type SprintTeamSize = "individual" | "team";
+export type SprintApplicationStatus = "new" | "reviewed";
+
+// A lead for the paid Five Hour Sprint service — the owner personally
+// finishing one piece of work with a customer in one five-hour window. This
+// is NOT the free self-serve /five-hour-sprint-tool planner: nothing here is
+// tied to a member account, since an applicant does not need to sign up to
+// ask about the paid service.
+export interface SprintApplicationRecord {
+  id: string;
+  name: string;
+  email: string;
+  whatToFinish: string;
+  successLooksLike: string;
+  timing: SprintTiming;
+  teamSize: SprintTeamSize;
+  marketingConsent: boolean; // always explicit opt-in, never defaulted true
+  status: SprintApplicationStatus;
+  createdAt: string;
+}
+
 export interface MemberStore {
   // users
   createUser(u: UserRecord): Promise<void>;
@@ -133,6 +155,10 @@ export interface MemberStore {
   createFeedback(f: FeedbackRecord): Promise<void>;
   listFeedback(): Promise<FeedbackRecord[]>;
   updateFeedbackStatus(id: string, status: FeedbackStatus): Promise<void>;
+  // Five Hour Sprint (paid service) applications
+  createSprintApplication(a: SprintApplicationRecord): Promise<void>;
+  listSprintApplications(): Promise<SprintApplicationRecord[]>;
+  updateSprintApplicationStatus(id: string, status: SprintApplicationStatus): Promise<void>;
 }
 
 // ── In-memory implementation (tests / no-database dev) ──────────────────────
@@ -146,6 +172,7 @@ export class MemoryMemberStore implements MemberStore {
   stripeEvents = new Set<string>();
   events: AnalyticsEvent[] = [];
   feedback = new Map<string, FeedbackRecord>();
+  sprintApplications = new Map<string, SprintApplicationRecord>();
 
   async createUser(u: UserRecord) {
     if ([...this.users.values()].some((x) => x.email === u.email)) {
@@ -237,6 +264,16 @@ export class MemoryMemberStore implements MemberStore {
   async updateFeedbackStatus(id: string, status: FeedbackStatus) {
     const existing = this.feedback.get(id);
     if (existing) this.feedback.set(id, { ...existing, status });
+  }
+  async createSprintApplication(a: SprintApplicationRecord) {
+    this.sprintApplications.set(a.id, { ...a });
+  }
+  async listSprintApplications() {
+    return [...this.sprintApplications.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  async updateSprintApplicationStatus(id: string, status: SprintApplicationStatus) {
+    const existing = this.sprintApplications.get(id);
+    if (existing) this.sprintApplications.set(id, { ...existing, status });
   }
 }
 
@@ -468,6 +505,45 @@ export class PgMemberStore implements MemberStore {
   }
   async updateFeedbackStatus(id: string, status: FeedbackStatus) {
     await this.pool.query(`UPDATE member_feedback SET status=$2 WHERE id=$1`, [id, status]);
+  }
+
+  private mapSprintApplication = (r: Record<string, unknown>): SprintApplicationRecord => ({
+    id: String(r.id),
+    name: String(r.name),
+    email: String(r.email),
+    whatToFinish: String(r.what_to_finish),
+    successLooksLike: String(r.success_looks_like),
+    timing: String(r.timing) as SprintTiming,
+    teamSize: String(r.team_size) as SprintTeamSize,
+    marketingConsent: Boolean(r.marketing_consent),
+    status: String(r.status) as SprintApplicationStatus,
+    createdAt: String(r.created_at),
+  });
+
+  async createSprintApplication(a: SprintApplicationRecord) {
+    await this.pool.query(
+      `INSERT INTO sprint_applications (id, name, email, what_to_finish, success_looks_like, timing, team_size, marketing_consent, status, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+      [
+        a.id,
+        a.name,
+        a.email,
+        a.whatToFinish,
+        a.successLooksLike,
+        a.timing,
+        a.teamSize,
+        a.marketingConsent,
+        a.status,
+        a.createdAt,
+      ],
+    );
+  }
+  async listSprintApplications() {
+    const { rows } = await this.pool.query(`SELECT * FROM sprint_applications ORDER BY created_at DESC`);
+    return rows.map(this.mapSprintApplication);
+  }
+  async updateSprintApplicationStatus(id: string, status: SprintApplicationStatus) {
+    await this.pool.query(`UPDATE sprint_applications SET status=$2 WHERE id=$1`, [id, status]);
   }
 }
 

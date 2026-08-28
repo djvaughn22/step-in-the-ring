@@ -177,9 +177,17 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/products/five-hour-sprint",
     name: "The Five Hour Sprint",
-    what: "How to finish a real deliverable inside one focused window on a modest budget.",
+    what: "The paid service: the owner finishes one real deliverable with you inside one focused window.",
     access: "public",
     group: "learn",
+  },
+  {
+    path: "/products/five-hour-sprint/apply",
+    name: "Apply for a Sprint",
+    what: "Tell the owner what you want finished, and when, to ask about a paid Sprint.",
+    access: "public",
+    group: "learn",
+    noindex: true,
   },
 
   // ── Proof ──────────────────────────────────────────────────────────────
@@ -279,6 +287,13 @@ export const SITE_PAGES: SitePage[] = [
     path: "/owner/tester-codes",
     name: "Tester codes",
     what: "Owner tool for issuing and revoking time-limited tester access.",
+    access: "owner",
+    group: "owner",
+  },
+  {
+    path: "/owner/sprint-applications",
+    name: "Sprint applications",
+    what: "Owner view of every application to the paid Five Hour Sprint service.",
     access: "owner",
     group: "owner",
   },
