@@ -25,7 +25,7 @@ import {
 import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
-import { ECOSYSTEM } from "../site/registry";
+import { ECOSYSTEM, homepageProof } from "../site/registry";
 import { QUICK_START, QUICK_STARTERS, STARTING_POINT_GROUPS, STARTING_POINTS } from "./starting-points";
 import { displayName, featuredCapabilities } from "../vnext/capabilities";
 import {
@@ -38,6 +38,9 @@ type Stage = "landing" | "stepped" | "result" | "saved";
    column, so the site can never offer two different sets of first moves. */
 const STARTERS = QUICK_STARTERS;
 const FEATURED_ENGINES = featuredCapabilities();
+/* CrossHeartPray, TheDJCares, iDontCry first, then every other real, live
+   product — the homepage proof panel's fixed order. See app/site/registry.ts. */
+const { primary: HOME_PROOF_PRIMARY, more: HOME_PROOF_MORE } = homepageProof(ECOSYSTEM);
 
 /** The brand mark: the ring itself, read from above — a floor, a rope line,
  *  four posts. The same three shapes the box on the right is framed with,
@@ -544,19 +547,46 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               <ContinueStrip />
             </div>
 
-            {/* ── RIGHT: REAL PROOF. Three real, live creations that can be
-                opened and used right now — the product proves itself by
-                showing what actually got made, not by selling a paid path
-                before anyone has typed a word. ~40% of the hero. ── */}
+            {/* ── RIGHT: REAL PROOF. CrossHeartPray, TheDJCares, and
+                iDontCry first — real, live products that can be opened and
+                used right now — then every other real, live product in the
+                catalog, in a compact row underneath. The product proves
+                itself by showing what actually got made, not by selling a
+                paid path before anyone has typed a word. ~40% of the hero. ── */}
             <aside className="stage-proof">
               <h2 className="stage-proof-heading">Made in The Ring</h2>
               <div className="stage-proof-tiles">
-                {ECOSYSTEM.filter((p) => p.featured && p.liveUrl)
-                  .slice(0, 3)
-                  .map((p) => (
+                {HOME_PROOF_PRIMARY.map((p) => (
+                  <a
+                    key={p.name}
+                    className="tile"
+                    href={p.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={
+                      {
+                        "--tile-accent": p.accent,
+                        "--tile-soft": `${p.accent}1A`,
+                      } as React.CSSProperties
+                    }
+                  >
+                    <span className="tile-mark" aria-hidden="true">{p.emoji}</span>
+                    <h3 className="tile-name">{p.name}</h3>
+                    <p className="tile-what">{p.what}</p>
+                    <span className="tile-foot">
+                      <span className="dot" />
+                      Live
+                      <span className="tile-open">Open</span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+              {HOME_PROOF_MORE.length > 0 && (
+                <div className="stage-proof-more" aria-label="Every other real, live product">
+                  {HOME_PROOF_MORE.map((p) => (
                     <a
                       key={p.name}
-                      className="tile"
+                      className="tile tile-compact"
                       href={p.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -568,16 +598,11 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                       }
                     >
                       <span className="tile-mark" aria-hidden="true">{p.emoji}</span>
-                      <h3 className="tile-name">{p.name}</h3>
-                      <p className="tile-what">{p.what}</p>
-                      <span className="tile-foot">
-                        <span className="dot" />
-                        Live
-                        <span className="tile-open">Open</span>
-                      </span>
+                      <span className="tile-name">{p.name}</span>
                     </a>
                   ))}
-              </div>
+                </div>
+              )}
               <p className="tiny" style={{ marginTop: 4 }}>
                 <Link href="/explore" className="more">See what else got made</Link>
               </p>

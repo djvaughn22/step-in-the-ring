@@ -1,9 +1,12 @@
 "use client";
 
-// The Your Builds surface. Everything server-owned arrives as props; the only
-// things this component does on its own are (a) create a Build through the
-// existing member projects API and (b) LOOK — never write — at pre-vNext work
-// in this browser.
+// The Your Builds surface. Everything server-owned arrives as props. This
+// component creates a Build through the existing member projects API,
+// deletes one through the same account's DELETE route, LOOKS — never writes
+// — at pre-vNext work in this browser (LegacyWork, untouched), and owns one
+// more piece of browser-local state: the single current-creation slot
+// (`sitr-creation-current-v1`), which it can show and precisely delete —
+// never a blind clear of that or any other local key.
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -14,6 +17,10 @@ import {
   BUILD_STAGE_LABEL, BUILD_STAGE_LINE, BUILD_STAGES, type BuildRecordV1,
 } from "../vnext/build";
 import { clearDraft, loadDraft } from "../vnext/draft";
+import { deleteCurrentCreationIfMatches, loadCurrentCreation, viewOf } from "../creation/record";
+import type { CreationRecordV1 } from "../creation/types";
+import { shapingFromView } from "../vnext/shape";
+import { DeleteBuildControl } from "./DeleteBuildControl";
 
 /* Where this build actually is. A filled track says it at a glance; the old
    row of pills made every stage look equally true. */
@@ -37,7 +44,16 @@ function StageTrack({ stage }: { stage: BuildRecordV1["stage"] }) {
   );
 }
 
-function BuildCard({ build }: { build: BuildRecordV1 }) {
+function BuildCard({
+  build,
+  canDelete,
+  onDeleted,
+}: {
+  build: BuildRecordV1;
+  canDelete: boolean;
+  /** Called after a confirmed server-side delete succeeds — id only, never the title/summary. */
+  onDeleted: (id: string, intent: string) => void;
+}) {
   const suggested = useMemo(() => capabilitiesForIntent(build.intent, 3), [build.intent]);
   return (
     <article className="buildcard">
@@ -79,11 +95,63 @@ function BuildCard({ build }: { build: BuildRecordV1 }) {
         </ul>
       )}
 
-      {/* One obvious action per card. Continuing is what this page is for. */}
+      {/* One obvious action per card. Continuing is what this page is for —
+          delete sits quietly beside it, closed until asked for. */}
       <div className="bc-foot">
         <Link className="btn btn-gold" href={`/builds/${build.id}`}>
           Continue
         </Link>
+        {canDelete && (
+          <DeleteBuildControl
+            onConfirm={async () => {
+              try {
+                const res = await fetch(`/api/members/projects/${build.id}`, { method: "DELETE" });
+                const data = (await res.json()) as { ok?: boolean };
+                if (!res.ok || !data.ok) return false;
+                onDeleted(build.id, build.intent);
+                return true;
+              } catch {
+                return false;
+              }
+            }}
+          />
+        )}
+      </div>
+    </article>
+  );
+}
+
+/**
+ * The one browser-local creation — `sitr-creation-current-v1` — shown and
+ * made deletable in its own right. Distinct section from the account list
+ * on purpose: it is not the same storage, and deleting it never touches an
+ * account Build (or vice versa; see the reconciliation in BuildsClient).
+ */
+function LocalBuildCard({
+  record,
+  onDeleted,
+}: {
+  record: CreationRecordV1;
+  onDeleted: () => void;
+}) {
+  const shaping = useMemo(() => shapingFromView(viewOf(record)), [record]);
+  const resumeHref = `/create?idea=${encodeURIComponent(record.originalIdea.slice(0, 600))}`;
+  return (
+    <article className="buildcard">
+      <span className="bc-stage">Only in this browser</span>
+      <h2 className="bc-name">{shaping.title}</h2>
+      <p className="bc-read">{shaping.reading}</p>
+      <div className="bc-foot">
+        <Link className="btn btn-gold" href={resumeHref}>
+          Continue
+        </Link>
+        <DeleteBuildControl
+          onConfirm={async () => {
+            const ok = deleteCurrentCreationIfMatches(record.creationId);
+            if (ok) onDeleted();
+            return ok;
+          }}
+        />
       </div>
     </article>
   );
@@ -114,6 +182,10 @@ export default function BuildsClient({
   const [error, setError] = useState<string | null>(null);
   /** An idea that was in flight when they arrived (possibly via sign-in). */
   const [fromDraft, setFromDraft] = useState(false);
+  /** Local, mutable copy of the server-provided list — deleting one updates
+      this page immediately, with no reload and no refetch. */
+  const [buildList, setBuildList] = useState(builds);
+  const [localRecord, setLocalRecord] = useState<CreationRecordV1 | null>(null);
 
   /* Pick up an idea left in flight by "Keep this build". A ?intent= handed
      over from an older link still wins — it is the more explicit request. */
@@ -126,6 +198,22 @@ export default function BuildsClient({
     setAnswers(draft.answers);
     setFromDraft(true);
   }, [initialIntent]);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setLocalRecord(loadCurrentCreation()), []);
+
+  /** An account Build was deleted. Remove only that one card, and — if the
+      one local creation is that exact same creation, their words matching
+      word for word — clear it too, since it is stale now. Any other Build,
+      and anything else in this browser, is untouched. */
+  function handleBuildDeleted(id: string, deletedIntent: string) {
+    setBuildList((cur) => cur.filter((b) => b.id !== id));
+    setLocalRecord((cur) => {
+      if (!cur || cur.originalIdea !== deletedIntent) return cur;
+      deleteCurrentCreationIfMatches(cur.creationId);
+      return null;
+    });
+  }
 
   /** An idea is waiting to be kept — from a link, or left in flight. */
   const waiting = Boolean((initialIntent.trim() || fromDraft) && intent.trim());
@@ -161,16 +249,18 @@ export default function BuildsClient({
     }
   }
 
+  const hasAnyBuild = buildList.length > 0 || !!localRecord;
+
   return (
     <main>
       <div className="page">
         <header className="mast">
           <span className="kicker">Builds</span>
           <h1 className="mast-title">
-            {builds.length > 0 ? "Your builds" : "Nothing here yet"}
+            {hasAnyBuild ? "Your builds" : "Nothing here yet"}
           </h1>
           <p className="mast-lead">
-            {builds.length > 0
+            {hasAnyBuild
               ? "The things you're actually making. Open one and pick up where you stopped."
               : "This is where the things you are making live, from the first sentence all the way to live on the internet."}
           </p>
@@ -189,10 +279,16 @@ export default function BuildsClient({
           </section>
         )}
 
-        {signedIn && builds.length > 0 && (
+        {localRecord && (
+          <section className="buildlist" aria-label="Saved only in this browser">
+            <LocalBuildCard record={localRecord} onDeleted={() => setLocalRecord(null)} />
+          </section>
+        )}
+
+        {signedIn && buildList.length > 0 && (
           <section className="buildlist" aria-label="Your builds">
-            {builds.map((b) => (
-              <BuildCard key={b.id} build={b} />
+            {buildList.map((b) => (
+              <BuildCard key={b.id} build={b} canDelete={canSave} onDeleted={handleBuildDeleted} />
             ))}
           </section>
         )}
@@ -203,7 +299,7 @@ export default function BuildsClient({
                 one tap finishes what they started, with nothing retyped. */}
             <div className="band-head">
               <h2 className="band-title">
-                {waiting ? "Finish what you started" : builds.length > 0 ? "Start another" : "Make something"}
+                {waiting ? "Finish what you started" : buildList.length > 0 ? "Start another" : "Make something"}
               </h2>
             </div>
             <CreationEntry

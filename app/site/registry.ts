@@ -509,6 +509,31 @@ export const ECOSYSTEM: EcosystemProject[] = [
   },
 ];
 
+/** Finished and reachable — this repo's own bar for "a real product", not
+ *  "building" (unfinished) or "retired" (no longer real). */
+export function isRealLiveProduct(p: EcosystemProject): boolean {
+  return p.status === "live" && !!p.liveUrl;
+}
+
+/**
+ * The homepage's proof panel order: CrossHeartPray, TheDJCares, iDontCry
+ * first (in that order), then every other real, live, finished product in
+ * the catalog — never a "building" placeholder, and never the current site
+ * itself (a product isn't proof of what it built). No second list: both
+ * groups are derived straight from `ECOSYSTEM`, by name only.
+ */
+export function homepageProof(
+  ecosystem: EcosystemProject[] = ECOSYSTEM,
+): { primary: EcosystemProject[]; more: EcosystemProject[] } {
+  const PINNED = ["CrossHeartPray", "TheDJCares", "iDontCry"];
+  const real = ecosystem.filter((p) => isRealLiveProduct(p) && p.name !== "Step In The Ring");
+  const primary = PINNED.map((name) => real.find((p) => p.name === name)).filter(
+    (p): p is EcosystemProject => !!p,
+  );
+  const more = real.filter((p) => !PINNED.includes(p.name));
+  return { primary, more };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED PREVIEWS THAT LIVE ON ANOTHER SITE
 //
