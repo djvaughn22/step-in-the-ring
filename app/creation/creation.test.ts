@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { adapterFor, adapterForType, engineFit } from "./adapters";
 import { DEFAULT_BUILDER_DEFAULTS, doctrineLines } from "./builder-defaults";
 import { buildPackJson, buildPackMarkdown } from "./build-pack";
-import { encodeHandoff, handoffToIntake, readHandoffFromSearch } from "./handoff";
+import { encodeHandoff, handoffToIntake, readHandoffFromSearch, recordToIntake } from "./handoff";
 import { recommendEngines } from "./recommend";
 import {
   moveToEngine, newRecord, recordFromEngineIntake, recordFromHandoff, viewOf, withAnswers,
@@ -124,7 +124,46 @@ describe("engine-first entry", () => {
   });
 });
 
-/* ── 4. Dream Shop handoff → Design Shop prefill ───────────────────────── */
+/* ── Fix and Plan Engine handoff → real intake keys, not "rough"/"idea" ───
+   Create only ever routes to a handful of generic-intake engines
+   (app/creation/recommend.ts): build, sell, design-shop, fix, plan. The
+   first three had a handoffToIntake case; fix and plan fell through to
+   `default`'s {rough, idea} — keys that match no real question on either
+   engine (Fix's first field is "symptom", Plan's is "outcome"), so the
+   record arrived at the engine but rendered as an untouched, empty wizard.
+   This is the actual "no retyping" contract for two of the sprint's three
+   required engine flows, exercised through the real Create pipeline. */
+describe("Create -> Fix Engine carries the report forward, not retyped", () => {
+  const view = viewOf(newRecord("The login on my app stopped working after the last change."));
+
+  it("the engine choice is honestly the repair prompt path, with Fix as the fuller option", () => {
+    const rec = recommendEngines(view);
+    expect(rec.primary).toBeNull();
+    expect(rec.alternates.map((a) => a.engineId)).toContain("fix");
+  });
+
+  it("recordToIntake fills Fix's actual first question — symptom — not rough/idea", () => {
+    const intake = recordToIntake("fix", view.record);
+    expect(intake.symptom).toBe(view.record.originalIdea);
+    expect(intake.rough).toBeUndefined();
+  });
+});
+
+describe("Create -> Plan Engine carries the goal forward, not retyped", () => {
+  const view = viewOf(newRecord("Plan a neighborhood fundraiser with volunteers, deadlines, and donations."));
+
+  it("Plan Engine is the honest primary recommendation", () => {
+    expect(recommendEngines(view).primary?.engineId).toBe("plan");
+  });
+
+  it("recordToIntake fills Plan's actual first question — outcome — not rough/idea", () => {
+    const intake = recordToIntake("plan", view.record);
+    expect(intake.outcome).toBe(view.record.originalIdea);
+    expect(intake.rough).toBeUndefined();
+  });
+});
+
+/* ── Dream Shop handoff → Design Shop prefill ───────────────────────── */
 describe("dream shop handoff", () => {
   const payload: HandoffPayloadV1 = {
     v: 1, source: "idontcry", flow: "dream-shop",

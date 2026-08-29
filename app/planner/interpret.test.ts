@@ -455,3 +455,49 @@ describe("specialized engine routing matrix", () => {
     expect(engine?.engineId).toBe("game");
   });
 });
+
+// Sprint 2 product reset: `for X` audience capture is length-capped at the
+// character level, not the word level. A clause longer than the cap used to
+// come back mid-word ("...coach contact i") — the single worst kind of
+// output the brief called out (garbled, not just imperfect).
+describe("audience capture never truncates mid-word", () => {
+  it("a long 'for X' clause backs off to the last whole word, not a fragment", () => {
+    const i = interpret({
+      description:
+        "A simple website for my son's baseball team with the schedule and coach contact information.",
+    });
+    expect(i.audience?.value ?? "").not.toMatch(/\s[a-z]{1,2}$/i);
+    expect(i.audience?.value ?? "").not.toMatch(/\bi$/);
+  });
+
+  it("a short 'for X' clause is untouched — nothing to back off from", () => {
+    const i = interpret({ description: "A recipe app for busy parents." });
+    expect(i.audience?.value).toBe("Busy parents");
+  });
+});
+
+// Sprint 2 product reset: "my live website gets visitors but nobody signs up"
+// names no destination (findDestination needs "add it to X" / a domain / a
+// known product name) but is unmistakably about something that already
+// exists. It used to read as buildType "new" and route to the from-scratch
+// six-round /build walkthrough — telling someone with a live site to start
+// over. Recognizing "my live/current/existing X" fixes the buildType without
+// inventing a destination name the rest of the copy isn't built to show.
+describe("an unnamed but existing product reads as improve, not new", () => {
+  it("'my live website ... ' is improve, not new", () => {
+    const i = interpret({ description: "My live website gets visitors but nobody signs up." });
+    expect(i.buildType.value).toBe("improve");
+  });
+
+  it("'my current app' and 'our existing tool' read the same way", () => {
+    expect(interpret({ description: "My current app is confusing to new users." }).buildType.value).toBe("improve");
+    expect(interpret({ description: "Our existing tool is hard for our team to use." }).buildType.value).toBe(
+      "improve",
+    );
+  });
+
+  it("a brand-new idea with no existing-product language still reads as new", () => {
+    const i = interpret({ description: "A website for my son's baseball team." });
+    expect(i.buildType.value).toBe("new");
+  });
+});

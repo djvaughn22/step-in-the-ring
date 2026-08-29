@@ -207,11 +207,23 @@ export function looksLikePeople(text: string): boolean {
  * neighborhood can find me" comes back whole — it contains "people", so it
  * passes the people test, and a BUSINESS gets printed as the audience.
  */
-function audienceHead(phrase: string): string {
-  return phrase
-    .split(/\s+(?:so|that|who|which|where|because|but|then|when)\b/i)[0]
-    .replace(/[.,;:!?]+$/, "")
-    .trim();
+/**
+ * `[^.,;!?]{2,60}` is a character cap, not a word cap — when a clause runs
+ * past 60 characters the match stops wherever the count runs out, mid-word
+ * ("...coach contact i"). `capped` says the raw capture hit that ceiling; only
+ * then do we drop the (possibly-fragmentary) trailing word.
+ */
+function audienceHead(phrase: string, capped: boolean): string {
+  const parts = phrase.split(/\s+(?:so|that|who|which|where|because|but|then|when)\b/i);
+  let cut = parts[0].replace(/[.,;:!?]+$/, "").trim();
+  // A connector word already gave this a natural, earlier stopping point —
+  // it didn't run out to the character cap, so nothing here is truncated.
+  if (capped && parts.length === 1) {
+    const words = cut.split(/\s+/);
+    if (words.length > 1) words.pop();
+    cut = words.join(" ");
+  }
+  return cut;
 }
 
 /** An audience stated outright: "for busy parents", "aimed at dog owners". */
@@ -224,7 +236,7 @@ export function findStatedAudience(text: string): string | null {
     for (const m of text.matchAll(re)) {
       // Test the head phrase only — a people-word further downstream is not
       // evidence that THIS phrase names the audience.
-      const candidate = audienceHead(m[1]);
+      const candidate = audienceHead(m[1], m[1].length >= 60);
       if (candidate && looksLikePeople(candidate)) return candidate;
     }
   }

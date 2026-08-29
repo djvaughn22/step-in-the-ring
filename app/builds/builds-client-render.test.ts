@@ -5,6 +5,8 @@
 // local development can never show it. It is checked here instead.
 
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import BuildsClient from "./BuildsClient";
@@ -137,5 +139,32 @@ describe("the homepage's continue offer", () => {
     // It only ever appears after the Build API answers, so the static HTML
     // the homepage ships must be byte-for-byte unaffected.
     expect(renderToStaticMarkup(createElement(ContinueStrip))).toBe("");
+  });
+});
+
+// No jsdom mount exists for this component (see the file header), so a real
+// double-click can't be simulated here — this locks the guard's SHAPE
+// instead: `busy` gates both the submit handler and the button, and gets set
+// before the network call, not after. Weakening any one of those three
+// re-opens the double-submit window that creates two Builds from one click.
+describe("createBuild cannot fire twice from one submit", () => {
+  const src = readFileSync(join(__dirname, "BuildsClient.tsx"), "utf8");
+  const fn = src.slice(src.indexOf("async function createBuild"), src.indexOf("return (\n    <main>"));
+
+  it("bails out immediately when a request is already in flight", () => {
+    expect(fn).toMatch(/if \(!said \|\| busy\) return;/);
+  });
+
+  it("flips busy to true before the fetch fires, not after", () => {
+    const guardAt = fn.indexOf("if (!said || busy) return;");
+    const setBusyAt = fn.indexOf("setBusy(true)");
+    const fetchAt = fn.indexOf("fetch(\"/api/builds\"");
+    expect(guardAt).toBeGreaterThanOrEqual(0);
+    expect(setBusyAt).toBeGreaterThan(guardAt);
+    expect(fetchAt).toBeGreaterThan(setBusyAt);
+  });
+
+  it("the submit button is actually disabled while busy — the guard has a UI half too", () => {
+    expect(src).toMatch(/disabled=\{busy \|\| !canSave\}/);
   });
 });

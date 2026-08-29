@@ -76,6 +76,15 @@ export function handoffToIntake(
       return { ...base, purpose: p.idea, ...(f.audience ? { who: f.audience } : {}) };
     case "sell":
       return { ...base, product: p.idea, ...(f.audience ? { customer: f.audience } : {}) };
+    // Fix and Plan are the other two generic-intake engines Create actually
+    // routes to (app/creation/recommend.ts) — without their own case here
+    // they fell to `default`'s {rough, idea} keys, which match no real
+    // question on either engine (Fix's first field is "symptom", Plan's is
+    // "outcome"), so the record arrived but nothing on screen showed it.
+    case "fix":
+      return { ...base, symptom: p.idea, ...(f.audience ? { journey: f.audience } : {}) };
+    case "plan":
+      return { ...base, outcome: p.idea, ...(f.audience ? { people: f.audience } : {}) };
     default:
       return { ...base, rough: p.idea, idea: p.idea };
   }
