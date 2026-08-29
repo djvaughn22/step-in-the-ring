@@ -1,7 +1,9 @@
 // Home's returning-user strip must never leak a specific Build's title,
-// stage, or next-move text — the owner rejected "Loneliness Song" and
-// "Right now: write it" appearing on the front door. It still has to offer a
-// real way back into the actual latest build.
+// stage, or next-move text — the owner rejected a private Build's real
+// title and next-move text appearing on the front door (2026-08-22; see
+// docs/sitr-feature-inventory.md's Sprint 2 privacy-correction section for
+// why this fixture uses fictional content, not the owner's own words). It
+// still has to offer a real way back into the actual latest build.
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -10,9 +12,9 @@ import { newBuild, type BuildRecordV1 } from "./build";
 
 function build(patch: Partial<BuildRecordV1> = {}): BuildRecordV1 {
   return {
-    ...newBuild("A song about being lonely, with just a piano and my voice.", "2026-08-20T00:00:00.000Z"),
+    ...newBuild("A song about a train moving through summer rain.", "2026-08-20T00:00:00.000Z"),
     id: "b1",
-    title: "Loneliness Song",
+    title: "Summer Rain Song",
     currentAction: "Right now: write it.",
     ...patch,
   };
@@ -21,7 +23,7 @@ function build(patch: Partial<BuildRecordV1> = {}): BuildRecordV1 {
 describe("KeepGoingCard", () => {
   it("never prints the Build's title", () => {
     const html = renderToStaticMarkup(createElement(KeepGoingCard, { latest: build() }));
-    expect(html).not.toContain("Loneliness Song");
+    expect(html).not.toContain("Summer Rain Song");
   });
 
   it("never prints the Build's next-move text", () => {

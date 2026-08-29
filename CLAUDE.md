@@ -15,6 +15,30 @@ Idea-to-first-build coach, secular. Accent: **#60A5FA**.
 - Accepts `?idea=` handoff from iDontCry's Dream Lab (prefills the build form) and links back.
 - Kids build with a parent — keep that note.
 
+## Personal data is not product test data (permanent, 2026-08-29)
+
+A real Build carrying the owner's own private personal story sat unscrubbed
+in production and in a test fixture (2026-08-29 privacy correction; see
+`docs/sitr-feature-inventory.md`'s Sprint 2 section — the private wording
+itself was scrubbed, not preserved, so it is not repeated here). Never again:
+
+- Never use the owner's or any user's biography, conversation memory,
+  profile, family, relationships, divorce, loneliness, faith journey,
+  health, finances, employment, location, or private projects as examples,
+  fixtures, seeds, screenshots, demos, or test Builds. Use fictional,
+  neutral content instead — see `docs/sitr-feature-inventory.md`'s
+  Sprint 2 privacy-correction section for the standing fictional example set.
+- A generated title or summary may preserve what a user explicitly entered
+  in their own current creation. It must never infer, embellish, or
+  introduce sensitive personal facts absent from that input.
+- Sensitive topics are not banned — if a user explicitly writes about one,
+  preserve their own words respectfully. The prohibition is against
+  *unauthorized inference and reuse*, not against the topic itself.
+- Analytics and logs must never collect raw idea/creation text — `track()`
+  calls pass only structural metadata (event name, engine id, type, count),
+  never `intent`/`raw`/`summary`/`title`. Locked by
+  `app/lib/analytics.test.ts`.
+
 ## Open Mirror family rules
 - One of 11 Open Mirror LLC sites (hub: openmirrorllc.com, repo djvaughn22/open-mirror). Baseline tag: `mvp-1`.
 - **Design:** flat + cool. bg `#0b1220`, surface `#141d2e`, border `#26324c`, text `#e8edf5`, muted `#94a3b8`. No glass, no gradients, **no red**.

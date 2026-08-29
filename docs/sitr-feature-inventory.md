@@ -327,3 +327,78 @@ it changes what "the Build" means depending on which door was taken.
   (375×812) has no horizontal overflow; light/dark toggle applies without
   error. The authenticated `/builds` create→reopen round trip was not
   browser-verified — see "Verified persistence and exports" above.
+
+## Sprint 2 privacy correction — separate emergency task, 2026-08-29
+
+Not activation-audit work. A real Build carrying the owner's own private
+personal story — a title and a musical idea, neither invented by this
+product, both typed by the owner at some earlier point — was found
+unscrubbed in a test fixture (`app/vnext/ContinueStrip.test.ts`, added
+2026-08-22 alongside the returning-user fix that same fixture regression-
+tests) and reported as present on the production Builds page. The private
+wording itself is deliberately not reproduced here — see `CLAUDE.md`'s
+"Personal data is not product test data" section for the permanent rule
+this incident produced.
+
+**What this session could verify and fix:**
+- The exact wording was found in exactly one place in the repository: the
+  `ContinueStrip.test.ts` fixture above. Not in Sprint 2's own commit
+  (`a340611` touches none of `ContinueStrip.tsx`/`.test.ts` or `app/builds`),
+  not in any other test, fixture, doc, or screenshot. Scrubbed — the fixture
+  now uses fully fictional content while keeping the exact same regression
+  coverage (the strip must never print a Build's title/stage/next-move text).
+- Analytics/logging: confirmed clean by reading every `track()` call site
+  and the analytics wrapper itself — none pass `intent`/`raw`/`summary`/
+  `title`/`record`, only structural metadata (event name, engine id, type,
+  count). No server-side code in the builds/creation path calls
+  `console.*` at all. Locked by `app/lib/analytics.test.ts`.
+- No supported way existed to delete a single Build — the only delete path
+  (`POST /api/members/delete-request`) wipes the entire account. Added
+  "Delete this build" to `app/builds/[id]/BuildDetail.tsx`, wired to the
+  already-existing, already-tested, ownership-scoped
+  `DELETE /api/members/projects/[id]` route (previously exposed nowhere in
+  the UI). Two taps required, closed by default, removes only the one row.
+
+**What this session could not verify or act on:** the actual production
+database row. This sandboxed environment has no `DATABASE_URL` and no
+signed-in session on `stepinthering.com` — there is no path from here to
+query, confirm, or delete a specific production Build. **The owner needs to
+sign in at stepinthering.com and use the new "Delete this build" button
+themselves** once this correction deploys. Browser-local storage on the
+sandbox's own browser tab was checked and contains no trace of the incident
+(only theme keys). Application/deployment logs on Vercel were not
+accessible from this session to check or clear.
+
+**Standing fictional example set** — for any future Sprint 2 (or other
+activation-audit) work in this repo, examples must come only from this list,
+never from the owner's own biography, conversation memory, or private
+projects:
+- A public park volunteer schedule website
+- A phone puzzle game where colored tiles rotate
+- A fictional mobile car-wash booking service
+- A song about a train moving through summer rain
+- A printable mountain-trail poster
+- A community book-swap event plan
+- A fictional coffee-shop website that gets visits but no newsletter signups
+- A demo inventory app whose login broke after an update
+
+Running these through the pipeline during this correction (diagnostic only,
+not acted on — activation-audit work is explicitly paused) surfaced two
+possible classification quirks worth a look *whenever Sprint 2 resumes*, not
+now: "a community book-swap event plan" reads as `story` (the bare noun
+"book" hitting the same class of false-positive as the "coach"/`SERVICE` fix
+earlier in this sprint), and "no newsletter signups" on a coffee-shop
+website reads as `content` (`CONTENT_STRONG` matching the bare word
+"newsletter" regardless of context). Neither was investigated further or
+fixed here.
+
+**New/changed test coverage:** `app/lib/analytics.test.ts` (new),
+`app/creation/privacy-guardrail.test.ts` (new — neutral inputs never gain
+invented sensitive terms; explicit user-supplied sensitive content is kept
+verbatim and not embellished; demo/example content stays clean; the
+incident's exact title-phrase is absent repo-wide), `app/builds/builds-
+client-render.test.ts` (delete button gating), `app/api/builds/builds-api.
+test.ts` (real-session HTTP coverage of the delete route: owner can delete
+their own, a stranger cannot, no session is refused), `app/vnext/
+ContinueStrip.test.ts` (fixture scrubbed to fictional content, same
+assertions).

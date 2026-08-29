@@ -134,6 +134,27 @@ describe("catching an older build up", () => {
   });
 });
 
+// Sprint 2 privacy correction (2026-08-29): a real, private Build had no
+// supported way to remove it — the account-delete route wipes everything,
+// and there was no per-Build delete anywhere in the UI even though the
+// underlying DELETE /api/members/projects/[id] route already existed,
+// tested, and ownership-scoped. This closes that gap.
+describe("deleting a build", () => {
+  const detail = (b: BuildRecordV1, canEdit = true) =>
+    renderToStaticMarkup(createElement(BuildDetail, { build: b, canEdit }));
+
+  it("offers delete only to someone who can actually change the build", () => {
+    expect(detail(made(DOG, "mine-1"))).toContain("Delete this build");
+    expect(detail(made(DOG, "mine-1"), false)).not.toContain("Delete this build");
+  });
+
+  it("is closed by default — never an accidental one-click delete", () => {
+    const html = detail(made(DOG, "mine-1"));
+    expect(html).toContain("<details");
+    expect(html).not.toContain("Yes, delete it permanently");
+  });
+});
+
 describe("the homepage's continue offer", () => {
   it("adds nothing at all to the page a stranger is served", () => {
     // It only ever appears after the Build API answers, so the static HTML
