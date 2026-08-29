@@ -1142,8 +1142,8 @@ body { font-synthesis-weight: none; }
 
 /* ═══ HOME ═══════════════════════════════════════════════════════════════ */
 
-/* ── The stage: make something on the left (~60%), the paid opportunity
-   panel on the right (~40%) on desktop. Stacks make-first on phone. ── */
+/* ── The stage: make something on the left (~60%), real proof on the right
+   (~40%) on desktop. Stacks make-first on phone. ── */
 .stage {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
@@ -1165,85 +1165,34 @@ body { font-synthesis-weight: none; }
   margin-top: 22px;
 }
 
-/* ── THE OPPORTUNITY PANEL — the paid path, unmistakably elevated against
-   the plain dark hero around it. This is the whole point of this section:
-   a restrained inline link reads as an afterthought, a lit panel with real
-   pricing does not. ── */
-.opportunity-panel {
+/* ── THE PROOF PANEL — real, live, clickable creations beside the box
+   itself. Reuses .tile (defined below), stacked in one column instead of
+   the wider grid the standalone proof band uses. ── */
+.stage-proof {
   position: sticky;
   top: 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 24px 22px 26px;
-  border-radius: 22px;
-  border: 1px solid var(--accent-glow);
-  background: linear-gradient(165deg, var(--panel2) 0%, var(--deep) 145%);
-  box-shadow: 0 28px 64px -24px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 @media (max-width: 940px) {
-  .opportunity-panel { position: static; }
+  .stage-proof { position: static; }
 }
 
-.opportunity-heading {
+.stage-proof-heading {
   font-size: 12.5px;
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--gold);
 }
 
-.opp-card {
+.stage-proof-tiles {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px 18px 18px;
-  border-radius: 16px;
-  border: 1px solid var(--line2);
-  background: rgba(6, 18, 31, 0.32);
+  gap: 12px;
 }
-.opp-name {
-  font-size: 14.5px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-.opp-copy { font-size: 13.5px; line-height: 1.55; color: var(--muted); }
-.opp-label { font-size: 12.5px; font-weight: 800; color: var(--accent); }
-.opp-action { margin-top: 6px; align-self: flex-start; }
-
-/* Five Hour Sprint: the dominant card. Larger, filled solid with the brand
-   blue, its own dark-on-blue action button — visibly the flagship offer,
-   not a fourth equal option. */
-.opp-card-sprint {
-  order: 2;
-  padding: 22px 22px 24px;
-  border: 2px solid var(--accent);
-  background: linear-gradient(160deg, var(--accent) 0%, #1C86D9 120%);
-  box-shadow: 0 18px 40px -14px var(--accent-glow);
-}
-.opp-card-sprint .opp-name { color: var(--ink); font-size: 18.5px; }
-.opp-card-sprint .opp-copy { color: rgba(6, 18, 31, 0.82); font-size: 14.5px; }
-.opp-card-sprint .opp-label { color: var(--ink); font-weight: 900; }
-.opp-action-sprint {
-  background: var(--ink);
-  color: var(--accent);
-  border: none;
-  font-weight: 900;
-}
-.opp-action-sprint:hover { background: #0A1826; }
-
-.opp-card-free { order: 1; }
-.opp-card-team { order: 3; }
-
-@media (max-width: 940px) {
-  /* Mobile order: identity + idea box (outside this panel) first, then the
-     paid Sprint ahead of the free path, then the team format. */
-  .opp-card-sprint { order: 1; }
-  .opp-card-free { order: 2; }
-  .opp-card-team { order: 3; }
-}
+.stage-proof-tiles .tile { min-height: 0; padding: 18px; }
 
 .stage-mark {
   display: inline-flex;

@@ -43,3 +43,13 @@ describe("the primary nav still carries every door in the mobile sheet", () => {
     }
   });
 });
+
+// 2026-08-29 product reset: the paid Five Hour Sprint sales page was
+// promoted in this bar's SECONDARY row on every page of the site. The
+// service stays reachable at its own URL, but the primary navigation no
+// longer sells it.
+describe("primary navigation stays free of the paid Sprint sales page", () => {
+  it("SECONDARY does not link to the paid Sprint sales page", () => {
+    expect(header).not.toMatch(/\/products\/five-hour-sprint/);
+  });
+});
