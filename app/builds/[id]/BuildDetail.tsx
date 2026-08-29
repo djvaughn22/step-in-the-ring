@@ -33,6 +33,8 @@ export default function BuildDetail({
   const [note, setNote] = useState("");
   const [artifactLabel, setArtifactLabel] = useState("");
   const [artifactRef, setArtifactRef] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const helps = useMemo(() => capabilitiesForIntent(build.intent, 4), [build.intent]);
   const stageIndex = BUILD_STAGES.indexOf(build.stage);
@@ -60,6 +62,26 @@ export default function BuildDetail({
     }
     setBusy(false);
     return ok;
+  }
+
+  /** Permanent. Two taps on purpose — nothing here is a misclick away. */
+  async function deleteBuild() {
+    if (deleting || !canEdit) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/members/projects/${build.id}`, { method: "DELETE" });
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setError(data.error ?? "That didn't delete. Try again.");
+        setDeleting(false);
+        return;
+      }
+      window.location.href = "/builds";
+    } catch {
+      setError("That didn't delete. Check your connection and try again.");
+      setDeleting(false);
+    }
   }
 
   /**
@@ -390,6 +412,51 @@ export default function BuildDetail({
               See what that means →
             </a>
           </p>
+        )}
+
+        {/* DELETE — closed by default, two taps, and it removes only this
+            one Build. Nothing else on the account is touched. */}
+        {canEdit && (
+          <section className="bsec" style={{ marginTop: 20 }}>
+            <details className="card">
+              <summary className="bsec-t" style={{ cursor: "pointer", display: "inline-block" }}>
+                Delete this build
+              </summary>
+              <p className="field-help" style={{ margin: "10px 0 0" }}>
+                Permanent. Removes only this one build — nothing else on your account.
+              </p>
+              {!confirmingDelete ? (
+                <div className="actions" style={{ marginTop: 12 }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-small"
+                    onClick={() => setConfirmingDelete(true)}
+                  >
+                    Delete this build
+                  </button>
+                </div>
+              ) : (
+                <div className="actions" style={{ marginTop: 12 }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-small"
+                    disabled={deleting}
+                    onClick={() => void deleteBuild()}
+                  >
+                    {deleting ? "Deleting…" : "Yes, delete it permanently"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-small"
+                    disabled={deleting}
+                    onClick={() => setConfirmingDelete(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </details>
+          </section>
         )}
       </div>
     </main>

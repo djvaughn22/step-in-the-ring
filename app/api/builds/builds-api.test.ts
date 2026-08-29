@@ -22,6 +22,7 @@ vi.mock("../../members/store", async (importOriginal) => {
 
 const { GET, POST } = await import("./route");
 const { POST: ACTION } = await import("./[id]/route");
+const { DELETE: DELETE_PROJECT } = await import("../members/projects/[id]/route");
 
 const GAME =
   "A game where you dodge falling tacos and try to beat your friend's score. " +
@@ -342,5 +343,47 @@ describe("a build is never handed to a cache", () => {
       params(build.id),
     );
     expect(res.headers.get("cache-control")).toContain("no-store");
+  });
+});
+
+// Sprint 2 privacy correction (2026-08-29): a real Build had no supported way
+// to be removed on its own — the only delete path wiped the whole account.
+// This is the exact route BuildDetail's new "Delete this build" button calls.
+// The data-layer function (deleteOwnProject) already had ownership-isolation
+// coverage in app/members/membership.test.ts; this proves the actual HTTP
+// route a browser hits behaves the same way, through a real session.
+describe("deleting a single build removes only that one build", () => {
+  it("the owner can delete their own build, and only that one", async () => {
+    const { sessionToken } = await member("delete-owner@example.com");
+    const { build: keep } = await createBuild(sessionToken, "A song about a train moving through summer rain.");
+    const { build: gone } = await createBuild(sessionToken, "A demo inventory app whose login broke after an update.");
+
+    const res = await DELETE_PROJECT(req(`/api/members/projects/${gone.id}`, { method: "DELETE", token: sessionToken }), params(gone.id));
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.ok).toBe(true);
+
+    const list = await (await GET(req("/api/builds", { token: sessionToken }))).json();
+    const ids = list.builds.map((b: { id: string }) => b.id);
+    expect(ids).not.toContain(gone.id);
+    expect(ids).toContain(keep.id);
+  });
+
+  it("a stranger cannot delete someone else's build, and it survives", async () => {
+    const { sessionToken: ownerToken } = await member("delete-victim@example.com");
+    const { sessionToken: strangerToken } = await member("delete-stranger@example.com");
+    const { build } = await createBuild(ownerToken);
+
+    const res = await DELETE_PROJECT(req(`/api/members/projects/${build.id}`, { method: "DELETE", token: strangerToken }), params(build.id));
+    expect(res.ok).toBe(false);
+
+    const list = await (await GET(req("/api/builds", { token: ownerToken }))).json();
+    expect(list.builds.map((b: { id: string }) => b.id)).toContain(build.id);
+  });
+
+  it("refuses a stranger with no session at all", async () => {
+    const { build } = await createBuild((await member("delete-noauth@example.com")).sessionToken);
+    const res = await DELETE_PROJECT(req(`/api/members/projects/${build.id}`, { method: "DELETE" }), params(build.id));
+    expect(res.status).toBe(401);
   });
 });
