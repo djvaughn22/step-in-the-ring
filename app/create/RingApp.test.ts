@@ -27,63 +27,48 @@ describe("RingApp — one creation CTA, one quiet return path", () => {
   });
 });
 
-// 2026-08-27 visual-conversion correction: a restrained inline text link
-// ("Would rather not do it alone? Finish one thing in five hours, with the
-// owner.") failed owner acceptance — a stranger scrolled past it without
-// noticing the paid path existed. It was replaced with a visibly elevated
-// opportunity panel occupying real space in the first screen, not another
-// text link, so these tests lock the panel's presence and pin the failed
-// phrasing so it cannot quietly come back.
-describe("RingApp home hero — the opportunity panel", () => {
-  it("removes the failed restrained inline Sprint link entirely", () => {
-    expect(src).not.toMatch(/Would rather not do it alone/);
-    expect(src).not.toMatch(/with the owner/);
+// 2026-08-29 product reset: the visually elevated "opportunity panel"
+// (Choose your way in / Five Hour Sprint from $1,500 / Team Sprint $5,000)
+// failed owner acceptance a second time — the front door asked a stranger to
+// choose between a free product and two paid services before they had made
+// anything. It is gone for good, replaced by real, live proof beside the
+// box. These tests lock that removal and the replacement so the sales wall
+// cannot quietly come back.
+describe("RingApp home hero — product-first, no sales wall", () => {
+  const heroStart = src.indexOf('if (stage === "landing") {', src.indexOf("HOME — the front door"));
+  const hero = src.slice(heroStart, src.indexOf('/* ── STEPPED IN'));
+
+  it("shows no dollar pricing in the home hero", () => {
+    expect(hero).not.toMatch(/\$\s?\d/);
+  });
+
+  it("offers no paid Sprint or Team Sprint choice in the home hero", () => {
+    expect(hero).not.toMatch(/Choose your way in/);
+    expect(hero).not.toMatch(/Finish it with help/);
+    expect(hero).not.toMatch(/Bring a team/);
+    expect(hero).not.toMatch(/opportunity-panel/);
+    expect(hero).not.toMatch(/opp-card/);
+    expect(hero).not.toMatch(/href="\/products\/five-hour-sprint/);
   });
 
   it("keeps the idea-entry field working inside the make-something column", () => {
     // theBox (CreationEntry) still renders inside stage-make, not removed
-    // or replaced by opportunity content.
-    const make = src.slice(src.indexOf('className="stage-make"'), src.indexOf('className="opportunity-panel"'));
+    // or replaced by sales content.
+    const make = src.slice(src.indexOf('className="stage-make"'), src.indexOf('className="stage-proof"'));
     expect(make).toContain("{theBox}");
     expect(make).toContain('href="#idea-description"');
     expect(make).toContain("Start creating");
   });
 
-  it("offers exactly three opportunity cards, each pointed at the right destination", () => {
-    const panel = src.slice(src.indexOf('className="opportunity-panel"'));
-    expect(panel).toContain("Choose your way in");
-
-    expect(panel).toMatch(/opp-card-free[\s\S]*?href="\/create"/);
-    expect(panel).toMatch(/opp-card-sprint[\s\S]*?href="\/products\/five-hour-sprint"/);
-    expect(panel).toMatch(/opp-card-team[\s\S]*?href="\/products\/five-hour-sprint\/apply\?format=team"/);
+  it("shows real, live proof beside the box instead", () => {
+    const panel = src.slice(src.indexOf('className="stage-proof"'));
+    expect(panel).toContain("Made in The Ring");
+    expect(panel).toContain("ECOSYSTEM.filter");
+    expect(panel).toMatch(/target="_blank"/);
   });
 
-  it("shows real Sprint pricing in the first screen, not just a link to find it later", () => {
-    const panel = src.slice(src.indexOf('className="opportunity-panel"'));
-    expect(panel).toMatch(/\$1,500/);
-    expect(panel).toMatch(/\$5,000/);
-  });
-
-  it("makes Five Hour Sprint the visually dominant card, not an equal fourth option", () => {
-    const panelCss = css.slice(css.indexOf(".opp-card-sprint {"), css.indexOf(".opp-card-free {"));
-    // Bigger padding and a filled brand-blue background, versus the plain
-    // outlined free/team cards — the visual weight the owner asked for.
-    expect(panelCss).toMatch(/background:\s*linear-gradient/);
-    expect(panelCss).toMatch(/border:\s*2px solid var\(--accent\)/);
-  });
-
-  it("reorders the panel so Sprint outranks the free path on phone, without changing desktop order", () => {
-    const mobileBlock = css.slice(css.lastIndexOf("@media (max-width: 940px)"));
-    expect(mobileBlock).toMatch(/\.opp-card-sprint\s*\{\s*order:\s*1/);
-    expect(mobileBlock).toMatch(/\.opp-card-free\s*\{\s*order:\s*2/);
-  });
-
-  it("has no duplicate Sprint entry point competing with the opportunity panel in the hero", () => {
-    const hero = src.slice(src.indexOf('if (stage === "landing") {', src.indexOf("HOME — the front door")));
-    const sprintLinks = hero.match(/href="\/products\/five-hour-sprint/g) ?? [];
-    // One in the opportunity panel's Sprint card, one in the Team card
-    // (a distinct destination, not a duplicate) — never a third, redundant
-    // inline mention.
-    expect(sprintLinks.length).toBe(2);
+  it("has no leftover opp-card styling in globals.css", () => {
+    expect(css).not.toMatch(/\.opp-card/);
+    expect(css).not.toMatch(/\.opportunity-panel/);
   });
 });

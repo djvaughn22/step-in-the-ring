@@ -535,42 +535,43 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               <ContinueStrip />
             </div>
 
-            {/* ── RIGHT: THREE WAYS IN. A visibly elevated, blue-lit
-                opportunity panel — not a row of plain text links. Five Hour
-                Sprint is deliberately the biggest, boldest card in it: the
-                flagship paid outcome, not a fourth engine. ~40% of the hero. ── */}
-            <aside className="opportunity-panel">
-              <h2 className="opportunity-heading">Choose your way in</h2>
-
-              <div className="opp-card opp-card-free">
-                <span className="opp-name">Start free</span>
-                <p className="opp-copy">Shape the idea and use the tools yourself.</p>
-                <span className="opp-label">Free during open beta</span>
-                <Link href="/create" className="btn btn-ghost opp-action">
-                  Start free
-                </Link>
+            {/* ── RIGHT: REAL PROOF. Three real, live creations that can be
+                opened and used right now — the product proves itself by
+                showing what actually got made, not by selling a paid path
+                before anyone has typed a word. ~40% of the hero. ── */}
+            <aside className="stage-proof">
+              <h2 className="stage-proof-heading">Made in The Ring</h2>
+              <div className="stage-proof-tiles">
+                {ECOSYSTEM.filter((p) => p.featured && p.liveUrl)
+                  .slice(0, 3)
+                  .map((p) => (
+                    <a
+                      key={p.name}
+                      className="tile"
+                      href={p.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={
+                        {
+                          "--tile-accent": p.accent,
+                          "--tile-soft": `${p.accent}1A`,
+                        } as React.CSSProperties
+                      }
+                    >
+                      <span className="tile-mark" aria-hidden="true">{p.emoji}</span>
+                      <h3 className="tile-name">{p.name}</h3>
+                      <p className="tile-what">{p.what}</p>
+                      <span className="tile-foot">
+                        <span className="dot" />
+                        Live
+                        <span className="tile-open">Open</span>
+                      </span>
+                    </a>
+                  ))}
               </div>
-
-              <div className="opp-card opp-card-sprint">
-                <span className="opp-name">Five Hour Sprint</span>
-                <p className="opp-copy">
-                  Bring one valuable unfinished thing. Leave with a working,
-                  tested version and a clear next move.
-                </p>
-                <span className="opp-label">Hands-on help · from $1,500</span>
-                <Link href="/products/five-hour-sprint" className="btn opp-action opp-action-sprint">
-                  Finish it with help
-                </Link>
-              </div>
-
-              <div className="opp-card opp-card-team">
-                <span className="opp-name">Team Sprint</span>
-                <p className="opp-copy">Give the team one finish line and leave with a real result.</p>
-                <span className="opp-label">Team Sprint · $5,000</span>
-                <Link href="/products/five-hour-sprint/apply?format=team" className="btn btn-ghost opp-action">
-                  Bring a team
-                </Link>
-              </div>
+              <p className="tiny" style={{ marginTop: 4 }}>
+                <Link href="/explore" className="more">See what else got made</Link>
+              </p>
             </aside>
           </section>
 
@@ -655,48 +656,6 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </div>
             <p className="tiny" style={{ marginTop: 16 }}>
               <Link href="/how" className="more">More on how it works</Link>
-            </p>
-          </section>
-
-          {/* ── PROOF. A short row, not a portfolio. The point is "people
-              really finish things here", and five makes that point as well as
-              ten does — the rest live on Explore and on Open Mirror. ── */}
-          <section className="band">
-            <div className="band-head">
-              <h2 className="band-title">Made this way</h2>
-              <p className="band-note">
-                Real products that came out of this loop. They are live right
-                now, so open one.
-              </p>
-            </div>
-            <div className="tiles">
-              {ECOSYSTEM.filter((p) => p.featured && p.liveUrl).map((p) => (
-                <a
-                  key={p.name}
-                  className="tile"
-                  href={p.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={
-                    {
-                      "--tile-accent": p.accent,
-                      "--tile-soft": `${p.accent}1A`,
-                    } as React.CSSProperties
-                  }
-                >
-                  <span className="tile-mark" aria-hidden="true">{p.emoji}</span>
-                  <h3 className="tile-name">{p.name}</h3>
-                  <p className="tile-what">{p.what}</p>
-                  <span className="tile-foot">
-                    <span className="dot" />
-                    Live
-                    <span className="tile-open">Open</span>
-                  </span>
-                </a>
-              ))}
-            </div>
-            <p className="tiny" style={{ marginTop: 16 }}>
-              <Link href="/explore" className="more">See what else got made</Link>
             </p>
           </section>
 

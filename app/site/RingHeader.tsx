@@ -25,7 +25,6 @@ import OpenMirrorThemeToggle, { AppearanceMenu } from "../OpenMirrorTheme";
 // where everything is, and their own account. Kept visually quieter on
 // purpose — they are not part of the making loop.
 const SECONDARY = [
-  { name: "Five Hour Sprint", href: "/products/five-hour-sprint" },
   { name: "How", href: "/how" },
   { name: "Everything", href: "/everything" },
   { name: "Account", href: "/account" },
