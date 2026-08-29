@@ -15,6 +15,8 @@ import {
   navPages,
   previewPaths,
   pageAt,
+  homepageProof,
+  isRealLiveProduct,
 } from "./registry";
 
 const APP = path.join(process.cwd(), "app");
@@ -196,5 +198,57 @@ describe("nothing in the registry is a secret", () => {
     expect(source).not.toMatch(/passcode\s*[:=]\s*["'`]/i);
     expect(source).not.toMatch(/password\s*[:=]\s*["'`]/i);
     expect(source).not.toMatch(/\b\d{4,}\b/);
+  });
+});
+
+// Sprint correction: the homepage proof panel proves value through the real
+// products — CrossHeartPray, TheDJCares, and iDontCry first, then every
+// other real, live, finished product in the catalog. No second, hand-kept
+// list: homepageProof() reads straight from ECOSYSTEM.
+describe("the homepage proof order", () => {
+  const { primary, more } = homepageProof(ECOSYSTEM);
+  const all = [...primary, ...more];
+
+  it("puts CrossHeartPray, TheDJCares, and iDontCry first, in that exact order", () => {
+    expect(primary.map((p) => p.name)).toEqual(["CrossHeartPray", "TheDJCares", "iDontCry"]);
+  });
+
+  it("TheDJCares is present — it was never featured before this correction", () => {
+    expect(all.some((p) => p.name === "TheDJCares")).toBe(true);
+  });
+
+  it("every remaining real, live catalog product follows, and appears exactly once", () => {
+    const expectedNames = ECOSYSTEM.filter(
+      (p) => isRealLiveProduct(p) && p.name !== "Step In The Ring",
+    ).map((p) => p.name);
+    expect(all.map((p) => p.name).sort()).toEqual([...expectedNames].sort());
+    // No duplicates anywhere in the combined order.
+    expect(new Set(all.map((p) => p.name)).size).toBe(all.length);
+  });
+
+  it("never shows an unfinished ('building') product as if it were finished", () => {
+    const building = ECOSYSTEM.filter((p) => p.status === "building").map((p) => p.name);
+    expect(building.length).toBeGreaterThan(0); // sanity — WhatAmIAI must still exist to prove this
+    for (const name of building) expect(all.map((p) => p.name)).not.toContain(name);
+  });
+
+  it("never lists the site itself as proof of what got built elsewhere", () => {
+    expect(all.map((p) => p.name)).not.toContain("Step In The Ring");
+  });
+
+  it("each entry links straight to its real, live catalog URL", () => {
+    for (const p of all) {
+      const catalogEntry = ECOSYSTEM.find((e) => e.name === p.name)!;
+      expect(p.liveUrl).toBe(catalogEntry.liveUrl);
+      expect(p.liveUrl).toMatch(/^https:\/\//);
+    }
+  });
+
+  it("carries no price, offer, CTA, or invented usage number in what's shown", () => {
+    for (const p of all) {
+      const shown = `${p.name} ${p.what}`;
+      expect(shown).not.toMatch(/\$\s?\d/);
+      expect(shown).not.toMatch(/\b(buy|sale|sign up now|book now|free trial)\b/i);
+    }
   });
 });

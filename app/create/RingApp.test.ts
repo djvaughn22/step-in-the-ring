@@ -60,16 +60,35 @@ describe("RingApp home hero — product-first, no sales wall", () => {
     expect(make).toContain("Start creating");
   });
 
-  it("shows real, live proof beside the box instead", () => {
+  it("shows real, live proof beside the box instead — driven by the real registry, not a hardcoded tile list", () => {
     const panel = src.slice(src.indexOf('className="stage-proof"'));
     expect(panel).toContain("Made in The Ring");
-    expect(panel).toContain("ECOSYSTEM.filter");
+    expect(panel).toContain("HOME_PROOF_PRIMARY");
+    expect(panel).toContain("HOME_PROOF_MORE");
     expect(panel).toMatch(/target="_blank"/);
   });
 
   it("has no leftover opp-card styling in globals.css", () => {
     expect(css).not.toMatch(/\.opp-card/);
     expect(css).not.toMatch(/\.opportunity-panel/);
+  });
+
+  it("every proof tile — prominent and compact — is one whole clickable link, safely external", () => {
+    const panelStart = src.indexOf('className="stage-proof"');
+    const panel = src.slice(panelStart, src.indexOf("</aside>", panelStart));
+    // Both tile maps open on <a ...> and close on </a> — no nested <a> (a
+    // second, separate "Open" link) exists anywhere inside either map.
+    const anchorOpens = panel.match(/<a\b/g) ?? [];
+    const anchorCloses = panel.match(/<\/a>/g) ?? [];
+    expect(anchorOpens.length).toBe(anchorCloses.length);
+    expect(panel).not.toMatch(/<a\b[^>]*>\s*Open\s*<\/a>/);
+    expect(panel.match(/rel="noopener noreferrer"/g)?.length).toBe(anchorOpens.length);
+  });
+
+  it("the compact 'every other product' row carries no price, offer, or CTA", () => {
+    const more = src.slice(src.indexOf('className="stage-proof-more"'), src.indexOf('className="tiny"', src.indexOf('className="stage-proof-more"')));
+    expect(more).not.toMatch(/\$\s?\d/);
+    expect(more).not.toMatch(/\b(buy|sale|sign up|book now|free trial)\b/i);
   });
 });
 

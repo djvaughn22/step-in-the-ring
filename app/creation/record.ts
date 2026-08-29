@@ -238,3 +238,18 @@ export function clearCurrentCreation(): void {
     window.localStorage.removeItem(CURRENT_KEY);
   } catch {}
 }
+
+/**
+ * Delete the current creation ONLY if it is exactly the record the caller
+ * means to delete — never a blind clear. A person may have moved on to a
+ * newer local idea since a given Build was made from this slot; wiping it
+ * unconditionally would delete THAT one instead of the one they asked for.
+ * Returns whether anything was actually removed.
+ */
+export function deleteCurrentCreationIfMatches(creationId: string): boolean {
+  if (typeof window === "undefined") return false;
+  const current = loadCurrentCreation();
+  if (!current || current.creationId !== creationId) return false;
+  clearCurrentCreation();
+  return true;
+}

@@ -1194,6 +1194,22 @@ body { font-synthesis-weight: none; }
 }
 .stage-proof-tiles .tile { min-height: 0; padding: 18px; }
 
+/* Every other real, live product — compact, still one clickable card each. */
+.stage-proof-more {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.tile-compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  min-height: 0;
+  padding: 10px 12px;
+}
+.tile-compact .tile-mark { width: 28px; height: 28px; font-size: 14px; margin-bottom: 0; flex-shrink: 0; }
+.tile-compact .tile-name { font-size: 12.5px; margin: 0; }
+
 .stage-mark {
   display: inline-flex;
   align-items: center;
