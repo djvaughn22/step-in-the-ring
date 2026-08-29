@@ -16,7 +16,8 @@ export type EngineHandoff = {
   seed: () => void;
 };
 
-const BUILD_SEED_KEY = "sitr-build-seed";
+/** Read by app/build/page.tsx — the standalone first-app coach, outside the Engine Room. */
+export const BUILD_SEED_KEY = "sitr-build-seed";
 const ENGINE_SEED_KEY = "sitr-engine-seed";
 
 /** Carry the interpreted plan into the destination engine. */

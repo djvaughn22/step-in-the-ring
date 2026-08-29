@@ -47,6 +47,13 @@ const ADD_WORDS = /\b(add|adding|new (feature|page|mode|section|game|tab)|anothe
 const SELL_WORDS = /\b(sell|selling|sale|etsy|shop|store|buyer|customers? (would |will )?pay|price|monetize|make money|listing)\b/i;
 const EXPLORE_WORDS =
   /\b(not sure|unsure|maybe|kind of|sort of|thinking about|toying with|rough idea|just an idea|somehow|or something|no idea|dunno)\b/i;
+// "my live website gets visitors but nobody signs up" names no destination
+// (findDestination needs "add it to X" / a domain / a known product name) but
+// is unmistakably about something that already exists — without this, it fell
+// through to buildType "new" and got routed to the from-scratch first-build
+// walkthrough instead of being read as the existing product it plainly is.
+const EXISTING_UNNAMED =
+  /\b(my|our) (live|current|existing)\s+(website|site|app|product|business|shop|store|game|tool)\b/i;
 
 /**
  * `statedCount` counts only behaviours the person actually described. Pattern
@@ -72,6 +79,9 @@ function classifyBuildType(
   }
   if (hasDestination) return inferred("add", "you named an existing product, so this lands inside it");
   if (IMPROVE_WORDS.test(text)) return stated("improve", "you want something existing to work better");
+  if (EXISTING_UNNAMED.test(text)) {
+    return inferred("improve", "you described something you already have live, not something to start from scratch");
+  }
 
   const wordCount = text.split(/\s+/).filter(Boolean).length;
   if (EXPLORE_WORDS.test(text) && statedCount === 0) {

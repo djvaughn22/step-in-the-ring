@@ -27,7 +27,9 @@ const CONTENT = /\b(blog|podcast|video series|newsletter|channel|content|posts?\
 /* Publication words strong enough to say "content" whatever the shape — a
    blog reads as a site, but the blog IS the writing. */
 const CONTENT_STRONG = /\b(blog|newsletter|podcast|youtube|video series|(?:tiktok|instagram|youtube) channel|channel about)\b/i;
-const SERVICE = /\b(service|dog[- ]walk|babysit|tutor(ing)?|coach(ing)?|clean(ing)? (houses|homes|offices)|mow|i('| a)?m offering)\b/i;
+// "coach" alone is a noun as often as a service ("coach contact information"
+// on a team site) — only "coaching" is unambiguous work someone is offering.
+const SERVICE = /\b(service|dog[- ]walk|babysit|tutor(ing)?|coaching|clean(ing)? (houses|homes|offices)|mow|i('| a)?m offering)\b/i;
 const EVENT = /\b(event|party|wedding|reunion|fundraiser|trip|camp|tournament|campaign)\b/i;
 
 export function classifyCreationType(text: string, shape: Shape): { type: CreationType; reason: string } {

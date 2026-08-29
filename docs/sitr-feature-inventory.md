@@ -143,3 +143,187 @@ not been done).
   "Choose your way in", "Finish it with help", or "Bring a team" anywhere on
   Home; primary nav confirmed as Create/Engines/Builds/Library +
   How/Everything/Account, no Five Hour Sprint link.
+
+## Sprint 2 — activation: can a first sentence reach a saved, reopenable Build?
+
+Built 2026-08-29, same walk-the-code discipline as above. Starting checkpoint
+`ca81ed8` (this sprint's own Sprint 1 entry, verified as HEAD, clean, matching
+`origin/main`, 75 test files / 1065 tests passing before any edit).
+
+### The eight representative ideas, baselined then fixed
+
+Run through the real pipeline (`interpret` → `classifyCreationType` →
+`shapeIntent` → `recommendEngines`) before touching anything. Four came back
+wrong in ways a fixture-specific patch would have hidden rather than fixed —
+all four are general rules, not per-example branches:
+
+| # | Idea (short) | Was | Now |
+| --- | --- | --- | --- |
+| 1 | baseball team site | typed **service** (bare noun "coach" tripped `SERVICE`), audience truncated to `"...coach contact i"`, engine choice `plan`/"find a paying customer" | typed **site**, audience `"...coach contact"` (whole word), routes to Build (`/build`) |
+| 2 | family food-catching game | correct already | unchanged |
+| 3 | website cleanup service | correct already | unchanged |
+| 4 | starting-over song | correct already | unchanged |
+| 5 | sellable encouragement card | correct already | unchanged |
+| 6 | neighborhood fundraiser | correct engine choice; internal `buildType` mislabeled `explore` (word-count<10 heuristic, inert — `creationType` "event-plan" already drove the right recommendation) | unchanged in outcome; documented as an intentionally-untouched quirk, see Known inventory contradictions below |
+| 7 | "my live website gets visitors but nobody signs up" | typed **new**, routed to `/build`'s from-scratch six-round walkthrough | typed **improve** (new `EXISTING_UNNAMED` signal for "my/our live/current/existing X" with no named destination), routes to the honest builder-prompt path instead |
+| 8 | broken login | correct already | unchanged |
+
+Table-driven coverage for all eight: [`app/creation/representative-inputs.test.ts`](../app/creation/representative-inputs.test.ts).
+
+### Four confirmed shared activation defects, fixed
+
+1. **Audience capture truncated mid-word.** `findStatedAudience`'s `for X`
+   regex is capped at 60 characters, not 60 characters of whole words — a
+   long clause cut off wherever the count ran out (`"...coach contact i"`).
+   Fixed in [`app/planner/signals.ts`](../app/planner/signals.ts)
+   (`audienceHead` now backs off to the last complete word only when the
+   match actually hit the cap). General fix, not case-specific — any long
+   `for`/`aimed at`/`so ... can` clause was affected.
+2. **`SERVICE` matched the bare noun "coach", not just "coaching."** A
+   baseball team site with "coach contact information" typed as a *service*
+   someone was offering, which cascaded into the wrong software verdict
+   ("deliver it manually to one real customer") and the wrong engine. Fixed
+   in [`app/creation/classify.ts`](../app/creation/classify.ts) — `coach(ing)?`
+   → `coaching`.
+3. **An unnamed-but-existing product read as `new`.** `findDestination` only
+   recognizes a *named* product ("add it to X", a domain, a known product
+   name); "my live website" names nothing, so it fell to `buildType: "new"`
+   and got routed to the from-scratch beginner walkthrough — telling someone
+   with a live site to start over. New `EXISTING_UNNAMED` signal in
+   [`app/planner/interpret.ts`](../app/planner/interpret.ts) recognizes
+   "my/our live/current/existing X" without inventing a destination *name*
+   (the `destination` field, and every template string built on it, stays
+   untouched — only the buildType classification changes).
+4. **The most common Create outcome silently lost all context.** The door
+   CTA used to pick between two independent engine recommenders:
+   `recommendEngines()` (rich, `app/creation/recommend.ts`, drives 100% of
+   what's shown) and the older `recommendEngine()` (narrower,
+   `app/planner/handoff.ts`, decided *only* whether the seed was rich or
+   light). They disagreed on the id for the single most common destination —
+   `"first-build"` vs `"build"` — so the id-match check that picked the rich
+   seed path never fired for it, and the light path's writer (`seedBuild()`,
+   key `sitr-build-seed`) never ran either. `/build` (the six-round
+   first-app coach) reads *only* `sitr-build-seed` — nothing else — so it
+   opened completely blank. Confirmed live: before the fix, "Name your app" /
+   "One sentence: what's it for?" were empty on arrival from Create for a
+   brand-new site or app idea, the single most common path through this
+   product. Fixed in
+   [`app/create/RingApp.tsx`](../app/create/RingApp.tsx) — the door always
+   calls `seedEngineWithRecord()` now (one recommender, one seed path), and
+   that function writes `sitr-build-seed` directly when the target is
+   `"first-build"`. `app/planner/handoff.ts`'s `recommendEngine`/`seedEngine`/
+   `seedBuild` are untouched and still directly tested — just no longer
+   wired into this one call site.
+
+   A closely related fifth defect surfaced while proving #4 end-to-end: Fix
+   and Plan are the only *other* generic-intake engines Create's
+   `recommendEngines()` ever routes to (besides Build/Sell/Design Shop, which
+   already worked), and **neither had a case in `handoffToIntake`**
+   ([`app/creation/handoff.ts`](../app/creation/handoff.ts)) — both fell to
+   `default`'s `{rough, idea}` keys, which match no real question on either
+   engine (Fix's first field is `symptom`, Plan's is `outcome`). The full
+   record made it to the engine; nothing on screen showed it. Added explicit
+   `"fix"` and `"plan"` cases. **Live-verified in the browser** (not just
+   unit-tested): Create → "The login on my app stopped working..." → Fix
+   Engine landed on **Step 2 of 7** with Step 1's `symptom` textarea already
+   holding the exact original sentence; Create → the fundraiser idea → Plan
+   Engine landed on **Step 2 of 7** with `outcome` already filled the same
+   way. Before the fix both opened on Step 1, blank.
+
+Regression coverage: [`app/planner/signals.ts`](../app/planner/signals.ts)
+tests are indirect (no dedicated file existed; audience behavior is covered
+through `app/planner/interpret.test.ts`'s new "audience capture never
+truncates mid-word" block), plus new
+[`app/creation/classify.test.ts`](../app/creation/classify.test.ts), new
+assertions in `app/planner/interpret.test.ts` ("an unnamed but existing
+product reads as improve, not new"), new assertions in
+[`app/creation/creation.test.ts`](../app/creation/creation.test.ts) ("Create
+-> Fix Engine carries the report forward", "Create -> Plan Engine carries the
+goal forward"), and a source-lock block in
+[`app/create/RingApp.test.ts`](../app/create/RingApp.test.ts) ("RingApp
+engine handoff — no retyping into /build").
+
+### Verified persistence and exports
+
+- **No duplicate Build creation**: `BuildsClient.tsx`'s `createBuild()`
+  already guards with `if (!said || busy) return`, sets `busy` before the
+  fetch, and disables the submit button (`disabled={busy || !canSave}`) —
+  this was real but completely untested. Locked in
+  [`app/builds/builds-client-render.test.ts`](../app/builds/builds-client-render.test.ts)
+  ("createBuild cannot fire twice from one submit"). No server-side
+  idempotency exists (`POST /api/builds` still unconditionally creates a
+  row) — that remains a real gap, not proven to matter in practice, and is
+  P1/P2 architecture work, not a confirmed defect.
+- **Markdown export, JSON export, builder-prompt clipboard**: unchanged this
+  sprint, exercised indirectly by `app/creation/creation.test.ts` and
+  `app/creation/quality.test.ts` as before. Still true: the vNext Build
+  workspace (`app/builds/[id]/BuildDetail.tsx`) has no export feature of its
+  own — export only exists on the older Create/planner and engine-room
+  surfaces, operating on `CreationView`, not `BuildRecordV1`. Unchanged from
+  Sprint 1's finding; not touched this sprint (out of the activation-defect
+  scope this brief set).
+- **Refresh persistence, malformed input, empty input**: server-side already
+  covered by `app/api/builds/builds-api.test.ts` (empty/oversized intent,
+  non-JSON body) and `app/engines/shared/shared-engine.test.ts` ("survives
+  corrupted storage safely"). Client-side empty-submit no-op
+  (`RingApp.tsx`'s `handleShape`) browser-verified live: submitting blank
+  leaves the landing stage untouched, no crash.
+- **Build save/reopen** (`/builds`, `/api/builds`): this local environment
+  has no database configured (`storeConfigured: false` — "Accounts are not
+  switched on for this site yet," confirmed live), so the authenticated
+  create→reopen round trip could not be browser-verified this sprint — it
+  remains covered by `app/api/builds/builds-api.test.ts`'s real-session HTTP
+  tests only (create, read back complete, action state machine, ownership
+  isolation), which already passed both before and after every change here.
+
+### Correction to the "one ownership model" contradiction (Sprint 1's table)
+
+Sprint 1 flagged `/builds`, `/projects`, and per-engine `localStorage` as
+"three separate storage stories" needing eventual reconciliation. Sprint 2
+found the practical edge of that gap: **Create's own recommended engines
+(Build/Fix/Plan/Sell/Design Shop) do not save into `BuildRecordV1` /
+`/api/builds` at all** — they save into the engine room's own
+`creation-engine-projects-v1` project store
+([`app/engines/shared/persistence.ts`](../app/engines/shared/persistence.ts)),
+a completely separate, working save/reopen mechanism with its own tests. So
+"Save the work as a Build" / "Reopen it successfully," followed from Create
+through an engine door, lands in the engine room's project store today, not
+literally in `/builds`. This sprint's brief explicitly named the
+Builds/Library reconciliation as out of scope ("Sprint 3"), so this was left
+alone and only documented — worth reading first when Sprint 3 starts, since
+it changes what "the Build" means depending on which door was taken.
+
+### Remaining P0/P1 candidates for Sprint 3
+
+- The Builds/Library/engine-room-projects reconciliation above — the
+  single biggest thing standing between "the product has one honest save
+  model" and today's three.
+- No server-side dedup on `POST /api/builds` — real but unconfirmed as a
+  live problem; the client-side guard (this sprint) covers the realistic
+  double-click case.
+- `handoffToIntake` (`app/creation/handoff.ts`) still has no case for
+  `launch`, `grow`, or `etsy` — none of those are ever reached from Create's
+  `recommendEngines()` today (confirmed by reading `recommend.ts`'s full
+  switch), so this is inert, not a live defect — worth a look only if a new
+  recommend.ts branch starts routing to one of them.
+- `/explore` vs `/live` duplication (Sprint 1's finding) — untouched.
+
+### Verification for this sprint
+
+- `npx vitest run` — 77 files, 1148 tests, all passing (baseline: 75 files,
+  1065 tests; +2 files / +83 tests, zero regressions).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, none in touched
+  files — same count as Sprint 1's baseline).
+- `npx next build` + `node scripts/scan-public-bundles.mjs` — clean
+  production build, no secret markers in public bundles.
+- Local dev server (`sitr-sprint2-activation-dev`, port auto-assigned):
+  live-verified in the browser — creationType/audience fix for the baseball
+  site case (reads "A site" / "For my son's baseball team with the schedule
+  and coach contact", not "service" / truncated fragment); Build, Fix, and
+  Plan Engine intake prefill (see the four-defects section above, each
+  confirmed by reading the actual `<textarea>`'s `.value`, not just the
+  step number); empty-input submit is a safe no-op; mobile viewport
+  (375×812) has no horizontal overflow; light/dark toggle applies without
+  error. The authenticated `/builds` create→reopen round trip was not
+  browser-verified — see "Verified persistence and exports" above.

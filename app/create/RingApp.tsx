@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { interpret, type PlannerInput } from "../planner/interpret";
 import { buildBuilderPrompt } from "../planner/builder-prompt";
-import { recommendEngine } from "../planner/handoff";
+import { BUILD_SEED_KEY } from "../planner/handoff";
 import Link from "next/link";
 import CreationEntry from "../vnext/CreationEntry";
 import SteppedIn from "../vnext/SteppedIn";
@@ -286,7 +286,6 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
   /* The shaping IS the step-in moment. It reuses the view this page already
      computed — one reading of their words, shown two ways. */
   const shaping = useMemo(() => (view ? shapingFromView(view) : null), [view]);
-  const engine = useMemo(() => (plan ? recommendEngine(plan) : null), [plan]);
   const engineRec = useMemo(() => (view ? recommendEngines(view) : null), [view]);
   /* Repo-touching work keeps the permission-aware brief (never claims access
      or authority the person didn't give). Standalone creations get their
@@ -360,6 +359,16 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
           record: view.record,
         }),
       );
+      // "first-build" is /build, the six-round first-app coach — it lives
+      // outside the Engine Room and only ever reads its own seed key, never
+      // sitr-engine-seed. Without this it opens blank and the person retypes
+      // the app name and purpose they already gave us.
+      if (engineId === "first-build") {
+        window.localStorage.setItem(
+          BUILD_SEED_KEY,
+          JSON.stringify({ appName: view.interpretation.title.value, purpose: view.interpretation.summary }),
+        );
+      }
     } catch {}
   }
 
@@ -893,10 +902,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                     href={engineRec.primary.route}
                     className="door-card"
                     style={{ marginBottom: engineRec.alternates.length ? 10 : 0 }}
-                    onClick={() => {
-                      if (engine && engine.engineId === engineRec.primary!.engineId) engine.seed();
-                      else seedEngineWithRecord(engineRec.primary!.engineId);
-                    }}
+                    onClick={() => seedEngineWithRecord(engineRec.primary!.engineId)}
                   >
                     <span className="door-emoji" aria-hidden="true">→</span>
                     <div>
