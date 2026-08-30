@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  ACTIVATION_LABEL, DEPTH_LABELS, DESTINATION_LABELS, ENGINES, getEngine, STAGES,
+  ACTIVATION_LABEL, DEPTH_LABELS, DESTINATION_LABELS, DESTINATION_USES_AI, ENGINES, getEngine, STAGES,
   type BuildStage, type Depth, type Destination, type Engine, type Question,
 } from "./engines";
 import { generatePackage, packageToText } from "./generator";
@@ -789,8 +789,14 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
                 <div>
                   <label htmlFor="review-destination" style={{ display: "block", fontSize: 12, fontWeight: 800, color: "var(--muted)", marginBottom: 4 }}>Send it to</label>
                   <select id="review-destination" value={destination} onChange={(ev) => setDestination(ev.target.value as Destination)} style={input}>
-                    {(Object.keys(DESTINATION_LABELS) as Destination[]).map((d) => <option key={d} value={d}>{DESTINATION_LABELS[d]}</option>)}
+                    <optgroup label="Uses AI">
+                      {(Object.keys(DESTINATION_LABELS) as Destination[]).filter((d) => DESTINATION_USES_AI[d]).map((d) => <option key={d} value={d}>{DESTINATION_LABELS[d]}</option>)}
+                    </optgroup>
+                    <optgroup label="No AI">
+                      {(Object.keys(DESTINATION_LABELS) as Destination[]).filter((d) => !DESTINATION_USES_AI[d]).map((d) => <option key={d} value={d}>{DESTINATION_LABELS[d]}</option>)}
+                    </optgroup>
                   </select>
+                  <p style={{ fontSize: 12, color: "var(--muted)", margin: "4px 0 0" }}>The package above is already finished. Claude Code and ChatGPT use AI from here on; the rest don&apos;t.</p>
                 </div>
               </div>
               <button onClick={toEdit} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Customize sections →</button>
@@ -934,6 +940,11 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
           <Section title="Architecture" body={p.architecture} />
           <Section title="Execution sequence" body={p.sequence} />
           <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>The prompt ({DESTINATION_LABELS[p.destination]})</div>
+          <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 8px" }}>
+            {DESTINATION_USES_AI[p.destination]
+              ? "StepInTheRing wrote this from your answers — no AI. What comes back from " + DESTINATION_LABELS[p.destination] + " is on you to review."
+              : "StepInTheRing wrote this from your answers. No AI was involved."}
+          </p>
           <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 13, color: "var(--text)", lineHeight: 1.55, background: "var(--surface)", border: "1px solid var(--line2)", borderRadius: 10, padding: 12, margin: 0 }}>{p.mainPrompt}</pre>
           <button onClick={() => copy(p.mainPrompt, "Prompt")} className="btn btn-gold btn-small" style={{ marginTop: 10 }}>Copy prompt</button>
         </>)}

@@ -51,6 +51,22 @@ export const DESTINATION_LABELS: Record<Destination, string> = {
 };
 
 /**
+ * Whether taking the package to this destination involves AI at all. The
+ * package itself is already finished by the time this is chosen — this only
+ * decides where the person carries it next. Two destinations are AI tools;
+ * the rest are a person (a role, a contractor, or the person reading this).
+ */
+export const DESTINATION_USES_AI: Record<Destination, boolean> = {
+  "claude-code": true,
+  chatgpt: true,
+  terminal: false,
+  designer: false,
+  developer: false,
+  collaborator: false,
+  self: false,
+};
+
+/**
  * Honest activation status shown in the picker. These describe whether the
  * engine ACTUALLY WORKS — they are not Open Mirror's public portfolio labels
  * (Foundation / Free / Product / Project Help / Exploring), which describe a

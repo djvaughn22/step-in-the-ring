@@ -62,3 +62,33 @@ describe("Engine Room end state — no universal Open Mirror step", () => {
     expect(nonTechnical.has("music")).toBe(true);
   });
 });
+
+// Every package the Engine Room generates is finished before "Send it to"
+// is ever touched — the picker only decides where the person carries it
+// next. It used to list two AI tools and five human recipients as one flat,
+// undifferentiated list. These tests lock in: the picker now groups by
+// whether AI is involved, and the generated prompt is captioned with the
+// same honest, real fact — StepInTheRing's own code wrote it, not AI.
+describe("Send it to — AI is a visible, deliberate choice, not a hidden default", () => {
+  it("imports the single source of truth for which destinations use AI", () => {
+    expect(src).toMatch(/DESTINATION_USES_AI/);
+  });
+
+  it("groups the destination picker into an AI group and a no-AI group", () => {
+    expect(src).toMatch(/<optgroup label="Uses AI">/);
+    expect(src).toMatch(/<optgroup label="No AI">/);
+    // Both groups read from the shared map, not a hand-picked list that
+    // could drift from it.
+    expect(src).toMatch(/filter\(\(d\) => DESTINATION_USES_AI\[d\]\)/);
+    expect(src).toMatch(/filter\(\(d\) => !DESTINATION_USES_AI\[d\]\)/);
+  });
+
+  it("tells the person, in plain words, that the package is already finished", () => {
+    expect(src).toMatch(/The package above is already finished/);
+  });
+
+  it("captions the generated prompt with an honest, destination-aware AI statement", () => {
+    expect(src).toMatch(/No AI was involved/);
+    expect(src).toMatch(/StepInTheRing wrote this from your answers/);
+  });
+});
