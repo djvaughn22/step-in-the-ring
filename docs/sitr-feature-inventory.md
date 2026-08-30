@@ -526,3 +526,126 @@ to `origin/main` and deployed. Starting point for this whole rescue was
   verification was used in its place throughout, and the same computed-
   style/no-overflow checks were re-run after production deploy against
   `stepinthering.com`.
+
+## Human-control-layer audit + first slice — 2026-08-30
+
+Starting checkpoint `08b6a9c` (this doc's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1203 tests passing before any edit).
+Brief: audit every place SITR invokes AI, then ship the smallest real
+vertical slice proving "SITR works without AI; AI is optional
+amplification" — using the product that already exists, not a new page.
+
+### A-F: what the audit found
+
+- **Zero AI API calls exist anywhere in this codebase.** No
+  `OPENAI_API_KEY`/`ANTHROPIC_API_KEY`/equivalent in `.env.example`, no
+  `openai`/`anthropic`/`generateText`/`chat/completions` import or literal
+  anywhere in `app/` or `scripts/`, and the only outbound `fetch()` to an
+  external host in the entire app is Resend transactional email
+  (`app/members/login-notification.ts`). Every "Engine" (Idea, Build, Sell,
+  Launch, Fix, Grow, Plan, Etsy, Design Shop, Writing) generates its package
+  from the user's own structured answers through deterministic classifiers
+  (`app/planner/interpret.ts`, `app/creation/classify.ts`,
+  `app/creation/recommend.ts`) and template functions
+  (`app/creation/adapters.ts`, `app/engines/generator.ts`) — confirmed
+  against `docs/ENGINE-STATUS.md`'s own per-engine notes ("No APIs.
+  Deterministic output from curated templates. Works offline.").
+- **The architecture already matches the brief's north star at the code
+  level.** `Destination` (`app/engines/engines.ts`) — Claude Code / ChatGPT /
+  Terminal / Designer / Developer / Contractor / Do it myself — is a
+  deliberate, human-chosen "where does this go next" field on every generic
+  engine's package, not an invisible dependency. `analyzeReturn()`
+  (`app/engines/review.ts`) that recommends Fix/Refine/Expand/Launch after a
+  "Return with results" is answer-driven, not a re-parse of pasted text
+  through any model. Story Partner's "Suggested by Story Partner" / explicit
+  5-state approval contract (`CLAUDE.md`, owner-only) is the same
+  never-enters-your-work-without-your-say-so pattern, just not yet visible
+  anywhere a visitor reaches.
+- **The gap is not architecture — it's that none of this is ever said.** A
+  repo-wide grep for "no AI" / "deterministic" / "works offline" /
+  "not a chatbot" in every `.tsx` under `app/` returned nothing. A visitor
+  has no way to learn, anywhere on the site, that the packages they're
+  generating were never touched by a model — the exact fact this sprint's
+  north star is about.
+- **The concrete contradiction:** the "Send it to" picker on every generic
+  engine's review screen (`EngineSystem.tsx`) listed Claude Code, ChatGPT,
+  Terminal, Designer, Developer, Contractor, and "Do it myself" as one flat,
+  undifferentiated list — two AI tools and five people/roles presented as
+  equivalent choices, with nothing marking which is which. That is the
+  opposite of "AI is a choice you make on purpose."
+- Home/nav were untouched — they were the subject of last night's three
+  checkpoints and are not part of this brief's evidence trail; the AI-call
+  map lives entirely in the Engine Room, so that's where this slice landed.
+
+### G-J: the slice shipped
+
+**`DESTINATION_USES_AI`** (`app/engines/engines.ts`) — one map, alongside
+`DESTINATION_LABELS`, marking exactly `claude-code` and `chatgpt` as AI
+destinations and the other five as not. `EngineSystem.tsx` reads it in two
+places:
+
+1. The "Send it to" `<select>` (review step) now renders two `<optgroup>`s —
+   "Uses AI" / "No AI" — built by filtering the same shared map, so a new
+   destination can't silently land in the wrong group. A one-line caption
+   underneath states the fact plainly: "The package above is already
+   finished. Claude Code and ChatGPT use AI from here on; the rest don't."
+2. The generated package's prompt (Execution tab) is captioned per
+   destination: an AI destination gets "StepInTheRing wrote this from your
+   answers — no AI. What comes back from &lt;X&gt; is on you to review."; a
+   no-AI destination gets "StepInTheRing wrote this from your answers. No
+   AI was involved." Both are true today and stay true automatically,
+   because `mainPrompt` for the common case (`creationUnderstanding()` →
+   `promptShell()`) is generated identically regardless of destination —
+   the caption is documenting a fact already true in code, not asserting
+   something new.
+
+No new dependency, no redesign, no engine's actual output content changed.
+Live-verified in the browser (Fix Engine, full 7-step intake through to a
+generated cycle): the optgroup split renders correctly
+(`document.querySelectorAll('#review-destination optgroup')` — "Uses AI":
+Claude Code/ChatGPT, "No AI": Terminal/Designer/Developer/Contractor/Do it
+myself), the review-step caption and the execution-tab caption both render
+with real generated content, and 375px width shows no horizontal overflow
+(`scrollWidth === clientWidth`, 375×375). Pixel screenshots were unavailable
+in this session for the same compositor-surface reason logged in the
+overnight-rescue entry above; DOM/JS-driven verification was used in its
+place (the wizard was advanced by setting each input's native value
+descriptor + dispatching `input`, then clicking the real "Continue" button —
+not by faking any resulting state).
+
+**New tests:** `app/engines/engines.test.ts` ("Destination — AI vs no-AI is
+a real, exhaustive distinction" — every destination has a boolean, only
+claude-code/chatgpt are AI, every named human destination is false);
+`app/engines/EngineSystem.test.ts` ("Send it to — AI is a visible,
+deliberate choice, not a hidden default" — the optgroups exist and read
+from the shared map, the "already finished" line and both prompt-caption
+strings are present in source).
+
+### Verification for this sprint
+
+- `npx vitest run` — 81 files, 1210 tests, all passing (baseline: 1203;
+  +7 tests, zero regressions).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline, none in touched files).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral, `next dev -p 3988`, not committed to
+  `.claude/launch.json`'s tracked history since that file is gitignored):
+  live-verified as described above.
+
+### Not done this sprint (candidates, not started)
+
+- The same AI/no-AI honesty is not yet surfaced on the dedicated studios
+  (Idea, Design Shop, Music, How To Anything, Game) that bypass
+  `EngineSystem`'s generic review/generate flow entirely — none of them call
+  AI either, but none of them say so. Worth the same treatment once a studio
+  actually needs a "send it to AI" choice of its own.
+- No sitewide statement of "this product doesn't call AI" exists yet (e.g.
+  on `/how` or `/about`). Deliberately not added here — Home/nav copy is
+  locked/test-guarded and was the subject of last night's rescue; a
+  sitewide claim deserves its own owner-reviewed pass, not a rider on this
+  slice.
+- `/explore` vs `/live` duplication and the Builds/Library/engine-room-
+  projects reconciliation (both flagged in earlier sprints above) remain
+  untouched and unrelated to this brief.
