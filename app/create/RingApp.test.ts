@@ -43,6 +43,25 @@ describe("RingApp — one creation CTA, one quiet return path", () => {
   });
 });
 
+// 2026-08-30 lower-page cleanup (Checkpoint C): Home used to end with a
+// "closing" section repeating the hero's "Made in The Ring" line behind a
+// second, duplicate big "Start something" button — the box's own Start
+// button is the one dominant creation action on the page, full stop. The
+// open-beta safety line that lived there moved to the sitewide quiet
+// footer (every page, not just Home) instead of being repeated per page.
+describe("RingApp home — no closing-section duplicate CTA", () => {
+  it("the landing hero has no second big Start button after the loop", () => {
+    const heroStart = src.indexOf('if (stage === "landing") {', src.indexOf("HOME — the front door"));
+    const hero = src.slice(heroStart, src.indexOf('/* ── STEPPED IN'));
+    expect(hero).not.toMatch(/className="closing"/);
+    expect(hero).not.toMatch(/Start something/);
+  });
+
+  it("the open-beta line no longer lives in RingApp — it moved to the sitewide footer", () => {
+    expect(src).not.toMatch(/Open beta\. Keep a copy/);
+  });
+});
+
 // 2026-08-29 product reset: the visually elevated "opportunity panel"
 // (Choose your way in / Five Hour Sprint from $1,500 / Team Sprint $5,000)
 // failed owner acceptance a second time — the front door asked a stranger to

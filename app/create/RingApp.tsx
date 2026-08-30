@@ -699,20 +699,13 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </p>
           </section>
 
-          {/* ── CLOSE ── */}
-          <section className="closing">
-            <p>Made in The Ring.</p>
-            <a href="#idea-description" className="btn btn-gold btn-big">
-              Start something
-            </a>
-            <p className="tiny" style={{ marginTop: 30, color: "var(--dim)" }}>
-              Open beta. Keep a copy of anything important.{" "}
-              <a href="/account#feedback" style={{ color: "var(--muted)", fontWeight: 800 }}>
-                Send feedback
-              </a>
-              .
-            </p>
-          </section>
+          {/* No closing section here on purpose: it used to repeat the
+              hero's "Made in The Ring" line and its own second big "Start
+              something" button — a duplicate of the box's own dominant
+              Start action, just at the bottom of the page. The open-beta
+              safety line that used to live here moved to the quiet,
+              sitewide footer (app/site/QuietFooterLink.tsx), where every
+              page gets it once, not just Home. */}
         </div>
       </main>
     );
