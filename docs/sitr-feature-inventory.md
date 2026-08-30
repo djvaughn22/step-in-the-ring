@@ -649,3 +649,146 @@ strings are present in source).
 - `/explore` vs `/live` duplication and the Builds/Library/engine-room-
   projects reconciliation (both flagged in earlier sprints above) remain
   untouched and unrelated to this brief.
+
+## The Ring as the front-door portal — 2026-08-30
+
+Starting checkpoint `d4e82b8` (this doc's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1210 tests passing before any edit).
+Brief: stop treating "no AI calls" as a brand message and instead organize
+the existing product around one idea — Step In The Ring is the front door
+that gets a person from "I want to do something" to a useful path, AI
+included when AI actually helps. Audit first, reorganize what exists,
+implement only high-confidence changes — no new dashboard, no rebuild, no
+narrowing to any one audience.
+
+### What the inventory found
+
+Walked the real, current product end to end: `app/create/RingApp.tsx`
+(Home + Create share one box, `CreationEntry`), `app/planner/interpret.ts`
+→ `app/creation/{classify,recommend}.ts` (the deterministic reading of a
+person's own words), the Result screen's single recommended engine door
+plus its always-present takeaway prompt, `app/site/RingHeader.tsx` (nav:
+Create · Engines · Builds · Library primary, How · Account secondary —
+already four clean doors, no hamburger-only architecture), `app/engines/
+page.tsx` + `app/vnext/capabilities.ts` (the public catalog, already
+organized into verb shelves — Start/Make/Plan/Finish — not by internal
+architecture, already says "or say what you want to make and the right one
+gets suggested"), the `EngineSystem.tsx` generic engine flow plus five
+dedicated studios (Idea, Design Shop, Music, How To Anything, Game) that
+bypass it, `app/builds/` and `app/library/` (already documented as
+deliberately distinct: Builds = still-making, Library = saved-and-may-want-
+again, not two engine catalogs), `/explore` and `/live` (read in full this
+time, not just by name — `/explore` is a curated overview that links to
+`/live` for the complete list; a real parent/child relationship, not a
+confusing duplicate, despite being flagged as unresolved twice before), and
+`app/how/page.tsx` (already states the AI-portal idea in plain words at
+step 3: "open an Engine if a focused tool helps, or take it to the AI
+already in your corner, like ChatGPT or Claude").
+
+**Headline finding: the architecture already implements the requested
+diagram almost exactly.** Box → one deterministic reading → one recommended
+engine door (`app/creation/recommend.ts`) → open the engine, or take the
+always-present raw prompt straight to your own AI/tool/person right now →
+inside an engine, `DESTINATION_USES_AI` (added last sprint) makes the AI-
+vs-not choice explicit → "Return with results" keeps the record. That is
+already `THE RING → WHAT DO YOU WANT TO DO? → THE RIGHT ENGINE → AI / TOOL
+/ HUMAN / ME → SOMETHING REAL`, end to end, in production.
+
+**Two genuine gaps found, both small and both fixed:**
+
+1. The Result screen's always-present takeaway card — the moment where a
+   person can skip the recommended engine and take the generated brief
+   straight to their own AI, a person, or themselves — was labeled "Your
+   builder prompt" with the instruction "Copy it into the building tool you
+   already use, and start." The actual content (`adapterForType(view.
+   creationType).prompt()`) is already correctly written per creation type
+   (confirmed live: a song idea gets a "The song" / "First deliverable: one
+   exported audio file" brief, not a software one) — only the static
+   wrapper sentence assumed software. Fixed to: "Bring it to an AI, hand it
+   to a person, or just start on it yourself." — the literal AI/tool/human/
+   me idea, honest for every creation type. (`app/create/RingApp.tsx`)
+2. Real proof that things get made through the Ring's actual Engines
+   exists (`app/live/live-products.json` — Circuit, SlopeDoku, SurfDoku,
+   MineDoku, each with a real URL and the engine that pushed it) but was
+   reachable only via `/live`, itself one hop past `/explore`, itself only
+   linked from the quiet sitewide footer or a text link at the bottom of
+   `/how`. Nothing in the primary journey ever showed a person an actual
+   example of something made this way. Added a small, restrained "Made
+   through the Ring" section near the end of `/how` — 3 real entries (not
+   the whole catalog), pulled directly from the same JSON `/live` and
+   `/explore` already read, linking to `/live` for the rest. No invented
+   accomplishments, no portfolio, not on the Home hero.
+
+### What was deliberately left alone, and why
+
+- **Home's hero, nav, and copy** — untouched. Three checkpoints landed
+  there two nights ago and it is explicitly test-locked; nothing in this
+  audit produced new evidence of a live problem there, and the brief's own
+  instruction was not to redesign for the sake of redesigning.
+- **The "build" naming cluster** (`Builds` nav item, `Build Engine`, "Your
+  first build," `Build Machine`) — real echo in the names, but each card's
+  own description already disambiguates the job clearly (confirmed by
+  reading the live `/engines` page text), and there is no test, doc, or
+  prior audit flagging it as an actual point of confusion. Renaming would
+  touch many test-locked strings across `engines.ts`, `capabilities.ts`,
+  and `docs/ENGINE-STATUS.md` for a benefit that is currently speculative —
+  not done without real evidence it is a live problem.
+- **`app/creation/adapters.ts`'s shared "Working method" section**
+  (`doctrineLines`) still includes software-flavored lines ("do not assume
+  access to any existing codebase," "Mobile-first") on every creation type
+  including music and writing — noticed while live-testing the fix above.
+  Real, but a different, larger fix (the doctrine list itself needs a
+  per-type branch, not a wrapper-sentence change) — flagged for a future
+  sprint, not fixed here to keep this one small.
+- **Whether the box and its classifier can honestly carry non-creation
+  requests** ("I don't understand this bill," "I have a difficult
+  decision," "help me plan a vacation") — some map cleanly onto what
+  already exists (a decision maps to the Idea Engine's version-scoring
+  model; a vacation plan already produces `creationType: "event-plan"` and
+  routes to the Plan Engine, confirmed in this doc's Sprint 2 section
+  above); others (bill comprehension, "I need to learn this") do not map to
+  any existing engine — `interpret.ts`/`classify.ts` is fundamentally a
+  *creation* classifier ("what are you making," "the smallest version that
+  would work"), not a general "what do you need" classifier. Broadening
+  that is a real, larger architecture question, explicitly out of scope for
+  a single sprint per this brief's own instruction not to invent new
+  systems tonight. The box's wording ("What do you want to make?") was not
+  changed without being able to honestly verify the pipeline behind it
+  handles a wider range — changing the words without the pipeline behind
+  them would be dishonest, not a simplification.
+- **`recommendEngines()` vs. `capabilitiesForIntent()`** — two independent
+  deterministic matchers exist (`app/creation/recommend.ts` drives the one
+  Result-screen engine door; `app/vnext/capabilities.ts`'s simpler keyword
+  matcher drives the "what can help" suggestions on `Builds` list/detail
+  pages). Confirmed these do different jobs (one-time routing decision vs.
+  ongoing suggestion sidebar) rather than being a true duplicate; left
+  alone.
+
+### Verification for this sprint
+
+- `npx vitest run` — 81 files, 1216 tests, all passing (baseline: 1210;
+  +6 tests, zero regressions).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline, none in touched files).
+- `npx next build` — clean production build; `/how` still statically
+  prerendered.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral `next dev -p 3988`): live-verified in the
+  browser — `/how` renders "Made through the Ring" with three real,
+  correctly-linked entries (Circuit, MineDoku, SurfDoku); a music idea run
+  through Create's full flow produces a type-correct brief ("The song,"
+  "First deliverable: one exported audio file") captioned with the new
+  "Bring it to an AI, hand it to a person, or just start on it yourself."
+  line; no horizontal overflow on `/how` or the Create result screen at
+  375px, 1440px, or the default width (`scrollWidth === clientWidth` at
+  each).
+
+### Next highest-value simplification (not started)
+
+The `doctrineLines()` "Working method" section flagged above — it is the
+one remaining place a non-software creation (a song, a poem, a plan) still
+receives software-specific instructions ("existing codebase," "Mobile-
+first") inside its own generated brief. Real, small, and the natural
+next step; not started this sprint to keep this checkpoint finished and
+reviewable on its own.
