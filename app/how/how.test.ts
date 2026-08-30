@@ -8,6 +8,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import liveProducts from "../live/live-products.json";
 
 const src = readFileSync(join(__dirname, "page.tsx"), "utf8");
 const playbook = readFileSync(join(__dirname, "Playbook.tsx"), "utf8");
@@ -58,5 +59,32 @@ describe("How It Works — one coherent loop", () => {
     expect(playbook).toMatch(/details/);
     expect(playbook.toLowerCase()).toContain("building software");
     expect(playbook.toLowerCase()).not.toContain("send it to open mirror");
+  });
+});
+
+// The Ring-as-portal correction (2026-08-30): near the end of the
+// explanation, show restrained, REAL proof that things get pushed live from
+// inside an Engine — not founder vanity, not a portfolio, and never
+// fabricated. This must read from the same live-products.json /live and
+// /explore already read, never a hand-typed duplicate list that could drift.
+describe("How It Works — real proof near the end, not a portfolio", () => {
+  it("reads live-products.json directly rather than hand-listing entries", () => {
+    expect(src).toMatch(/import liveProducts from "\.\.\/live\/live-products\.json"/);
+  });
+
+  it("shows a small number of real entries, not the whole catalog", () => {
+    expect(src).toMatch(/\.slice\(0, 3\)/);
+    // Sanity: there really is more in the data than the page shows, so the
+    // slice is restraint, not just "there happen to be exactly 3".
+    expect(liveProducts.length).toBeGreaterThan(3);
+  });
+
+  it("names it plainly as real, pushed work — not a claim about the owner", () => {
+    expect(src).toMatch(/Made through the Ring/);
+    expect(src).toMatch(/Pushed live from inside an Engine, not a mockup/);
+  });
+
+  it("links to the full list instead of duplicating it", () => {
+    expect(src).toMatch(/href="\/live"/);
   });
 });

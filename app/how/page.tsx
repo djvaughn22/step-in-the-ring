@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Playbook from "./Playbook";
+import liveProducts from "../live/live-products.json";
 
 // The whole road, idea → real thing, on one linkable page.
 //
@@ -55,6 +56,21 @@ const NAV_CONCEPTS = [
   { name: "Library", body: "Things you saved and may want again." },
 ];
 
+type LiveProduct = {
+  id: string;
+  name: string;
+  emoji: string;
+  url: string;
+  blurb: string;
+  pushedAt: string;
+};
+
+/** Newest first, a small number only — real proof, not a portfolio. */
+const MADE_HERE = (liveProducts as LiveProduct[])
+  .slice()
+  .sort((a, b) => (a.pushedAt < b.pushedAt ? 1 : -1))
+  .slice(0, 3);
+
 export default function HowPage() {
   return (
     <main>
@@ -99,15 +115,38 @@ export default function HowPage() {
 
         <Playbook />
 
+        {/* Restrained, real proof near the end of the explanation — not the
+            hero, not a portfolio. Every entry here is something an Engine
+            actually pushed live; app/live/live-products.json is the same
+            data /live and /explore read, not a separate claim. */}
+        {MADE_HERE.length > 0 && (
+          <section className="band">
+            <div className="band-head">
+              <h2 className="band-title">Made through the Ring</h2>
+              <p className="band-note">Pushed live from inside an Engine, not a mockup.</p>
+            </div>
+            <div className="stack">
+              {MADE_HERE.map((p) => (
+                <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="door-card">
+                  <span className="door-emoji" aria-hidden="true">{p.emoji}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <h3>{p.name}</h3>
+                    <p>{p.blurb}</p>
+                  </div>
+                  <span className="door-go" aria-hidden="true">→</span>
+                </a>
+              ))}
+            </div>
+            <p className="tiny" style={{ marginTop: 14 }}>
+              <Link href="/live" className="more">Every push, newest first →</Link>
+            </p>
+          </section>
+        )}
+
         <section className="home-section" style={{ textAlign: "center" }}>
           <div className="actions center">
             <Link href="/create" className="btn btn-gold btn-big">Start something</Link>
           </div>
-          <p style={{ fontSize: 14, marginTop: 16 }}>
-            <Link href="/explore" className="more">
-              See real things that got made this way →
-            </Link>
-          </p>
         </section>
 
         <div className="divider" />

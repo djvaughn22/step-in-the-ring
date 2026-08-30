@@ -62,6 +62,23 @@ describe("RingApp home — no closing-section duplicate CTA", () => {
   });
 });
 
+// Ring-as-portal correction (2026-08-30): the Result screen's always-present
+// takeaway prompt used to say "Copy it into the building tool you already
+// use" — software-coded language on a card that also fires for a song, a
+// poem, or a plan (adapterForType already writes type-appropriate content;
+// only this static wrapper sentence assumed software). It is the exact
+// AI/tool/person/self handoff moment the product's front door is about, so
+// it has to read that way for every creation type, not just code.
+describe("RingApp result screen — the takeaway prompt isn't software-only language", () => {
+  it("never assumes the reader is pasting into a coding tool", () => {
+    expect(src).not.toMatch(/building tool you already use/);
+  });
+
+  it("names the real range of where this goes: AI, a person, or yourself", () => {
+    expect(src).toMatch(/Bring it to an AI, hand it to a person, or just start on it yourself\./);
+  });
+});
+
 // 2026-08-29 product reset: the visually elevated "opportunity panel"
 // (Choose your way in / Five Hour Sprint from $1,500 / Team Sprint $5,000)
 // failed owner acceptance a second time — the front door asked a stranger to

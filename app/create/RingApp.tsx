@@ -969,7 +969,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               </div>
               <pre className="prompt-box">{builderPrompt}</pre>
               <p className="field-help" style={{ marginTop: 12, marginBottom: 0 }}>
-                Copy it into the building tool you already use, and start.
+                Bring it to an AI, hand it to a person, or just start on it yourself.
               </p>
               {view && (
                 <div style={{ borderTop: "1px solid var(--line)", marginTop: 14, paddingTop: 14 }}>
