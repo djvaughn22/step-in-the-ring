@@ -244,16 +244,23 @@ describe("The new shell", () => {
   const home = read("app/create/RingApp.tsx");
   const layout = read("app/layout.tsx");
 
-  it("closes with concrete creation language, not troubleshooting language", () => {
+  it("speaks concrete creation language, not troubleshooting language", () => {
     // "Live your dream." and "Tell us what broke" both read like a different
     // kind of product — the 2026-08-25 mission/messaging pass replaced them
     // with proof-of-creation language ("Made in The Ring") and plain
-    // feedback framing, matching Home/Create/Live/footer everywhere else.
-    expect(home).toContain("Made in The Ring.");
-    expect(home.match(/Made in The Ring\./g)).toHaveLength(1);
+    // feedback framing.
+    //
+    // 2026-08-30 lower-page cleanup: the hero's "Made in The Ring" proof
+    // heading is the one place this phrase lives now — the bottom-of-page
+    // "closing" section that used to repeat it (behind a second, duplicate
+    // big Start button) is gone for good, along with the duplicate. The
+    // feedback line it also carried moved to the sitewide quiet footer
+    // (app/site/QuietFooterLink.tsx), which every page gets, not just Home.
+    expect(home).toContain("Made in The Ring");
     expect(home).not.toContain("Live your dream");
     expect(home).not.toContain("Tell us what broke");
     expect(home).not.toMatch(/don.t trust it yet/);
+    expect(home).not.toMatch(/className="closing"/);
   });
 
   it("asks the one question through the shared creation entry", () => {

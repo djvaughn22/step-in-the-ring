@@ -402,3 +402,127 @@ test.ts` (real-session HTTP coverage of the delete route: owner can delete
 their own, a stranger cannot, no session is refused), `app/vnext/
 ContinueStrip.test.ts` (fixture scrubbed to fictional content, same
 assertions).
+
+## Overnight visual/navigation rescue — 2026-08-30
+
+Starting checkpoint `4e67bf6` (this repo's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1192 tests passing before any edit).
+Owner rejected `4e67bf6`'s Home hero on sight: functionally correct, visually
+wrong — a tall right-side tower of mostly empty product boxes reaching well
+below the creation box, oversized cards showing little but an icon and a
+name, large dead space on the left, a duplicate "Start creating" button
+directly under the box's own "Start," a bulky returning-user panel, and a
+redundant "See what else got made" link after the products were already
+shown.
+
+### Checkpoint A — `1400e6b` — Home hero visual hierarchy
+
+- The right-side proof panel now holds exactly the three featured products
+  (CrossHeartPray, TheDJCares, iDontCry, in that order) as compact
+  horizontal `.proof-row` cards — icon, name, one-line description, a Live
+  status dot, and an open cue (↗), sized to content (roughly 80–110px tall),
+  no fixed tall tiles, no sticky positioning. The column now ends well above
+  the creation box's bottom edge instead of towering past it.
+- Every other real, live product (OpenDoku, WatchedNotWatched,
+  DontCloneMeTom, PleaseBeReady, Open Mirror) moved out of the hero into its
+  own full-width "More made here" band immediately below the hero, in a
+  responsive 1/2/3-column grid (`app/globals.css` `.more-products`) — one
+  proof list total, not a hero copy plus a lower-page copy.
+- The duplicate "Start creating" anchor button (and its adjacent beta-copy
+  paragraph) is gone from the hero. The creation box's own "Start" submit
+  button is the one dominant creation action above the fold.
+- The bulky card-styled "Keep going" panel is now one compact, full-width
+  `.continue-strip` (`app/vnext/ContinueStrip.tsx`) — identical private,
+  generic copy ("Continue your latest build." / "Continue" / "Your
+  builds"), never a Build's title/stage/next-move text — moved out of the
+  hero into its own section, rendered only when work exists.
+- Found and fixed a real mobile horizontal-overflow bug the new proof
+  cards' one-line (`white-space: nowrap` + ellipsis) description exposed: a
+  pre-existing bare `1fr` on the mobile `.stage` grid override has a
+  content-based automatic minimum, so the untruncated description text
+  forced the whole page wider than a phone viewport. Fixed with
+  `minmax(0, 1fr)` (both `.stage`'s mobile override and `.more-products`)
+  plus `min-width: 0` down the flex chain; regression-tested in
+  `RingApp.test.ts`.
+
+### Checkpoint B — `e552f07` — navigation simplification
+
+- Removed "Everything" (the full site directory) from the header's
+  secondary row (`app/site/RingHeader.tsx`) on every page — desktop bar and
+  mobile sheet alike. Primary nav is unchanged: Create, Engines, Builds,
+  Library (`navPages()`, untouched). Secondary is now How + the appearance
+  control + Account.
+- `/everything` itself is untouched, still a real route with its own page —
+  only removed from primary/secondary chrome. It's reachable sitewide from
+  one new quiet line, `app/site/QuietFooterLink.tsx`, mounted in
+  `app/layout.tsx` between page content and the shared `OpenMirrorFooter`.
+  That shared footer is the owner's locked, family-wide three-line
+  component synced from the Open Mirror hub repo — deliberately not
+  touched; the new line sits beside it, not inside it.
+
+### Checkpoint C — lower-page cleanup and this doc update
+
+- Audited the full Home page top-to-bottom against the intended order below
+  and found one real duplicated job: a "closing" section at the very bottom
+  of Home repeated the hero's "Made in The Ring" phrase behind a second,
+  duplicate big gold "Start something" button, plus the open-beta safety
+  line and feedback link (Home-only). Removed the section entirely — one
+  dominant creation action stays the box's own "Start," full stop — and
+  moved the open-beta safety line + feedback link into
+  `QuietFooterLink.tsx` so every page carries it once, not just Home.
+- No other duplicated sections, paid offers, or duplicate product catalogs
+  were found in the remaining lower-page flow (Quick start, Tools for the
+  job, the five-step loop) — each covers a distinct job with no overlap.
+- Engine behavior, routes, and persistence were not touched this checkpoint
+  (out of scope by the brief's own instruction).
+
+### Accepted homepage hierarchy (current, top to bottom)
+
+1. Creation-first hero (`.stage`) — brand, tagline, the creation box with
+   its one "Start" submit, beside exactly 3 featured live products.
+2. "More made here" — every other real, live product, full page width.
+3. Compact returning-user strip (`.continue-strip`) — only when a Build
+   exists for this browser/session; otherwise renders nothing.
+4. Quick start — 4 stems that drop into the box above.
+5. Tools for the job — 5 featured engines, links to `/engines` for the rest.
+6. How it goes — the 5-step loop, links to `/how`.
+7. Quiet sitewide footer — `/everything` link + open-beta/feedback line
+   (`QuietFooterLink.tsx`), then the locked `OpenMirrorFooter`.
+
+### Navigation (current)
+
+- Primary (every page, desktop bar + mobile sheet): Create, Engines,
+  Builds, Library.
+- Secondary (desktop bar-end + mobile sheet): How, appearance
+  (Dark/Light/System), Account.
+- Quiet footer (every page, below the fold): Everything, open-beta +
+  feedback.
+
+### Current production checkpoint
+
+As of this write-up: `e552f07` on `main` (Checkpoints A and B), with
+Checkpoint C's lower-page cleanup and this doc update committed
+immediately after — see the top of git log for the exact final SHA pushed
+to `origin/main` and deployed. Starting point for this whole rescue was
+`4e67bf6`.
+
+### Verification for this sprint
+
+- `npx vitest run` — full suite passing (1203 tests after Checkpoint C;
+  1193 after Checkpoint A/B individually), zero regressions.
+- `npx tsc --noEmit` — clean.
+- `npx eslint` — 0 errors on every touched file.
+- `npx next build` — clean production build after every checkpoint.
+- Local dev server (`sitr-overnight-rescue-dev`): structural/computed-style
+  verification at 1440×900, 1024×768, and 375×812 (no horizontal overflow
+  at any width, confirmed via `document.documentElement.scrollWidth` ===
+  `clientWidth`), dark/light theme tokens confirmed correct on the new
+  proof cards and footer line, mobile menu confirmed to show exactly
+  Create/Engines/Builds/Library/How/Account with 52px tap targets and no
+  Everything link. Pixel screenshots could not be captured in this session
+  (the Browser pane had no visible compositor surface attached — every
+  `computer` screenshot call failed with "the Browser pane is not
+  displayed, so the page is not compositing frames"); DOM/CSS-based
+  verification was used in its place throughout, and the same computed-
+  style/no-overflow checks were re-run after production deploy against
+  `stepinthering.com`.

@@ -29,3 +29,22 @@ describe("QuietFooterLink", () => {
     expect(omFooter).not.toMatch(/everything/i);
   });
 });
+
+// 2026-08-30 lower-page cleanup: the open-beta safety line and feedback
+// link used to live in a "closing" section at the bottom of Home only,
+// next to a duplicate second "Start something" button. Both moved here so
+// every page carries the safety line once, instead of Home repeating it.
+describe("QuietFooterLink carries the open-beta safety line", () => {
+  it("states the open-beta safety line", () => {
+    expect(src).toMatch(/Open beta\. Keep a copy of anything important\./);
+  });
+
+  it("links to the real feedback destination", () => {
+    expect(src).toMatch(/href="\/account#feedback"/);
+  });
+
+  it("carries no duplicate big creation CTA — this is a footer, not a second hero", () => {
+    const body = src.slice(src.indexOf("export default function"));
+    expect(body).not.toMatch(/btn-gold|btn-big|Start something/);
+  });
+});
