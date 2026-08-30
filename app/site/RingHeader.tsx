@@ -13,6 +13,14 @@
 //
 // Four doors on the left are the product: Create, Engines, Builds, Library.
 // The quieter set on the right is everything a person needs occasionally.
+//
+// 2026-08-30 nav simplification: "Everything" used to ride along here in
+// every page's bar and mobile sheet — a fifth, unrelated idea (a full site
+// directory) competing for space with the two things people actually reach
+// for occasionally (how this works, their account). The directory route
+// itself is untouched and still real; it's just no longer promoted in the
+// primary chrome. It stays reachable from the quiet site-wide footer line
+// (see app/site/QuietFooterLink.tsx) for transparency and compatibility.
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,13 +28,12 @@ import { useState } from "react";
 import { navPages } from "./registry";
 import OpenMirrorThemeToggle, { AppearanceMenu } from "../OpenMirrorTheme";
 
-// The four doors in .ring-nav are the product. These three are the things a
+// The four doors in .ring-nav are the product. These two are the things a
 // person needs occasionally and should not have to hunt for: what this is,
-// where everything is, and their own account. Kept visually quieter on
-// purpose — they are not part of the making loop.
+// and their own account. Kept visually quieter on purpose — they are not
+// part of the making loop.
 const SECONDARY = [
   { name: "How", href: "/how" },
-  { name: "Everything", href: "/everything" },
   { name: "Account", href: "/account" },
 ];
 

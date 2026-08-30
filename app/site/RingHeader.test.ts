@@ -36,11 +36,28 @@ describe("the primary nav still carries every door in the mobile sheet", () => {
     expect(header).toMatch(/\.\.\.SECONDARY/);
   });
 
-  it("SECONDARY still names How, Everything and Account", () => {
+  it("SECONDARY names How and Account", () => {
     const secondary = header.slice(header.indexOf("const SECONDARY"), header.indexOf("];", header.indexOf("const SECONDARY")));
-    for (const name of ["How", "Everything", "Account"]) {
+    for (const name of ["How", "Account"]) {
       expect(secondary).toContain(`"${name}"`);
     }
+  });
+});
+
+// 2026-08-30 nav simplification: "Everything" was a fifth, unrelated idea
+// (a full site directory) riding along in the primary chrome on every page.
+// The route stays real — it's just no longer promoted in the bar or the
+// mobile sheet. It's reachable instead from the quiet sitewide footer line
+// (app/site/QuietFooterLink.tsx), never deleted.
+describe("Everything is out of the primary nav, but the route still exists", () => {
+  it("SECONDARY no longer names or links Everything", () => {
+    const secondary = header.slice(header.indexOf("const SECONDARY"), header.indexOf("];", header.indexOf("const SECONDARY")));
+    expect(secondary).not.toContain("Everything");
+    expect(secondary).not.toMatch(/\/everything/);
+  });
+
+  it("the mobile sheet (built from primary + SECONDARY) carries no Everything link either", () => {
+    expect(header).not.toMatch(/\/everything/);
   });
 });
 

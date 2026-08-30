@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import OpenMirrorFooter from "./OpenMirrorFooter";
 import RingHeader from "./site/RingHeader";
+import QuietFooterLink from "./site/QuietFooterLink";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -87,6 +88,7 @@ export default function RootLayout({
             registry, so the bar and the Everything directory can't disagree. */}
         <RingHeader />
         {children}
+        <QuietFooterLink />
         <OpenMirrorFooter />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Y89TD7NPS0"
