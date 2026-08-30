@@ -1152,7 +1152,11 @@ body { font-synthesis-weight: none; }
   padding: clamp(40px, 6vw, 88px) 0 clamp(40px, 5vw, 72px);
 }
 @media (max-width: 940px) {
-  .stage { grid-template-columns: 1fr; gap: 32px; padding: 32px 0 28px; }
+  /* minmax(0, 1fr), not bare 1fr — a bare fr track's automatic minimum is
+     content-based, and a nowrap+ellipsis descendant (.proof-what) would
+     otherwise force the track (and the whole page) wider than the phone
+     viewport instead of actually truncating. */
+  .stage { grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 32px 0 28px; }
 }
 
 .stage-make { min-width: 0; }
@@ -1174,6 +1178,7 @@ body { font-synthesis-weight: none; }
   display: flex;
   flex-direction: column;
   gap: 14px;
+  min-width: 0;
 }
 @media (max-width: 940px) {
   .stage-proof { position: static; }
@@ -1187,28 +1192,119 @@ body { font-synthesis-weight: none; }
   color: var(--gold);
 }
 
-.stage-proof-tiles {
+/* ── PROOF ROWS — a product sized to its content, not a fixed tile. Icon,
+   name, one line of description, status, open cue, all in one link. Used
+   full-size for the three featured products beside the box, and compact for
+   every other real, live product in the "More made here" band below. Never
+   stretches to fill a taller neighbour: height comes from padding + one
+   line of text, so a short column of these ends where its content ends. ── */
+.proof-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
-.stage-proof-tiles .tile { min-height: 0; padding: 18px; }
-
-/* Every other real, live product — compact, still one clickable card each. */
-.stage-proof-more {
+.proof-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.proof-row:hover { border-color: var(--tile-accent, var(--gold)); background: var(--panel2); }
+.proof-row:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.proof-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 5px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  place-items: center;
+  font-size: 18px;
+  background: var(--tile-soft, var(--gold-soft));
+  border: 1px solid var(--tile-accent, var(--gold-glow));
+  flex-shrink: 0;
 }
-.tile-compact {
-  flex-direction: row;
+.proof-body { min-width: 0; flex: 1; }
+.proof-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  color: var(--text);
+}
+.proof-what {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.proof-side {
+  display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 0;
-  padding: 10px 12px;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
 }
-.tile-compact .tile-mark { width: 28px; height: 28px; font-size: 14px; margin-bottom: 0; flex-shrink: 0; }
-.tile-compact .tile-name { font-size: 12.5px; margin: 0; }
+.proof-status { display: flex; align-items: center; gap: 6px; }
+.proof-open { color: var(--tile-accent, var(--gold)); font-size: 13px; }
+@media (max-width: 480px) {
+  /* The status word is redundant with the dot at the narrowest widths and
+     is the first thing to go before anything wraps or overflows. */
+  .proof-status span:last-child { display: none; }
+}
+
+/* "More made here" — full page width, not a second column. A quiet label,
+   not a heavy section head — the hero already made the proof case. */
+.more-products-band .stage-proof-heading { margin-bottom: 14px; }
+.more-products {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+@media (min-width: 640px) {
+  .more-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 980px) {
+  .more-products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.proof-row-compact { padding: 10px 14px; gap: 12px; }
+.proof-row-compact .proof-mark { width: 30px; height: 30px; font-size: 15px; }
+.proof-row-compact .proof-name { font-size: 13.5px; }
+.proof-row-compact .proof-what { font-size: 12px; }
+
+/* Belt and braces alongside the minmax(0, 1fr) track fix above: every link
+   in the chain between the grid track and the nowrap ellipsis text opts
+   out of content-based automatic minimum sizing, so a long product
+   description can never force the page wider than the viewport. */
+.proof-list, .proof-row, .proof-body { min-width: 0; }
+
+/* ── Continue strip — a single quiet full-width row, never a tall card. ── */
+.continue-strip-section { padding-top: clamp(20px, 3vw, 32px); }
+.continue-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  padding: 14px 20px;
+}
+.continue-strip-text { font-size: 14px; font-weight: 700; color: var(--text); margin: 0; }
+.continue-strip-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
 .stage-mark {
   display: inline-flex;

@@ -40,8 +40,10 @@ describe("KeepGoingCard", () => {
   });
 
   it("uses plain generic copy instead", () => {
+    // 2026-08-29 visual rescue: the old bulky panel had a "Keep going"
+    // section label above the sentence — dropped along with the panel
+    // chrome in favor of one compact strip that IS the sentence.
     const html = renderToStaticMarkup(createElement(KeepGoingCard, { latest: build() }));
-    expect(html).toContain("Keep going");
     expect(html).toContain("Continue your latest build.");
   });
 
@@ -68,5 +70,15 @@ describe("KeepGoingCard", () => {
 describe("ContinueStrip", () => {
   it("renders nothing before the Build fetch resolves (signed-out visitors see nothing extra)", () => {
     expect(renderToStaticMarkup(createElement(ContinueStrip))).toBe("");
+  });
+});
+
+// The bulky card-styled panel is gone — one compact, full-width strip that
+// collapses to nothing when there's no work to continue.
+describe("KeepGoingCard — compact strip, not a card", () => {
+  it("uses the dedicated compact-strip class, not the general-purpose .card panel", () => {
+    const html = renderToStaticMarkup(createElement(KeepGoingCard, { latest: build() }));
+    expect(html).toContain('class="continue-strip"');
+    expect(html).not.toMatch(/class="card"/);
   });
 });

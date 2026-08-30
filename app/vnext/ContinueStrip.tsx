@@ -31,12 +31,9 @@ import type { BuildRecordV1 } from "./build";
  *  testable: given a Build, it never renders its title or status. */
 export function KeepGoingCard({ latest }: { latest: BuildRecordV1 }) {
   return (
-    <div className="card">
-      <div className="plan-label">Keep going</div>
-      <p style={{ fontSize: 14.5, color: "var(--text)", lineHeight: 1.5, margin: "6px 0 14px" }}>
-        Continue your latest build.
-      </p>
-      <div className="actions">
+    <div className="continue-strip">
+      <p className="continue-strip-text">Continue your latest build.</p>
+      <div className="continue-strip-actions">
         <Link className="btn btn-gold btn-small" href={`/builds/${latest.id}`}>
           Continue →
         </Link>
@@ -76,7 +73,7 @@ export default function ContinueStrip() {
   // Newest first is already the API's order — the top one is what they were
   // last doing, and that is the only one worth offering to continue.
   return (
-    <section className="home-section step-enter" style={{ marginTop: 0, marginBottom: 34 }} aria-label="Keep going">
+    <section className="band band-tight continue-strip-section" aria-label="Keep going">
       <KeepGoingCard latest={builds[0]} />
     </section>
   );

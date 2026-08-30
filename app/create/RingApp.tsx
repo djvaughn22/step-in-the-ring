@@ -506,9 +506,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
       <main>
         <div className="page">
           <section className="stage">
-            {/* ── LEFT: MAKE SOMETHING. The idea entry, its own working submit
-                button, and the one big "Start creating" CTA that scrolls to
-                and focuses it. ~60% of the hero. ── */}
+            {/* ── LEFT: MAKE SOMETHING. The idea entry and its own working
+                "Start" submit button — the one dominant creation action on
+                the page. No second CTA competing with it. ~60% of the
+                hero. ── */}
             <div className="stage-make">
               <span className="stage-mark">Step In The Ring</span>
               <h1 className="ring-display ring-brand">
@@ -533,33 +534,22 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                 {theBox}
               </div>
 
-              <div className="stage-primary-row">
-                <a href="#idea-description" className="btn btn-gold btn-big">
-                  Start creating
-                </a>
-              </div>
-              <p className="tiny" style={{ marginTop: 12 }}>
-                Free during open beta. Keep a copy of anything important.
-              </p>
-
-              {/* Somebody who was here yesterday sees their work first. A
-                  stranger sees nothing extra and loses nothing. */}
-              <ContinueStrip />
             </div>
 
             {/* ── RIGHT: REAL PROOF. CrossHeartPray, TheDJCares, and
-                iDontCry first — real, live products that can be opened and
-                used right now — then every other real, live product in the
-                catalog, in a compact row underneath. The product proves
-                itself by showing what actually got made, not by selling a
-                paid path before anyone has typed a word. ~40% of the hero. ── */}
+                iDontCry — real, live products that can be opened and used
+                right now. Compact horizontal cards sized to their content,
+                so this column ends near the bottom of the creation box
+                instead of towering past it. Every other real, live product
+                gets its own full-width band below the hero, not a second
+                list stacked in here. ~40% of the hero. ── */}
             <aside className="stage-proof">
               <h2 className="stage-proof-heading">Made in The Ring</h2>
-              <div className="stage-proof-tiles">
+              <div className="proof-list">
                 {HOME_PROOF_PRIMARY.map((p) => (
                   <a
                     key={p.name}
-                    className="tile"
+                    className="proof-row"
                     href={p.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -570,44 +560,60 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                       } as React.CSSProperties
                     }
                   >
-                    <span className="tile-mark" aria-hidden="true">{p.emoji}</span>
-                    <h3 className="tile-name">{p.name}</h3>
-                    <p className="tile-what">{p.what}</p>
-                    <span className="tile-foot">
-                      <span className="dot" />
-                      Live
-                      <span className="tile-open">Open</span>
+                    <span className="proof-mark" aria-hidden="true">{p.emoji}</span>
+                    <span className="proof-body">
+                      <span className="proof-name">{p.name}</span>
+                      <span className="proof-what">{p.what}</span>
+                    </span>
+                    <span className="proof-side">
+                      <span className="proof-status"><span className="dot" />Live</span>
+                      <span className="proof-open" aria-hidden="true">↗</span>
                     </span>
                   </a>
                 ))}
               </div>
-              {HOME_PROOF_MORE.length > 0 && (
-                <div className="stage-proof-more" aria-label="Every other real, live product">
-                  {HOME_PROOF_MORE.map((p) => (
-                    <a
-                      key={p.name}
-                      className="tile tile-compact"
-                      href={p.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={
-                        {
-                          "--tile-accent": p.accent,
-                          "--tile-soft": `${p.accent}1A`,
-                        } as React.CSSProperties
-                      }
-                    >
-                      <span className="tile-mark" aria-hidden="true">{p.emoji}</span>
-                      <span className="tile-name">{p.name}</span>
-                    </a>
-                  ))}
-                </div>
-              )}
-              <p className="tiny" style={{ marginTop: 4 }}>
-                <Link href="/explore" className="more">See what else got made</Link>
-              </p>
             </aside>
           </section>
+
+          {/* ── MORE MADE HERE. Every other real, live product in the
+              catalog, full page width, compact horizontal rows — a second
+              proof band, not a second column stacked under the first. ── */}
+          {HOME_PROOF_MORE.length > 0 && (
+            <section className="band band-tight more-products-band">
+              <h2 className="stage-proof-heading">More made here</h2>
+              <div className="more-products">
+                {HOME_PROOF_MORE.map((p) => (
+                  <a
+                    key={p.name}
+                    className="proof-row proof-row-compact"
+                    href={p.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={
+                      {
+                        "--tile-accent": p.accent,
+                        "--tile-soft": `${p.accent}1A`,
+                      } as React.CSSProperties
+                    }
+                  >
+                    <span className="proof-mark" aria-hidden="true">{p.emoji}</span>
+                    <span className="proof-body">
+                      <span className="proof-name">{p.name}</span>
+                      <span className="proof-what">{p.what}</span>
+                    </span>
+                    <span className="proof-side">
+                      <span className="proof-open" aria-hidden="true">↗</span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Somebody who was here yesterday sees their work first, in one
+              quiet strip of its own — never inside the hero, never printing
+              what the build actually is. A stranger sees nothing here. */}
+          <ContinueStrip />
 
           {/* ── QUICK START. Four doors, not eight — proof that this handles
               more than one kind of thing, not a menu to study. Each one drops
