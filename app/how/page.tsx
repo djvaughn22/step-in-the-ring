@@ -18,7 +18,7 @@ import liveProducts from "../live/live-products.json";
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "Say a rough idea, shape it, make it real, try it, and keep going. No account needed — sign in only if you want a Build to follow you to another device.",
+    "Say what you need help with, get it shaped into something clear, then act on it. No account needed — sign in only if you want a Build to follow you to another device.",
 };
 
 const LOOP = [

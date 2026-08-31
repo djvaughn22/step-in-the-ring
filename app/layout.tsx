@@ -12,13 +12,13 @@ export const metadata: Metadata = {
     template: "%s | StepInTheRing",
   },
   description:
-    "Say a rough idea in your own words. Walk out with a plan for version one and a builder prompt worth using — then build it with free tools, test it locally, and push it live.",
+    "Say what you need help with, in your own words — something to make, fix, understand, or plan. Leave with a clear next step, and free tools when it's software.",
   applicationName: "Step In The Ring",
   appleWebApp: { capable: true, title: "The Ring", statusBarStyle: "black-translucent" },
   openGraph: {
     title: "Step In The Ring",
     description:
-      "Say it rough. Leave with a plan and a builder prompt. Part of Open Mirror LLC.",
+      "Say it rough — whatever you need help with. Leave with a clear next step. Part of Open Mirror LLC.",
     url: "https://stepinthering.com",
     siteName: "Step In The Ring",
     type: "website",
