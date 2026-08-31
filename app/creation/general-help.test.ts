@@ -177,3 +177,35 @@ describe("the tools card for general-help doesn't talk like an unformed idea", (
     expect(v.tools.why).toMatch(/not something to build/i);
   });
 });
+
+// Mom-and-dad final acceptance pass (2026-08-30). Confirmed live: walking
+// the actual bill journey — answer the follow-up question ("What part is
+// confusing or concerning you?") the way a real person would — flipped
+// the whole reading from general-help to "A service," with "deliver it
+// manually to one real customer, start to finish" and the wrong-tool
+// "what can help" chips both back. The follow-up answer is real user
+// input and must not be able to break the classification it was asked to
+// sharpen.
+describe("answering the follow-up question never breaks the general-help reading", () => {
+  it("a bill's own vocabulary in the answer doesn't reclassify the creation", () => {
+    const withAnswer = viewOf(
+      newRecord("I don't understand this bill.", {
+        answers: { detail: "There's a $60 service fee I don't remember agreeing to." },
+      }),
+    );
+    expect(withAnswer.creationType).toBe("general-help");
+    const rec = recommendEngines(withAnswer);
+    expect(rec.primary).toBeNull();
+  });
+
+  it("naming real options in a housing decision doesn't reclassify it as a software tool", () => {
+    const withAnswer = viewOf(
+      newRecord("Help me decide between two options.", {
+        answers: { detail: "Option A: keep renting my apartment. Option B: buy a small house with a bigger mortgage payment." },
+      }),
+    );
+    expect(withAnswer.creationType).toBe("general-help");
+    const rec = recommendEngines(withAnswer);
+    expect(rec.primary).toBeNull();
+  });
+});

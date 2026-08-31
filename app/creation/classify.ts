@@ -29,7 +29,17 @@ const CONTENT = /\b(blog|podcast|video series|newsletter|channel|content|posts?\
 const CONTENT_STRONG = /\b(blog|newsletter|podcast|youtube|video series|(?:tiktok|instagram|youtube) channel|channel about)\b/i;
 // "coach" alone is a noun as often as a service ("coach contact information"
 // on a team site) — only "coaching" is unambiguous work someone is offering.
-const SERVICE = /\b(service|dog[- ]walk|babysit|tutor(ing)?|coaching|clean(ing)? (houses|homes|offices)|mow|i('| a)?m offering)\b/i;
+// Confirmed live 2026-08-30: bare "service" is a bill/administrative word
+// far more often than a business offering — answering the general-help
+// follow-up question for "I don't understand this bill" with "there's a
+// SERVICE FEE I don't recognize" reclassified the whole creation as
+// "A service" ("deliver it manually to one real customer..."), the exact
+// same bare-noun ambiguity "coach" had before it was narrowed to
+// "coaching" only. Excludes the common non-business phrases ("service
+// fee," "customer service," "terms of service," etc.) rather than
+// requiring a business-offering phrase to also be more error-prone.
+const SERVICE =
+  /\b(dog[- ]walk|babysit|tutor(ing)?|coaching|clean(ing)? (houses|homes|offices)|mow|i('| a)?m offering|(?<!customer )(?<!of )service(?!s?\s*(fee|fees|charge|charges|call|calls|number|line|provider|agreement|agreements|department|record|records|address|history|terms|plan|plans|area))\b)/i;
 
 export function classifyCreationType(text: string, shape: Shape): { type: CreationType; reason: string } {
   // A game is a game before it is anything its theme mentions — "guess the
@@ -61,7 +71,15 @@ export function classifyCreationType(text: string, shape: Shape): { type: Creati
   if (EVENT_WORDS.test(text)) return { type: "event-plan", reason: "you described a real-world effort, not software" };
   if (CONTENT.test(text) && shape === "content") return { type: "content", reason: "you described published content" };
   // "Solve X" / "keep Y busy" with no named form is a problem-solving tool.
-  if (shape === "unknown" && (CARE_VERB.test(text) || /\b(solve|solving|problem)\b/i.test(text))) {
+  // Confirmed live 2026-08-30: the bare CARE_VERB check alone (no dependent
+  // required) matched "keep" in "keep renting my apartment" while weighing
+  // a real housing decision, and routed it to a software-tool reading
+  // ("Write one more sentence: who uses this...") — the same bare-word
+  // ambiguity "coach" and "service" already had. findCaretaker() requires
+  // an actual dependent (a dog, a kid, a toddler...), which "keep Y busy"
+  // always names; a bare "keep"/"busy" with no one to look after does not
+  // belong here.
+  if (shape === "unknown" && (findCaretaker(text) || /\b(solve|solving|problem)\b/i.test(text))) {
     return { type: "tool", reason: "you described a problem to solve, so version one is the smallest thing that solves it" };
   }
   // A question, a decision, or real-world trouble — only once every concrete
