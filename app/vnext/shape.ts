@@ -22,7 +22,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { newRecord, viewOf, type CreationView } from "../creation/record";
-import { CREATION_TYPE_LABEL } from "../creation/types";
+import { CREATION_TYPE_LABEL, type CreationType } from "../creation/types";
 import { capabilitiesForIntent, capabilityById, type Capability } from "./capabilities";
 import type { OpenQuestion } from "../planner/types";
 
@@ -123,10 +123,27 @@ export function firstMoveFrom(view: CreationView, versionOne: string[]): string 
   if (isRepair(view)) {
     return "Write down exactly what goes wrong, and the one step that makes it happen every time.";
   }
+  // A question or a real situation isn't "building" anything — confirmed
+  // live: "I don't understand this bill" got "Before building anything,
+  // try the cheap version..." right under a card that had just said this
+  // isn't something to build. The test itself is already a full, honest
+  // sentence; it doesn't need a building-shaped wrapper around it.
+  if (view.creationType === "general-help") {
+    const test = view.software.nonSoftwareTest;
+    return test
+      ? endWithStop(test)
+      : "Read the brief below, then bring it to a person, a reference, or an AI who can see the real thing.";
+  }
   const test = view.software.nonSoftwareTest;
   const testFirst = view.software.verdict === "test-first" || view.software.verdict === "optional";
   if (test && testFirst) {
-    return endWithStop(`Before building anything, try the cheap version: ${lowerFirst(test)}`);
+    // Confirmed live: a song and a letter both got "Before building
+    // anything..." right next to "The finished piece is the product. It
+    // needs to be made, not engineered." "Building" is the one word here
+    // that's specifically software-shaped; the rest of the sentence
+    // already carries the real idea (try the small thing before the fuller
+    // one) without it.
+    return endWithStop(`Try the cheap version first: ${lowerFirst(test)}`);
   }
   if (versionOne.length > 0) {
     return endWithStop(`Get this working first, and nothing else yet: ${lowerFirst(versionOne[0])}`);
@@ -187,13 +204,25 @@ function softwareNoteFrom(view: CreationView): string | null {
 }
 
 /**
- * Capabilities that are true for anything a person is making, used only when
- * nothing matched their actual words. An empty "what can help" is a dead end;
- * pointing at an engine that doesn't fit is worse. These two always fit.
+ * Capabilities that are true for anything a person is MAKING, used only
+ * when nothing matched their actual words. An empty "what can help" is a
+ * dead end; pointing at an engine that doesn't fit is worse. These two
+ * always fit — for something being made. Confirmed live: "I don't
+ * understand this bill" fell through to these two (a five-hour sprint, a
+ * beginner app walkthrough) because neither matches any keyword — an
+ * empty section would have been more honest than two wrong ones.
  */
 const ALWAYS_HELPFUL = ["five-hour-sprint", "first-app"];
 
-function helpsFor(intent: string): ShapedHelp[] {
+function helpsFor(intent: string, creationType: CreationType): ShapedHelp[] {
+  // Every real capability here is a tool for MAKING something — none of
+  // them fit a question, a decision, or real-world trouble, matched
+  // keyword or not. Confirmed live: "Teach me how compound interest
+  // works" keyword-matched the How To Anything Engine — which turns the
+  // OWNER'S OWN proven fix into a published tutorial, the opposite
+  // direction from wanting to learn something. Suggesting it is worse
+  // than suggesting nothing.
+  if (creationType === "general-help") return [];
   const matched = capabilitiesForIntent(intent, 4);
   if (matched.length > 0) return matched.map(trimHelp);
   return ALWAYS_HELPFUL.flatMap((id) => {
@@ -220,7 +249,7 @@ export function shapingFromView(view: CreationView): BuildShaping {
     realMeans: realMeansFrom(view),
     versionOne,
     firstMove: firstMoveFrom(view, versionOne),
-    helps: helpsFor(i.raw),
+    helps: helpsFor(i.raw, view.creationType),
     question: i.openQuestions[0] ?? null,
     softwareNote: softwareNoteFrom(view),
   };

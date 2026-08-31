@@ -112,5 +112,5 @@ export const QUICK_START: Omit<StartingPoint, "group">[] = [
   { emoji: "🌐", label: "Make an app or site", what: "Something that runs on the internet.", stem: "A website that " },
   { emoji: "🎮", label: "Make a game", what: "Something you can play.", stem: "A game where " },
   { emoji: "🎨", label: "Make something creative", what: "A song, a story, a design — whatever you're carrying.", stem: "Something creative: " },
-  { emoji: "🧭", label: "Plan, fix, or build something else", what: "Not sure which of those it is yet. That's fine.", stem: "I need to " },
+  { emoji: "🧭", label: "Plan, fix, or ask something", what: "A project, a real problem, a question you need help with — that's fine too.", stem: "I need to " },
 ];

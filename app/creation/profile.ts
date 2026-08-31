@@ -212,6 +212,22 @@ export function deriveTools(
     };
   }
 
+  if (type === "general-help") {
+    // Confirmed live: the generic fallback below said "the idea needs one
+    // more decision before tools matter" and "until the creation has a
+    // definite form" — language written for a vague idea still taking
+    // shape, wrong for a clear, already-formed question or situation.
+    return {
+      stack: "Nothing — the real bill, document, mechanic, or object, in front of the right person.",
+      why: "This is a question or a real situation, not something to build. No tool makes it clearer than the real thing would.",
+      setup: [],
+      noSetup: ["Being specific about what you actually need answered."],
+      automatic: [],
+      optional: [],
+      wait: ["Any tool at all, unless the answer itself calls for one."],
+    };
+  }
+
   if (type === "story" || type === "content") {
     const publishing = profile.writingForm === "blog" || profile.writingForm === "newsletter";
     return {

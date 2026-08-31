@@ -103,8 +103,12 @@ describe("shapeIntent", () => {
   });
 
   it("puts the cheap real-world test first when software isn't the product", () => {
+    // "Before building anything" was dropped 2026-08-30 — confirmed live,
+    // it read as a contradiction right next to softwareNote saying this
+    // isn't something to build/engineer at all (a song, a letter, a plan).
     const s = shapeIntent(BOOK)!;
-    expect(s.firstMove.toLowerCase()).toContain("before building anything");
+    expect(s.firstMove.toLowerCase()).toContain("try the cheap version first");
+    expect(s.firstMove.toLowerCase()).not.toContain("building");
     expect(s.softwareNote).toBeTruthy();
   });
 
@@ -160,6 +164,40 @@ describe("shapeIntent", () => {
       expect(s.title.trim()).not.toBe("");
     }
   });
+});
+
+// Mom-and-dad first-time journey audit (2026-08-30). Confirmed live: "I
+// don't understand this bill" and "My faucet is leaking" got "Before
+// building anything, try the cheap version..." and a "What can help"
+// section suggesting a five-hour sprint and a beginner app walkthrough —
+// right after the product had correctly said this wasn't a build at all.
+describe("general-help never talks like a build", () => {
+  const BILL = "I don't understand this bill.";
+  const FAUCET = "My faucet is leaking.";
+  const LEARN = "Teach me how compound interest works.";
+
+  it("the first move never says 'building' for a question or real trouble", () => {
+    for (const said of [BILL, FAUCET]) {
+      const s = shapeIntent(said)!;
+      expect(s.firstMove.toLowerCase()).not.toContain("building");
+      expect(s.firstMove.toLowerCase()).not.toContain("before building");
+    }
+  });
+
+  it("'what can help' is empty rather than suggesting a wrong-direction tool", () => {
+    // "Teach me how compound interest works" keyword-matches the How To
+    // Anything Engine (it needs "teach"/"how to") — but that engine turns
+    // the OWNER'S OWN proven fix into a published tutorial, the opposite
+    // of wanting to learn something. Suggesting it is worse than nothing.
+    const learn = shapeIntent(LEARN)!;
+    expect(learn.helps).toHaveLength(0);
+
+    // The no-keyword-match case: used to fall back to "Five Hour Sprint"
+    // and "Your first build, step by step" — both build-shaped, both wrong.
+    const bill = shapeIntent(BILL)!;
+    expect(bill.helps).toHaveLength(0);
+  });
+
 });
 
 describe("a Build started from a shaping", () => {

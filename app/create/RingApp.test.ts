@@ -214,3 +214,17 @@ describe("RingApp engine handoff — no retyping into /build", () => {
     expect(src).toMatch(/import \{ BUILD_SEED_KEY \} from "\.\.\/planner\/handoff"/);
   });
 });
+
+// Mom-and-dad first-time journey audit (2026-08-30). Confirmed live: the
+// "What I think you're making" card showed an "Explore an early idea" pill
+// directly beside "Help figuring this out" — a software buildType
+// assumption contradicting the sentence right next to it that says this
+// isn't something to build at all.
+describe("UnderstoodCard — the buildType pill doesn't contradict general-help", () => {
+  it("hides the buildType pill only for general-help, not for every creation", () => {
+    const fn = src.slice(src.indexOf("function UnderstoodCard"), src.indexOf("function UnderstoodCard") + 1200);
+    expect(fn).toMatch(/view\?\.creationType !== "general-help"/);
+    // The creationType pill itself stays for everyone, general-help included.
+    expect(fn).toMatch(/\{view && <span className="pill">\{CREATION_TYPE_LABEL\[view\.creationType\]\}<\/span>\}/);
+  });
+});

@@ -110,7 +110,12 @@ function UnderstoodCard({ i, view }: { i: Interpretation; view?: CreationView | 
       <h2 style={{ marginBottom: 10 }}>{i.title.value}</h2>
       <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.6 }}>{i.summary}</p>
       <div className="pill-row">
-        <span className="pill">{BUILD_TYPE_LABEL[i.buildType.value]}</span>
+        {/* "Explore an early idea" is a software buildType assumption —
+            confusing right next to "Help figuring this out," which already
+            says plainly that this isn't a build at all. */}
+        {view?.creationType !== "general-help" && (
+          <span className="pill">{BUILD_TYPE_LABEL[i.buildType.value]}</span>
+        )}
         {view && <span className="pill">{CREATION_TYPE_LABEL[view.creationType]}</span>}
         {i.destination && <span className="pill">Lands on {i.destination.value}</span>}
         {/* Lowercase the first letter only — blanket toLowerCase() turns
