@@ -148,7 +148,7 @@ const SHAPE_WORDS: [Shape, RegExp, number][] = [
   // appointment" are actions on a booking site, not a novel.
   [
     "content",
-    /\b(story|stories|book(?!\s+(?:a|an|the|my|your|our|his|her|their|it|one|us)\b)|books|song|beat|music|album|video|podcast|newsletter|poem|lyrics|manuscript|novel|screenplay)\b/i,
+    /\b(story|stories|book(?!\s+(?:a|an|the|my|your|our|his|her|their|it|one|us)\b)|books|song|beat|music|album|video|podcast|newsletter|poem|lyrics|manuscript|novel|screenplay|letter|essay)\b/i,
     3,
   ],
   ["site", /\b(website|web site|site|landing page|homepage|portfolio|blog|business page|online)\b/i, 2],

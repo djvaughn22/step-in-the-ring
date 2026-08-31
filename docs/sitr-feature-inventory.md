@@ -1137,3 +1137,175 @@ asking "What should it do the very first time someone uses it?" for a
 `general-help` creation — real, visible, skippable but worth a dedicated
 look next, since it's the same class of "product-shaped language for a
 non-product request" this checkpoint just fixed in three other places.
+
+## Make the follow-up question match the human's actual need — 2026-08-30
+
+Starting checkpoint `9954a77` (this doc's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1243 tests passing before any edit).
+Scoped, single-purpose checkpoint: fix the exact gap flagged above, and
+nothing else.
+
+### Inspection before any edit
+
+`deriveQuestions()` in `app/planner/interpret.ts` returns the FIRST
+applicable of three questions: a `versionOne` product-behaviour question
+("What should it do the very first time someone uses it?"), a `sell`-buildType
+audience question ("Who would actually pay for this?"), or a general
+audience question ("Who is it for?"). It already had a working precedent
+for exactly this problem: `piece`/`personalPiece`/`coachPlan`/`wearable`
+flags exempt a definite poem/song/story, coaching plan, or wearable design
+from the `versionOne` question, because those have no "behaviours" to ask
+about. The bug was that this exemption list was incomplete — `general-help`
+and plain physical/design products (not wearables) were both missing from
+it, and it operates on the early, coarse `Shape` (game/site/tool/list/
+product/content/unknown from `app/planner/signals.ts`), not the later,
+richer `CreationType` — so a fix to `CreationType`'s vocabulary (last
+checkpoint's `STORY`/`EVENT` word-list additions) didn't automatically fix
+this earlier layer too.
+
+Ran the eight required inputs through the real `interpret()` call and read
+`openQuestions` directly:
+
+| # | Input | `shape` | Question before fix |
+| - | --- | --- | --- |
+| 1 | "I want to make an app." | `tool` | `versionOne` — correct, unchanged |
+| 2 | "I want to write a song." | `content` | none — `piece` already covers this |
+| 3 | "Write a letter to my insurance company." | `unknown` | `versionOne` — **wrong**; "letter" isn't in any Shape word list |
+| 4 | "Help me plan a vacation." | `unknown` | `versionOne` — **wrong**; there is no "event" Shape at all |
+| 5 | "My faucet is leaking." | `unknown` | `versionOne` — **wrong** |
+| 6 | "I don't understand this bill." | `unknown` | `versionOne` — **wrong** |
+| 7 | "Help me decide between these two options." | `unknown` | `versionOne` — **wrong** |
+| 8 | "Teach me how compound interest works." | `unknown` | `versionOne` — **wrong** |
+
+**Matrix audit, as requested** (song/poem/letter/event-plan/physical-product/
+general-help): song and poem were already fine (`piece` exemption, gated on
+`shape === "content"`). Letter and event-plan were NOT fine, for the reason
+above. One more, not in the original audit list, surfaced from the same
+matrix: **"I want to sell handmade candles"** (`shape: "product"`,
+`buildType: "sell"`) also got the software `versionOne` question — a
+physical/design product's version one is one finished unit, not a
+first-use flow, and only the more specific `wearable` (clothing) case was
+exempted, not physical/design products generally.
+
+### The distinction used, and why
+
+Not five new hard-coded phrase checks. Two things:
+
+1. **Reuse, don't re-derive.** `general-help`'s detection already exists
+   (`looksLikeGeneralHelp` in `app/creation/profile.ts`, from the prior
+   checkpoint) — `deriveQuestions` now calls it directly
+   (`a.shape === "unknown" && looksLikeGeneralHelp(a.productText)`), the
+   same gate `classify.ts` uses, so the two layers can't disagree about
+   what counts as general-help.
+2. **The four tiny, deterministic sub-signals the brief allowed for**
+   (understand/decide/learn/troubleshoot) already existed too — they're
+   the four regexes `looksLikeGeneralHelp` already ORs together
+   (`COMPREHENSION_WORDS`, `LEARNING_WORDS`, `DECISION_WORDS`,
+   `looksLikeRealWorldTrouble`). Named and exported as one new function,
+   `generalHelpKind()` → `"learn" | "decide" | "understand" | "trouble" |
+   null`, in the same file. No new taxonomy — the same four words the
+   existing type already distinguishes internally, just given names so
+   the follow-up question can pick from four honest, hand-written
+   questions (one per kind) instead of one generic stand-in.
+
+For the letter/vacation/candle gap specifically: rather than teach
+`deriveQuestions` a second, parallel vocabulary, the fix closes the gap
+between the two existing classifiers so they can't drift apart again —
+`EVENT_WORDS` (event/party/wedding/trip/vacation/holiday/etc.) moved from
+a private constant in `classify.ts` to a shared, exported one in
+`app/creation/profile.ts` (the same file `SPORTS_PLAN_WORDS` and
+`looksFashion` already live in for exactly this reason), and
+`app/planner/signals.ts`'s `content`-shape word list gained "letter" and
+"essay" — the same two words added to `classify.ts`'s `STORY` regex last
+checkpoint, now present in both places instead of one.
+
+### Fix
+
+**`app/creation/profile.ts`** — new `generalHelpKind()` (four-way sub-
+classifier reusing the existing four regexes); `EVENT_WORDS` moved here
+from `classify.ts` and exported.
+
+**`app/creation/classify.ts`** — imports the now-shared `EVENT_WORDS`
+instead of defining its own copy.
+
+**`app/planner/signals.ts`** — the `content` Shape's word list gained
+`letter`/`essay`, matching `classify.ts`'s `STORY` regex.
+
+**`app/planner/interpret.ts`** — `deriveQuestions()`:
+- New `generalHelp` flag, checked FIRST: when true and not yet answered
+  (key `"detail"`), returns one of four honest, kind-specific questions
+  (`GENERAL_HELP_QUESTIONS`) instead of the product-behaviour question.
+  Also excluded from the `versionOne` branch itself, so once "detail" is
+  answered the flow doesn't fall through and ask the software question
+  anyway (a real bug caught by this checkpoint's own test suite before
+  it shipped).
+- New `physicalGood` flag (`shape === "product"`) and `eventPlan` flag
+  (`EVENT_WORDS.test(...)`), both added to the `versionOne` exemption
+  list alongside the existing `piece`/`coachPlan`/`wearable`.
+- `piece` and `personalPiece`'s own word lists gained `letter`/`essay` too
+  (belt-and-suspenders with the Shape fix — either one alone would have
+  been enough, having both means the exemption still works if either
+  layer's word list drifts again later).
+
+### Before/after follow-up-question matrix (verified, not asserted)
+
+| Input | Classification | Before | After | Why it fits |
+| --- | --- | --- | --- | --- |
+| "I want to make an app." | `tool` | `versionOne` | unchanged | Software genuinely has a first-use behaviour worth naming. |
+| "I want to write a song." | `content` | none | unchanged | Already exempt — a song's version one is a draft, not a behaviour. |
+| "Write a letter to my insurance company." | `content` (was `unknown`) | `versionOne` (wrong) | **none** | A letter's purpose and recipient are already the point; nothing to ask. |
+| "Help me plan a vacation." | `unknown` | `versionOne` (wrong) | **"Who is it for?"** | Who's going changes the plan; what it "should do" doesn't apply. |
+| "I want to sell handmade candles." | `product` | `versionOne` (wrong) | **"Who would actually pay for this?"** | A buyer, not a first-use flow, is what shapes a physical product. |
+| "My faucet is leaking." | `general-help`/trouble | `versionOne` (wrong) | **"What's happening, exactly?"** | The next fact that actually helps: symptom, timing, what's been tried. |
+| "I don't understand this bill." | `general-help`/understand | `versionOne` (wrong) | **"What part is confusing or concerning you?"** | Narrows a whole document to the one thing worth explaining. |
+| "Help me decide between these two options." | `general-help`/decide | `versionOne` (wrong) | **"What are the options, in a sentence each?"** | Can't weigh anything without knowing what's actually being weighed. |
+| "Teach me how compound interest works." | `general-help`/learn | `versionOne` (wrong) | **"What would make this click for you?"** | Asks how to teach it well, not what a "version one" of a lesson is. |
+
+Every row is a real assertion in
+[`app/planner/interpret.test.ts`](../app/planner/interpret.test.ts)'s new
+"the one follow-up question fits the actual need, not just software"
+block.
+
+### Other shared-question leakage found
+
+Only the physical/design-product gap above (`shape === "product"`, not
+already covered by the more specific `wearable` case) — found via the
+requested song/poem/letter/event-plan/physical-product/general-help
+matrix and fixed in the same layer. No other leak found; `sports-plan`
+(`coachPlan`) and `fashion` (`wearable`) were already correctly exempted
+before this checkpoint.
+
+### Verification for this sprint
+
+- `npx vitest run` — 82 files, 1255 tests, all passing (baseline: 1243;
+  +12 tests: 8 for the required inputs, 1 confirming the app/software
+  question is unchanged, 2 for the "answered once, never re-asked or
+  fallen-through" regression this checkpoint's own tests caught before
+  shipping, 1 guarding against a literal dollar amount in any general-help
+  question/placeholder — the repo's existing `publicPriceGuard.test.ts`
+  caught this once already during this checkpoint, see below).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline, none in touched files).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- **Caught by an existing guard, not this checkpoint's own tests:** the
+  first draft of the "confusing bill" placeholder used a literal "$45"
+  example, which `app/lib/publicPriceGuard.test.ts` (a 2026-08-06
+  regression guard against any customer-visible dollar price reappearing
+  while pricing is TBD) correctly flagged. Reworded to avoid a dollar
+  figure entirely; a new test in `interpret.test.ts` now also checks every
+  general-help question/help/placeholder string directly, so the two
+  guards can't drift apart.
+- Local dev server (ephemeral `next dev -p 3988`): live-verified in the
+  browser for app, letter, faucet, confusing bill, and the compound-
+  interest learning request — each shows the exact question text from the
+  table above. No horizontal overflow at 375px or 1440px
+  (`scrollWidth === clientWidth` at both).
+
+### Stopping point
+
+This checkpoint is complete as scoped. Not started: broadening the
+classifier further, document upload, lesson systems, decision engines, or
+any consulting/human-help feature — all explicitly out of scope for
+tonight per the brief.

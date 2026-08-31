@@ -9,7 +9,7 @@
 // come out of the same paths.
 
 import type { Interpretation, Shape } from "../planner/types";
-import { findSportKind, looksFashion, looksLikeGeneralHelp, SPORTS_PLAN_WORDS } from "./profile";
+import { EVENT_WORDS, findSportKind, looksFashion, looksLikeGeneralHelp, SPORTS_PLAN_WORDS } from "./profile";
 import type { CreationType, SoftwareCall } from "./types";
 
 /* ── CREATION TYPE ─────────────────────────────────────────────────────── */
@@ -30,7 +30,6 @@ const CONTENT_STRONG = /\b(blog|newsletter|podcast|youtube|video series|(?:tikto
 // "coach" alone is a noun as often as a service ("coach contact information"
 // on a team site) — only "coaching" is unambiguous work someone is offering.
 const SERVICE = /\b(service|dog[- ]walk|babysit|tutor(ing)?|coaching|clean(ing)? (houses|homes|offices)|mow|i('| a)?m offering)\b/i;
-const EVENT = /\b(event|party|wedding|reunion|fundraiser|trip|vacation|holiday|camp|tournament|campaign)\b/i;
 
 export function classifyCreationType(text: string, shape: Shape): { type: CreationType; reason: string } {
   // A game is a game before it is anything its theme mentions — "guess the
@@ -59,7 +58,7 @@ export function classifyCreationType(text: string, shape: Shape): { type: Creati
   if (shape === "product" && DESIGN.test(text)) return { type: "design", reason: "you described a design to sell" };
   if (shape === "product") return { type: "physical-product", reason: "you described something people would buy" };
   if (SERVICE.test(text)) return { type: "service", reason: "you described something done for people, not built" };
-  if (EVENT.test(text)) return { type: "event-plan", reason: "you described a real-world effort, not software" };
+  if (EVENT_WORDS.test(text)) return { type: "event-plan", reason: "you described a real-world effort, not software" };
   if (CONTENT.test(text) && shape === "content") return { type: "content", reason: "you described published content" };
   // "Solve X" / "keep Y busy" with no named form is a problem-solving tool.
   if (shape === "unknown" && (CARE_VERB.test(text) || /\b(solve|solving|problem)\b/i.test(text))) {
