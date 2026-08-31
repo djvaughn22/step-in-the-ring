@@ -4,6 +4,8 @@
 // biography: no names, no private paths, no secrets. Stored on this device
 // only, versioned, safe-parsed.
 
+import type { SoftwareVerdict } from "./types";
+
 export interface BuilderDefaults {
   version: 1;
   /** Where the work lands. */
@@ -53,9 +55,16 @@ export function saveBuilderDefaults(d: BuilderDefaults): void {
 
 /* ── The working method, as prompt lines ─────────────────────────────────
    This is the real low-cost workflow, stated once and reused by every
-   engine's prompt adapter. */
+   engine's prompt adapter. Software-specific practice (an existing
+   codebase, mobile-first UI, git commits, type checking) only belongs here
+   when software is actually the deliverable — a song, a poem, or a letter
+   has its own definition of done and gets none of it. The type/verdict
+   system already knows the difference (`SoftwareVerdict` on every
+   `CreationView`); this just has to ask it before writing repo language
+   into a music brief. */
 
-export function doctrineLines(d: BuilderDefaults): string[] {
+export function doctrineLines(d: BuilderDefaults, verdict: SoftwareVerdict): string[] {
+  if (verdict !== "central") return generalDoctrineLines(d);
   const lines = [
     "Use the simplest stack that does the job; keep the implementation in as few files as practical.",
     "Mobile-first: essential actions reachable on a narrow phone, touch targets big enough for a thumb.",
@@ -89,6 +98,26 @@ export function doctrineLines(d: BuilderDefaults): string[] {
     "Stop only for destructive, security-sensitive, paid, data-loss, or irreversible actions — otherwise complete the work without routine approval.",
     "Finish with a concise, honest report: what was built, what was verified, what was assumed, what was not done.",
   );
+  if (d.notes.trim()) lines.push(d.notes.trim());
+  return lines;
+}
+
+/**
+ * The same working method, for every creation where software is NOT the
+ * deliverable (`SoftwareVerdict` other than "central") — a song, a poem, a
+ * letter, a physical product, a real-world plan. No codebase, no mobile-
+ * first UI, no git, no type checking: none of that applies to a finished
+ * song or a written page. What's genuinely universal survives, reworded
+ * away from software vocabulary.
+ */
+function generalDoctrineLines(d: BuilderDefaults): string[] {
+  const lines = [
+    "Use the simplest approach that actually finishes the real thing — nothing this doesn't need.",
+    "No paid tools or AI services unless this explicitly requires them.",
+    "Use or experience the finished piece yourself before calling it done.",
+    "Stop only for destructive, costly, or hard-to-reverse choices — otherwise keep going without routine approval.",
+    "Finish with a concise, honest account: what was made, what was checked, what was assumed, what wasn't done.",
+  ];
   if (d.notes.trim()) lines.push(d.notes.trim());
   return lines;
 }

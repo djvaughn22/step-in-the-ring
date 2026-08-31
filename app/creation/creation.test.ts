@@ -363,8 +363,8 @@ describe("build pack", () => {
 /* ── 12. Builder defaults shape every prompt ───────────────────────────── */
 describe("builder defaults", () => {
   it("prototype mode forbids commits; push mode forbids manual deploys", () => {
-    expect(doctrineLines({ ...D, gitMode: "prototype" }).join(" ")).toMatch(/do not commit/i);
-    const push = doctrineLines({ ...D, gitMode: "build-commit-push" }).join(" ");
+    expect(doctrineLines({ ...D, gitMode: "prototype" }, "central").join(" ")).toMatch(/do not commit/i);
+    const push = doctrineLines({ ...D, gitMode: "build-commit-push" }, "central").join(" ");
     expect(push).toMatch(/then push/i);
     expect(push).toMatch(/Do not manually deploy/i);
   });
@@ -373,5 +373,103 @@ describe("builder defaults", () => {
     const v = viewOf(newRecord("Add a dark mode to my recipe site."));
     const p = adapterForType(v.creationType).prompt(v, { ...D, workMode: "existing-repo" });
     expect(p).toMatch(/Inspect before editing/i);
+  });
+});
+
+/* ── 13. Working method fits the creation, not just software ────────────
+   doctrineLines() used to be the same software-development checklist
+   (existing codebase, mobile-first UI, git commits, type checking) on
+   EVERY prompt, regardless of what was actually being made — a song or a
+   letter got told to be mobile-first and to inspect a codebase. The real,
+   already-computed signal for "does this need software" is
+   SoftwareVerdict (app/creation/types.ts); doctrineLines now branches on
+   it instead of assuming software every time. */
+const SOFTWARE_ONLY_PHRASES = [
+  /existing codebase/i,
+  /mobile-first/i,
+  /touch targets/i,
+  /type checking/i,
+  /production build/i,
+  /\bcommit\b/i,
+  /\brepository\b/i,
+];
+
+function expectNoSoftwareLeak(prompt: string) {
+  for (const phrase of SOFTWARE_ONLY_PHRASES) expect(prompt).not.toMatch(phrase);
+}
+
+describe("working method matches the creation, not a fixed software checklist", () => {
+  it("software (an app): software verdict is central, and software working method is appropriate", () => {
+    const v = viewOf(newRecord("I want to make an app that tracks my kids' chores."));
+    expect(v.software.verdict).toBe("central");
+    const p = adapterForType(v.creationType).prompt(v, D);
+    expect(p).toMatch(/existing codebase/i);
+    expect(p).toMatch(/mobile-first/i);
+  });
+
+  it("a song: no existing-codebase or mobile-first language", () => {
+    const v = viewOf(newRecord("I want to write a song about missing summer when winter comes."));
+    expect(v.creationType).toBe("music");
+    expect(v.software.verdict).not.toBe("central");
+    expectNoSoftwareLeak(adapterForType(v.creationType).prompt(v, D));
+  });
+
+  it("a poem: no software leakage", () => {
+    const v = viewOf(newRecord("I want to write a poem about the sea at night."));
+    expect(v.creationType).toBe("story");
+    expect(v.software.verdict).not.toBe("central");
+    expectNoSoftwareLeak(adapterForType(v.creationType).prompt(v, D));
+  });
+
+  it("a letter: no software leakage", () => {
+    // "letter" isn't one of the STORY-signal words (classify.ts), so this
+    // reads as "unknown" rather than "story" — the point still holds: an
+    // undetermined creation defaults to verdict "helpful", never "central",
+    // and must never get software-only working-method language either.
+    const v = viewOf(newRecord("I want to write a letter to my landlord about the broken heater."));
+    expect(v.creationType).toBe("unknown");
+    expect(v.software.verdict).not.toBe("central");
+    expectNoSoftwareLeak(adapterForType(v.creationType).prompt(v, D));
+  });
+
+  it("a real-world plan (event-plan): no software leakage", () => {
+    const v = viewOf(newRecord("I need to plan a family reunion trip for next summer."));
+    expect(v.creationType).toBe("event-plan");
+    expect(v.software.verdict).not.toBe("central");
+    expectNoSoftwareLeak(adapterForType(v.creationType).prompt(v, D));
+  });
+
+  it("non-software prompts still get a real, honest working method — not an empty section", () => {
+    const v = viewOf(newRecord("I want to write a song about missing summer when winter comes."));
+    const p = adapterForType(v.creationType).prompt(v, D);
+    expect(p).toMatch(/## Working method/);
+    expect(p).toMatch(/Use or experience the finished piece yourself before calling it done\./);
+  });
+
+  // The same identical leak lived one section higher: "Scope and
+  // permissions" told every creation to "Start clean... do not assume
+  // access to any codebase" — including this exact song, live-verified in
+  // the browser before this fix. Same verdict-based fix as doctrineLines.
+  it("the Scope and permissions section doesn't assume a codebase either, for non-software work", () => {
+    const v = viewOf(newRecord("I want to write a song about missing summer when winter comes."));
+    const p = adapterForType(v.creationType).prompt(v, D);
+    expect(p).toMatch(/## Scope and permissions/);
+    expect(p).not.toMatch(/codebase/i);
+    expect(p).toMatch(/Start fresh\. Nothing about this exists yet/);
+  });
+
+  it("software still gets the codebase-aware scope language", () => {
+    const v = viewOf(newRecord("I want to make an app that tracks my kids' chores."));
+    const p = adapterForType(v.creationType).prompt(v, D);
+    expect(p).toMatch(/Start clean\. Nothing exists yet — do not assume access to any codebase/);
+  });
+
+  it("doctrineLines() itself branches on verdict, independent of any adapter", () => {
+    const software = doctrineLines(D, "central").join(" ");
+    expect(software).toMatch(/existing codebase|Inspect before editing/i);
+    for (const verdict of ["helpful", "optional", "test-first"] as const) {
+      const general = doctrineLines(D, verdict).join(" ");
+      for (const phrase of SOFTWARE_ONLY_PHRASES) expect(general).not.toMatch(phrase);
+    }
   });
 });

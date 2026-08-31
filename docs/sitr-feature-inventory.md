@@ -792,3 +792,116 @@ receives software-specific instructions ("existing codebase," "Mobile-
 first") inside its own generated brief. Real, small, and the natural
 next step; not started this sprint to keep this checkpoint finished and
 reviewable on its own.
+
+## Fix the confirmed type-leak in doctrineLines() — 2026-08-30
+
+Starting checkpoint `691c7f5` (this doc's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1216 tests passing before any edit).
+Scoped, single-purpose checkpoint: fix the exact bug flagged as "next
+highest-value simplification" above, and nothing else.
+
+### The type system, inspected before touching anything
+
+Two signals already exist on every `CreationView` (`app/creation/types.ts`)
+and neither was being used by the shared prompt scaffolding:
+
+- **`CreationType`** (17 values — app/site/tool/list/game/physical-product/
+  digital-product/printable/design/fashion/music/story/content/service/
+  sports-plan/event-plan/unknown) — WHAT is being made.
+- **`SoftwareVerdict`** (`central` / `helpful` / `optional` / `test-first`)
+  — a separately-computed judgment of whether software is actually the
+  deliverable, from `assessSoftware()` in `app/creation/classify.ts`. Read
+  the whole switch: only `game`, `app`/`site`/`list`, and a non-caretaker
+  `tool` return `"central"`. Every other type — `music`/`story`/`content`
+  (`"optional"`), `printable`/`design`/`digital-product`/`physical-product`/
+  `fashion`/`sports-plan`/`event-plan` (`"optional"`), `service`
+  (`"test-first"`), a caretaker `tool` or `unknown` (`"helpful"`) — already
+  says, in code, "software is not the point here."
+
+**The grouping used, and why:** branch `doctrineLines()` on
+`SoftwareVerdict === "central"` vs. everything else, not on `CreationType`
+directly. The type system itself draws the line this way (a `tool` can be
+`central` or `helpful` depending on whether it's content-driven; a
+`physical-product` is `optional` even though it's a real, credible thing to
+make) — using the type would require re-deriving a judgment the codebase
+already makes once, correctly, in one place. No new type, no new enum, no
+per-`CreationType` special-casing — just asking the existing signal before
+writing repo/mobile/git language.
+
+### The bug was in two places, not one
+
+`doctrineLines(d)` (`app/creation/builder-defaults.ts`) was the confirmed
+bug: unconditional "Mobile-first," "existing codebase," "type checking,
+tests, production build," "commit"/"push," "ONE repository" — on every
+prompt regardless of type. Fixed: now `doctrineLines(d, verdict)`; `verdict
+!== "central"` returns a new `generalDoctrineLines(d)` — simplest approach,
+no paid tools/AI services unless required, use/experience the real thing
+before calling it done, stop only for destructive/hard-to-reverse choices,
+an honest finishing report, the creator's own notes. Nothing about a
+codebase, mobile, or git.
+
+While live-verifying this fix in the browser (a song's generated prompt),
+found the **same identical pattern one section higher**: `promptShell()`'s
+unconditional "Scope and permissions" section
+(`app/creation/adapters.ts`) said, for every creation with nothing to
+continue, "Start clean. Nothing exists yet — do not assume access to any
+codebase or prior files" — including, confirmed live, a song about missing
+summer. Extracted into `scopeLines(v, d)`, same verdict branch: non-central
+gets "Start fresh. Nothing about this exists yet — don't assume an earlier
+version, draft, or file" (or, when continuing existing work, "This
+continues something already underway... build on what's already true"
+instead of "existing project... existing routes and integrations").
+
+**Other adapter-level content inspected and left alone, correctly:**
+`appCore()`'s "mobile-first web app" and `gameCore()`'s "Mobile-first:
+thumb targets" are per-type `core` sections only ever reached for
+`app`/`site`/`game` — all three are `"central"` in `assessSoftware()`, so
+this is correct, type-appropriate content, not a leak. `fixCore()`'s "git
+history before guesswork" is the Fix Engine's own scoped content — the Fix
+Engine is deliberately software/technical in scope today (`technical: true`
+in `app/engines/engines.ts`, per its own "the login stopped working"
+framing), not a shared cross-type function; a product decision about that
+engine's real-world scope, not the same code-level bug. Left both alone —
+neither is "shared adapter text," the qualifier this checkpoint was scoped
+to.
+
+### The five required cases, verified
+
+| Input | `creationType` | `verdict` | Working method / Scope |
+| --- | --- | --- | --- |
+| "I want to make an app that tracks my kids' chores." | `app` | `central` | Full software doctrine — codebase, mobile-first, type checking, git — unchanged. |
+| "I want to write a song about missing summer when winter comes." | `music` | `optional` | General doctrine only; "Start fresh... don't assume an earlier version, draft, or file." |
+| "I want to write a poem about the sea at night." | `story` | `optional` | Same as above — live-verified, zero matches for "codebase" or "mobile-first". |
+| "I want to write a letter to my landlord about the broken heater." | `unknown` (`letter` isn't a STORY-signal word — not touched, see below) | `helpful` | General doctrine — the classifier wasn't broadened, but the *default* case was already non-central, so the fix still holds for the one required case the brief asked for. |
+| "I need to plan a family reunion trip for next summer." | `event-plan` | `optional` | General doctrine only. |
+
+### What was deliberately not touched
+
+- **The classifier.** "Letter" is not in `classify.ts`'s `STORY` regex, so
+  it reads as `unknown` rather than `story` — noticed, not fixed. The brief
+  explicitly said not to broaden the classifier in this checkpoint; adding
+  "letter" (or any other word) to a classification regex is exactly that,
+  even though it would make this one case read more precisely.
+- **Anything outside `app/creation/builder-defaults.ts` and
+  `app/creation/adapters.ts`.** No Home changes, no new Engines, no AI
+  calls, no broader "anything can enter the Ring" routing work.
+
+### Verification for this sprint
+
+- `npx vitest run` — 81 files, 1225 tests, all passing (baseline: 1216;
+  +9 tests: 5 for the five required cases plus `doctrineLines()` branching
+  directly, 2 for the Scope-and-permissions fix, 1 confirming the
+  non-software working method isn't empty, 1 updating the pre-existing
+  two-argument-signature call site).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline, none in touched files).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral `next dev -p 3988`): live-verified in the
+  browser for the app, song, and poem cases — read `.prompt-box`'s actual
+  rendered text directly (not just unit output) and confirmed zero matches
+  for "codebase"/"mobile-first" on song and poem, full software doctrine
+  intact on the app case. No horizontal overflow at 375px or 1440px on
+  either the intake or result screens (`scrollWidth === clientWidth` at
+  both).
