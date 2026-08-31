@@ -422,12 +422,12 @@ describe("working method matches the creation, not a fixed software checklist", 
   });
 
   it("a letter: no software leakage", () => {
-    // "letter" isn't one of the STORY-signal words (classify.ts), so this
-    // reads as "unknown" rather than "story" — the point still holds: an
-    // undetermined creation defaults to verdict "helpful", never "central",
-    // and must never get software-only working-method language either.
+    // "letter" was added to classify.ts's STORY signal in the front-door
+    // broadening checkpoint (2026-08-30) — it used to read as "unknown"
+    // and get routed to the Idea Engine's "weigh a few versions" framing,
+    // which made no sense for a letter with a clear, known purpose.
     const v = viewOf(newRecord("I want to write a letter to my landlord about the broken heater."));
-    expect(v.creationType).toBe("unknown");
+    expect(v.creationType).toBe("story");
     expect(v.software.verdict).not.toBe("central");
     expectNoSoftwareLeak(adapterForType(v.creationType).prompt(v, D));
   });

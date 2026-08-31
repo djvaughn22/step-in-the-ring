@@ -371,3 +371,35 @@ export function deriveTools(
     wait: ["All tooling until the creation has a definite form."],
   };
 }
+
+/* ── GENERAL HELP — not "which form," but "is this a creation at all" ────
+   Shared by both layers (interpret.ts's buildType and classify.ts's
+   CreationType) for the same reason SPORTS_PLAN_WORDS/looksFashion already
+   are: a comprehension request ("explain this bill"), a decision between
+   named options, a learning request ("teach me X"), or a physical thing
+   acting up — none of these are "make a thing" requests, and treating them
+   like one produced real, confirmed nonsense: a broken toaster routed to
+   the software Fix Engine ("copy it into your builder"), and "explain this
+   bill" got told to "weigh a few versions and leave with one decision." */
+
+const COMPREHENSION_WORDS = /\b(understand|explain|explains|explaining|explained|break(s|ing)? down|make sense of)\b/i;
+const LEARNING_WORDS = /\b(teach me|learn (how|about|to)|how (does|do) .+ work)\b/i;
+const DECISION_WORDS = /\b(help me (decide|choose)|which (one|option) (should|do)|choose between|weigh(ing)? (the|my|these) options)\b/i;
+const PHYSICAL_OBJECT_WORDS = /\b(faucet|sink|toilet|drain|pipe|plumbing|toaster|fridge|refrigerator|dishwasher|washer|dryer|washing machine|oven|stove|furnace|water heater|air conditioner|\bac\b|heater|garage door|lawn ?mower|car|engine|tire)\b/i;
+const MALFUNCTION_WORDS = /\b(leak(ing|s|ed)?|clogged|jammed|stuck|broken|broke|won'?t (start|turn on|open|close|drain)|stopped working|making a (weird |strange |loud )?noise)\b/i;
+const DIGITAL_CONTEXT_WORDS = /\b(app|site|website|web ?page|button|login|log[- ]?in|account|database|code|software|server|api|script)\b/i;
+
+/** A physical thing acting up, with no sign this is actually about software. */
+export function looksLikeRealWorldTrouble(text: string): boolean {
+  return PHYSICAL_OBJECT_WORDS.test(text) && MALFUNCTION_WORDS.test(text) && !DIGITAL_CONTEXT_WORDS.test(text);
+}
+
+/** A question, a decision, or a real situation — not a thing to build or weigh versions of. */
+export function looksLikeGeneralHelp(text: string): boolean {
+  return (
+    COMPREHENSION_WORDS.test(text) ||
+    LEARNING_WORDS.test(text) ||
+    DECISION_WORDS.test(text) ||
+    looksLikeRealWorldTrouble(text)
+  );
+}

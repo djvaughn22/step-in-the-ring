@@ -19,7 +19,9 @@ import {
   inferred, NO_PERMISSIONS, stated, type BuildType, type Claim,
   type Interpretation, type OpenQuestion, type Permissions, type Shape,
 } from "./types";
-import { findSportKind, looksFashion, SPORTS_PLAN_WORDS } from "../creation/profile";
+import {
+  findSportKind, looksFashion, looksLikeGeneralHelp, looksLikeRealWorldTrouble, SPORTS_PLAN_WORDS,
+} from "../creation/profile";
 
 export type PlannerInput = {
   /** The one open description. Always the source of truth. */
@@ -65,7 +67,12 @@ function classifyBuildType(
   shape: Shape,
   statedCount: number,
 ): Claim<BuildType> {
-  if (FIX_WORDS.test(text) || INCONSISTENT_BEHAVIOR.test(text)) {
+  // "Broken," "stopped working," and friends mean a software bug when
+  // there's a login page or a site behind them — and mean a toaster or a
+  // washing machine when there isn't. Confirmed live: without this guard, a
+  // broken toaster routed to the software Fix Engine with "copy it into
+  // your builder" language.
+  if ((FIX_WORDS.test(text) || INCONSISTENT_BEHAVIOR.test(text)) && !looksLikeRealWorldTrouble(text)) {
     return stated("fix", "you described something that's broken");
   }
   if (SELL_WORDS.test(text) || shape === "product") {
@@ -518,7 +525,7 @@ export function interpret(input: PlannerInput): Interpretation {
     preserve,
     exclusions: exclusions.slice(0, 6),
     permissions: finalPermissions,
-    completionAction: deriveCompletionAction(buildType.value, destination, finalPermissions, shape),
+    completionAction: deriveCompletionAction(buildType.value, destination, finalPermissions, shape, productText),
     assumptions: dedupe([
       ...assumptions,
       ...(buildType.confidence !== "stated" ? [`Read as "${BUILD_TYPE_TEXT[buildType.value]}" — ${buildType.source}.`] : []),
@@ -584,7 +591,14 @@ function deriveCompletionAction(
   destination: string | null,
   permissions: Permissions,
   shape: Shape,
+  productText: string,
 ): string {
+  // Same gate as classify.ts's general-help detection (shape === "unknown"
+  // only, so a named "app" or "site" never gets pulled in here) — this text
+  // isn't a build to complete at all.
+  if (shape === "unknown" && looksLikeGeneralHelp(productText)) {
+    return "Read the brief below, then bring it to a person, a reference, or an AI who can see the real thing.";
+  }
   if (destination && permissions.push) {
     return `Inspect the ${destination} repository, build the feature there, test it, then commit and push.`;
   }

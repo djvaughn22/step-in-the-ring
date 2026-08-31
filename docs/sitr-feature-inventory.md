@@ -905,3 +905,235 @@ to.
   intact on the app case. No horizontal overflow at 375px or 1440px on
   either the intake or result screens (`scrollWidth === clientWidth` at
   both).
+
+## Broaden the front door — 2026-08-30
+
+Starting checkpoint `ec172b1` (this doc's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1225 tests passing before any edit).
+Brief: run real representative inputs through the current deterministic
+pipeline BEFORE editing anything, document exactly what happens, then make
+the smallest principled extension that lets "almost anything" start at the
+front door honestly — no LLM classifier, no new universal-agent system, no
+fake capability.
+
+### Investigation: what the pipeline actually did, before any edit
+
+Ran all ten representative inputs through the real pipeline
+(`interpret()` → `newRecord()`/`viewOf()` → `recommendEngines()` —
+the exact path `app/create/RingApp.tsx` uses) and read the actual output,
+not a guess:
+
+| # | Input | `creationType` | Routed to |
+| - | --- | --- | --- |
+| 1 | "I want to make an app." | `tool` (central) | first-build — **works** |
+| 2 | "I want to write a song." | `music` (optional) | Music Engine — **works** |
+| 3 | "Write a letter to my insurance company." | `unknown` (helpful) | **Idea Engine** — "It's still an early thought — weigh a few versions and leave with one decision." A letter with a named recipient and purpose is not an early thought. |
+| 4 | "Help me plan a vacation." | `unknown` (helpful) | **Idea Engine**, same wrong framing — "vacation" isn't in the `EVENT` regex (only "trip" was), so this never reached `event-plan`. |
+| 5 | "My faucet is leaking." | `unknown` (helpful) | **Idea Engine**, same wrong framing. |
+| 6 | "I don't understand this bill." | `unknown` (helpful) | **Idea Engine**, same wrong framing. |
+| 7 | "Explain this document to me." | `unknown` (helpful) | **Idea Engine**, same wrong framing. |
+| 8 | "Help me decide between these two options." | `unknown` (helpful) | **Idea Engine** — the destination was a plausible fit (Idea Engine IS a decision-scoring tool) but the reason text ("It's still an early thought") was wrong for a request that already names two clear options. |
+| 9 | "Teach me how compound interest works." | `unknown` (helpful) | **Idea Engine**, same wrong framing. |
+| 10 | "I have an idea but don't know where to start." | `unknown` (helpful) | Idea Engine — **correct**, this is exactly what it's for. |
+
+**A confirmed, separate, more serious bug found during the same
+investigation**, not in the original ten: `FIX_WORDS` in
+`app/planner/interpret.ts` (`broken`, `stopped working`, `bug`, etc.) has
+no digital-vs-physical distinction. "My toaster is broken." and "The
+washing machine stopped working." both produced `buildType: "fix"` and
+routed to the **software Fix Engine**, with `promptPathWhy`: *"Something
+real is broken — the repair prompt below looks before it touches...
+Copy it into your builder."* — a broken toaster, told to be inspected like
+a codebase. ("My car won't start." didn't happen to match `FIX_WORDS`
+at all, so it fell to the same wrong Idea-Engine path as #3–9 instead —
+inconsistent, but not actively claiming software capability.)
+
+### Answers to the investigation questions
+
+- **A/C — already work well:** #1, #2, #10. Nothing here needed to change.
+- **B/D — classify incorrectly / route wrong:** #3–9, plus the toaster/
+  washer/car cases. All ten fall into `unknown`, and `recommend.ts` has
+  exactly ONE hardcoded rule for `unknown`: send it to the Idea Engine.
+  `unknown` was hiding at least four different real shapes — a vague idea
+  still forming (correct for Idea Engine), a decision between named things,
+  a comprehension/learning question, and real-world trouble — and treating
+  all four identically was the bug.
+- **E — an existing Engine that already fits, once routing improves:**
+  #3 (Writing Engine — `story` already routes there, "letter" just wasn't
+  in the `STORY` word list) and #4 (Plan Engine — `event-plan` already
+  routes there, "vacation" just wasn't in the `EVENT` word list). Both are
+  narrow vocabulary gaps in an already-correct destination, not new
+  capability.
+- **F — no dedicated path, but a useful portable result is still honest:**
+  #5–7, #9, and the toaster/washer/car cases. None of these are a "make a
+  thing" request; forcing them into the Idea Engine's "weigh a few
+  versions" framing, or the Fix Engine's "your builder"/git language, was
+  the dishonest part — not the absence of a bespoke tool.
+- **G — the real bottleneck:** recommendation, specifically one line in
+  `app/creation/recommend.ts`: `if (v.creationType === "unknown") return
+  {primary: choice("idea", ...)}` — a single hardcoded destination for
+  every shape of "not a concrete creation," with zero secondary dispatch.
+  Terminology was a contributing factor (no vocabulary anywhere for
+  comprehension/decision/learning), but the fix belongs at the routing
+  layer, not a bigger classifier.
+- **H — can the existing architecture generalize without a new agent
+  system:** yes — confirmed by the fix actually shipped below, which adds
+  one `CreationType`, reuses the existing `primary: null` / `promptPathWhy`
+  mechanism already built for "fix" and "lands in something existing," and
+  needed zero new Engines, zero AI calls, zero new taxonomy beyond one type.
+
+### The distinction used, and why
+
+Not `CreationType`'s existing axis ("what's being made") stretched to
+cover "explain a bill" — that would corrupt a type system whose whole job
+is "what kind of thing is being made." Not a giant intent taxonomy
+(MAKE/FIX/PLAN/WRITE/LEARN/UNDERSTAND/DECIDE/START-AN-IDEA) hard-coded
+wholesale — most of those already exist as real `CreationType`s
+(`event-plan`, `story`→Writing, `unknown`→Idea) and didn't need touching.
+
+The one new distinction: **is this even a "make a thing" request at all?**
+Added as a single new `CreationType`, `"general-help"` — additive, in the
+same family as the 16 that already exist, wired through every place
+`CreationType` is exhaustively handled (`CREATION_TYPE_LABEL`,
+`CREATION_TYPE_NOUN`, `assessSoftware()`, `deriveSmallestOutcome()`,
+`adapterForType()`, `recommendEngines()` — TypeScript's `Record<CreationType,
+...>` types caught every one of these at compile time except the two
+switch-based functions, which were checked by hand and by the new test
+suite). Detection lives in `app/creation/profile.ts` (`looksLikeGeneralHelp`
+/ `looksLikeRealWorldTrouble`) — the same shared file `SPORTS_PLAN_WORDS`
+and `looksFashion` already live in, imported by both `classify.ts` and
+`interpret.ts`, so the physical-object-malfunction guard protects `FIX_WORDS`
+in `interpret.ts` and the `general-help` classification in `classify.ts`
+from one shared definition, not two that could drift.
+
+**Gating, to avoid stealing legitimate matches:** every general-help check
+is gated to `shape === "unknown"` — the same gate `MUSIC`/`STORY` already
+use. "An app that explains my bill" keeps its `tool` shape and never
+reaches the general-help check at all; only a bare "explain this bill"
+does. `looksLikeRealWorldTrouble` additionally requires a `PHYSICAL_OBJECT`
+word AND a malfunction word AND the ABSENCE of any digital-context word
+(app/site/button/login/database/code/etc.) — so "the login button on my
+app is broken" still correctly reads as a real software bug.
+
+### Fix
+
+**`app/creation/profile.ts`** — new `looksLikeRealWorldTrouble()` and
+`looksLikeGeneralHelp()`, shared by both layers.
+
+**`app/creation/types.ts`** — new `CreationType` value `"general-help"`
+("Help figuring this out").
+
+**`app/creation/classify.ts`** — `classifyCreationType()` gets one new
+gated branch; `assessSoftware()` gets a `"general-help"` case (`verdict:
+"optional"`); `CREATION_TYPE_NOUN` gets an entry ("answer");
+`deriveSmallestOutcome()` gets an explicit case (previously it silently
+fell to `default`, which said "one version of this exists in the world" —
+wrong for a question). Two narrow vocabulary widenings found and fixed in
+the same investigation: `STORY` now recognizes `letter`/`essay`; `EVENT`
+now recognizes `vacation`/`holiday`.
+
+**`app/creation/adapters.ts`** — new `generalHelpCore()` (small, honest:
+what's actually being asked, what Step In The Ring was never shown, a
+plain answer or next step — never a fabricated "MVP scope" or "decision
+record"), registered in `adapterForType()` the same way `fashion-prompt`/
+`service-prompt`/`sports-prompt` already are — a small ad-hoc prompt shape,
+not a new registered Engine.
+
+**`app/creation/recommend.ts`** — new `case "general-help"`, reusing the
+exact `primary: null` / `promptPathWhy` mechanism `"fix"` and "lands in
+something existing" already use. No new routing concept.
+
+**`app/planner/interpret.ts`** — `classifyBuildType()`'s `FIX_WORDS` check
+is now guarded by `!looksLikeRealWorldTrouble(text)` — this is the line
+that stops a broken toaster from reaching the software Fix Engine.
+`deriveCompletionAction()` gets the same `shape === "unknown" &&
+looksLikeGeneralHelp(productText)` gate as `classify.ts`, so the
+always-visible `plan.completionAction` line agrees with `creationType`
+instead of independently saying "build version one" for a question.
+
+### Before/after routing table (verified, not asserted)
+
+| Input | Before | After |
+| --- | --- | --- |
+| "I want to make an app." | `tool`/central → first-build | unchanged |
+| "I want to write a song." | `music`/optional → Music Engine | unchanged |
+| "Write a letter to my insurance company." | `unknown` → Idea Engine (wrong) | `story`/optional → **Writing Engine** |
+| "Help me plan a vacation." | `unknown` → Idea Engine (wrong) | `event-plan`/optional → **Plan Engine** |
+| "My faucet is leaking." | `unknown` → Idea Engine (wrong) | `general-help`/optional → **honest brief, no engine, no AI required** |
+| "I don't understand this bill." | `unknown` → Idea Engine (wrong) | `general-help` → honest brief |
+| "Explain this document to me." | `unknown` → Idea Engine (wrong) | `general-help` → honest brief |
+| "Help me decide between these two options." | `unknown` → Idea Engine (wrong reason text) | `general-help` → honest brief |
+| "Teach me how compound interest works." | `unknown` → Idea Engine (wrong) | `general-help` → honest brief |
+| "I have an idea but don't know where to start." | `unknown` → Idea Engine (correct) | unchanged |
+| "My toaster is broken." | buildType `fix` → **software Fix Engine** (confirmed live bug) | `general-help` → honest brief |
+| "The washing machine stopped working." | buildType `fix` → software Fix Engine | `general-help` → honest brief |
+| "My car won't start." | `unknown` → Idea Engine (wrong) | `general-help` → honest brief |
+| "The login button on my app is broken." (regression guard) | buildType `fix` → Fix Engine | unchanged — still Fix Engine |
+| "My website stopped working." (regression guard) | `site`/central, buildType `fix` → Fix Engine | unchanged |
+
+Every row above is a real assertion in
+[`app/creation/general-help.test.ts`](../app/creation/general-help.test.ts),
+not a claim.
+
+### What remains unsupported, honestly
+
+- **Learning a NEW topic** ("teach me how compound interest works") and
+  **comprehension** ("explain this bill") both land in the same
+  `general-help` bucket with the same honest "bring this to a person or an
+  AI" framing. There is still no dedicated lesson-building or document-
+  reading capability — this checkpoint makes the front door honest about
+  that gap, it doesn't close it.
+- **The one-follow-up question** (`app/planner/interpret.ts`'s
+  `deriveQuestions`) still asks a product-shaped question — "What should it
+  do the very first time someone uses it?" — for a `general-help` creation
+  like a leaking faucet. Confirmed live in the browser. It's skippable
+  ("Skip — decide for me") and doesn't block or mislabel anything, but it's
+  a visible rough edge in a different subsystem this checkpoint didn't
+  touch — see "next highest-value gap" below.
+- **`deriveTools()`'s generic fallback** (`app/creation/profile.ts`) still
+  says "the idea needs one more decision before tools matter" on the
+  "Tools and setup" card for a `general-help` creation — cosmetically off
+  (a clear question isn't "an idea needing a decision"), not false. Same
+  reasoning as above: real, minor, a different function, not fixed here.
+- **The `EXPLORE_WORDS`-driven "Explore an early idea" assumption label**
+  still appears on a `general-help` understanding card (e.g. "My faucet is
+  leaking" shows "Explore an early idea" above "Help figuring this out").
+  Harmless (it's inside "Calls I made for you — open to check them," always
+  labeled as a correctable assumption) but not perfectly worded.
+- Comprehension/decision detection has no `hasDestination` awareness —
+  gating to `shape === "unknown"` covers every case this checkpoint tested,
+  but a contrived sentence naming an existing product AND using a
+  comprehension word could theoretically still reach `general-help` if its
+  shape also happened to read as `unknown`. Not observed in any of the 13
+  tested inputs; flagged as a known limitation of the narrow, text-only
+  gate, not a designed edge case.
+
+### Verification for this sprint
+
+- `npx vitest run` — 82 files, 1243 tests, all passing (baseline: 1225;
+  +18 tests in the new `app/creation/general-help.test.ts`, all ten
+  representative inputs plus the toaster/car/washing-machine and two
+  genuine-software-bug regression guards).
+- `npx tsc --noEmit` — clean (TypeScript's `Record<CreationType, ...>`
+  exhaustiveness caught every label/noun map that needed the new type).
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline, none in touched files).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral `next dev -p 3988`): live-verified in the
+  browser for "My faucet is leaking," "I don't understand this bill,"
+  "Write a letter to my insurance company," and "Help me plan a
+  vacation" — each shows the correct `creationType` label, the correct
+  routing (Writing/Plan Engine door, or the honest no-engine "Next step"
+  card with the exact `promptPathWhy` text), and the always-present
+  builder-prompt card reads correctly for each. No horizontal overflow at
+  375px or 1440px on the Result screen for the general-help case
+  (`scrollWidth === clientWidth` at both).
+
+### Next highest-value gap
+
+The one-follow-up question (`deriveQuestions` in `app/planner/interpret.ts`)
+asking "What should it do the very first time someone uses it?" for a
+`general-help` creation — real, visible, skippable but worth a dedicated
+look next, since it's the same class of "product-shaped language for a
+non-product request" this checkpoint just fixed in three other places.

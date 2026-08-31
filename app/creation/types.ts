@@ -26,6 +26,11 @@ export type CreationType =
   | "service"
   | "sports-plan"
   | "event-plan"
+  // A question, a decision, or a real-world situation — not a thing to
+  // make. "Explain this bill," "help me decide between two jobs," "my
+  // faucet is leaking": nothing here has a version to weigh or a codebase
+  // to build. See app/creation/profile.ts's looksLikeGeneralHelp().
+  | "general-help"
   | "unknown";
 
 export const CREATION_TYPE_LABEL: Record<CreationType, string> = {
@@ -45,6 +50,7 @@ export const CREATION_TYPE_LABEL: Record<CreationType, string> = {
   service: "A service",
   "sports-plan": "A coaching plan",
   "event-plan": "A real-world plan",
+  "general-help": "Help figuring this out",
   unknown: "An idea",
 };
 

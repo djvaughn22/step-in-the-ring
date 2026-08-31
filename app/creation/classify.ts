@@ -9,7 +9,7 @@
 // come out of the same paths.
 
 import type { Interpretation, Shape } from "../planner/types";
-import { findSportKind, looksFashion, SPORTS_PLAN_WORDS } from "./profile";
+import { findSportKind, looksFashion, looksLikeGeneralHelp, SPORTS_PLAN_WORDS } from "./profile";
 import type { CreationType, SoftwareCall } from "./types";
 
 /* ── CREATION TYPE ─────────────────────────────────────────────────────── */
@@ -22,7 +22,7 @@ const DESIGN = /\b(design|logo|art print|wall art|illustration|poster)\b/i;
    words only classify when the SHAPE isn't already software (a list app that
    tracks albums stays a list app). */
 const MUSIC = /\b(songs?|beats?|album|melody|chords?|lyrics|music|playlist|setlist|open mic|instrumental|remix)\b/i;
-const STORY = /\b(story|novel|book|chapter|comic|screenplay|script|poem|children'?s book|speech|toast|eulogy|sermon)\b/i;
+const STORY = /\b(story|novel|book|chapter|comic|screenplay|script|poem|children'?s book|speech|toast|eulogy|sermon|letter|essay)\b/i;
 const CONTENT = /\b(blog|podcast|video series|newsletter|channel|content|posts?\b|reel)\b/i;
 /* Publication words strong enough to say "content" whatever the shape — a
    blog reads as a site, but the blog IS the writing. */
@@ -30,7 +30,7 @@ const CONTENT_STRONG = /\b(blog|newsletter|podcast|youtube|video series|(?:tikto
 // "coach" alone is a noun as often as a service ("coach contact information"
 // on a team site) — only "coaching" is unambiguous work someone is offering.
 const SERVICE = /\b(service|dog[- ]walk|babysit|tutor(ing)?|coaching|clean(ing)? (houses|homes|offices)|mow|i('| a)?m offering)\b/i;
-const EVENT = /\b(event|party|wedding|reunion|fundraiser|trip|camp|tournament|campaign)\b/i;
+const EVENT = /\b(event|party|wedding|reunion|fundraiser|trip|vacation|holiday|camp|tournament|campaign)\b/i;
 
 export function classifyCreationType(text: string, shape: Shape): { type: CreationType; reason: string } {
   // A game is a game before it is anything its theme mentions — "guess the
@@ -64,6 +64,14 @@ export function classifyCreationType(text: string, shape: Shape): { type: Creati
   // "Solve X" / "keep Y busy" with no named form is a problem-solving tool.
   if (shape === "unknown" && (CARE_VERB.test(text) || /\b(solve|solving|problem)\b/i.test(text))) {
     return { type: "tool", reason: "you described a problem to solve, so version one is the smallest thing that solves it" };
+  }
+  // A question, a decision, or real-world trouble — only once every concrete
+  // shape (game/site/tool/list/content/etc.) has already had first crack.
+  // Gated to shape === "unknown" so this never overrides someone who
+  // clearly named a thing to make ("an app that explains my bill" keeps
+  // its "tool" shape; only a bare "explain this bill" lands here).
+  if (shape === "unknown" && looksLikeGeneralHelp(text)) {
+    return { type: "general-help", reason: "you asked a question or described a real situation, not something to make" };
   }
 
   switch (shape) {
@@ -218,6 +226,13 @@ export function assessSoftware(
         nonSoftwareTest: "Run the plan on paper — phases, owners, dates — before considering any tooling.",
         explicitSoftwareRequest: explicit,
       };
+    case "general-help":
+      return {
+        verdict: "optional",
+        reason: "This is a question or a real situation, not something to build. A clear, honest answer is the product.",
+        nonSoftwareTest: "Get the actual bill, document, or object in front of a person or AI who can really see it — this only knows what you typed.",
+        explicitSoftwareRequest: explicit,
+      };
     default:
       return {
         verdict: "helpful",
@@ -280,6 +295,7 @@ export function deriveSmallestOutcome(
     case "service": return "One real delivery, done start to finish, for one real customer.";
     case "sports-plan": return "One real practice runs on this plan, start to finish, and the team was better for it.";
     case "event-plan": return "The thing happens, people show up, and nobody's scrambling that morning.";
+    case "general-help": return "A clear, honest answer or next step — not a version of anything.";
     default: return statedOutcome(i) ?? "One version of this exists in the world and someone real has used it.";
   }
 }
@@ -306,5 +322,5 @@ const CREATION_TYPE_NOUN: Record<CreationType, string> = {
   app: "app", site: "site", tool: "tool", list: "list", game: "game",
   "physical-product": "product", "digital-product": "download", printable: "printable",
   design: "design", fashion: "design", music: "piece", story: "draft", content: "piece",
-  service: "service", "sports-plan": "plan", "event-plan": "plan", unknown: "version",
+  service: "service", "sports-plan": "plan", "event-plan": "plan", "general-help": "answer", unknown: "version",
 };
