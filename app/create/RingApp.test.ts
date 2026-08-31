@@ -242,6 +242,27 @@ describe("the takeaway prompt renders as typography, not raw markdown source", (
   });
 
   it("Copy still reads from the same raw builderPrompt string — presentation only, portability unchanged", () => {
-    expect(src).toMatch(/<CopyButton text=\{builderPrompt\} label="Copy builder prompt" big \/>/);
+    expect(src).toMatch(/<CopyButton\s*\n\s*text=\{builderPrompt\}/);
+  });
+});
+
+// Public terminology audit (2026-08-30, Checkpoint B). "Your builder
+// prompt" is accurate for software (verdict "central") — it really is a
+// prompt for a builder. For a song, a letter, or a general-help question,
+// the same title sat directly above/below text saying "not engineered" /
+// "not something to build" — the exact contradiction. "Brief" was already
+// the site's own word for this ("Download brief (.md)" sits one button
+// below); the on-screen title now agrees with it instead of introducing a
+// third name for the same thing.
+describe("the takeaway card is titled 'builder prompt' only for real software", () => {
+  it("branches the card title and copy label on software.verdict === \"central\"", () => {
+    const card = src.slice(src.indexOf('{/* The handoff.'), src.indexOf("Bring it to an AI"));
+    expect(card).toMatch(/view\?\.software\.verdict === "central" \? "Your builder prompt" : "Your brief"/);
+    expect(card).toMatch(/view\?\.software\.verdict === "central" \? "Copy builder prompt" : "Copy brief"/);
+  });
+
+  it("the copied-to-clipboard screen-reader announcement matches whichever label was actually shown", () => {
+    expect(src).not.toMatch(/"Builder prompt copied to your clipboard"/);
+    expect(src).toMatch(/label\.replace\(\/\^Copy \/, ""\)/);
   });
 });

@@ -95,9 +95,11 @@ function CopyButton({ text, label, big }: { text: string; label: string; big?: b
       >
         {copied ? "Copied" : label}
       </button>
-      {/* Confirmation reaches a screen reader, not just the eye. */}
+      {/* Confirmation reaches a screen reader, not just the eye. Derived
+          from the same label the button shows — a screen reader user
+          copying "brief" should never be told "builder prompt." */}
       <span role="status" aria-live="polite" className="sr-only">
-        {copied ? "Builder prompt copied to your clipboard" : ""}
+        {copied ? `${label.replace(/^Copy /, "")} copied to your clipboard` : ""}
       </span>
     </>
   );
@@ -966,12 +968,24 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               </div>
             )}
 
-            {/* The builder prompt is the handoff. One card holds it and the
-                two files that carry it — nothing else competes with it. */}
+            {/* The handoff. One card holds it and the two files that carry
+                it — nothing else competes with it. "Builder prompt" is
+                accurate and stays for software (verdict "central") — it
+                really is a prompt for a builder. Everything else already
+                calls this exact text "brief" one button down (Download
+                brief (.md)); the on-screen title now agrees with it,
+                instead of calling a song or a bill question a "builder
+                prompt" right next to text saying it isn't being built. */}
             <div className="card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
-                <div className="plan-label" style={{ margin: 0 }}>Your builder prompt</div>
-                <CopyButton text={builderPrompt} label="Copy builder prompt" big />
+                <div className="plan-label" style={{ margin: 0 }}>
+                  {view?.software.verdict === "central" ? "Your builder prompt" : "Your brief"}
+                </div>
+                <CopyButton
+                  text={builderPrompt}
+                  label={view?.software.verdict === "central" ? "Copy builder prompt" : "Copy brief"}
+                  big
+                />
               </div>
               <BriefView text={builderPrompt} />
               <p className="field-help" style={{ marginTop: 12, marginBottom: 0 }}>

@@ -11,7 +11,7 @@ import RingApp from "./RingApp";
 export const metadata: Metadata = {
   title: "Create",
   description:
-    "Say what you want to make in your own words, or take one of the starting points. You leave with the smallest real version of it and the first move.",
+    "Say what you need help with in your own words, or take one of the starting points. You leave with a clear next move.",
 };
 
 export default function CreatePage() {

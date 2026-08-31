@@ -1564,3 +1564,95 @@ test suite's broader input set).
 Committed and pushed — see the top of `git log` for the exact hash
 (recorded in the session handoff, not duplicated here to avoid this doc
 going stale the moment a later checkpoint lands on top of it).
+
+## Checkpoint B — public terminology audit — 2026-08-30
+
+Starting checkpoint `c409eff` (Checkpoint A above, verified HEAD, clean,
+matching `origin/main`, 1276 tests passing before any edit).
+
+### Method
+
+Grepped every `.tsx` for `builder prompt` / `building tool` / `before
+building` / `your build` / `Keep this build` / `Make it a build`, then
+classified each hit against the brief's own A/B/C/D scheme.
+
+### Classification results
+
+- **B — branded, understandable, left alone:** "Keep this build" / "Save
+  it as a build" / "Make it a build" (`SteppedIn.tsx`, `RingApp.tsx`).
+  "Build" the noun is the actual, consistent, nav-level product concept
+  (`/builds`, `BuildRecordV1`) — renaming these specific buttons while the
+  nav item stays "Builds" would make the product LESS consistent, not
+  more. Matches the brief's own explicit instruction not to destroy this
+  concept.
+- **D — user-facing and misleading, fixed:**
+  1. The Result screen's takeaway card was unconditionally titled "Your
+     builder prompt" / "Copy builder prompt" for every creation type,
+     including general-help and every non-central type (song, letter,
+     plan) — sitting directly beside text that says "not something to
+     build" / "not engineered." The site already had the honest word one
+     button over: "Download brief (.md)". The on-screen title now agrees
+     with it: `view.software.verdict === "central"` keeps "Your builder
+     prompt" (genuinely accurate — it really is a prompt for a builder);
+     everything else now says "Your brief" / "Copy brief". The
+     copied-to-clipboard screen-reader announcement (previously hardcoded
+     to "Builder prompt copied to your clipboard" regardless of what the
+     visible button said) now derives from the same label, so it can
+     never announce the wrong word either.
+  2. Five public "what is this" descriptions (`app/layout.tsx`'s root
+     metadata AND OpenGraph description — which is what actually appears
+     for Home, since `app/page.tsx` sets no metadata of its own and
+     inherits the root's; `app/about/page.tsx`'s metadata description,
+     `lead`, and first bullet; `app/create/page.tsx`'s metadata
+     description; `app/how/page.tsx`'s metadata description) all
+     described Step In The Ring exclusively as "say a rough idea... plan
+     for version one... builder prompt... build it, test it, push it
+     live" — accurate for software, but now materially incomplete as the
+     PRIMARY public claim given six checkpoints tonight built and proved
+     honest support for fixing, understanding, deciding, learning, and
+     planning too. Reworded each to name the broader range plainly
+     ("something to make, fix, understand, or plan... a clear next
+     step"), keeping "builder prompt" as a named, conditional outcome
+     ("when it's something to build") rather than removing the word.
+- **Not touched, real but out of scope:** `app/engines/page.tsx`'s
+  description ("Focused tools for making one part of what you're
+  building") — left alone because it's accurate to what that page
+  actually is: engines are specifically creation tools, and general-help
+  deliberately has no engine, so this page's narrower framing is correct,
+  not a mismatch. `EngineSystem.tsx`'s "Send it to" destination selector
+  and "THE PROMPT (Claude Code)" heading — real "prompt"/"destination"
+  terminology, but reached only after opening a specific Engine, which
+  none of the seven required journeys do (general-help never recommends
+  one; app/song's Result screen is as far as the required tests go).
+
+### Rewalked all seven journeys after the fixes
+
+Bill, faucet, letter, vacation, learning, app, and song were re-run live.
+None now says "building" anything for general-help; the takeaway card
+correctly reads "Your brief" for bill/faucet/letter/song/vacation and
+"Your builder prompt" for app (verified directly in the DOM, not assumed
+from source). Home was not changed in this checkpoint (no new evidence
+of a Home-specific mismatch beyond the Quick Start fix already shipped
+two checkpoints ago); nav was not touched.
+
+### Verification for this checkpoint
+
+- `npx vitest run` — 85 files, 1278 tests, all passing (baseline: 1276;
+  +2 tests locking the verdict-aware title/label branch and the
+  screen-reader announcement fix).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline; one real new error was introduced and fixed within this
+  checkpoint — an unescaped apostrophe in the About page's edited bullet,
+  caught by `react/no-unescaped-entities` before commit).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral `next dev -p 3988`): live-verified in the
+  browser — faucet and letter show "Your brief"/"Copy brief"; the app
+  case still shows "Your builder prompt"/"Copy builder prompt"; the About
+  page renders the broadened copy correctly. No horizontal overflow at
+  375px or 1440px on Home, About, or the Result screen.
+
+### Checkpoint B result
+
+Committed and pushed — exact hash recorded in the session handoff.

@@ -7,7 +7,7 @@ import { Sheet, PageHead, Section } from "../site/ui";
 export const metadata: Metadata = {
   title: "About StepInTheRing",
   description:
-    "Say a rough idea however it comes out; get back a version-one plan and a ready-to-use builder prompt. Start without an account.",
+    "Say what you need help with, however it comes out — a thing to make, fix, understand, or plan. Get back a clear next step. Start without an account.",
 };
 
 export default function AboutPage() {
@@ -20,12 +20,12 @@ export default function AboutPage() {
             Step In The Ring<span style={{ color: "var(--gold)" }}>.com</span>
           </>
         }
-        lead="A place to take something you want to make and turn it into something real. Say it however it comes out, answer at most one question, and leave with a plan for version one."
+        lead="A place to bring something you want to make, fix, understand, or plan. Say it however it comes out, answer at most one question, and leave with a clear next step."
       />
 
       <Section title="What you can do here">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
-          <li>Say what you want to make and get back a plan for version one and a ready-to-use builder prompt.</li>
+          <li>Say what you need help with and get back a clear next step — a plan and a ready-to-use builder prompt when it&apos;s something to build.</li>
           <li>Open a focused engine when you already know what kind of thing you&rsquo;re making.</li>
           <li>Keep what you&rsquo;re making as a Build, and come back to it any time.</li>
           <li>Save what an engine makes for you in your Library, and use it again.</li>
