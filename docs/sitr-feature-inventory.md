@@ -1656,3 +1656,118 @@ two checkpoints ago); nav was not touched.
 ### Checkpoint B result
 
 Committed and pushed — exact hash recorded in the session handoff.
+
+## Checkpoint C — final nightly acceptance pass — 2026-08-30
+
+Starting checkpoint `160650c` (Checkpoint B above, verified HEAD, clean,
+matching `origin/main`, 1278 tests passing before any edit). Treated the
+build like a stranger: walked all nine required journeys cold from Home,
+this time answering each follow-up question the way a real person
+actually would (not skipping every one, as prior checkpoints mostly did)
+— specifically to stress the one path never fully exercised before: what
+happens to the classification once real answer text gets merged back in.
+
+### Two confirmed, live, reproducible P0s found this way — both fixed
+
+Both are the same class of bug already fixed once tonight for the bare
+word "coach" (Sprint 2, weeks ago): a classifier regex matching a bare,
+common word with no requirement that it be used in the specific sense
+intended, so an unrelated sentence containing that word hijacks the whole
+reading.
+
+1. **"service"** — answering "I don't understand this bill"'s follow-up
+   ("What part is confusing or concerning you?") with "There's a $60
+   service fee I don't remember agreeing to" reclassified the ENTIRE
+   creation from `general-help` to `service`, producing "Real means: One
+   real delivery, done start to finish, for one real customer" / "Try the
+   cheap version first: deliver it manually to one real customer, start
+   to finish" — and the wrong-tool "what can help" chips (Five Hour
+   Sprint, a beginner app walkthrough) came back too, since the
+   general-help suppression only applies when `creationType ===
+   "general-help"`. "Service fee," "customer service," and "terms of
+   service" are all extremely common bill vocabulary. Fixed in
+   `app/creation/classify.ts`: `SERVICE`'s bare `service` alternative now
+   excludes the common non-business phrases it was matching
+   (`service fee/charge/call/number/line/provider/agreement/department/
+   record/address/history/terms/plan/area`) and excludes "customer
+   service" / "terms of service" specifically, via lookahead/lookbehind —
+   while still matching real service-business phrasing ("I want to start
+   a dog walking service," "offer a lawn mowing service").
+2. **Bare "keep"** — answering "Help me decide between two options" with
+   "Option A: keep renting my apartment. Option B: buy a small house with
+   a bigger mortgage payment" reclassified it from `general-help` to
+   `tool`, producing "RIGHT NOW: Write one more sentence: who uses this,
+   and what they do with it" and an Idea Engine suggestion — a
+   software-tool reading for a housing decision. Root cause:
+   `classifyCreationType`'s "keep Y busy → problem-solving tool" shortcut
+   tested the bare `CARE_VERB` regex directly (which includes unqualified
+   "keep"/"keeping"), without requiring the actual dependent (a dog, a
+   kid, a toddler...) that `findCaretaker()` — the correct, already-
+   existing function for this exact pattern — requires everywhere else.
+   Fixed by calling `findCaretaker(text)` instead of the bare regex test;
+   the real caretaker example ("Keep a dog busy and entertained") and the
+   independent "solve/problem" signal both still work unchanged.
+
+### Every other journey held up under the same stress test
+
+Faucet ("It drips from under the handle... started about a week ago"),
+vacation ("My family — my spouse and two kids"), learning ("A real
+example with actual numbers... like a savings account"), the vague-idea
+case (unchanged, still routes to the Idea Engine as intended), app ("It
+tracks my kids' chores and gives them points..."), and letter/song (no
+follow-up question to answer, per the existing `piece` exemption) — all
+re-verified live in the browser, all read coherently, none reclassified
+into something unrelated.
+
+### The Five-Second Test, the Mom+Dad Test, the AI Honesty Test
+
+Home passes "what is this / what do I do / can I type my own thing" —
+the box is one clear question with one button. **One real, unresolved
+gap surfaced, deliberately NOT fixed this checkpoint:** the inline
+helper sentence directly under the box ("Messy is fine. Or start with
+build a simple website, make a family game, ... or fix something.") is
+still entirely make/build-framed — it reads from `STARTING_POINTS`
+(`app/create/starting-points.ts`), a *different, larger* array than the
+one already broadened two checkpoints ago (`QUICK_START`, the separate
+4-tile Home band). This is the single most prominent unfixed "is this
+only for software/making" signal on the whole site — closer and more
+immediately visible than the Quick Start tiles below it. Left alone
+deliberately: every checkpoint tonight repeated "do not redesign Home"
+more emphatically than any other instruction, this exact page has a
+documented history of rejected changes, and the underlying mechanism
+already works regardless of this sentence — the risk of an unsupervised,
+autonomous, further Home edit outweighed shipping one more content
+tweak. Recorded here as the clearest next step, not fixed.
+
+No AI-honesty problem found: every general-help journey states plainly
+"this only knows what you typed" and never implies a document was
+inspected or sent anywhere; no journey claims software involvement that
+isn't real; every journey provides real value (a classification, a
+structured brief, a next move) with zero dependency on ever opening an
+external AI tool.
+
+### Verification for this checkpoint
+
+- `npx vitest run` — 85 files, 1286 tests, all passing (baseline: 1278;
+  +8 tests: 6 unit-level regex tests in `classify.test.ts`, 2 full
+  answer-path integration tests in `general-help.test.ts` reproducing
+  both live bugs exactly as found).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline; a second stray "$60" in this checkpoint's own explanatory
+  comment was caught by the repo's `publicPriceGuard.test.ts` and fixed
+  before commit, same as Checkpoint A/B's pattern of that guard firing on
+  illustrative examples).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral `next dev -p 3988`): all nine journeys
+  walked live from Home, answering follow-up questions realistically
+  rather than skipping them; both fixes confirmed live in the browser
+  (not just unit output) before and after. No horizontal overflow at
+  375px or 1440px.
+
+### Checkpoint C result
+
+Committed and pushed — exact hash recorded in the session handoff. This
+was the final checkpoint of the night; per the brief, no further work
+begins after this one is pushed and verified clean.
