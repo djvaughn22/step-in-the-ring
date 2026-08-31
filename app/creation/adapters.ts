@@ -53,18 +53,32 @@ function toolsSection(v: CreationView): SpecSection {
   };
 }
 
+/**
+ * "Scope and permissions" — same job as doctrineLines' working method:
+ * honest about what already exists, without assuming a codebase when the
+ * creation isn't one. A song someone is already partway into deserves "keep
+ * what's already true," not "inspect before editing... existing routes."
+ */
+function scopeLines(v: CreationView, d: BuilderDefaults): string[] {
+  const i = v.interpretation;
+  const continuing = d.workMode === "existing-repo" || i.destination;
+  if (v.software.verdict !== "central") {
+    return continuing
+      ? [`This continues something already underway${i.destination ? ` (${i.destination.value})` : ""}. Build on what's already true; don't discard or contradict earlier decisions.`]
+      : ["Start fresh. Nothing about this exists yet — don't assume an earlier version, draft, or file."];
+  }
+  return continuing
+    ? [`This work belongs to an existing project${i.destination ? ` (${i.destination.value})` : ""}. Inspect before editing; preserve unrelated work; protect existing routes and integrations.`]
+    : ["Start clean. Nothing exists yet — do not assume access to any codebase or prior files."];
+}
+
 /** The sections every prompt opens and closes with, whatever the engine. */
 function promptShell(v: CreationView, d: BuilderDefaults, core: SpecSection[]): string {
   const i = v.interpretation;
   const sections: SpecSection[] = [
     {
       title: "Scope and permissions",
-      lines:
-        d.workMode === "existing-repo" || i.destination
-          ? [
-              `This work belongs to an existing project${i.destination ? ` (${i.destination.value})` : ""}. Inspect before editing; preserve unrelated work; protect existing routes and integrations.`,
-            ]
-          : ["Start clean. Nothing exists yet — do not assume access to any codebase or prior files."],
+      lines: scopeLines(v, d),
     },
     {
       title: "Original intent — the creator's exact words",
@@ -103,7 +117,7 @@ function promptShell(v: CreationView, d: BuilderDefaults, core: SpecSection[]): 
       title: "Assumptions made — correct them if wrong",
       lines: v.assumptions.length ? bullets(v.assumptions) : ["None recorded — everything above was stated."],
     },
-    { title: "Working method", lines: bullets(doctrineLines(d)) },
+    { title: "Working method", lines: bullets(doctrineLines(d, v.software.verdict)) },
   ];
   return sections
     .filter((s) => s.lines.length)
