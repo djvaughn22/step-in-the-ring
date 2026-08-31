@@ -158,3 +158,22 @@ describe("general-help is a real, exhaustively-wired CreationType", () => {
     expect(adapterForType("general-help").engineId).toBe("general-help-prompt");
   });
 });
+
+// Mom-and-dad first-time journey audit (2026-08-30). Confirmed live: "The
+// tools this needs" card said "Paper first... the idea needs one more
+// decision before tools matter... until the creation has a definite
+// form" — language written for a vague idea still taking shape, wrong for
+// an already-clear question like "my faucet is leaking."
+describe("the tools card for general-help doesn't talk like an unformed idea", () => {
+  it("never says the question 'needs a decision' or 'a definite form'", () => {
+    const { v } = classify("My faucet is leaking.");
+    const text = `${v.tools.stack} ${v.tools.why} ${v.tools.setup.join(" ")} ${v.tools.noSetup.join(" ")} ${v.tools.wait.join(" ")}`;
+    expect(text).not.toMatch(/needs one more decision/i);
+    expect(text).not.toMatch(/definite form/i);
+  });
+
+  it("says plainly this isn't something to build", () => {
+    const { v } = classify("I don't understand this bill.");
+    expect(v.tools.why).toMatch(/not something to build/i);
+  });
+});

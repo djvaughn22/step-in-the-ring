@@ -1309,3 +1309,161 @@ This checkpoint is complete as scoped. Not started: broadening the
 classifier further, document upload, lesson systems, decision engines, or
 any consulting/human-help feature — all explicitly out of scope for
 tonight per the brief.
+
+## Mom + Dad first-time journey audit — 2026-08-30
+
+Starting checkpoint `eaa3e7f` (this doc's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1255 tests passing before any edit).
+Not an architecture sprint — a real first-time-user walkthrough of the
+seven required journeys, in the actual browser, from Home.
+
+### The seven journeys, walked cold from Home
+
+| # | Input | HOME | FOLLOW-UP | RESULT (before fixes) | AI HANDOFF |
+| - | --- | --- | --- | --- | --- |
+| 1 | "I don't understand this bill." | One box, "What do you want to make?" | "What part is confusing or concerning you?" (correct, from a prior checkpoint) | "Before building anything, try the cheap version..." + "Keep this build" + "What can help: Five Hour Sprint, Your first build" — all wrong | "...person or AI who can really see it" — clear enough |
+| 2 | "My faucet is leaking." | same | "What's happening, exactly?" (correct) | same three wrong elements as #1 | same, clear |
+| 3 | "Write a letter to my insurance company." | same | none (correct — piece exemption) | "Before building anything, try the cheap version: finish the smallest complete piece..." — contradicts "not engineered" one line below | not mentioned — fine, no engine needed here anyway |
+| 4 | "Help me plan a vacation." | same | "Who is it for?" (correct) | "Before building anything..." same issue as #3; "What can help: Plan Engine" — correct | not mentioned — fine |
+| 5 | "Teach me how compound interest works." | same | "What would make this click for you?" (correct) | "Before building anything..."; **"What can help: How to Anything Engine"** — actively wrong direction (that engine publishes YOUR OWN proven fix; this person wants to learn, not teach) | "...person or AI who can really see it" — clear |
+| 6 | "I want to make an app." | same | "What should it do the very first time someone uses it?" (correct, software) | "Get this working first..."; "What can help: Build Engine" — correct | not reached yet at this screen — fine |
+| 7 | "I want to write a song." | same | none (correct) | "Before building anything, try the cheap version..." — same contradiction as #3 | not mentioned — fine |
+
+Every RESULT-column problem above was real and reproduced live before any
+edit. After the fixes below, all seven read coherently — verified live
+again, same inputs, same screens.
+
+### Findings, ranked
+
+**P0 — none found.** Every one of the seven journeys already reaches a
+usable next step; nobody hits a dead end (Section E: pass on all seven).
+
+**P1 — four found, all fixed:**
+1. `firstMoveFrom()`'s wrapper phrase "Before building anything, try the
+   cheap version:" appears for EVERY non-central creation (general-help,
+   song, poem, letter, plan, physical product) — the one word "building"
+   is the only literally software-shaped part of an otherwise-fine
+   sentence, and for general-help it directly contradicted the sentence
+   one line below it ("This is a question or a real situation, not
+   something to build").
+2. `helpsFor()`'s "What can help" section suggested wrong-direction tools
+   for general-help — not just the generic ALWAYS_HELPFUL fallback (Five
+   Hour Sprint, a beginner app walkthrough) but a REAL keyword match too:
+   "Teach me how compound interest works" matched the How To Anything
+   Engine, which turns the OWNER'S OWN proven fix into a published
+   tutorial — the opposite of wanting to learn something from it.
+3. `UnderstoodCard`'s buildType pill showed "Explore an early idea" next
+   to "Help figuring this out" on the Result screen — a software
+   buildType assumption contradicting the creationType label right beside
+   it.
+4. `deriveTools()`'s generic fallback told a general-help creation "the
+   idea needs one more decision before tools matter" and listed "all
+   tooling until the creation has a definite form" — language for a vague
+   idea still forming, wrong for an already-clear question.
+
+**P1 — Home message, fixed (smallest copy only):** the box's example
+list and three of Home's four Quick Start tiles are entirely make/build-
+framed ("build a simple website," "make a family game," "write
+something," "make a song"); the fourth said "Plan, fix, or build
+something else" — three verbs, still all about making something. A
+first-time visitor with a real question had no signal that it was
+welcome, even though the pipeline now handles it excellently. Fixed by
+editing that one existing tile's label and subtitle only — no new tile
+(Home already deliberately trimmed to "four doors, not eight"), no layout
+change.
+
+**P1 — noted, NOT fixed (too large for this checkpoint):**
+- **"Builder prompt" / "Build" terminology is genuinely pervasive** —
+  it's in the SEO metadata (`app/layout.tsx`), the public `/about` page's
+  own description, module names (`app/planner/builder-prompt.ts`), and a
+  locked `.md`-export test assertion. Renaming the on-screen label alone
+  (as tried and reverted in an earlier checkpoint's reasoning) would
+  create an inconsistency with the site's own self-description elsewhere,
+  not fix one. A real jargon exposure (Section A: "prompt," "builder") —
+  a coordinated terminology pass across multiple pages, not a same-night
+  copy patch.
+- **The generated brief renders as raw markdown source** (`## Scope and
+  permissions`, `## Original intent`) inside a monospace `<pre>` block —
+  for a first-time user asking about a leaking faucet, this looks like a
+  technical document, not help. Real (Section D: "technical language in a
+  nontechnical journey"), but fixing it means either rendering markdown
+  properly or restructuring how `generalHelpCore()`'s package presents
+  itself — a rendering/design decision, not a copy tweak.
+
+**P2 — noted, not fixed:** auto-generated titles read tersely ("Understand
+Bill," "Write Letter," "Two Options" — articles and context dropped). This
+is a consistent, intentional pattern across every creation type, not a
+new confusion; the full sentence is always shown directly below it.
+
+### What was fixed (all four P1 code fixes + the Home copy fix)
+
+- **`app/vnext/shape.ts`** — `firstMoveFrom()`: general-help gets the
+  honest test sentence directly, no wrapper at all; every other non-
+  central type keeps a wrapper but with "building" removed ("Try the
+  cheap version first:" instead of "Before building anything, try the
+  cheap version:"). `helpsFor()`: general-help returns `[]` unconditionally
+  (checked before, not just after, the keyword-match attempt) rather than
+  ever surfacing a matched-but-wrong-direction or generic-but-wrong
+  capability.
+- **`app/creation/profile.ts`** — `deriveTools()`: new `general-help` case
+  ("Nothing — the real bill, document, mechanic, or object, in front of
+  the right person... No tool makes it clearer than the real thing
+  would."), following the exact same per-type early-return pattern
+  `sports-plan`/`story`/`content` already use.
+- **`app/create/RingApp.tsx`** — `UnderstoodCard`: the buildType pill is
+  hidden only when `creationType === "general-help"`; every other
+  creation keeps it unchanged.
+- **`app/create/starting-points.ts`** — Home's 4th Quick Start tile:
+  label "Plan, fix, or build something else" → "Plan, fix, or ask
+  something"; subtitle now names a real question as explicitly welcome.
+  Same stem (`"I need to "`), same tile count, same layout.
+
+### Verification for this sprint
+
+- `npx vitest run` — 83 files, 1263 tests, all passing (baseline: 1255;
+  +8 tests, +1 new file `app/create/starting-points.test.ts`; one
+  pre-existing test in `app/vnext/shape.test.ts` updated to match the new,
+  intentional copy rather than the old one it had locked).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline, none in touched files).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral `next dev -p 3988`): every one of the seven
+  required journeys re-walked live from Home after the fixes, reading the
+  actual rendered text at each screen (not just unit output) — all seven
+  now read coherently end to end, matching the "after" column implied by
+  the findings above. No horizontal overflow at 375px or 1440px on Home
+  or the Result screen (`scrollWidth === clientWidth` at both).
+
+### Section-by-section audit result (as requested)
+
+- **A (jargon):** "builder prompt," "build," "Engine," "destination" all
+  present and load-bearing sitewide — flagged, not removed (see P1-not-
+  fixed above). No new jargon introduced by this checkpoint's fixes.
+- **B (unclear buttons):** none found in the seven journeys — "Keep this
+  build," "See the whole plan," "Skip — decide for me," "That's it →" all
+  say what they do plainly, even where "build" itself is a loaded word.
+- **C (too many choices):** none found — one box, one follow-up question
+  at a time, at most ~2 "what can help" chips (now zero for general-help),
+  Home's tile count unchanged at four.
+- **D (trust breaks):** the four P1s above were exactly this category —
+  all fixed except the two flagged-too-large items.
+- **E (dead ends):** pass on all seven — every journey reaches a usable
+  next step (an engine door, or an honest "bring this to a person/AI/
+  yourself" brief).
+- **F (font/tap/mobile):** no overflow found at 375px on Home or any
+  Result screen tested; no CSS/layout was touched this checkpoint, so no
+  new risk introduced.
+- **G (Home message):** "What is this?" and "What do I do here?" both
+  pass. "Can I bring my own problem?" failed before this checkpoint's
+  smallest-copy fix to Home's 4th Quick Start tile; passes now. "Do I need
+  to know AI?" passes — Home itself never mentions AI at all.
+
+### Next highest-value usability gap
+
+The generated brief's raw-markdown presentation (`## Scope and
+permissions`, `## Original intent`, etc., inside a monospace box) is the
+single most visible remaining "this looks technical" moment across every
+journey, general-help included. Fixing it well means a real rendering or
+restructuring decision, not a copy patch — the natural next checkpoint.
