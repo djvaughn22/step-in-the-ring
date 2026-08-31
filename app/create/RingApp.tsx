@@ -5,6 +5,7 @@ import { interpret, type PlannerInput } from "../planner/interpret";
 import { buildBuilderPrompt } from "../planner/builder-prompt";
 import { BUILD_SEED_KEY } from "../planner/handoff";
 import Link from "next/link";
+import BriefView from "./BriefView";
 import CreationEntry from "../vnext/CreationEntry";
 import SteppedIn from "../vnext/SteppedIn";
 import ContinueStrip from "../vnext/ContinueStrip";
@@ -972,7 +973,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                 <div className="plan-label" style={{ margin: 0 }}>Your builder prompt</div>
                 <CopyButton text={builderPrompt} label="Copy builder prompt" big />
               </div>
-              <pre className="prompt-box">{builderPrompt}</pre>
+              <BriefView text={builderPrompt} />
               <p className="field-help" style={{ marginTop: 12, marginBottom: 0 }}>
                 Bring it to an AI, hand it to a person, or just start on it yourself.
               </p>

@@ -228,3 +228,20 @@ describe("UnderstoodCard — the buildType pill doesn't contradict general-help"
     expect(fn).toMatch(/\{view && <span className="pill">\{CREATION_TYPE_LABEL\[view\.creationType\]\}<\/span>\}/);
   });
 });
+
+// "Make the result feel human" checkpoint (2026-08-30). The generated
+// brief used to render inside a raw `<pre className="prompt-box">` —
+// "## heading" / "- bullet" markdown source, visually indistinguishable
+// from developer output, for every journey including general-help. Locks
+// the replacement: BriefView renders the same string as real typography.
+describe("the takeaway prompt renders as typography, not raw markdown source", () => {
+  it("uses BriefView instead of a raw <pre> block for the generated brief", () => {
+    expect(src).toMatch(/import BriefView from "\.\/BriefView"/);
+    expect(src).toMatch(/<BriefView text=\{builderPrompt\} \/>/);
+    expect(src).not.toMatch(/<pre className="prompt-box">\{builderPrompt\}<\/pre>/);
+  });
+
+  it("Copy still reads from the same raw builderPrompt string — presentation only, portability unchanged", () => {
+    expect(src).toMatch(/<CopyButton text=\{builderPrompt\} label="Copy builder prompt" big \/>/);
+  });
+});
