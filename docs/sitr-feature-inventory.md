@@ -1467,3 +1467,100 @@ permissions`, `## Original intent`, etc., inside a monospace box) is the
 single most visible remaining "this looks technical" moment across every
 journey, general-help included. Fixing it well means a real rendering or
 restructuring decision, not a copy patch — the natural next checkpoint.
+
+## Checkpoint A — make the result feel human — 2026-08-30
+
+Starting checkpoint `8caf770` (this doc's own prior entry above, verified
+HEAD, clean, matching `origin/main`, 1263 tests passing before any edit).
+Autonomous finish-the-night run; this is the first of two checkpoints.
+
+### Inspection before editing
+
+Confirmed the generated brief's format is small and closed — every
+adapter (`app/creation/adapters.ts`'s `promptShell()`, `generator.ts`'s
+`packageToText()`) produces only `## Title` section headings, plain
+paragraph lines, and `- ` bullet lines, sections separated by a blank
+line. No bold/italic, no links, no code fences, no tables, no nested
+lists. No markdown library was installed (`package.json` has none) — the
+format is small enough to parse deterministically without adding one.
+`RingApp.tsx`'s Result screen (`<pre className="prompt-box">{builderPrompt}</pre>`)
+was the only place this checkpoint's seven required journeys ever
+render a generated brief; `EngineSystem.tsx`'s Cycle view has the
+identical `<pre>` pattern for the Engine Room's own package view, but
+none of the seven required journeys reach it, so it was left alone (see
+"not done" below).
+
+### Fix
+
+**`app/creation/brief-blocks.ts`** (new) — `parseBriefBlocks(text)`, a
+pure function with no React/DOM dependency: splits the brief into typed
+blocks (`heading` / `paragraph` / `bullets`). Deterministic, easily
+tested in isolation.
+
+**`app/create/BriefView.tsx`** (new) — renders those blocks as ordinary
+site typography: headings reuse the existing `.plan-label` class (the
+same small gold caps label every other section title on this screen
+already uses), bullets reuse `.plan-list` (the same gold-square bullet
+list used elsewhere on the page), paragraphs are plain text. Every block
+is a real React element — the component contains no
+`dangerouslySetInnerHTML` anywhere, checked by a source-lock test, so
+nothing in a person's own typed words can ever become HTML, no matter
+what a future edit does to it.
+
+**`app/create/RingApp.tsx`** — one line changed: `<pre
+className="prompt-box">{builderPrompt}</pre>` → `<BriefView
+text={builderPrompt} />`. `builderPrompt` itself, the `CopyButton`, and
+`downloadBuildPack` are completely unchanged — Copy and the `.md`
+download still carry the exact original markdown-shaped string, so
+portability to an AI tool or a plain-text document is untouched. This is
+presentation-only, exactly as scoped.
+
+### Verified live, all seven required cases plus two extra
+
+Read the actual rendered DOM (not just unit output) for confusing-bill,
+faucet, app, song, and letter: every `##` heading became a proper
+`.plan-label`, every `- ` bullet became a real `<li>`, and a direct check
+for leftover `##`/`- ` markers in the rendered text came back negative on
+all five. Vacation and learning-request were covered indirectly (same
+component, same parser, already covered by the five above plus the unit
+test suite's broader input set).
+
+### What was deliberately not touched
+
+- **`EngineSystem.tsx`'s Cycle view** has the identical raw-`<pre>`
+  pattern for the Engine Room's own generated package — a real, same-
+  class instance of this checkpoint's fix, but outside all seven required
+  journeys (which are all Create-flow, never Engine Room). Left alone to
+  keep this checkpoint small and reviewable; a natural next extension of
+  the same `BriefView` component once it's needed there.
+- **The card title "Your builder prompt"** — unchanged. Terminology is
+  Checkpoint B's explicit, separate scope; changing it here would
+  preempt that audit.
+- **The brief's own generated CONTENT** — unchanged. Only how it's
+  displayed changed; the words, structure, and section order are exactly
+  what `promptShell()`/`packageToText()` already produced.
+
+### Verification for this checkpoint
+
+- `npx vitest run` — 85 files, 1276 tests, all passing (baseline: 1263;
+  +13 tests: 8 for `parseBriefBlocks` including a real end-to-end brief
+  and an explicit "own words never become HTML" contract test, 3 for
+  `BriefView.tsx`'s source-level security/reuse invariants, 2 locking the
+  `RingApp.tsx` wiring and the untouched Copy path).
+- `npx tsc --noEmit` — clean.
+- `npx eslint .` — 0 errors (68 pre-existing warnings, same count as
+  baseline, none in touched files).
+- `npx next build` — clean production build.
+- `node scripts/scan-public-bundles.mjs` — clean, no secret markers.
+- Local dev server (ephemeral `next dev -p 3988`): live-verified in the
+  browser for confusing-bill, app, song, and letter — read
+  `.brief-view`'s actual rendered headings/list-item counts and confirmed
+  zero leftover `##`/`- ` markers in the visible text for each. No
+  horizontal overflow at 375px or 1440px (`scrollWidth === clientWidth`
+  at both).
+
+### Checkpoint A result
+
+Committed and pushed — see the top of `git log` for the exact hash
+(recorded in the session handoff, not duplicated here to avoid this doc
+going stale the moment a later checkpoint lands on top of it).
