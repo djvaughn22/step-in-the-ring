@@ -953,6 +953,39 @@ function serviceCore(v: CreationView): SpecSection[] {
   ];
 }
 
+/* ── General help (a question, a decision, a real situation — not a build) ──
+   "Explain this bill," "help me decide between two jobs," "my faucet is
+   leaking": there is no version to weigh and no codebase to inspect. The
+   honest brief says what's actually being asked, is upfront about what
+   Step In The Ring was never shown, and gives a plain answer or next step —
+   never a fabricated "MVP scope" or "decision record" for a question. */
+function generalHelpCore(v: CreationView): SpecSection[] {
+  return [
+    {
+      title: "What's actually being asked",
+      lines: [
+        `“${v.record.originalIdea}”`,
+        "Answer or work through this directly, in plain language. There is no version to weigh and nothing to build.",
+      ],
+    },
+    {
+      title: "Be honest about what's missing",
+      lines: bullets([
+        "Step In The Ring only has the words above — not the actual bill, document, mechanic, or object.",
+        "Say plainly what you'd need to see to give a real answer, and ask for it before guessing at specifics.",
+      ]),
+    },
+    {
+      title: "The answer",
+      lines: bullets([
+        "A clear, plain-language answer or next step — not a sales pitch, not a hedge.",
+        "If there's real uncertainty, say so. Don't invent confidence that isn't there.",
+        "End with the one concrete thing to do next.",
+      ]),
+    },
+  ];
+}
+
 /* ── Idea Engine (interpretation + decision, not a build) ── */
 function ideaCore(v: CreationView): SpecSection[] {
   const i = v.interpretation;
@@ -1033,6 +1066,7 @@ export function adapterForType(type: CreationType): EngineAdapter {
     case "service": return makeAdapter("service-prompt", ["service"], serviceCore);
     case "sports-plan": return makeAdapter("sports-prompt", ["sports-plan"], sportsCore);
     case "event-plan": return BY_ID.get("plan")!;
+    case "general-help": return makeAdapter("general-help-prompt", ["general-help"], generalHelpCore);
     case "unknown": return BY_ID.get("idea")!;
     default: return BY_ID.get("build")!;
   }

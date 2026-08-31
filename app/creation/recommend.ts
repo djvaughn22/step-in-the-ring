@@ -125,6 +125,18 @@ export function recommendEngines(v: CreationView): Recommendation {
         alternates,
       };
 
+    // A question, a decision, or a real situation — no Engine here scores
+    // versions of a bill or builds a codebase for a leaking faucet. The
+    // honest path is the same one "fix" and "lands in something existing"
+    // already use below: a plain, portable brief, no fabricated capability.
+    case "general-help":
+      return {
+        primary: null,
+        promptPathWhy:
+          "This isn't something to build or a version to pick — it's a real question. The brief below has exactly what you said; bring it to a person, a reference, or an AI who can actually see the real thing, and check anything it tells you.",
+        alternates,
+      };
+
     case "story":
     case "content":
       push(alternates, choice("idea", "Weigh a few versions of the piece and pick the one to finish."));
