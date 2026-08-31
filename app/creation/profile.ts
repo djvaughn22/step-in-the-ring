@@ -372,6 +372,11 @@ export function deriveTools(
   };
 }
 
+/** A real-world effort — a trip, a wedding, a fundraiser — not software.
+ *  Shared so classify.ts's CreationType and interpret.ts's follow-up
+ *  question can't quietly disagree about the same word list. */
+export const EVENT_WORDS = /\b(event|party|wedding|reunion|fundraiser|trip|vacation|holiday|camp|tournament|campaign)\b/i;
+
 /* ── GENERAL HELP — not "which form," but "is this a creation at all" ────
    Shared by both layers (interpret.ts's buildType and classify.ts's
    CreationType) for the same reason SPORTS_PLAN_WORDS/looksFashion already
@@ -402,4 +407,21 @@ export function looksLikeGeneralHelp(text: string): boolean {
     DECISION_WORDS.test(text) ||
     looksLikeRealWorldTrouble(text)
   );
+}
+
+/**
+ * Which shade of general-help this is — same four signals above, just
+ * named, so the ONE follow-up question asked can fit the actual need
+ * instead of a single generic stand-in. Checked in the same order
+ * `looksLikeGeneralHelp` implicitly does; "teach me how compound interest
+ * works" hits LEARNING before it could ever hit COMPREHENSION's "explain".
+ */
+export type GeneralHelpKind = "learn" | "decide" | "understand" | "trouble";
+
+export function generalHelpKind(text: string): GeneralHelpKind | null {
+  if (LEARNING_WORDS.test(text)) return "learn";
+  if (DECISION_WORDS.test(text)) return "decide";
+  if (COMPREHENSION_WORDS.test(text)) return "understand";
+  if (looksLikeRealWorldTrouble(text)) return "trouble";
+  return null;
 }

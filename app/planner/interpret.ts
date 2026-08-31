@@ -20,7 +20,8 @@ import {
   type Interpretation, type OpenQuestion, type Permissions, type Shape,
 } from "./types";
 import {
-  findSportKind, looksFashion, looksLikeGeneralHelp, looksLikeRealWorldTrouble, SPORTS_PLAN_WORDS,
+  EVENT_WORDS, findSportKind, generalHelpKind, looksFashion, looksLikeGeneralHelp,
+  looksLikeRealWorldTrouble, SPORTS_PLAN_WORDS, type GeneralHelpKind,
 } from "../creation/profile";
 
 export type PlannerInput = {
@@ -659,6 +660,39 @@ function buildSummary(a: {
   return `${verb} ${kind}${where}: ${doing}.`;
 }
 
+// The one follow-up for a general-help creation asks for the next piece of
+// information that actually makes the help more useful — never "what
+// should it do the first time someone uses it," which is a product-
+// development question for something that isn't a product. Confirmed live
+// 2026-08-30: "My faucet is leaking" and "I don't understand this bill"
+// both got that exact question before this fix.
+const GENERAL_HELP_QUESTIONS: Record<GeneralHelpKind, OpenQuestion> = {
+  trouble: {
+    key: "detail",
+    question: "What's happening, exactly?",
+    help: "What you're seeing, when it started, and anything you've already tried.",
+    placeholder: 'e.g. "It drips steadily from the base, worse when the water is running."',
+  },
+  understand: {
+    key: "detail",
+    question: "What part is confusing or concerning you?",
+    help: "The specific line, word, or section you want explained.",
+    placeholder: 'e.g. "The line labeled \'service fee\' that I don\'t remember agreeing to."',
+  },
+  decide: {
+    key: "detail",
+    question: "What are the options, in a sentence each?",
+    help: "Plain terms — what each choice actually gets you or costs you.",
+    placeholder: 'e.g. "Stay in my current job, or take the new offer across town."',
+  },
+  learn: {
+    key: "detail",
+    question: "What would make this click for you?",
+    help: "A real example, a comparison to something familiar, or just the plain mechanics — whatever actually helps.",
+    placeholder: 'e.g. "I keep hearing the term but don\'t get why it matters over time."',
+  },
+};
+
 function deriveQuestions(a: {
   shape: Shape;
   versionOne: Claim<string>[];
@@ -670,13 +704,22 @@ function deriveQuestions(a: {
   const answered = (k: string) => isMeaningful(a.answers[k] ?? "");
   const realBehaviours = a.versionOne.filter((c) => c.confidence === "stated").length;
 
+  // A question, a decision, or real-world trouble has no "behaviours" and
+  // no buyer either — it's answered once, not built. Same gate as
+  // classify.ts's general-help detection (shape === "unknown" only, so a
+  // named "app" or "site" is never pulled in here).
+  const generalHelp = a.shape === "unknown" && looksLikeGeneralHelp(a.productText);
+  if (generalHelp && !answered("detail")) {
+    const kind = generalHelpKind(a.productText) ?? "trouble";
+    return [GENERAL_HELP_QUESTIONS[kind]];
+  }
   // A DEFINITE written or musical piece has no "behaviours" — its version one
   // is a draft, and the specialist defines the deliverable. Asking what a poem
   // "should do the first time someone uses it" is software framing. A vague
   // "something with music" is not a piece yet, so it still earns the question.
   const piece =
     a.shape === "content" &&
-    /\b(poem|poetry|haiku|sonnet|songs?|lyrics|stor(?:y|ies)|novel|screenplay|script|books?|album|newsletter|blog|podcast|speech|toast|eulogy|sermon|journal)\b/i.test(a.productText);
+    /\b(poem|poetry|haiku|sonnet|songs?|lyrics|stor(?:y|ies)|novel|screenplay|script|books?|album|newsletter|blog|podcast|speech|toast|eulogy|sermon|journal|letters?|essays?)\b/i.test(a.productText);
   // Same logic for coaching work: a practice plan's version one is a practice,
   // and the coach already told us the team. The sports specialist takes over.
   const coachPlan = SPORTS_PLAN_WORDS.test(a.productText) && !!findSportKind(a.productText);
@@ -684,8 +727,23 @@ function deriveQuestions(a: {
   // one question that genuinely shapes it, so only the behaviour question is
   // skipped; the audience question stays available below.
   const wearable = looksFashion(a.productText);
+  // A physical/design product (candles, mugs, printables — not a wearable,
+  // which is its own more specific case above) has no software behaviours
+  // either: its version one is one finished unit, not a first-use flow.
+  // Confirmed live: "I want to sell handmade candles" got the same
+  // software-behaviour question before this fix.
+  const physicalGood = a.shape === "product";
+  // A real-world effort (a trip, a wedding, a fundraiser) has no software
+  // behaviours either — same word list classify.ts's CreationType uses, so
+  // the two layers can't quietly disagree. Confirmed live: "Help me plan a
+  // vacation" got the same software-behaviour question before this fix,
+  // because there is no "event" Shape for it to have landed on instead.
+  const eventPlan = EVENT_WORDS.test(a.productText);
   // Nothing concrete to build yet — this is the only thing worth asking.
-  if (!answered("versionOne") && realBehaviours === 0 && !piece && !coachPlan && !wearable) {
+  // generalHelp is excluded here too (not just its own branch above) so
+  // that once its question IS answered, the flow doesn't fall through to
+  // asking a leaking faucet what it should do the first time it's used.
+  if (!answered("versionOne") && realBehaviours === 0 && !piece && !coachPlan && !wearable && !physicalGood && !eventPlan && !generalHelp) {
     return [
       {
         key: "versionOne",
@@ -711,8 +769,8 @@ function deriveQuestions(a: {
   // (A blog, newsletter, podcast, or speech keeps it: those are FOR a room.)
   const personalPiece =
     a.shape === "content" &&
-    /\b(poem|poetry|haiku|sonnet|journal(?:ing)?|diary|songs?|lyrics|stor(?:y|ies)|novel|screenplay|children'?s book)\b/i.test(a.productText);
-  if (!a.audience && !answered("audience") && !personalPiece && !coachPlan) {
+    /\b(poem|poetry|haiku|sonnet|journal(?:ing)?|diary|songs?|lyrics|stor(?:y|ies)|novel|screenplay|children'?s book|letters?|essays?)\b/i.test(a.productText);
+  if (!a.audience && !answered("audience") && !personalPiece && !coachPlan && !generalHelp) {
     return [
       {
         key: "audience",

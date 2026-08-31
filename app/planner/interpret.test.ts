@@ -380,6 +380,107 @@ describe("question discipline", () => {
   });
 });
 
+// The front-door follow-up question checkpoint (2026-08-30). The shared
+// one-follow-up step used to ask every incomplete description "What
+// should it do the very first time someone uses it?" — a product-
+// development question. Confirmed live: "My faucet is leaking" and "I
+// don't understand this bill" both got that exact question. This locks
+// in that non-product creations get a question that fits what they
+// actually asked for, while software keeps the product question it
+// genuinely needs.
+describe("the one follow-up question fits the actual need, not just software", () => {
+  it("software still gets the product-behaviour question — the fix is not a blanket flatten", () => {
+    const i = interpret({ description: "I want to make an app." });
+    expect(i.openQuestions).toHaveLength(1);
+    expect(i.openQuestions[0].key).toBe("versionOne");
+    expect(i.openQuestions[0].question).toMatch(/what should it do/i);
+  });
+
+  it("a song asks nothing — the piece exemption already covered this", () => {
+    const i = interpret({ description: "I want to write a song." });
+    expect(i.openQuestions).toHaveLength(0);
+  });
+
+  it("a letter now reads as content and asks nothing — the recipient is already the point", () => {
+    const i = interpret({ description: "Write a letter to my insurance company." });
+    expect(i.shape).toBe("content");
+    expect(i.openQuestions).toHaveLength(0);
+  });
+
+  it("a vacation plan asks who it's for, not what it should do", () => {
+    const i = interpret({ description: "Help me plan a vacation." });
+    expect(i.openQuestions).toHaveLength(1);
+    expect(i.openQuestions[0].key).toBe("audience");
+    expect(i.openQuestions[0].question).not.toMatch(/what should it do/i);
+  });
+
+  it("a physical product to sell asks who'd pay, not what it should do", () => {
+    const i = interpret({ description: "I want to sell handmade candles." });
+    expect(i.openQuestions).toHaveLength(1);
+    expect(i.openQuestions[0].key).toBe("audience");
+    expect(i.openQuestions[0].question).toMatch(/who would actually pay/i);
+  });
+
+  it("a leaking faucet asks what's happening, not what it should do", () => {
+    const i = interpret({ description: "My faucet is leaking." });
+    expect(i.openQuestions).toHaveLength(1);
+    expect(i.openQuestions[0]).toMatchObject({ key: "detail", question: "What's happening, exactly?" });
+  });
+
+  it("a confusing bill asks what part is confusing, not what it should do", () => {
+    const i = interpret({ description: "I don't understand this bill." });
+    expect(i.openQuestions).toHaveLength(1);
+    expect(i.openQuestions[0]).toMatchObject({ key: "detail", question: "What part is confusing or concerning you?" });
+  });
+
+  it("a decision between options asks what the options are", () => {
+    const i = interpret({ description: "Help me decide between these two options." });
+    expect(i.openQuestions).toHaveLength(1);
+    expect(i.openQuestions[0]).toMatchObject({ key: "detail", question: "What are the options, in a sentence each?" });
+  });
+
+  it("a learning request asks what would make it click", () => {
+    const i = interpret({ description: "Teach me how compound interest works." });
+    expect(i.openQuestions).toHaveLength(1);
+    expect(i.openQuestions[0]).toMatchObject({ key: "detail", question: "What would make this click for you?" });
+  });
+
+  it("answering the general-help question is never re-asked", () => {
+    const i = interpret({
+      description: "My faucet is leaking.",
+      answers: { detail: "It drips steadily from the base." },
+    });
+    expect(i.openQuestions).toHaveLength(0);
+  });
+
+  it("answering doesn't fall through to the software question either", () => {
+    // The generalHelp exemption on the versionOne branch has to be checked
+    // independently of the early-return above, or answering "detail" once
+    // just uncovers the wrong question on the next read.
+    const i = interpret({
+      description: "My faucet is leaking.",
+      answers: { detail: "It drips steadily from the base." },
+    });
+    expect(i.openQuestions.map((q) => q.key)).not.toContain("versionOne");
+  });
+
+  it("no general-help placeholder or question text contains a literal dollar price", () => {
+    // app/lib/publicPriceGuard.test.ts scans for exactly this pattern —
+    // caught live once already; this keeps the two guards honest of
+    // each other without depending on test execution order.
+    const inputs = [
+      "My faucet is leaking.", "I don't understand this bill.", "Explain this document to me.",
+      "Help me decide between these two options.", "Teach me how compound interest works.",
+    ];
+    for (const description of inputs) {
+      const i = interpret({ description });
+      for (const q of i.openQuestions) {
+        expect(`${q.question} ${q.help} ${q.placeholder ?? ""}`).not.toMatch(/\$\d/);
+      }
+    }
+  });
+});
+
 describe("a follow-up answer is its own sentence", () => {
   // Regression: the description and the answer used to be joined with a bare
   // space, so "I want to build an app" + "You type in a chore" parsed as one
