@@ -25,7 +25,7 @@ const KNOWN_PRODUCTS: Record<string, string> = {
   watchednotwatched: "WatchedNotWatched",
   whatamiai: "WhatAmIAI",
   pleasebeready: "PleaseBeReady",
-  dontclonemetom: "DontCloneMeTom",
+  dontclonemetom: "DontCloneMeTom.com",
   etsy: "Etsy",
 };
 
