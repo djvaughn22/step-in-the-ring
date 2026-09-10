@@ -252,3 +252,36 @@ describe("the homepage proof order", () => {
     }
   });
 });
+
+// ── DontCloneMeTom.com: the label carries .com, the URL stays lowercase ─────
+// Owner, 2026-09-09. The rescue project is branded DontCloneMeTom.com; the
+// ecosystem tile used to promote it as the bare "DontCloneMeTom".
+describe("DontCloneMeTom.com is named in full wherever SITR promotes it", () => {
+  it("labels the ecosystem tile with .com and keeps the URL lowercase", () => {
+    const p = ECOSYSTEM.find((x) => /dontclonemetom/i.test(x.name));
+    expect(p, "the rescue project must stay in the ecosystem").toBeTruthy();
+    expect(p!.name).toBe("DontCloneMeTom.com");
+    expect(p!.liveUrl).toBe("https://dontclonemetom.com");
+  });
+
+  it("never renders the brand without .com in visible copy", () => {
+    // engines.ts is excluded on purpose: its "Source brand" choice list is a
+    // stored value in a hidden, superseded engine whose own comment says
+    // editing it orphans saved projects.
+    const files = [
+      "app/site/registry.ts",
+      "app/planner/signals.ts",
+      "app/five-hour-sprint-tool/FiveHourSprintClient.tsx",
+    ];
+    for (const rel of files) {
+      const src = readFileSync(path.join(process.cwd(), rel), "utf8");
+      for (const line of src.split("\n")) {
+        if (!/DontCloneMeTom/.test(line)) continue;
+        expect(
+          /DontCloneMeTom\.com/.test(line),
+          `${rel}: brand reference without .com → ${line.trim()}`
+        ).toBe(true);
+      }
+    }
+  });
+});

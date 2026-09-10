@@ -17,7 +17,7 @@ import {
 
 const CASE_STUDIES = [
   {
-    title: "DontCloneMeTom adoption-link integrity repair",
+    title: "DontCloneMeTom.com adoption-link integrity repair",
     deliverable: "Adoption URL resolution: registry decisions block legacy conflation",
     repository: "dont-clone-me-tom",
     startCommit: "d15a2bb",

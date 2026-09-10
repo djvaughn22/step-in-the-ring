@@ -442,7 +442,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     accent: "#8FA3B0",
   },
   {
-    name: "DontCloneMeTom",
+    name: "DontCloneMeTom.com",
     emoji: "🐶",
     what: "Trading cards for real dogs, with names written by hand.",
     who: "Dog people.",
