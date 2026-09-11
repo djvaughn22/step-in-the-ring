@@ -23,6 +23,7 @@
 // (see app/site/QuietFooterLink.tsx) for transparency and compatibility.
 
 import Link from "next/link";
+import RingMark from "./RingMark";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { navPages } from "./registry";
@@ -47,8 +48,8 @@ export default function RingHeader() {
     <header className="ring-bar">
       <div className="ring-bar-in">
         <Link href="/" className="ring-brand">
-          <span className="ring-brand-glyph" aria-hidden="true" />
-          Step In The Ring
+          <RingMark />
+          <span>Step In The Ring</span>
         </Link>
 
         <nav className="ring-nav" aria-label="Main">
@@ -96,7 +97,7 @@ export default function RingHeader() {
 
       <div id="ring-sheet" className={open ? "ring-sheet open" : "ring-sheet"}>
         {[...primary.map((p) => ({ name: p.name, href: p.path })), ...SECONDARY].map((l) => (
-          <Link key={l.href} href={l.href} onClick={() => setOpen(false)}>
+          <Link key={l.href} href={l.href} aria-current={pathname === l.href ? "page" : undefined} onClick={() => setOpen(false)}>
             {l.name}
           </Link>
         ))}

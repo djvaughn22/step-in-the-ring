@@ -1,11 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#08182B"/>
-  <rect x="72" y="72" width="368" height="368" rx="64" fill="#0F2439" stroke="#2BA6FF" stroke-width="14"/>
-  <rect x="112" y="112" width="288" height="288" rx="46" fill="none" stroke="#2A5480" stroke-width="6"/>
-  <rect x="144" y="144" width="224" height="224" rx="34" fill="none" stroke="#1B3854" stroke-width="6"/>
-  <circle cx="72" cy="72" r="26" fill="#2BA6FF" stroke="#08182B" stroke-width="8"/>
-  <circle cx="440" cy="72" r="26" fill="#2BA6FF" stroke="#08182B" stroke-width="8"/>
-  <circle cx="72" cy="440" r="26" fill="#2BA6FF" stroke="#08182B" stroke-width="8"/>
-  <circle cx="440" cy="440" r="26" fill="#2BA6FF" stroke="#08182B" stroke-width="8"/>
-  <text x="256" y="268" text-anchor="middle" dominant-baseline="central" font-size="150" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif">🥊</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#08182B"/><g transform="translate(4 4) scale(0.875)">
+  <g stroke="#2BA6FF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M7 35 32 22 57 35 32 49Z" fill="#102C47"/>
+    <path d="M7 27 32 14 57 27 32 41Z M7 19 32 6 57 19 32 33Z"/>
+    <path d="M7 17V38 M32 4V24 M57 17V38 M32 31V52" stroke-width="4"/>
+  </g>
+</g></svg>

@@ -13,7 +13,7 @@ const css = readFileSync(join(__dirname, "..", "globals.css"), "utf8");
 
 describe("RingApp — one creation CTA, one quiet return path", () => {
   it("Start remains the dominant, only submit action on the creation box", () => {
-    expect(src).toMatch(/submitLabel="Start"/);
+    expect(src).toContain('submitLabel={mode === "home" ? "Step into the Ring" : "Start"}');
   });
 
   it("the duplicate 'Pick up the last one' return path is gone", () => {
