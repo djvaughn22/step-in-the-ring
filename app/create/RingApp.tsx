@@ -507,6 +507,48 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
     );
   }
 
+  /* ── HOME — the public product front door. */
+  if (stage === "landing" && mode === "home") {
+    return (
+      <main>
+        <div className="page home-page">
+          <section className="home-hero">
+            <div className="hero-copy">
+              <span className="stage-mark">A place to make things</span>
+              <h1>Bring the idea.<br /><span>Leave with something real.</span></h1>
+              <p>Describe what you want to create. Step In The Ring helps you shape it, build it, and keep moving until it works.</p>
+            </div>
+            <div className="home-entry">{theBox}</div>
+          </section>
+          <section className="home-paths" aria-labelledby="paths-heading">
+            <div className="section-intro"><span className="kicker">Choose your first move</span><h2 id="paths-heading">Start where you are.</h2></div>
+            <div className="path-grid">
+              {[
+                ["build", "Build something", "Turn an idea into a working app or site.", "/build", "→"],
+                ["create", "Create something", "Make a game, story, song, design, or more.", "/create", "✦"],
+                ["solve", "Solve or plan something", "Work through a problem, project, or next step.", "/engines", "◇"],
+              ].map(([id, title, text, href, icon]) => (
+                <Link className="path-card" href={href} key={id}>
+                  <span className={`path-icon path-icon-${id}`} aria-hidden="true">{icon}</span>
+                  <span><strong>{title}</strong><span>{text}</span><em>Begin here&nbsp; →</em></span>
+                </Link>
+              ))}
+            </div>
+          </section>
+          <section className="home-proof" aria-labelledby="proof-heading">
+            <div className="section-intro"><span className="kicker">Proof, not promises</span><h2 id="proof-heading">Made in the Ring.</h2><p>Real projects that started as a rough idea and are live today.</p></div>
+            <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true"><RingMark /></span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit project ↗</span></a>)}</div>
+            <Link className="text-link" href="/everything">See everything made here&nbsp; →</Link>
+          </section>
+          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">A simple loop</span><h2 id="how-heading">How it works.</h2></div><div className="how-steps">{[["01","Say it","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Make it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Improve it","Keep what works. Change what doesn’t."]].map(([n,t,d])=><div className="how-step" key={n}><span>{n}</span><h3>{t}</h3><p>{d}</p></div>)}</div><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
+          <section className="home-tools" aria-labelledby="tools-heading"><div className="section-intro"><span className="kicker">Optional engines</span><h2 id="tools-heading">Need a focused starting point?</h2><p>Pick a tool when you know the kind of help you need. You can always start with the idea box instead.</p></div><div className="tool-list">{FEATURED_ENGINES.slice(0, 3).map((c)=><Link href={c.href} className="tool-row" key={c.id}><span className="tool-symbol" aria-hidden="true"><RingMark /></span><span><strong>{displayName(c)}</strong><span>{c.useWhen ?? c.what}</span></span><span aria-hidden="true">→</span></Link>)}</div><Link className="text-link" href="/engines">Explore all engines&nbsp; →</Link></section>
+          <section className="home-final"><span className="kicker">Your next move</span><h2>Bring the next idea.</h2><p>One sentence is enough to get started.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Step into the Ring&nbsp; →</button></section>
+        </div>
+      </main>
+    );
+  }
+
+  /* ── HOME — legacy landing markup retained below for the create-mode flow. */
   /* ── HOME — the front door. It has ten seconds to answer three questions:
      what is this, what do I do first, and what if I don't know. ── */
   if (stage === "landing") {
