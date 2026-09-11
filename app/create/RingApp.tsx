@@ -5,6 +5,8 @@ import { interpret, type PlannerInput } from "../planner/interpret";
 import { buildBuilderPrompt } from "../planner/builder-prompt";
 import { BUILD_SEED_KEY } from "../planner/handoff";
 import Link from "next/link";
+import RingMark from "../site/RingMark";
+import WorkshopIcon from "../site/WorkshopIcon";
 import BriefView from "./BriefView";
 import CreationEntry from "../vnext/CreationEntry";
 import SteppedIn from "../vnext/SteppedIn";
@@ -42,27 +44,6 @@ const FEATURED_ENGINES = featuredCapabilities();
 /* CrossHeartPray, TheDJCares, iDontCry first, then every other real, live
    product — the homepage proof panel's fixed order. See app/site/registry.ts. */
 const { primary: HOME_PROOF_PRIMARY, more: HOME_PROOF_MORE } = homepageProof(ECOSYSTEM);
-
-/** The brand mark: the ring itself, read from above — a floor, a rope line,
- *  four posts. The same three shapes the box on the right is framed with,
- *  shrunk to an icon, so the name and the mark say the same thing twice. */
-function RingMark() {
-  return (
-    <svg
-      className="ring-mark-icon"
-      viewBox="0 0 40 40"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <rect x="6" y="6" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" />
-      <rect x="11" y="11" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
-      <rect x="1.5" y="1.5" width="7" height="7" fill="currentColor" />
-      <rect x="31.5" y="1.5" width="7" height="7" fill="currentColor" />
-      <rect x="1.5" y="31.5" width="7" height="7" fill="currentColor" />
-      <rect x="31.5" y="31.5" width="7" height="7" fill="currentColor" />
-    </svg>
-  );
-}
 
 function CopyButton({ text, label, big }: { text: string; label: string; big?: boolean }) {
   const [copied, setCopied] = useState(false);
@@ -413,13 +394,13 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
       heading="What do you want to make?"
       help="Messy is fine."
       placeholder="A puzzle game where you pick a photo and drag the pieces back together."
-      submitLabel="Start"
+      submitLabel={mode === "home" ? "Step into the Ring" : "Start"}
       rows={5}
       value={description}
       onValueChange={setDescription}
       onSubmit={handleShape}
       inputRef={shapeRef}
-      starters={STARTERS}
+      starters={mode === "home" ? [STARTERS[0], STARTERS[4]] : STARTERS}
       actions={
         <>
           {saved.length > 0 && (
@@ -514,9 +495,9 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
         <div className="page home-page">
           <section className="home-hero">
             <div className="hero-copy">
-              <span className="stage-mark">A place to make things</span>
+              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>From idea to real.</span></span></div>
               <h1>Bring the idea.<br /><span>Leave with something real.</span></h1>
-              <p>Describe what you want to create. Step In The Ring helps you shape it, build it, and keep moving until it works.</p>
+              <p>A rough idea is enough. Shape it, build it, and make it work.</p>
             </div>
             <div className="home-entry">{theBox}</div>
           </section>
@@ -524,25 +505,25 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="section-intro"><span className="kicker">Choose your first move</span><h2 id="paths-heading">Start where you are.</h2></div>
             <div className="path-grid">
               {[
-                ["build", "Build something", "Turn an idea into a working app or site.", "/build", "→"],
-                ["create", "Create something", "Make a game, story, song, design, or more.", "/create", "✦"],
-                ["solve", "Solve or plan something", "Work through a problem, project, or next step.", "/engines", "◇"],
+                ["build", "Build something", "Turn an idea into a working app or site.", "/build", "build"],
+                ["create", "Create something", "Make a game, story, song, design, or more.", "/create", "create"],
+                ["solve", "Solve or plan something", "Work through a problem, project, or next step.", "/engines", "solve"],
               ].map(([id, title, text, href, icon]) => (
                 <Link className="path-card" href={href} key={id}>
-                  <span className={`path-icon path-icon-${id}`} aria-hidden="true">{icon}</span>
+                  <span className={`path-icon path-icon-${id}`} aria-hidden="true"><WorkshopIcon kind={icon} /></span>
                   <span><strong>{title}</strong><span>{text}</span><em>Begin here&nbsp; →</em></span>
                 </Link>
               ))}
             </div>
           </section>
           <section className="home-proof" aria-labelledby="proof-heading">
-            <div className="section-intro"><span className="kicker">Proof, not promises</span><h2 id="proof-heading">Made in the Ring.</h2><p>Real projects that started as a rough idea and are live today.</p></div>
-            <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true"><RingMark /></span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit project ↗</span></a>)}</div>
+            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Step In The Ring</span><h2 id="proof-heading">Made in the Ring.</h2></div></div><p>Real projects that started as a rough idea and are live today.</p></div>
+            <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true">{p.emoji}</span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit {p.name} ↗</span><span className="project-endorsement"><RingMark />Made in the Ring</span></a>)}</div>
             <Link className="text-link" href="/everything">See everything made here&nbsp; →</Link>
           </section>
-          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">A simple loop</span><h2 id="how-heading">How it works.</h2></div><div className="how-steps">{[["01","Say it","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Make it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Improve it","Keep what works. Change what doesn’t."]].map(([n,t,d])=><div className="how-step" key={n}><span>{n}</span><h3>{t}</h3><p>{d}</p></div>)}</div><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
-          <section className="home-tools" aria-labelledby="tools-heading"><div className="section-intro"><span className="kicker">Optional engines</span><h2 id="tools-heading">Need a focused starting point?</h2><p>Pick a tool when you know the kind of help you need. You can always start with the idea box instead.</p></div><div className="tool-list">{FEATURED_ENGINES.slice(0, 3).map((c)=><Link href={c.href} className="tool-row" key={c.id}><span className="tool-symbol" aria-hidden="true"><RingMark /></span><span><strong>{displayName(c)}</strong><span>{c.useWhen ?? c.what}</span></span><span aria-hidden="true">→</span></Link>)}</div><Link className="text-link" href="/engines">Explore all engines&nbsp; →</Link></section>
-          <section className="home-final"><span className="kicker">Your next move</span><h2>Bring the next idea.</h2><p>One sentence is enough to get started.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Step into the Ring&nbsp; →</button></section>
+          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">A simple loop</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Bring the idea","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Build it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Improve or finish","Refine what works. Finish when it’s ready."]].map(([n,t,d])=><li className="how-step" key={n}><span><span className="round-label">Round </span>{n}</span><h3>{t}</h3><p>{d}</p></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
+          <section className="home-tools" aria-labelledby="tools-heading"><div className="section-intro"><span className="kicker">Optional engines</span><h2 id="tools-heading">Need a focused starting point?</h2><p>Pick a tool when you know the kind of help you need. You can always start with the idea box instead.</p></div><div className="tool-list">{FEATURED_ENGINES.slice(0, 3).map((c)=><Link href={c.href} className="tool-row" key={c.id}><span className="tool-symbol" aria-hidden="true"><WorkshopIcon kind={c.id === "idea" ? "solve" : c.id === "design-shop" ? "create" : "build"} /></span><span><strong>{displayName(c)}</strong><span>{c.useWhen ?? c.what}</span></span><span aria-hidden="true">→</span></Link>)}</div><Link className="text-link" href="/engines">Explore all engines&nbsp; →</Link></section>
+          <section className="home-final"><RingMark /><span className="kicker">Your next move</span><h2>Bring the next idea.</h2><p>One sentence is enough to get started.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Step into the Ring&nbsp; →</button></section>
         </div>
       </main>
     );
