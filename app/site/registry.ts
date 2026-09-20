@@ -83,6 +83,13 @@ export interface SitePage {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SITE_PAGES: SitePage[] = [
+  {
+    path: "/products/ready-to-build",
+    name: "Ready to Build",
+    what: "Rebuild an old computer, prepare an AI workspace, and launch your first simple project. A practical starter kit, coming soon.",
+    access: "public",
+    group: "learn",
+  },
   // ── Create ─────────────────────────────────────────────────────────────
   {
     path: "/",

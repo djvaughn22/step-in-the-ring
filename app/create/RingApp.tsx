@@ -501,6 +501,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </div>
             <div className="home-entry">{theBox}</div>
           </section>
+          <section className="ready-build-promo" aria-labelledby="ready-build-title">
+            <div><span className="kicker">Your first rep starts here</span><h2 id="ready-build-title">Old computer. New possibilities.</h2><p>Ready to Build: turn the computer you already have into an AI build machine, then launch your first simple project.</p></div>
+            <Link className="btn btn-gold" href="/products/ready-to-build">Meet Ready to Build →</Link>
+          </section>
           <section className="home-paths" aria-labelledby="paths-heading">
             <div className="section-intro"><span className="kicker">Choose your first move</span><h2 id="paths-heading">Start where you are.</h2></div>
             <div className="path-grid">

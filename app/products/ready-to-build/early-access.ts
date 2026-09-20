@@ -1,0 +1,1 @@
+export const EARLY_ACCESS_HREF = "mailto:ask@openmirrorllc.com?subject=Ready%20to%20Build%20%E2%80%94%20early%20access&body=I%27m%20interested%20in%20joining%20the%20first%20Ready%20to%20Build%20release.%20Please%20send%20me%20details%20when%20it%27s%20ready.";

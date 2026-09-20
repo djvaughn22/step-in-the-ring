@@ -2807,3 +2807,10 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .site-quiet-footer a { min-width: 44px; justify-content: center; }
 .project-icon { background: color-mix(in srgb, var(--tile-accent) 24%, #eaf1f8); }
 html[data-om-theme="light"] .home-final h2 { color: #fff !important; }
+
+/* Ready to Build: a product door within the existing creation-first home. */
+.ready-build-promo { display: flex; align-items: center; gap: 32px; justify-content: space-between; padding: 30px; margin: 0 0 48px; border: 1px solid var(--accent); border-radius: 20px; background: var(--panel); }
+.ready-build-promo h2 { margin: 10px 0; }
+.ready-build-promo p { max-width: 650px; }
+.ready-build-promo > a { flex-shrink: 0; }
+@media (max-width: 700px) { .ready-build-promo { align-items: flex-start; flex-direction: column; gap: 20px; padding: 24px; } }
