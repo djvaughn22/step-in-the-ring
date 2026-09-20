@@ -69,6 +69,13 @@ export default function LibraryClient({
           </div>
         </div>
 
+        <section className="band card card-gold" aria-labelledby="ready-kit-heading">
+          <span className="kicker">A practical starter kit · Coming soon</span>
+          <h2 id="ready-kit-heading">Ready to Build</h2>
+          <p>Rebuild an old computer, set up your AI workspace, and publish a first simple project.</p>
+          <Link className="text-link" href="/products/ready-to-build">Explore the kit →</Link>
+        </section>
+
         {listFailed && (
           <section className="band">
             <div className="card">
