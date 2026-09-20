@@ -41,3 +41,31 @@ and discovery links. There was no existing browser test runner in this repo.
 
 Deploy through the established workflow: commit and push `main`; Vercel
 builds production. Verify the public route after the deployment completes.
+
+## Computer-first introduction
+
+The page now explains Check → Protect → Rebuild → Prepare → Build → Go live
+before presenting a small, client-side first step. Windows, Mac, and Linux
+choices reveal read-only guidance for finding system details. “I’m not sure”
+provides identification clues and returns to the choices. Native buttons and
+managed heading/return focus support keyboard and screen-reader use.
+
+The continuation explains backups and explicitly says that compatibility has
+not been confirmed. No hardware scan, supported-tools verdict, data storage,
+or completed diagnostic is implied. The full readiness check remains future
+work. The existing Build Machine link is labeled as a Linux tool because its
+assessment covers a specific Linux setup, not every computer.
+
+Repeatable browser checks live in `scripts/check-ready-to-build.mjs`. Run with
+a production server on port 3001 and Playwright available, or set
+`PLAYWRIGHT_MODULE` to an existing Playwright `index.mjs`. `CHROME_PATH` can
+select a locally installed Chrome. `BASE_URL` selects production or another
+local server; `SCREENSHOTS_DIR` selects the screenshot directory.
+
+```sh
+node scripts/check-ready-to-build.mjs
+```
+
+Checks cover 320px, 768px, and 1440px in both themes, every computer path,
+keyboard activation and focus restoration, touch targets, contrast, overflow,
+anchor positions, FAQ operation, and discovery links. No form is submitted.
