@@ -69,3 +69,14 @@ node scripts/check-ready-to-build.mjs
 Checks cover 320px, 768px, and 1440px in both themes, every computer path,
 keyboard activation and focus restoration, touch targets, contrast, overflow,
 anchor positions, FAQ operation, and discovery links. No form is submitted.
+
+## Real-project evidence
+
+After the six-step explanation and computer check, before the kit contents,
+`RealProjects.tsx` explains AI-assisted development versus runtime AI costs.
+Four project cards use read-only source inspection and AI-co-authored Git
+history; see [the evidence record](ready-to-build-project-evidence.md).
+
+Cards explicitly preserve optional AI features, conditional providers, and
+source limitations. The browser suite checks the cards in both themes at all
+three widths, keyboard focus, and the four live project destinations.

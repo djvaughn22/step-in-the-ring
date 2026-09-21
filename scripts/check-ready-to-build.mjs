@@ -61,6 +61,15 @@ try {
       await layout();
       await contrast();
       await page.screenshot({ path: `${screenshots}/${theme}-${width}.png`, fullPage: true });
+      const evidence = page.locator("#real-projects");
+      assert.equal(await evidence.locator("article").count(), 4);
+      assert.deepEqual(await evidence.locator("article h3").allTextContents(), ["CrossHeartPray", "TheDJCares", "iDontCry", "WatchedNotWatched"]);
+      await evidence.screenshot({ path: `${screenshots}/real-projects-${theme}-${width}.png` });
+      for (const link of await evidence.locator("article a").all()) {
+        await link.focus();
+        assert(await link.evaluate(el => el === document.activeElement && getComputedStyle(el).outlineStyle !== "none"), "Visible keyboard focus on project links");
+      }
+
       await anchor("See the whole process", "#process");
       await anchor("Check my computer", "#computer-check");
       const options = check.getByRole("group").getByRole("button");
@@ -107,6 +116,11 @@ try {
     const response = await page.goto(base + route);
     assert.equal(response.status(), 200);
     assert(await page.locator('a[href="/products/ready-to-build"]').count() > 0);
+  }
+  for (const url of ["https://crossheartpray.com", "https://thedjcares.com", "https://idontcry.com/sports", "https://watchednotwatched.com"]) {
+    const response = await page.request.get(url, { timeout: 30000 });
+    assert(response.ok(), `Project link failed: ${url} (${response.status()})`);
+    console.log(`PASS project link: ${url} (${response.status()})`);
   }
   assert.deepEqual(errors, [], "Browser exceptions");
   console.log(`PASS discovery links and browser errors: ${base}`);

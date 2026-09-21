@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import RingMark from "../../site/RingMark";
 import ComputerCheck from "./ComputerCheck";
+import RealProjects from "./RealProjects";
 import styles from "./ready.module.css";
 import { EARLY_ACCESS_HREF } from "./early-access";
 
@@ -81,6 +82,8 @@ export default function ReadyToBuildPage() {
       </section>
 
       <ComputerCheck />
+
+      <RealProjects />
 
       <section id="included" className={styles.section} aria-labelledby="kit-heading"><div className={styles.sectionIntro}><span className="kicker">The eventual Ready to Build kit</span><h2 id="kit-heading">What you will get help with</h2><p>The planned kit will help you decide whether your computer can run a suitable operating system and tools such as VS Code, Git, GitHub, Claude Code, Codex, and Vercel. Then it will walk you through a first small project, with checklists to follow and prompts to adapt.</p><p className={styles.small}>Planned contents for the founding release. The kit is in preparation and is not available to download yet.</p></div><div className={styles.threeColumns}>{kit.map(group => <article className={styles.kitCard} key={group.title}><h3>{group.title}</h3><ul>{group.items.map(item => <li key={item}>{item}</li>)}</ul></article>)}</div><div className={styles.note}><strong>One prompt starts the work. You stay in charge.</strong><p>The planned process includes checkpoints to review, test, and approve what goes live. The seven-day path will help you improve what you made, one small rep at a time.</p></div></section>
 

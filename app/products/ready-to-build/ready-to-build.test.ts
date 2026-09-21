@@ -38,7 +38,7 @@ describe("Ready to Build", () => {
     expect(hero.querySelector('a[href="#process"]')?.textContent).toContain("See the whole process");
     expect(hero.querySelector('a[href^="mailto:"]')).toBeNull();
     const sections = [...doc.querySelectorAll("main > section")].map(el => el.id);
-    expect(sections.slice(0, 3)).toEqual(["process", "computer-check", "included"]);
+    expect(sections.slice(0, 4)).toEqual(["process", "computer-check", "real-projects", "included"]);
     expect(doc.querySelector("#process h2")?.textContent).toBe("What this page is for");
     expect(doc.querySelector("#process")?.textContent).toContain("not a promise that every old computer can do everything");
     expect([...doc.querySelectorAll("#process h3")].map(el => el.textContent)).toEqual(["Check it", "Protect it", "Rebuild it", "Prepare it", "Build it", "Go live"]);
