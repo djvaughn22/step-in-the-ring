@@ -21,9 +21,9 @@ import BuildsClient from "./BuildsClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Your builds",
-  description: "What you're making, and the next real move on each one.",
-  robots: { index: false, follow: false, nocache: true },
+  title: "Owner’s Builds",
+  description: "Explore the live websites, tools, games, experiments, and products built through the Step In The Ring process.",
+  robots: { index: true, follow: true },
 };
 
 export default async function BuildsPage({

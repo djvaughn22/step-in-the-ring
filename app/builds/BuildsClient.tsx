@@ -21,6 +21,7 @@ import { deleteCurrentCreationIfMatches, loadCurrentCreation, viewOf } from "../
 import type { CreationRecordV1 } from "../creation/types";
 import { shapingFromView } from "../vnext/shape";
 import { DeleteBuildControl } from "./DeleteBuildControl";
+import OwnerBuildsShowroom from "./OwnerBuildsShowroom";
 
 /* Where this build actually is. A filled track says it at a glance; the old
    row of pills made every stage look equally true. */
@@ -254,6 +255,9 @@ export default function BuildsClient({
   return (
     <main>
       <div className="page">
+        <OwnerBuildsShowroom />
+
+        <div className="owner-personal-builds" id="your-builds">
         <header className="mast">
           <span className="kicker">Builds</span>
           <h1 className="mast-title">
@@ -392,6 +396,7 @@ export default function BuildsClient({
           <Link href="/library" className="more">Library</Link>. The tools are on{" "}
           <Link href="/engines" className="more">Engines</Link>.
         </p>
+        </div>
       </div>
     </main>
   );
