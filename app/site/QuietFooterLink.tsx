@@ -28,7 +28,7 @@ export default function QuietFooterLink() {
   return (
     <div className="site-quiet-footer">
       <Link href="/" className="footer-brand"><RingMark />Step In The Ring</Link>
-      <nav aria-label="Step In The Ring footer"><Link href="/create">Create</Link><Link href="/builds">My Builds</Link><Link href="/account">Account</Link></nav>
+      <nav aria-label="Step In The Ring footer"><Link href="/create">Create</Link><Link href="/builds">Owner&apos;s Builds</Link><Link href="/account">Account</Link></nav>
       <p>
         <Link href="/everything">Everything on this site</Link>
       </p>

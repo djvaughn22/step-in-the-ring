@@ -37,7 +37,7 @@ export default function ToolFooter({
           Start a build from this
         </Link>
         <Link className="btn btn-ghost btn-small" href="/builds">
-          Your builds
+          Owner&apos;s Builds
         </Link>
         <Link className="btn btn-ghost btn-small" href="/engines">
           All engines

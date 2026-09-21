@@ -154,7 +154,7 @@ describe("the menu", () => {
     expect(navPages().map((p) => p.name)).toEqual([
       "Create",
       "Engines",
-      "Builds",
+      "Owner’s Builds",
       "Library",
     ]);
   });

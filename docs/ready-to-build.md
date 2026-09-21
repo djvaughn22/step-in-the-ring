@@ -80,3 +80,12 @@ history; see [the evidence record](ready-to-build-project-evidence.md).
 Cards explicitly preserve optional AI features, conditional providers, and
 source limitations. The browser suite checks the cards in both themes at all
 three widths, keyboard focus, and the four live project destinations.
+
+## Owner’s Builds showroom
+
+The public `/builds` route now leads with the Owner’s Builds showroom and keeps
+the existing signed-in personal workspace below it. The showroom registry is
+`app/builds/owner-builds.ts`; every entry has a verified live or internal
+destination, category, lesson, and status. Featured cards, category filters,
+and the Ready to Build / creation CTAs are rendered by
+`OwnerBuildsShowroom.tsx`. No sibling repository was edited.

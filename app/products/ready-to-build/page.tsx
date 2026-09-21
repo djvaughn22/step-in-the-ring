@@ -51,7 +51,7 @@ const faqs = [
 export default function ReadyToBuildPage() {
   return (
     <main className={styles.page}>
-      <Link className="breadcrumb" href="/library">← Library</Link>
+      <Link className="breadcrumb" href="/builds">← Owner&apos;s Builds</Link>
       <header className={styles.hero}>
         <div>
           <span className="kicker">Have an old computer?</span>
