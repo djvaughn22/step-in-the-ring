@@ -318,6 +318,46 @@ export const SITE_PAGES: SitePage[] = [
     access: "owner",
     group: "owner",
   },
+  {
+    path: "/uat/digital-front-desk",
+    name: "Digital Front Desk",
+    what: "Private UAT overview: an operational front-desk demo for a small business, feature-flagged and open to anyone (its owner-only rooms gate themselves).",
+    access: "public",
+    group: "learn",
+    noindex: true,
+  },
+  {
+    path: "/uat/digital-front-desk/request",
+    name: "Front Desk: customer intake",
+    what: "The customer request form the Digital Front Desk demo walks through — no sign-in required, the way a real customer would use it.",
+    access: "public",
+    group: "learn",
+    noindex: true,
+  },
+  {
+    path: "/uat/digital-front-desk/onboarding",
+    name: "Front Desk: onboarding preview",
+    what: "A preview of setting up a new business on the Digital Front Desk — records a lead only.",
+    access: "owner",
+    group: "owner",
+    noindex: true,
+  },
+  {
+    path: "/uat/digital-front-desk/desk",
+    name: "Front Desk: owner's desk",
+    what: "The Digital Front Desk dashboard: requests by status, assignment, notes, and next actions.",
+    access: "owner",
+    group: "owner",
+    noindex: true,
+  },
+  {
+    path: "/uat/digital-front-desk/admin",
+    name: "Front Desk: admin controls",
+    what: "Seed, export, and reset the Digital Front Desk demo data, and see what's real vs. mocked.",
+    access: "owner",
+    group: "owner",
+    noindex: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
