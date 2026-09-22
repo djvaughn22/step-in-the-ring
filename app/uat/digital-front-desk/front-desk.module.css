@@ -1,0 +1,85 @@
+.scope { min-width: 0; }
+.scope input[type="radio"], .scope input[type="checkbox"] { width: 18px; min-width: 18px; height: 18px; padding: 0; flex: 0 0 18px; accent-color: var(--accent); }
+.scope :is(input, select, textarea) { min-width: 0; }
+.scope :is(button, a, input, select, textarea):focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.scope button:disabled { cursor: wait; opacity: .6; }
+.scope :is(button, a) { touch-action: manipulation; }
+.scope main { width: 100%; }
+.scope h1 { letter-spacing: -.035em; }
+.scope p { overflow-wrap: anywhere; }
+.overview { max-width: 1120px; margin: auto; padding: 64px 28px 24px; }
+.hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 64px; align-items: center; padding-bottom: 56px; }
+.eyebrow { font-size: 11px; font-weight: 850; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin: 0 0 16px; }
+.hero h1 { font-size: clamp(32px, 4vw, 48px); line-height: 1.08; margin-bottom: 20px; }
+.lead { font-size: 23px; line-height: 1.4; font-weight: 650; margin-bottom: 16px; }
+.intro { font-size: 15px; line-height: 1.7; color: var(--muted); max-width: 440px; margin-bottom: 26px; }
+.caption, .testNote { font-size: 12px; line-height: 1.6; color: var(--muted); margin-top: 12px; }
+.workbench { padding: 28px; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; }
+.workbenchTop { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--muted); margin-bottom: 26px; }
+.workbenchTop img { width: 52px; height: 52px; }
+.paper { border-top: 3px solid var(--accent); background: var(--bg); padding: 24px; }
+.paper strong { display: block; font-size: 20px; margin: 12px 0 18px; }
+.paper div { border-top: 1px solid var(--line); padding: 14px 0; font-size: 13px; }
+.paper div:last-child { padding-bottom: 0; }
+.paper div span { font-family: var(--mono); color: var(--accent); margin-right: 16px; font-size: 11px; }
+.privateTools { border-top: 1px solid var(--line); padding: 24px 0; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.privateTools h2 { font-size: 15px; margin-bottom: 5px; }
+.privateTools p { font-size: 12px; color: var(--muted); }
+.privateTools nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.privateTools a { font-size: 13px; color: var(--muted); padding: 12px 0; text-decoration: none; }
+.privateTools a:hover { color: var(--accent); }
+.testNote { margin-top: 0; }
+.intake { max-width: 1050px; margin: auto; padding: 36px 28px 48px; }
+.back { display: inline-block; padding: 8px 0; margin-bottom: 24px; color: var(--muted); text-decoration: none; font-size: 13px; }
+.intakeLayout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 60px; align-items: start; }
+.intakeHeading h1 { font-size: 36px; line-height: 1.1; margin: 0 0 16px; }
+.intakeHeading > p:not(.eyebrow) { font-size: 14px; line-height: 1.7; color: var(--muted); }
+.note { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px !important; }
+.form { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 28px; display: grid; gap: 24px; }
+.formSection { border: 0; padding: 0; margin: 0; display: grid; gap: 18px; min-width: 0; }
+.formSection > legend { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
+.formSection + .formSection { border-top: 1px solid var(--line); padding-top: 24px; }
+.fieldPair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.urgency { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.confirmation { max-width: 640px; margin: auto; padding: 40px 24px; }
+.confirmation h1 { font-size: 34px; margin: 16px 0 12px; }
+.confirmation > p { color: var(--muted); font-size: 14px; line-height: 1.7; margin-bottom: 24px; }
+.confirmation > img { width: 48px; height: 48px; }
+.desk { max-width: 1180px; margin: auto; padding: 32px 24px 48px; }
+.deskHeader { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: center; }
+.deskHeader h1 { font-size: 32px; margin-bottom: 8px; }
+.deskHeader p { font-size: 14px; color: var(--muted); }
+.deskHeader nav { display: flex; gap: 10px; align-items: center; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 28px 0 24px; }
+.board { display: grid; gap: 24px; }
+.stageTitle { display: flex; gap: 10px; align-items: center; font-size: 14px; margin-bottom: 10px; }
+.stageTitle span { color: var(--muted); font-weight: 400; }
+.requestRow { display: grid; grid-template-columns: 1.25fr .75fr 1.5fr .75fr; gap: 20px; align-items: start; width: 100%; padding: 20px; text-align: left; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.requestRow:hover { border-color: var(--accent); background: var(--panel2); }
+.requestRow strong { font-size: 15px; display: block; }
+.requestRow small { display: block; font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 5px; }
+.rowLabel { display: block; color: var(--muted); font-size: 11px; margin-bottom: 7px; }
+.rowValue { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.attention { border-left: 3px solid #F2994A; }
+.empty { padding: 28px; border: 1px dashed var(--line2); border-radius: 12px; color: var(--muted); font-size: 14px; }
+@media (max-width: 760px) {
+  .overview { padding: 32px 20px 24px; }
+  .hero { grid-template-columns: 1fr; gap: 28px; padding-bottom: 28px; }
+  .lead { font-size: 21px; }
+  .hero h1 { margin-bottom: 16px; }
+  .hero :global(.btn) { width: 100%; }
+  .workbench { padding: 20px; }
+  .workbenchTop { margin-bottom: 16px; }
+  .paper { padding: 18px; }
+  .privateTools { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .privateTools nav { gap: 0 22px; }
+  .intake { padding: 20px 16px 40px; }
+  .intakeLayout { grid-template-columns: 1fr; gap: 24px; }
+  .intakeHeading h1 { font-size: 30px; }
+  .note { margin-top: 16px; padding-top: 14px; }
+  .form { padding: 20px 16px; }
+  .fieldPair, .urgency { grid-template-columns: 1fr; }
+  .desk { padding: 24px 16px 40px; }
+  .deskHeader h1 { font-size: 28px; }
+  .requestRow { grid-template-columns: 1fr 1fr; padding: 16px; gap: 18px; }
+}
