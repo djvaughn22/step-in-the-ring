@@ -22,6 +22,14 @@
 //     it ships in the bundle.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// One narrow exception to "no imports": the Digital Front Desk rows below
+// key their `access` off DFD_OPEN_UAT_MODE, a plain non-secret boolean
+// (app/uat/digital-front-desk/lib/openMode.ts), so this public directory
+// can never drift from what those pages actually enforce. Flipping that one
+// constant back to restore the owner gate also flips this file's public
+// description of it, in the same change.
+import { DFD_OPEN_UAT_MODE } from "../uat/digital-front-desk/lib/openMode";
+
 /**
  * The four access classes. These are different kinds of door and must never be
  * collapsed into each other — in particular, a shared preview passcode is NOT
@@ -337,25 +345,31 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/uat/digital-front-desk/onboarding",
     name: "Front Desk: onboarding preview",
-    what: "A preview of setting up a new business on the Digital Front Desk — records a lead only.",
-    access: "owner",
-    group: "owner",
+    what: DFD_OPEN_UAT_MODE
+      ? "A preview of setting up a new business on the Digital Front Desk — records a lead only. Temporarily open, no sign-in, for this UAT period."
+      : "A preview of setting up a new business on the Digital Front Desk — records a lead only.",
+    access: DFD_OPEN_UAT_MODE ? "public" : "owner",
+    group: DFD_OPEN_UAT_MODE ? "learn" : "owner",
     noindex: true,
   },
   {
     path: "/uat/digital-front-desk/desk",
     name: "Front Desk: owner's desk",
-    what: "The Digital Front Desk dashboard: requests by status, assignment, notes, and next actions.",
-    access: "owner",
-    group: "owner",
+    what: DFD_OPEN_UAT_MODE
+      ? "The Digital Front Desk dashboard: requests by status, assignment, notes, and next actions. Temporarily open, no sign-in, for this UAT period."
+      : "The Digital Front Desk dashboard: requests by status, assignment, notes, and next actions.",
+    access: DFD_OPEN_UAT_MODE ? "public" : "owner",
+    group: DFD_OPEN_UAT_MODE ? "learn" : "owner",
     noindex: true,
   },
   {
     path: "/uat/digital-front-desk/admin",
     name: "Front Desk: admin controls",
-    what: "Seed, export, and reset the Digital Front Desk demo data, and see what's real vs. mocked.",
-    access: "owner",
-    group: "owner",
+    what: DFD_OPEN_UAT_MODE
+      ? "Seed, export, and reset the Digital Front Desk demo data, and see what's real vs. mocked. Temporarily open, no sign-in, for this UAT period."
+      : "Seed, export, and reset the Digital Front Desk demo data, and see what's real vs. mocked.",
+    access: DFD_OPEN_UAT_MODE ? "public" : "owner",
+    group: DFD_OPEN_UAT_MODE ? "learn" : "owner",
     noindex: true,
   },
 ];

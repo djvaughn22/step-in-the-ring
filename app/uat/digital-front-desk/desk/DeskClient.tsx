@@ -6,6 +6,7 @@
 import styles from "../front-desk.module.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import OpenModeBanner from "../lib/OpenModeBanner";
 import { serviceName } from "../lib/business";
 import { eventLabel, formatTimeAgo, isOverdue, URGENCY_COLOR } from "../lib/display";
 import { card, inputBase, label as labelStyle, btnPrimary, btnQuiet, badge } from "../lib/ui";
@@ -67,6 +68,7 @@ export default function DeskClient() {
   return (
     <main className={styles.desk}>
       <Link className={styles.back} href="/uat/digital-front-desk">← Digital Front Desk</Link>
+      <OpenModeBanner />
       <BoardStyles />
       <div className={styles.deskHeader}>
         <div>

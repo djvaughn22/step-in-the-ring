@@ -21,15 +21,15 @@ All routes live under `/uat/digital-front-desk` and are excluded from
 public navigation:
 
 ```
-/uat/digital-front-desk              Overview and links to the rest              — public
-/uat/digital-front-desk/request      Customer intake form → confirmation         — public
-/uat/digital-front-desk/onboarding   Onboarding/configuration preview            — owner-only
-/uat/digital-front-desk/desk         Owner dashboard: requests by status         — owner-only
-/uat/digital-front-desk/admin        Seed / reset / export, mocked-vs-real list  — owner-only
+/uat/digital-front-desk              Overview and links to the rest              — public, always
+/uat/digital-front-desk/request      Customer intake form → confirmation         — public, always
+/uat/digital-front-desk/onboarding   Onboarding/configuration preview            — owner-only by design; TEMPORARILY OPEN
+/uat/digital-front-desk/desk         Owner dashboard: requests by status         — owner-only by design; TEMPORARILY OPEN
+/uat/digital-front-desk/admin        Seed / reset / export, mocked-vs-real list  — owner-only by design; TEMPORARILY OPEN
 ```
 
-See "Access control" below for exactly what "public" and "owner-only" mean
-here and how each is enforced.
+See "Open UAT mode" and "Access control" below for exactly what each of
+those means and how it's enforced.
 
 Every page and API route carries `robots: noindex, nofollow`.
 
@@ -48,51 +48,98 @@ Set it in `.env.local` for local development:
 DIGITAL_FRONT_DESK_UAT_ENABLED=true
 ```
 
+## Open UAT mode — read this first
+
+**Current state: ON.** `DFD_OPEN_UAT_MODE` in
+`app/uat/digital-front-desk/lib/openMode.ts` is `true`. While it is, the
+owner-only surfaces below (desk, onboarding, admin — pages **and** their API
+routes) are reachable by anyone with the URL, no sign-in at all. This is a
+deliberate, reviewed decision for an early UAT/showing-around period, not a
+permanent change of the security model, and it is scoped to Digital Front
+Desk only — `/owner`, `/author`, `/projects`, `/engines/room`, and every
+other private room in this repo are completely unaffected.
+
+**What stays true regardless of this toggle:**
+- `DIGITAL_FRONT_DESK_UAT_ENABLED` is still the master kill switch. Off, and
+  every DFD route 404s — open mode or not.
+- `isOwnerAuthed()` / `isOwnerRequest()` and `dfdOwnerGate()` are all still
+  present, correct, and called. Open mode short-circuits them; it does not
+  delete or bypass their implementation. Each owner-only page still contains
+  the exact `if (!DFD_OPEN_UAT_MODE && !(await isOwnerAuthed())) redirect(...)`
+  shape, and `dfdOwnerGate(req, openMode)` still runs the real
+  `isOwnerRequest()` check whenever `openMode` is `false` — proven directly
+  by `app/api/uat/digital-front-desk/digital-front-desk-access.test.ts`'s
+  "the underlying owner check is intact" suite, which calls the gate with
+  `openMode: false` and confirms it still denies a missing/tampered cookie
+  and admits a valid one.
+- Every noindex tag, the absence from public navigation, and every
+  demo-only/temporary-storage disclosure stay exactly as described below.
+
+**What is different while this is on, stated plainly:**
+- Anyone who finds the URL can read, assign, change the status of, and add
+  notes to every request in the demo store. There is no privacy boundary
+  between different visitors' requests.
+- Anyone who finds the URL can seed, export, or wipe the entire demo store
+  from Admin.
+- The registry (`app/site/registry.ts`) reports `access: "public"` for
+  desk/onboarding/admin while this is on — keyed off the same
+  `DFD_OPEN_UAT_MODE` constant, so the public-facing description can never
+  silently drift from what the code actually enforces in either direction.
+
+**To restore the owner gate:** flip `DFD_OPEN_UAT_MODE` to `false` in
+`app/uat/digital-front-desk/lib/openMode.ts` and redeploy. That is the ONE
+controlled change — every page, every API route, and the registry's public
+description of them all flip back together, because they all read the same
+constant. No other file needs to change.
+
 ## Access control
 
+Independent of open-UAT mode, the code draws a permanent, two-tier
+distinction — this is what open mode temporarily suspends for one tier:
+
+| Route | Design intent | Right now |
+|---|---|---|
+| `/uat/digital-front-desk` (overview) | **Public, always** — feature flag only | Public |
+| `/uat/digital-front-desk/request` (customer intake + confirmation) | **Public, always** — feature flag only | Public |
+| `POST /api/uat/digital-front-desk/requests` (submit a request) | **Public, always** — feature flag only | Public |
+| `GET /api/uat/digital-front-desk/requests` (the full queue) | **Owner-only** | Open (see above) |
+| `/uat/digital-front-desk/desk` + `PATCH .../requests/[id]` | **Owner-only** | Open (see above) |
+| `/uat/digital-front-desk/onboarding` + its API | **Owner-only** | Open (see above) |
+| `/uat/digital-front-desk/admin` + its API | **Owner-only** | Open (see above) |
+
 A Digital Front Desk that required a customer to sign in before submitting a
-request would defeat its own purpose. The access model is split accordingly:
+request would defeat its own purpose — that top tier is public in every
+configuration, forever, and always has been. "Public" here means gated by
+the feature flag alone (`dfdFlagGate()` in `lib/apiGate.ts`); it never means
+"authenticated with anything weaker" — there is no auth of any kind on these
+routes, by design, matching how a production version would work.
 
-| Route | Access |
-|---|---|
-| `/uat/digital-front-desk` (overview) | **Public** — feature flag only |
-| `/uat/digital-front-desk/request` (customer intake + confirmation) | **Public** — feature flag only |
-| `POST /api/uat/digital-front-desk/requests` (submit a request) | **Public** — feature flag only |
-| `GET /api/uat/digital-front-desk/requests` (the full queue) | **Owner-only** |
-| `/uat/digital-front-desk/desk` + `PATCH .../requests/[id]` (status, assignment, notes, next action) | **Owner-only** |
-| `/uat/digital-front-desk/onboarding` + its API | **Owner-only** |
-| `/uat/digital-front-desk/admin` + its API | **Owner-only** |
+"Owner-only" (by design) means the same signed cookie (`sitr-author-session`)
+used by `/owner`, `/author`, and every other private room in this repo
+(`app/owner/session.ts`, `app/owner/gate.ts`, `app/author/auth.ts`). Normally,
+each such page checks `isOwnerAuthed()` and redirects a logged-out visitor to
+`/owner?to=<page>`; each such API route checks `isOwnerRequest(req)` via
+`dfdOwnerGate()` and answers a generic `404` otherwise — no distinct "wrong
+password" signal that would confirm the route exists. `lib/apiGate.ts`
+deliberately exposes two differently-named functions (`dfdFlagGate` vs.
+`dfdOwnerGate`) rather than one gate with a boolean parameter, so a route
+picking the wrong one is a visible, named mistake in a diff rather than a
+flipped default.
 
-"Public" here means gated by the feature flag alone (`dfdFlagGate()` in
-`lib/apiGate.ts`) — never search-indexed, never linked from public
-navigation, but reachable by anyone who has the URL, the way a real customer
-reaches an intake form. It never means "authenticated with anything weaker";
-there is no auth of any kind on these routes, by design, matching how a
-production version would work.
-
-"Owner-only" means the same signed cookie (`sitr-author-session`) used by
-`/owner`, `/author`, and every other private room in this repo
-(`app/owner/session.ts`, `app/owner/gate.ts`, `app/author/auth.ts`). Each
-owner-only page checks `isOwnerAuthed()` itself and redirects a logged-out
-visitor to `/owner?to=<page>`; each owner-only API route checks
-`isOwnerRequest(req)` via `dfdOwnerGate()` and answers a generic `404`
-otherwise — no distinct "wrong password" signal that would confirm the
-route exists. `lib/apiGate.ts` deliberately exposes two differently-named
-functions (`dfdFlagGate` vs. `dfdOwnerGate`) rather than one gate with a
-boolean parameter, so a route picking the wrong one is a visible, named
-mistake in a diff rather than a flipped default.
-
-Two source-level test suites hold this split in place:
-`app/uat/digital-front-desk/access-model.test.ts` asserts the public pages
-and the intake API never reference the owner gate, and the owner-only
-surfaces always do; `app/api/uat/digital-front-desk/digital-front-desk-access.test.ts`
-exercises the real route handlers end to end (submit with no cookie, confirm
-it's owner-visible, confirm every mutating/listing route 404s without a
-cookie and succeeds with one).
+Three source-level/functional test suites hold all of this in place:
+`app/uat/digital-front-desk/access-model.test.ts` (the public pages never
+reference the owner gate; the owner-only pages still carry the real
+`isOwnerAuthed`-and-redirect shape in source, guarded by
+`DFD_OPEN_UAT_MODE`); `app/api/uat/digital-front-desk/digital-front-desk-access.test.ts`
+(the real route handlers, both the current open behavior AND the underlying
+gate logic exercised directly with `openMode: false`); and `registry.test.ts`
+(the registry's public `access` value agrees with each page's own
+enforcement).
 
 Nothing here is guarded against spam or abuse beyond ordinary input
-validation — there is no rate limiting on the public intake endpoint. That
-is an accepted gap for this UAT, not an oversight; see "Not built yet"
+validation — there is no rate limiting on the public intake endpoint, and
+while open mode is on, no rate limiting on Admin's seed/reset/export either.
+That is an accepted gap for this UAT, not an oversight; see "Not built yet"
 below.
 
 ## Data model
@@ -151,9 +198,13 @@ click from view.
 - Server-side request storage, readable from any device during the session
 - Status changes, assignment, internal notes, next-action + due date
 - The append-only audit timeline
-- Public intake with no auth of any kind, and a real owner-session gate on
-  every operational page and API route (see the access table above)
+- Public intake with no auth of any kind — permanent, by design
 - The feature flag, `noindex`, and exclusion from public navigation
+
+**Temporarily open, not removed:**
+- The owner-session gate on the desk, onboarding, and admin — see "Open UAT
+  mode" above. The gate's code is real and tested; it's switched off by one
+  named constant for this early UAT period.
 
 **Mocked:**
 - Customer email/SMS updates and review requests: logging a
@@ -174,23 +225,32 @@ click from view.
 
 | | iDontCry | Step In The Ring |
 |---|---|---|
-| Customer intake | Open (no auth of any kind) | Open (no auth of any kind) — same as iDontCry here |
-| Owner/admin access | Deliberately open too — privacy came from the flag + `noindex` + no nav link only | **Real owner session required** — this is the actual difference |
+| Customer intake | Open (no auth of any kind) | Open (no auth of any kind) — same as iDontCry here, permanently |
+| Owner/admin access, by design | Deliberately open too — privacy came from the flag + `noindex` + no nav link only | **Real owner session required** by design — but see "Open UAT mode" above: temporarily suspended |
 | Persistence | Browser `localStorage` | Server-side, in-memory (see limits above) |
 | Business templates | Two (one unused, to prove configurability) | One; the onboarding preview covers that job |
-| Registered as pages | No site-wide page registry exists there | Every route is listed in `app/site/registry.ts` with the matching `access` value (`"public"` or `"owner"`), so a test (`registry.test.ts`) fails if any Digital Front Desk page is ever left unprotected, mislabeled, or orphaned |
+| Registered as pages | No site-wide page registry exists there | Every route is listed in `app/site/registry.ts` with the matching `access` value (`"public"` or `"owner"`, live-updated by `DFD_OPEN_UAT_MODE`), so a test (`registry.test.ts`) fails if any Digital Front Desk page is ever left unprotected, mislabeled, or orphaned |
 
-An earlier pass of this port gated the ENTIRE feature — including customer
-intake — behind the owner session, reasoning that this was still a private
-walkthrough rather than a live product. That was corrected: a Digital Front
-Desk that makes a customer sign in to submit a request isn't demonstrating
-the product it claims to be. The split above is final for this UAT. If
-either half ever needs to move (say, intake gets a CAPTCHA or rate limit
-before going fully live), the registry's `access` value, the page's own
-gate, and the API route's gate all need to change together — see
-`registry.test.ts`'s "registry agrees with the real enforcement" tests and
-`access-model.test.ts`, both of which fail loudly if any of the three drift
-apart.
+This access model has gone through three passes, in this order — worth
+knowing if you're reading old commits or old versions of this doc:
+1. Gate the ENTIRE feature, including customer intake, behind the owner
+   session — reasoning it was still a private walkthrough. Corrected: a
+   Digital Front Desk that makes a customer sign in to submit a request
+   isn't demonstrating the product it claims to be.
+2. Split it: intake public, everything operational (desk/onboarding/admin)
+   owner-only — the permanent design intent described in "Access control"
+   above.
+3. **Current:** keep that same permanent design in the code, but add
+   `DFD_OPEN_UAT_MODE` to temporarily suspend the owner-only half for an
+   early showing-around period, restorable with one constant flip — see
+   "Open UAT mode" above.
+
+If the *permanent* design itself ever needs to change (say, intake gets a
+CAPTCHA or rate limit before going fully live), the registry's `access`
+value, the page's own gate, and the API route's gate all need to change
+together — see `registry.test.ts`'s "registry agrees with the real
+enforcement" tests and `access-model.test.ts`, both of which fail loudly if
+any of the three drift apart.
 
 ## Testing
 
@@ -206,17 +266,28 @@ npm run build          # also runs scripts/scan-public-bundles.mjs (postbuild)
 
 ## Verification checklist
 
+With `DFD_OPEN_UAT_MODE = true` (current state):
+
 - [ ] `/uat/digital-front-desk` and `/uat/digital-front-desk/request` 404 with the flag unset
 - [ ] With the flag set, a **logged-out** visitor can open the intake form and submit a valid request
 - [ ] That visitor sees the confirmation page with a confirmation number — with no login at any point
 - [ ] Intake form validates and rejects an incomplete submission with visible errors
-- [ ] The submitted request is **not** visible to a logged-out visitor anywhere (no public listing/lookup route exists)
-- [ ] After owner login, the same request appears on the owner's desk
-- [ ] A logged-out visitor hitting `/uat/digital-front-desk/desk` or `/admin` is redirected to `/owner`, never shown the content
-- [ ] `GET`/`PATCH` on the requests API, and both onboarding and admin APIs, 404 with no owner cookie
-- [ ] Status, assignment, notes, and next-action changes persist and show on the timeline
-- [ ] A completed/paid request offers the simulated review-request action
-- [ ] Admin seed/reset/export work, and the stats tiles reflect the change
-- [ ] With the flag off, **every** route 404s regardless of owner login — including the public intake POST
+- [ ] A logged-out visitor can open `/desk`, `/onboarding`, and `/admin` directly — each shows the open-UAT banner
+- [ ] The submitted request appears on the desk with no login required
+- [ ] Status, assignment, notes, and next-action changes work with no login required
+- [ ] Admin seed/reset/export work with no login required, and the stats tiles reflect the change
+- [ ] `GET`/`PATCH` on the requests API, and both onboarding and admin APIs, succeed with no owner cookie
+- [ ] With the flag off, **every** route still 404s regardless — including the public intake POST and every open-mode route
 - [ ] Every route is `noindex, nofollow` and absent from the public nav bar and the Everything directory's public bands
 - [ ] Public Step In The Ring pages are unchanged
+
+To confirm the gate is really just switched off, not gone (no production
+password needed for this — it's a source-level/unit check):
+
+- [ ] `access-model.test.ts` passes — the owner-checking shape is still present in each owner-only page's source
+- [ ] `digital-front-desk-access.test.ts`'s "the underlying owner check is intact" suite passes — `dfdOwnerGate(req, false)` still denies a missing/tampered cookie and admits a valid one
+
+After flipping `DFD_OPEN_UAT_MODE` back to `false` (restoring the gate),
+re-run this checklist expecting the pre-open-mode behavior: logged-out
+visitors redirected/404'd on desk/onboarding/admin, and only a real owner
+session getting through.

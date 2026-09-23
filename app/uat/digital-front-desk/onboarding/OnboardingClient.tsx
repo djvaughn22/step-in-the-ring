@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { card, inputBase, label as labelStyle, btnPrimary } from "../lib/ui";
+import OpenModeBanner from "../lib/OpenModeBanner";
 import type { OnboardingApplication, OnboardingPlan } from "../lib/types";
 
 const PLANS: { value: OnboardingPlan; name: string; what: string }[] = [
@@ -50,6 +51,7 @@ export default function OnboardingClient() {
   if (submitted) {
     return (
       <main style={{ maxWidth: 560, margin: "0 auto", padding: "40px 18px 72px", textAlign: "center" }}>
+        <OpenModeBanner />
         <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 8px" }}>Preview application saved</h1>
         <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 20px" }}>
@@ -67,6 +69,7 @@ export default function OnboardingClient() {
 
   return (
     <main style={{ maxWidth: 560, margin: "0 auto", padding: "32px 18px 72px" }}>
+      <OpenModeBanner />
       <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>
         Preview only
       </p>
