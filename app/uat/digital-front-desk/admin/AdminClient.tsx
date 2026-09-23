@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { STAGE_LABEL, PIPELINE_STAGES } from "../lib/types";
 import { card, btnPrimary, btnQuiet } from "../lib/ui";
+import OpenModeBanner from "../lib/OpenModeBanner";
 
 interface Stats {
   requestCount: number;
@@ -84,6 +85,7 @@ export default function AdminClient() {
 
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: "28px 18px 72px" }}>
+      <OpenModeBanner />
       <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>
         Digital Front Desk
       </p>
@@ -136,20 +138,26 @@ export default function AdminClient() {
 
       <Section title="Access">
         <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 8px" }}>
-          <strong>Public, no sign-in:</strong> the overview page and the customer intake form + confirmation — a
-          real customer is never asked to authenticate to submit a request.
+          <strong>Always public, no sign-in:</strong> the overview page and the customer intake form + confirmation
+          — a real customer is never asked to authenticate to submit a request.
+        </p>
+        <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 8px" }}>
+          <strong>This admin panel, the owner&rsquo;s desk, and the onboarding preview</strong> normally require the
+          same owner session used across the rest of this site
+          (<Link href="/owner" style={{ color: "var(--gold)" }}>/owner</Link>). <strong>Right now they don&rsquo;t</strong> —
+          see the open-UAT notice above. That check still exists in code and can be restored with one change; it&rsquo;s
+          switched off only for this early walkthrough period.
         </p>
         <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
-          <strong>Owner-only:</strong> this admin panel, the owner&rsquo;s desk (listing, reading, and changing any
-          request), and the onboarding preview — all gated by the same owner session used across the rest of this
-          site (<Link href="/owner" style={{ color: "var(--gold)" }}>/owner</Link>). Every page and API route also
-          carries the feature flag and a <code>noindex, nofollow</code> tag.
+          Every DFD page and API route still carries the feature flag (the one switch that hides all of this
+          instantly) and a <code>noindex, nofollow</code> tag.
         </p>
       </Section>
 
       <Section title="What's implemented vs. mocked">
         <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
-          <li><strong>Real:</strong> intake validation, server-side request storage, status/assignment/notes/next-action changes, the audit timeline, and the owner-session gate.</li>
+          <li><strong>Real:</strong> intake validation, server-side request storage, status/assignment/notes/next-action changes, and the audit timeline.</li>
+          <li><strong>Temporarily open, not removed:</strong> the owner-session gate on this panel, the desk, and onboarding — the code is intact, just switched off for this early UAT period (see the notice above).</li>
           <li><strong>Mocked:</strong> customer email/SMS and review requests are logged as events only — nothing is actually sent. Scheduling is a plain date field, not a calendar integration.</li>
           <li><strong>Not built yet:</strong> a real database (this resets on server restart), payments, file/photo uploads, multi-business or multi-team support, and a full onboarding flow (the onboarding page is a lead-capture preview only).</li>
         </ul>

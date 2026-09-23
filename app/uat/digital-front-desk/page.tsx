@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import RingMark from "../../site/RingMark";
 import { isOwnerAuthed } from "../../owner/session";
+import { DFD_OPEN_UAT_MODE } from "./lib/openMode";
 import styles from "./front-desk.module.css";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +26,15 @@ export default async function DigitalFrontDeskLanding() {
           <div className={styles.paper}><span className={styles.eyebrow}>The path of a request</span><strong>Start with what you need.</strong><div><span>01</span> Request received</div><div><span>02</span> A person takes ownership</div><div><span>03</span> A clear next step</div></div>
         </div>
       </section>
-      <aside className={styles.privateTools} aria-label="Private owner tools">
-        <div><h2>Owner tools</h2><p>Private workspace · Sign-in required</p></div>
+      <aside className={styles.privateTools} aria-label="Owner tools">
+        <div>
+          <h2>Owner tools</h2>
+          <p>
+            {DFD_OPEN_UAT_MODE
+              ? "Normally sign-in required — open for this UAT period."
+              : "Private workspace · Sign-in required"}
+          </p>
+        </div>
         <nav aria-label="Owner tools"><Link href="/uat/digital-front-desk/desk">Owner’s desk →</Link><Link href="/uat/digital-front-desk/onboarding">Onboarding</Link><Link href="/uat/digital-front-desk/admin">Admin controls</Link>{owner && <Link href="/owner">Owner hub</Link>}</nav>
       </aside>
       <p className={styles.testNote}>Product test: requests are temporary. No service is booked and no messages are sent.</p>

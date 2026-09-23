@@ -17,7 +17,7 @@ const ROOMS = [
   { href: "/owner/tester-codes", emoji: "🎟️", name: "Tester codes", what: "Create, view and revoke private-beta membership codes." },
   { href: "/owner/feedback", emoji: "🗣️", name: "Tester feedback", what: "Every structured feedback submission, newest first." },
   { href: "/owner/sprint-applications", emoji: "🥊", name: "Sprint applications", what: "Every application to the paid Five Hour Sprint service, newest first." },
-  { href: "/uat/digital-front-desk", emoji: "🛎️", name: "Digital Front Desk", what: "Private UAT — an operational front-desk demo for a small business. Feature-flagged; 404s unless enabled." },
+  { href: "/uat/digital-front-desk", emoji: "🛎️", name: "Digital Front Desk", what: "An operational front-desk demo for a small business. Feature-flagged; 404s unless enabled. Currently in open-UAT mode — desk/onboarding/admin don't require sign-in right now (see Admin controls)." },
 ];
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
