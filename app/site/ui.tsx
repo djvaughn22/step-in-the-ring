@@ -162,7 +162,7 @@ export function Tile({ p }: { p: EcosystemProject }) {
       <p className="tile-what">{p.what}</p>
       <span className="tile-foot">
         <span className={p.status === "live" ? "dot" : "dot dot-building"} />
-        {p.status === "live" ? "Live" : "Building"}
+        {p.status === "live" ? "Live" : p.status === "retired" ? "Archived" : "Building"}
         <span className="tile-open">Open</span>
       </span>
     </>

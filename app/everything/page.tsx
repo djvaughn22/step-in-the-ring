@@ -9,9 +9,9 @@
 // once, at the bottom, as evidence — and the company's own directory is a
 // link, not a section.
 //
-// Nothing here is hidden by accident. Every page of this site is listed,
-// including the ones you can't open, with a plain label saying what kind of
-// door is in front of it. Listing a door is not opening it: owner tools check
+// Nothing here is hidden by accident. Every public, member and preview page
+// is listed with a plain label saying what kind of door is in front of it.
+// Owner tools are listed only to the signed-in owner. Listing a door is not opening it: owner tools check
 // the owner session on the server and are unaffected by anything on this page.
 //
 // It reads entirely from app/site/registry.ts. Never hand-add a link here.
@@ -30,6 +30,7 @@ import {
 import { Sheet, Masthead, Band, Jump, Rows, Row, Tiles, Tile } from "../site/ui";
 import { isPreviewAuthorized, previewPasscode } from "../preview/previewAuth";
 import { externalPreviewHref } from "../preview/healthHandoff";
+import { isOwnerAuthed } from "../owner/session";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,10 @@ function PageRows({ pages }: { pages: SitePage[] }) {
 export default async function EverythingPage() {
   const featured = ECOSYSTEM.filter((p) => p.featured && p.liveUrl);
   const unlocked = await isPreviewAuthorized();
+  // Owner tools are findable only by the owner (owner decision, Sep 30). A
+  // visitor never sees the section or its jump link; the pages still check
+  // the owner session themselves, so this is tidiness, not the lock.
+  const owner = await isOwnerAuthed();
 
   return (
     <Sheet wide>
@@ -77,7 +82,7 @@ export default async function EverythingPage() {
             { label: "Proof", href: "#proof" },
             { label: "Previews", href: "#previews" },
             { label: "Account", href: "#account" },
-            { label: "Owner", href: "#owner" },
+            ...(owner ? [{ label: "Owner", href: "#owner" }] : []),
           ]}
         />
       </Masthead>
@@ -152,13 +157,15 @@ export default async function EverythingPage() {
         <PageRows pages={pagesInGroup("account")} />
       </Band>
 
-      <Band
-        id="owner"
-        title="Owner tools"
-        note="Listed so this page is not lying by leaving them out. Each one checks the owner's own sign-in on the server. A preview passcode never reaches them."
-      >
-        <PageRows pages={pagesInGroup("owner")} />
-      </Band>
+      {owner && (
+        <Band
+          id="owner"
+          title="Owner tools"
+          note="Shown because you are signed in as the owner. Each one checks the owner's own sign-in on the server. A preview passcode never reaches them."
+        >
+          <PageRows pages={pagesInGroup("owner")} />
+        </Band>
+      )}
 
       <Band
         id="made"

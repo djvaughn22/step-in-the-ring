@@ -57,7 +57,7 @@ export default function ExplorePage() {
               <h2 className="feature-name">{featured.name}</h2>
               <p className="feature-what">{featured.what}</p>
               <p className="feature-real">{featured.real}</p>
-              <span className="btn btn-gold">Open the arcade</span>
+              <span className="btn btn-gold">Open iDontCry</span>
             </div>
             <div className="feature-art" aria-hidden="true">
               {featured.emoji}

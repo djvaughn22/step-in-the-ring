@@ -22,13 +22,9 @@
 //     it ships in the bundle.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// One narrow exception to "no imports": the Digital Front Desk rows below
-// key their `access` off DFD_OPEN_UAT_MODE, a plain non-secret boolean
-// (app/uat/digital-front-desk/lib/openMode.ts), so this public directory
-// can never drift from what those pages actually enforce. Flipping that one
-// constant back to restore the owner gate also flips this file's public
-// description of it, in the same change.
-import { DFD_OPEN_UAT_MODE } from "../uat/digital-front-desk/lib/openMode";
+// Digital Front Desk is not listed here: it moved to iDontCry Dream Labs
+// (https://idontcry.com/digital-front-desk) at the end of September, and the old
+// /uat/digital-front-desk paths redirect there from next.config.ts.
 
 /**
  * The four access classes. These are different kinds of door and must never be
@@ -326,52 +322,6 @@ export const SITE_PAGES: SitePage[] = [
     access: "owner",
     group: "owner",
   },
-  {
-    path: "/uat/digital-front-desk",
-    name: "Digital Front Desk",
-    what: "Private UAT overview: an operational front-desk demo for a small business, feature-flagged and open to anyone (its owner-only rooms gate themselves).",
-    access: "public",
-    group: "learn",
-    noindex: true,
-  },
-  {
-    path: "/uat/digital-front-desk/request",
-    name: "Front Desk: customer intake",
-    what: "The customer request form the Digital Front Desk demo walks through — no sign-in required, the way a real customer would use it.",
-    access: "public",
-    group: "learn",
-    noindex: true,
-  },
-  {
-    path: "/uat/digital-front-desk/onboarding",
-    name: "Front Desk: onboarding preview",
-    what: DFD_OPEN_UAT_MODE
-      ? "A preview of setting up a new business on the Digital Front Desk — records a lead only. Temporarily open, no sign-in, for this UAT period."
-      : "A preview of setting up a new business on the Digital Front Desk — records a lead only.",
-    access: DFD_OPEN_UAT_MODE ? "public" : "owner",
-    group: DFD_OPEN_UAT_MODE ? "learn" : "owner",
-    noindex: true,
-  },
-  {
-    path: "/uat/digital-front-desk/desk",
-    name: "Front Desk: owner's desk",
-    what: DFD_OPEN_UAT_MODE
-      ? "The Digital Front Desk dashboard: requests by status, assignment, notes, and next actions. Temporarily open, no sign-in, for this UAT period."
-      : "The Digital Front Desk dashboard: requests by status, assignment, notes, and next actions.",
-    access: DFD_OPEN_UAT_MODE ? "public" : "owner",
-    group: DFD_OPEN_UAT_MODE ? "learn" : "owner",
-    noindex: true,
-  },
-  {
-    path: "/uat/digital-front-desk/admin",
-    name: "Front Desk: admin controls",
-    what: DFD_OPEN_UAT_MODE
-      ? "Seed, export, and reset the Digital Front Desk demo data, and see what's real vs. mocked. Temporarily open, no sign-in, for this UAT period."
-      : "Seed, export, and reset the Digital Front Desk demo data, and see what's real vs. mocked.",
-    access: DFD_OPEN_UAT_MODE ? "public" : "owner",
-    group: DFD_OPEN_UAT_MODE ? "learn" : "owner",
-    noindex: true,
-  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -470,9 +420,9 @@ export const ECOSYSTEM: EcosystemProject[] = [
   {
     name: "iDontCry",
     emoji: "😂",
-    what: "An arcade where an idea becomes a game you can actually play on a phone.",
+    what: "iDontCry Dream Labs: a family sports desk, an arcade of phone games, and playful experiments.",
     who: "Kids, families, and anyone with five minutes.",
-    real: "Circuit, Football, Baseball, Skiing, Track & Field and Piano Corner are playable now, each with its own install.",
+    real: "The Sports Desk, Football, Baseball, Circuit, Piano Corner and the Dream Shop run today, plus a Digital Front Desk demo.",
     liveUrl: "https://idontcry.com",
     repoPublic: false,
     status: "live",
