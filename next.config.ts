@@ -27,9 +27,28 @@ const PRIVATE_ROUTES = [
   "/api/owner/:path*",
 ];
 
+// Digital Front Desk moved to iDontCry Dream Labs on Sep 30 2026. This repo
+// no longer holds any of its pages, API routes or request data; every old
+// page link lands on the matching page of the one canonical product. The old
+// /api/uat/digital-front-desk/* routes are simply gone (404), so nothing on
+// this site stores or returns front-desk requests any more. Temporary (307)
+// while the product is still a demo.
+const IDC_DFD = "https://idontcry.com/digital-front-desk";
+export const DIGITAL_FRONT_DESK_REDIRECTS = [
+  { source: "/uat/digital-front-desk", destination: IDC_DFD, permanent: false },
+  { source: "/uat/digital-front-desk/request", destination: `${IDC_DFD}/request`, permanent: false },
+  { source: "/uat/digital-front-desk/desk", destination: `${IDC_DFD}/desk`, permanent: false },
+  { source: "/uat/digital-front-desk/onboarding", destination: `${IDC_DFD}/onboarding`, permanent: false },
+  { source: "/uat/digital-front-desk/admin", destination: `${IDC_DFD}/admin`, permanent: false },
+  { source: "/uat/digital-front-desk/:path*", destination: IDC_DFD, permanent: false },
+];
+
 const nextConfig: NextConfig = {
   async headers() {
     return PRIVATE_ROUTES.map((source) => ({ source, headers: PRIVATE_HEADERS }));
+  },
+  async redirects() {
+    return DIGITAL_FRONT_DESK_REDIRECTS;
   },
 };
 
