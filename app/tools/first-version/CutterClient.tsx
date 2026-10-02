@@ -41,6 +41,17 @@ export default function CutterClient() {
     setState((s) => ({ ...s, items: s.items.map((i) => (i.id === id ? { ...i, bucket } : i)) }));
   }
 
+  // Sorting removes the buttons that had focus. Hand keyboard and screen
+  // reader users the next item to sort, or the finished scope when done.
+  function sortAndMoveOn(id: string, bucket: Bucket) {
+    sort(id, bucket);
+    requestAnimationFrame(() => {
+      const next = document.querySelector<HTMLButtonElement>(".ft-sort .ft-chip");
+      if (next) next.focus();
+      else document.getElementById("cut-4")?.focus();
+    });
+  }
+
   function remove(id: string) {
     setState((s) => ({ ...s, items: s.items.filter((i) => i.id !== id) }));
   }
@@ -111,7 +122,7 @@ export default function CutterClient() {
                   <span className="ft-sort-text">{item.text}</span>
                   <span className="ft-choices" role="group" aria-label={`Sort “${item.text}”`}>
                     {BUCKETS.map((b) => (
-                      <button key={b} type="button" className="ft-chip" onClick={() => sort(item.id, b)}>
+                      <button key={b} type="button" className="ft-chip" onClick={() => sortAndMoveOn(item.id, b)}>
                         {BUCKET_LABEL[b]}
                       </button>
                     ))}
@@ -161,7 +172,7 @@ export default function CutterClient() {
 
       {state.items.length > 0 && (
         <section className="ft-step" aria-labelledby="cut-4">
-          <h2 id="cut-4"><span className="ft-num">4</span>Your first version</h2>
+          <h2 id="cut-4" tabIndex={-1}><span className="ft-num">4</span>Your first version</h2>
           <pre className="ft-output">{scopeText(state)}</pre>
           <div className="ft-actions">
             <button type="button" className="btn btn-gold" onClick={copy}>Copy it</button>

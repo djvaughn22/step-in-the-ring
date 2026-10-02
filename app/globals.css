@@ -2929,3 +2929,5 @@ html[data-om-theme="light"] .ft-tool { color-scheme: light; }
 /* Each round of the loop names the free tool that helps with it. */
 .loop-tool, .how-tool { display: inline-block; margin-top: 10px; color: var(--accent); font-size: 13px; font-weight: 700; text-decoration: none; }
 .loop-tool:hover, .how-tool:hover { text-decoration: underline; text-underline-offset: 3px; }
+.ft-step h2:focus { outline: none; }
+.ft-step h2:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
