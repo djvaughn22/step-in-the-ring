@@ -10,5 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/author", "/owner", "/engines/room", "/projects", "/api/"],
     }],
+    sitemap: "https://stepinthering.com/sitemap.xml",
   };
 }

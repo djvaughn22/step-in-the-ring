@@ -137,6 +137,13 @@ export const SITE_PAGES: SitePage[] = [
     group: "engines",
   },
   {
+    path: "/tools/one-liner",
+    name: "One-line explainer",
+    what: "Turn what you made into a page title, a one-line description and a message to send with the link, in your own words.",
+    access: "public",
+    group: "engines",
+  },
+  {
     path: "/tools/launch-checklist",
     name: "Launch checklist",
     what: "The checks to run before you share a link: phone, links, privacy, a backup, and a way to reach you.",
@@ -163,7 +170,7 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     path: "/five-hour-sprint-tool",
-    name: "Five Hour Sprint",
+    name: "Five Hour Sprint planner",
     what: "Plan a single five-hour build window and walk out with the packet to run it. No account needed.",
     access: "public",
     group: "engines",

@@ -2917,3 +2917,12 @@ textarea.ft-input { resize: vertical; line-height: 1.5; }
 @media (prefers-reduced-motion: reduce) { .ft-bar span { transition: none; } }
 /* Native checkboxes and radios follow the page theme, not the dark default. */
 html[data-om-theme="light"] .ft-tool { color-scheme: light; }
+.ft-optional { color: var(--muted); font-weight: 400; }
+.ft-results { display: grid; gap: 14px; margin: 0; }
+.ft-results dt { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.ft-results dd { margin: 4px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; color: var(--text); font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+@media print {
+  .ring-bar, .om-footer, .site-quiet-footer, .ft-actions, .ft-privacy, .ft-next, .breadcrumb, body > header { display: none !important; }
+  .ft-step { border-color: #999; background: none; break-inside: avoid; }
+  .ft-input { border-color: #999; }
+}

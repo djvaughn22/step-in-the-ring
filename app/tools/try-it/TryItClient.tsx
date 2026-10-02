@@ -98,6 +98,7 @@ export default function TryItClient() {
         ))}
         <div className="ft-actions">
           <button type="button" className="btn btn-gold" onClick={copy}>Copy script and notes</button>
+          <button type="button" className="btn btn-ghost" onClick={() => window.print()}>Print it</button>
           <button type="button" className="ft-link" onClick={clearAll}>Start over</button>
         </div>
         {copied && <p className="tiny" role="status">{copied}</p>}

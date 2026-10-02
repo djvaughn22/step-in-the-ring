@@ -19,6 +19,8 @@ import {
 } from "./first-version/cutter";
 import { EMPTY_TRY_IT, buildScript, parseTryItState, scriptText } from "./try-it/script";
 import { CHECK_GROUPS, checklistText, parseChecklistState, progress, visibleGroups } from "./launch-checklist/checklist";
+import { EMPTY_EXPLAINER, explain, explainerText, isReady, lengthNotes, parseExplainerInput } from "./one-liner/explainer";
+import OneLinerPage from "./one-liner/page";
 import ToolsPage from "./page";
 import FirstVersionPage from "./first-version/page";
 import TryItPage from "./try-it/page";
@@ -134,6 +136,41 @@ describe("launch checklist", () => {
   });
 });
 
+describe("one-line explainer", () => {
+  it("builds all three lines from the person's own words", () => {
+    const e = explain({ name: "", what: "a plant swap page", who: "our garden club", helps: "trade cuttings without a group chat" });
+    expect(e.description).toBe("A plant swap page for our garden club that trades cuttings without a group chat.");
+    expect(e.title).toBe("Plant swap page for our garden club");
+    expect(e.share).toBe("I made a plant swap page for our garden club. It trades cuttings without a group chat. Would you try it and tell me what's confusing?");
+  });
+
+  it("uses the name when there is one, and handles help/to/an", () => {
+    const e = explain({ name: "Cutting Corner", what: "app", who: "for neighbors", helps: "to help neighbors swap plants" });
+    expect(e.description).toBe("Cutting Corner is an app for neighbors that helps neighbors swap plants.");
+    expect(e.title).toBe("Cutting Corner: Help neighbors swap plants");
+    expect(explain({ ...EMPTY_EXPLAINER, what: "tool", helps: "fix bikes" }).description).toBe("A tool that fixes bikes.");
+    expect(explain({ ...EMPTY_EXPLAINER, what: "list", helps: "carry the week" }).description).toBe("A list that carries the week.");
+  });
+
+  it("only produces output once the two required answers exist, and flags long text", () => {
+    expect(isReady(EMPTY_EXPLAINER)).toBe(false);
+    expect(isReady({ ...EMPTY_EXPLAINER, what: "x", helps: "y" })).toBe(true);
+    const long = explain({ name: "", what: "a very long description of a thing", who: "a very specific group of people in one town", helps: "do something that takes a lot of words to say out loud" });
+    expect(lengthNotes(long).map((n) => n.field)).toContain("title");
+    expect(explainerText({ ...EMPTY_EXPLAINER, what: "a page", helps: "sign up" })).toContain("Message to send with the link:");
+  });
+
+  it("adds no hype words of its own", () => {
+    const e = explain({ name: "", what: "a page", who: "", helps: "sign up" });
+    expect(`${e.title} ${e.description} ${e.share}`).not.toMatch(/amazing|revolutionary|best|ultimate|powerful|seamless/i);
+  });
+
+  it("parses saved state safely", () => {
+    expect(parseExplainerInput(null)).toBeNull();
+    expect(parseExplainerInput({ what: 3, helps: "x" })).toEqual({ name: "", what: "", who: "", helps: "x" });
+  });
+});
+
 describe("free tool pages", () => {
   const render = (C: () => React.ReactElement) => {
     const doc = document.implementation.createHTMLDocument();
@@ -142,7 +179,7 @@ describe("free tool pages", () => {
   };
 
   it("each tool page has one h1, the privacy note, and a way back to the list", () => {
-    for (const Page of [FirstVersionPage, TryItPage, LaunchChecklistPage]) {
+    for (const Page of [FirstVersionPage, TryItPage, LaunchChecklistPage, OneLinerPage]) {
       const doc = render(Page);
       expect(doc.querySelectorAll("h1")).toHaveLength(1);
       expect(doc.body.textContent).toContain("never sent anywhere");
@@ -153,7 +190,7 @@ describe("free tool pages", () => {
   it("the hub links every free tool to a real, public, registered page", () => {
     const doc = render(ToolsPage);
     const hrefs = [...doc.querySelectorAll<HTMLAnchorElement>(".rows a")].map((a) => a.getAttribute("href")!);
-    for (const h of ["/tools/first-version", "/tools/try-it", "/tools/launch-checklist", "/five-hour-sprint-tool", "/build", "/build-machine"]) {
+    for (const h of ["/tools/first-version", "/tools/try-it", "/tools/one-liner", "/tools/launch-checklist", "/five-hour-sprint-tool", "/build", "/build-machine"]) {
       expect(hrefs).toContain(h);
     }
     for (const h of hrefs) expect(pageAt(h.split("#")[0])?.access, h).toBe("public");

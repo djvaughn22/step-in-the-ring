@@ -32,7 +32,7 @@ export const CHECK_GROUPS: CheckGroup[] = [
       { id: "links", label: "Every button and link goes somewhere real.", why: "A dead end is the fastest way to lose someone." },
       { id: "placeholder", label: "No placeholder text is left (lorem ipsum, “TODO”, sample names).", why: "It is easy to stop seeing it after the tenth look." },
       { id: "names", label: "Names, dates and spellings are right.", why: "Small mistakes make people doubt the rest." },
-      { id: "title", label: "The title and first line say what this is, in plain words.", why: "That is what shows up when the link is shared." },
+      { id: "title", label: "The title and first line say what this is, in plain words.", why: "That is what shows up when the link is shared. The one-line explainer tool can help." },
     ],
   },
   {
