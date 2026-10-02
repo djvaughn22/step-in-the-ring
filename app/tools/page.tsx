@@ -43,7 +43,7 @@ const STAGES: { title: string; note: string; tools: ToolRow[] }[] = [
   {
     title: "Try it and share it",
     note: "When it works for you and it's time to show someone.",
-    tools: [{ href: "/tools/try-it" }, { href: "/tools/launch-checklist" }],
+    tools: [{ href: "/tools/try-it" }, { href: "/tools/one-liner" }, { href: "/tools/launch-checklist" }],
   },
 ];
 

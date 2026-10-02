@@ -14,7 +14,8 @@ const PRIVATE_ROUTES = [
   "/api/author/:path*",
   "/owner",
   "/owner/:path*",
-  "/engines",
+  // The /engines directory itself is public and the same for everyone, so
+  // it is allowed in search. The Engine Room below it is not.
   "/engines/:path*",
   "/projects",
   "/projects/:path*",

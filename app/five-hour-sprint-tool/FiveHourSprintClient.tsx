@@ -138,7 +138,7 @@ export default function FiveHourSprintClient() {
     <main>
       <div className="page">
         <header className="mast">
-          <a href="/engines#plan" className="breadcrumb">← All engines</a>
+          <a href="/tools" className="breadcrumb">← Free tools</a>
           <h1 className="mast-title">Five Hour Sprint</h1>
           <p className="fhs-pitch">
             One thing. Five hours. Make real progress.
@@ -158,6 +158,7 @@ export default function FiveHourSprintClient() {
               key={tab}
               type="button"
               className={`fhs-tab${activeTab === tab ? " active" : ""}`}
+              aria-pressed={activeTab === tab}
               onClick={() => setActiveTab(tab)}
             >
               <span className="fhs-tab-n">{i + 1}</span>
