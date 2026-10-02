@@ -213,3 +213,11 @@ describe("free tool pages", () => {
     }
   });
 });
+
+describe("loop rounds point at real free tools", () => {
+  it("has one public, registered tool for each of the five rounds", async () => {
+    const { LOOP_TOOLS } = await import("./loop");
+    expect(LOOP_TOOLS).toHaveLength(5);
+    for (const t of LOOP_TOOLS) expect(pageAt(t.href)?.access, t.href).toBe("public");
+  });
+});
