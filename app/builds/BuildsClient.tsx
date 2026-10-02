@@ -259,14 +259,14 @@ export default function BuildsClient({
 
         <div className="owner-personal-builds" id="your-builds">
         <header className="mast">
-          <span className="kicker">Builds</span>
-          <h1 className="mast-title">
-            {hasAnyBuild ? "Your builds" : "Nothing here yet"}
-          </h1>
+          {/* The showroom above owns the page's one h1; this is the visitor's
+              own half, so it is a section heading. */}
+          <span className="kicker">Your workspace</span>
+          <h2 className="mast-title">Your builds</h2>
           <p className="mast-lead">
             {hasAnyBuild
               ? "The things you're actually making. Open one and pick up where you stopped."
-              : "This is where the things you are making live, from the first sentence all the way to live on the internet."}
+              : "Nothing saved yet. When you start something, it lives here, from the first sentence all the way to live on the internet."}
           </p>
           <hr className="rule mast-rule" />
         </header>
@@ -379,8 +379,9 @@ export default function BuildsClient({
                 </Link>
               )}
               <p className="tiny" style={{ marginTop: 16 }}>
-                Or get it finished for you:{" "}
-                <Link href="/products/five-hour-sprint">the Five Hour Sprint</Link>.
+                Starting is free and needs no account. Rather have a hand finishing
+                one specific thing?{" "}
+                <Link href="/products/five-hour-sprint">Ask about a Five Hour Sprint</Link>.
               </p>
             </div>
           </section>

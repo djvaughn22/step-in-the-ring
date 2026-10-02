@@ -2850,8 +2850,14 @@ html[data-om-theme="light"] .home-final h2 { color: #fff !important; }
 .owner-showroom-cta .actions { margin-top: 20px; }
 .owner-showroom-cta .text-link { color: var(--text); }
 .owner-personal-builds { border-top: 1px solid var(--line2); padding-top: 54px; }
-.owner-personal-builds::before { content: "Your workspace"; display: block; margin-bottom: 8px; color: var(--dim); font: 11px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
 .home-proof-links { display: flex; flex-wrap: wrap; gap: 18px; }
+.home-help { padding: clamp(48px, 6vw, 76px) 0 0; }
+.help-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.help-list li { display: flex; flex-direction: column; gap: 6px; padding: 20px; border: 1px solid var(--line2); border-radius: 16px; }
+.help-list strong { color: var(--text); font-size: 16px; }
+.help-list span { flex: 1; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.help-list .text-link { margin-top: 8px; }
+@media (max-width: 760px) { .help-list { grid-template-columns: 1fr; } }
 @media (max-width: 900px) { .owner-featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .owner-build-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .owner-showroom { margin-top: -4px; } .owner-showroom-hero { padding-bottom: 38px; } .owner-showroom-hero p { font-size: 16px; } .owner-section-head { align-items: start; flex-direction: column; gap: 8px; } .owner-featured-grid, .owner-build-grid { grid-template-columns: 1fr; } .owner-showroom-cta { padding: 24px; } .owner-personal-builds { padding-top: 40px; } }
 @media (prefers-reduced-motion: reduce) { .owner-build-card, .owner-filters button { transition: none; } }

@@ -104,8 +104,8 @@ describe("deleting a signed-in account Build", () => {
       await flush();
     });
 
-    expect(text()).toContain("Nothing here yet");
-    expect(text()).not.toContain("Your builds");
+    expect(text()).toContain("Nothing saved yet");
+    expect(text()).not.toContain("Open one and pick up where you stopped");
   });
 
   it("cancel closes the confirmation and deletes nothing", async () => {
