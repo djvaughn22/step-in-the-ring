@@ -53,13 +53,13 @@ Non-route lib modules (no `page.tsx`, logic only): `app/members/*`, `app/creatio
 2. Result screen offers "Continue in <Engine>" → routes to `/engines?engine=...`.
 3. Homepage also has a direct "Or open the Engine Room" door card claiming **"Open to everyone."**
 4. Reality: `/engines` is server-gated. A non-member hitting it (from either path) is redirected to `/membership` — sign up or redeem a tester code. This contradicts the "open to everyone" claim.
-5. `/membership` page headline is framed as a **paid membership product** ($7.77/mo shown prominently, "Membership" as the H1) with private-beta framing secondary, even though billing is not live and the only real path in today is a tester code.
+5. `/membership` page headline is framed as a **paid membership product** ([monthly price] shown prominently, "Membership" as the H1) with private-beta framing secondary, even though billing is not live and the only real path in today is a tester code.
 6. No sitewide "Beta" status indicator outside individual engine cards and the membership page.
 
 ## Critical problems found
 
 1. **Messaging/reality mismatch**: homepage says the Engine Room is "Open to everyone"; the actual route gates to a signup/tester-code wall. (Fixed this session — copy corrected, gate behavior preserved.)
-2. **Customer-visible price**: `$7.77 per month` rendered on `/membership` (headline price line, metadata description, and a dormant "Join — $7.77/month" checkout button) and referenced in `MEMBERSHIP_PRICE_LABEL`. Violates locked rule 1/2. (Fixed — now `TBD`.)
+2. **Customer-visible price**: `[monthly price]` rendered on `/membership` (headline price line, metadata description, and a dormant "Join — [monthly price]nth" checkout button) and referenced in `MEMBERSHIP_PRICE_LABEL`. Violates locked rule 1/2. (Fixed — now `TBD`.)
 3. **Membership-first framing**: the gate gateway gate page leads with a paid-product identity rather than a beta-testing identity, working against "let people test the beta without being pushed into purchasing." (Softened this session: kicker/heading reordering, price → TBD, no new gating logic touched.)
 4. **Third-party cost figures**: `app/creation/profile.ts` shows a domain-registrar cost estimate (`~$10–15/year`) in generated build guidance surfaced on the homepage result view. Not Step In The Ring's own price, but still a customer-visible dollar figure. Genericized this session to remove the literal amount.
 5. No sitewide "Beta" badge in the nav/header — status is only visible on the membership page and individual engine cards.
@@ -90,9 +90,9 @@ No route invention. Existing structure is sound: `/` (free entry) → `/engines`
 
 ## Pricing surfaces found
 
-- `app/members/entitlement.ts` — `MEMBERSHIP_PRICE_LABEL` (was `"$7.77 per month"`, now `"TBD"`); `MEMBERSHIP_PRICE_CENTS = 777` left untouched (server-side dormant Stripe config, never rendered to a visitor).
+- `app/members/entitlement.ts` — `MEMBERSHIP_PRICE_LABEL` (was `"[monthly price]"`, now `"TBD"`); `MEMBERSHIP_PRICE_CENTS = 777` left untouched (server-side dormant Stripe config, never rendered to a visitor).
 - `app/membership/page.tsx` — headline price line + metadata description.
-- `app/membership/MembershipClient.tsx` — dormant `"Join — $7.77 per month"` button, only rendered when `billingLive` is true (currently false; Stripe not configured — DJ owes Stripe test keys per prior session memory).
+- `app/membership/MembershipClient.tsx` — dormant `"Join — [monthly price]"` button, only rendered when `billingLive` is true (currently false; Stripe not configured — DJ owes Stripe test keys per prior session memory).
 - `app/creation/profile.ts` — two domain-registrar cost mentions (`~$10–15/year`), genericized.
 - No other customer-visible dollar amounts found in `app/**/*.tsx` outside test files, SQL placeholders (`$1, $2...`), and regex replacement strings (`$1`).
 
