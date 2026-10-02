@@ -43,12 +43,21 @@ export const DIGITAL_FRONT_DESK_REDIRECTS = [
   { source: "/uat/digital-front-desk/:path*", destination: IDC_DFD, permanent: false },
 ];
 
+// Usefulness-first (Oct 1 2026): nothing is sold on this site. The paid
+// Sprint service pages, its application form and the shop preview are gone;
+// their old links land on the closest free thing instead of a 404.
+export const RETIRED_SALES_REDIRECTS = [
+  { source: "/products/five-hour-sprint", destination: "/five-hour-sprint-tool", permanent: false },
+  { source: "/products/five-hour-sprint/:path*", destination: "/five-hour-sprint-tool", permanent: false },
+  { source: "/shop", destination: "/tools", permanent: false },
+];
+
 const nextConfig: NextConfig = {
   async headers() {
     return PRIVATE_ROUTES.map((source) => ({ source, headers: PRIVATE_HEADERS }));
   },
   async redirects() {
-    return DIGITAL_FRONT_DESK_REDIRECTS;
+    return [...DIGITAL_FRONT_DESK_REDIRECTS, ...RETIRED_SALES_REDIRECTS];
   },
 };
 

@@ -225,11 +225,21 @@ describe("Preservation — pre-vNext work is still findable", () => {
       "app/page.tsx", "app/about/page.tsx", "app/how/page.tsx", "app/build/page.tsx",
       "app/build-machine/page.tsx", "app/live/page.tsx", "app/engines/page.tsx",
       "app/projects/page.tsx", "app/account/page.tsx", "app/author/page.tsx",
-      "app/shop/page.tsx", "app/membership/page.tsx", "app/five-hour-sprint-tool/page.tsx",
-      "app/products/five-hour-sprint/page.tsx", "app/members/login/page.tsx",
-      "app/members/signup/page.tsx", "app/owner/page.tsx",
+      "app/membership/page.tsx", "app/five-hour-sprint-tool/page.tsx",
+      "app/members/login/page.tsx", "app/members/signup/page.tsx", "app/owner/page.tsx",
     ];
     for (const r of routes) expect(existsSync(join(ROOT, r)), `${r} was removed`).toBe(true);
+  });
+
+  it("retired sales pages still land somewhere free instead of a 404", async () => {
+    // The shop preview and the paid Sprint service pages were retired on
+    // purpose (usefulness-first, Oct 2026); their old links redirect.
+    const { RETIRED_SALES_REDIRECTS } = await import("../../next.config");
+    const sources = RETIRED_SALES_REDIRECTS.map((r) => r.source);
+    expect(sources).toEqual(expect.arrayContaining(["/shop", "/products/five-hour-sprint", "/products/five-hour-sprint/:path*"]));
+    for (const r of RETIRED_SALES_REDIRECTS) {
+      expect(existsSync(join(ROOT, "app", r.destination.slice(1), "page.tsx")), r.destination).toBe(true);
+    }
   });
 
   it("keeps the Build store's reserved engine row, or every saved Build orphans", () => {

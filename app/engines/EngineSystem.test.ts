@@ -32,7 +32,7 @@ describe("Engine Room end state — no universal Open Mirror step", () => {
     expect(src).toMatch(/\{e\.technical &&/);
     // The gated block is the only place Open Mirror is offered as an action.
     const gated = src.slice(src.indexOf("{e.technical &&"));
-    expect(gated).toMatch(/Email Open Mirror to build it/);
+    expect(gated).toMatch(/Ask about weekend help/);
     expect(gated).toMatch(/Ask Open Mirror to push it live/);
   });
 

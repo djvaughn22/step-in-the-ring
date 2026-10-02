@@ -261,16 +261,6 @@ const SURFACES: Capability[] = [
     ownerOnly: true,
     needs: ["writing room", "private", "manuscript"],
   },
-  {
-    id: "shop",
-    kind: "surface",
-    name: "Shop",
-    emoji: "🛍️",
-    what: "Things Open Mirror has made that you can buy.",
-    href: "/shop",
-    activation: "working",
-    needs: ["buy", "shop", "products"],
-  },
 ];
 
 /** The engine id Builds persist under. Hidden from the Engine Room picker. */

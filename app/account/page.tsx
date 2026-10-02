@@ -1,4 +1,4 @@
-// Member account page — profile, membership status, billing portal, and the
+// Member account page — profile, access status, and the
 // account-linked project list. Everything personal renders behind the
 // server-checked session; logged-out visitors are pointed at /membership.
 
@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { currentMember } from "../members/session";
 import { memberStoreConfigured } from "../members/store";
-import { readStripeConfig, stripeConfigured } from "../members/stripeCore";
 import AccountClient from "./AccountClient";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +34,6 @@ export default async function AccountPage() {
           membershipStatus={member.access.status}
           memberAccess={member.access.memberAccess}
           activeUntil={member.access.activeUntil}
-          billingLive={stripeConfigured(readStripeConfig())}
         />
       </div>
     </main>

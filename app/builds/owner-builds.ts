@@ -50,10 +50,10 @@ export const OWNER_BUILDS: OwnerBuild[] = [
   },
   {
     name: "Ready to Build",
-    description: "A computer-first path for checking, protecting, preparing, and building with the machine you already have.",
+    description: "A free, computer-first guide for checking, protecting, preparing, and building with the machine you already have.",
     category: "products",
     categoryLabel: "Products & systems",
-    lesson: "What it shows: a practical product can explain the safe first step before asking someone to buy or build.",
+    lesson: "What it shows: a practical guide can explain the safe first step before anyone changes a thing.",
     href: "/products/ready-to-build",
     external: false,
     status: "Product",

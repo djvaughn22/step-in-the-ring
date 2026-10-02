@@ -1031,15 +1031,15 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
           </div>
           <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 12px" }}>
             Build it, <b style={{ color: "var(--text)" }}>test it locally</b> (the Verify tab is
-            your checklist), then return with results. If you&apos;d rather someone else built or
-            deployed it, Open Mirror takes on a limited number of these by email.
+            your checklist), then return with results. Stuck, or want a second pair of hands? You
+            can ask about weekend consulting by email. Your plan goes along so you don&apos;t retype it.
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <a
-              href={REQUEST_MAILTO(`Build this for me: ${project.name}`, packageToText(e, project.answers, p))}
+              href={REQUEST_MAILTO(`Weekend consulting question: ${project.name}`, packageToText(e, project.answers, p))}
               className="btn btn-ghost btn-small"
             >
-              Email Open Mirror to build it
+              Ask about weekend help
             </a>
             {cycle.pushRequestedAt ? (
               <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)", alignSelf: "center" }}>

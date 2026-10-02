@@ -1,49 +1,42 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Step In The Ring Membership — the public membership page and the free
-// introduction to the Engine Room.
+// Accounts — the public page at /membership (the path is kept so old links,
+// the account redirect and middleware keep working).
 //
-// Honest-state rules (test-locked):
-//   - Public price is TBD during the open beta (2026-08-06 beta reset). One
-//     plan. No annual, no lifetime, no tiers, no trials, no crossed-out
-//     prices, no countdowns, no fake counts.
-//   - While billing is not live this page says PRIVATE BETA plainly and the
-//     join button becomes "billing not live yet".
-//   - What stays free stays listed: iDontCry, this introduction, the local
-//     Build Machine software. Cancellation never disables a computer.
-//   - Owner-only engines are not shown as membership value.
+// Usefulness-first (Oct 1 2026, owner direction): nothing is sold here. This
+// page never shows a price, billing terms, a checkout button or "membership"
+// sales copy. It says what is free (everything), what an optional account
+// adds (sync between devices), and that accounts are invite-only while they
+// are tested. The dormant Stripe plumbing in app/members/ is untouched and
+// has no way in from this page.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Metadata } from "next";
-import { engineMatrix, MEMBERSHIP_PRICE_LABEL, MEMBERSHIP_PRODUCT_NAME } from "../members/entitlement";
+import Link from "next/link";
 import { currentMember } from "../members/session";
 import { memberStoreConfigured } from "../members/store";
-import { readStripeConfig, stripeConfigured } from "../members/stripeCore";
-import { ACTIVATION_LABEL, ENGINES } from "../engines/engines";
 import MembershipClient from "./MembershipClient";
 import { Sheet, PageHead, Section } from "../site/ui";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Membership",
+  title: "Accounts",
   description:
-    "Everything in Step In The Ring is free to use with no account. Accounts, which only sync your saved builds between devices, are invite-only while we test them.",
+    "Everything in Step In The Ring is free to use with no account. An optional account only syncs your saved builds between devices.",
 };
 
 const FREE_ALWAYS = [
-  "iDontCry — the family playground stays free, no account needed",
-  "The Engine Room: every engine below, run end to end, no sign-in",
-  "The Five Hour Sprint tool and the Build Machine — no account needed",
-  "Your Build Machine or any computer — the local software never needs a subscription, and cancellation never disables a computer",
-  "Starting an idea here and carrying it in with you",
+  "Every engine in the Engine Room, run end to end, with no sign-in",
+  "The free tools: the Five Hour Sprint planner, first-version cutter, try-it script and launch checklist",
+  "The Build Machine guide and the Ready to Build computer check",
+  "Starting an idea here, or carrying one in from iDontCry",
   "Work saves to this browser as you go — it's there when you come back on this device",
 ];
 
-const MEMBERSHIP_UNLOCKS = [
+const ACCOUNT_ADDS = [
   "Your saved builds and projects follow you to another device or browser",
   "One-click, always-asked-first import of work you already made in this browser",
-  "A place to reopen and export your own projects from any signed-in browser",
-  "Deleting your own account or projects whenever you choose",
+  "Export or delete your own projects, or the whole account, whenever you choose",
 ];
 
 export default async function MembershipPage({
@@ -53,18 +46,12 @@ export default async function MembershipPage({
 }) {
   const sp = await searchParams;
   const configured = memberStoreConfigured();
-  const billingLive = stripeConfigured(readStripeConfig());
   const member = await currentMember();
-  // Hidden engines (the folded-in Etsy duplicate, the internal Builds store)
-  // still grant access to old saved work, but they are not things to list.
-  const hiddenIds = new Set(ENGINES.filter((e) => e.hidden).map((e) => e.id));
-  const matrix = engineMatrix().filter((r) => r.access === "member" && !hiddenIds.has(r.id));
   const prefillEngine = typeof sp.engine === "string" ? sp.engine : null;
   const prefillIdea = typeof sp.idea === "string" ? sp.idea.slice(0, 500) : null;
   const source = typeof sp.source === "string" ? sp.source.slice(0, 40) : null;
-  // A handoff that bounced here off the /engines gate keeps its payload —
-  // once access exists, the person continues into the exact engine they
-  // were headed for, creation record included.
+  // A handoff that bounced here keeps its payload — the person continues
+  // into the exact engine they were headed for, creation record included.
   const enginesQs = new URLSearchParams();
   if (prefillEngine) enginesQs.set("engine", prefillEngine);
   if (typeof sp.cr === "string") enginesQs.set("cr", sp.cr);
@@ -74,70 +61,33 @@ export default async function MembershipPage({
     <Sheet>
       <PageHead
         kicker="Optional"
-        title={MEMBERSHIP_PRODUCT_NAME}
-        lead="You do not need an account to use Step In The Ring — the Engine Room, every engine, and the Five Hour Sprint tool are open right now, and your work saves to this browser as you go. An account is for one thing: making your saved builds follow you to another device. Your ideas, projects, and output remain yours either way."
+        title="Accounts"
+        lead="You do not need an account to use Step In The Ring. Every tool here is free and open right now, and your work saves to this browser as you go. An account does one thing: it makes your saved builds follow you to another device. Your ideas, projects, and output remain yours either way."
       />
 
-      <Section title="What stays free">
+      <Section title="Free, no account needed">
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {FREE_ALWAYS.map((x) => (
             <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>
-              <span style={{ position: "absolute", left: 0, color: "#34D399" }}>✓</span>
+              <span aria-hidden="true" style={{ position: "absolute", left: 0, color: "#34D399" }}>✓</span>
               {x}
             </li>
           ))}
         </ul>
+        <p style={{ fontSize: 14, margin: "12px 0 0" }}>
+          <Link href="/tools" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>See every free tool →</Link>
+        </p>
       </Section>
 
-      <Section title="What an account adds">
+      <Section
+        title="What an account adds"
+        lead="Accounts are invite-only while we test them. They cost nothing."
+      >
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
-          {MEMBERSHIP_UNLOCKS.map((x) => (
+          {ACCOUNT_ADDS.map((x) => (
             <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>
-              <span style={{ position: "absolute", left: 0, color: "var(--gold)" }}>★</span>
+              <span aria-hidden="true" style={{ position: "absolute", left: 0, color: "var(--gold)" }}>★</span>
               {x}
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section
-        title="If membership billing opens later"
-        lead="Published early, so nobody is surprised later."
-      >
-        {!billingLive && (
-          <div style={{ border: "1px solid var(--gold-glow)", borderRadius: 14, padding: "14px 16px" }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold)", margin: 0, lineHeight: 1.6 }}>
-              Billing is not live yet — nothing on this page can be purchased
-              today. When it opens, the exact terms below are what
-              you&apos;ll see at checkout — nothing hidden.
-            </p>
-          </div>
-        )}
-
-        <p style={{ fontSize: 14, fontWeight: 800, margin: "16px 0 4px", color: "var(--muted)" }}>
-          Future price: {MEMBERSHIP_PRICE_LABEL}
-        </p>
-        <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>
-          Monthly recurring billing, once billing opens. Cancel any time from
-          the billing portal — paid access runs to the end of the period you
-          already paid for.
-        </p>
-      </Section>
-
-      <Section
-        title="The engines, honestly labeled"
-        lead="Status labels come from the engine registry itself. A few engines are owner-only workshop tools and are not part of membership."
-      >
-        <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
-          {matrix.map((r) => (
-            <li
-              key={r.id}
-              style={{ display: "flex", justifyContent: "space-between", gap: 12, border: "1px solid rgba(148,163,184,0.2)", borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}
-            >
-              <span style={{ fontSize: 14, fontWeight: 800, color: "var(--text)" }}>{r.name}</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: r.activation === "working" ? "#34D399" : "var(--gold)" }}>
-                {ACTIVATION_LABEL[r.activation]}
-              </span>
             </li>
           ))}
         </ul>
@@ -146,7 +96,6 @@ export default async function MembershipPage({
       <div style={{ marginTop: 46 }}>
         <MembershipClient
           configured={configured}
-          billingLive={billingLive}
           signedIn={Boolean(member)}
           memberAccess={Boolean(member?.access.memberAccess)}
           membershipStatus={member?.access.status ?? null}
@@ -158,19 +107,16 @@ export default async function MembershipPage({
         />
       </div>
 
-      <Section title="The fine print, plainly">
+      <Section title="What an account stores">
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {[
-            "Cancel any time in the billing portal. Paid access continues through the period you already paid for, then paid features close. Nothing else changes.",
-            "After cancellation your account, iDontCry, your computer, and its local software all keep working. A Build Machine is never disabled by a membership decision.",
-            "Your projects are not deleted when a membership ends — you can still export or delete them yourself. Long-term retention limits will be published before they ever apply.",
-            "Build Machine hardware is a separate purchase and never includes a membership unless its listing expressly says so.",
-            "Third-party accounts and subscriptions (GitHub, AI assistants, hosting) are separate services with their own terms.",
-            "You own your original ideas, project content, and resulting output. Open Mirror owns its software, platform, brands, and engine logic.",
-            "Stored account data: your email, password hash, membership status, and the projects you choose to save. Export and deletion are self-serve; deletion requests are honored under the published retention policy.",
+            "Your email, a password hash, your access status, and the projects you choose to save. Nothing else.",
+            "Export and deletion are self-serve from your account page.",
+            "You own your original ideas, project content, and resulting output. Open Mirror owns its software, brands, and engine logic.",
+            "Outside services you choose to use (GitHub, AI assistants, hosting) are separate, with their own terms.",
           ].map((x) => (
             <li key={x} style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 10px", paddingLeft: 16, position: "relative" }}>
-              <span style={{ position: "absolute", left: 0 }}>·</span>
+              <span aria-hidden="true" style={{ position: "absolute", left: 0 }}>·</span>
               {x}
             </li>
           ))}

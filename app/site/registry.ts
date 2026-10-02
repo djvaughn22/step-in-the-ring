@@ -90,7 +90,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/products/ready-to-build",
     name: "Ready to Build",
-    what: "Rebuild an old computer, prepare an AI workspace, and launch your first simple project. A practical starter kit, coming soon.",
+    what: "A free guide for the computer you already have: check it, set it up, and launch your first simple project.",
     access: "public",
     group: "learn",
   },
@@ -109,6 +109,39 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "create",
     inNav: true,
+  },
+
+  // ── Free tools ─────────────────────────────────────────────────────────
+  // Small, single-job tools. Everything runs in the browser, needs no account
+  // and saves only to this device.
+  {
+    path: "/tools",
+    name: "Free tools",
+    what: "Every free tool here in one place, each one a few minutes long. No account, nothing to buy.",
+    access: "public",
+    group: "engines",
+    inNav: true,
+  },
+  {
+    path: "/tools/first-version",
+    name: "First version cutter",
+    what: "List everything your idea could do, sort it into now, later and never, and leave with a first version small enough to finish.",
+    access: "public",
+    group: "engines",
+  },
+  {
+    path: "/tools/try-it",
+    name: "Try-it script",
+    what: "Get a short script for putting what you made in front of one real person, and a place to write down what happened.",
+    access: "public",
+    group: "engines",
+  },
+  {
+    path: "/tools/launch-checklist",
+    name: "Launch checklist",
+    what: "The checks to run before you share a link: phone, links, privacy, a backup, and a way to reach you.",
+    access: "public",
+    group: "engines",
   },
 
   // ── Engines ────────────────────────────────────────────────────────────
@@ -185,21 +218,6 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "learn",
   },
-  {
-    path: "/products/five-hour-sprint",
-    name: "The Five Hour Sprint",
-    what: "The paid service: the owner finishes one real deliverable with you inside one focused window.",
-    access: "public",
-    group: "learn",
-  },
-  {
-    path: "/products/five-hour-sprint/apply",
-    name: "Apply for a Sprint",
-    what: "Tell the owner what you want finished, and when, to ask about a paid Sprint.",
-    access: "public",
-    group: "learn",
-    noindex: true,
-  },
 
   // ── Proof ──────────────────────────────────────────────────────────────
   {
@@ -223,27 +241,19 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "proof",
   },
-  {
-    path: "/shop",
-    name: "Shop",
-    what: "Original products from the Design Shop. Nothing is listed yet — this is a work-in-progress preview.",
-    access: "public",
-    group: "proof",
-    noindex: true,
-  },
 
   // ── Account ────────────────────────────────────────────────────────────
   {
     path: "/account",
     name: "Account",
-    what: "Your membership, your saved work, and how to leave with it.",
+    what: "Your account, your saved work, and how to leave with it.",
     access: "member",
     group: "account",
   },
   {
     path: "/membership",
-    name: "Membership",
-    what: "What membership includes and how the open beta works.",
+    name: "Accounts",
+    what: "What an optional account adds (your builds on every device), and signing in.",
     access: "public",
     group: "account",
   },
@@ -304,7 +314,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/owner/sprint-applications",
     name: "Sprint applications",
-    what: "Owner view of every application to the paid Five Hour Sprint service.",
+    what: "Owner view of applications received before the Sprint service was retired.",
     access: "owner",
     group: "owner",
   },
@@ -337,14 +347,14 @@ export function pagesWithAccess(access: Access): SitePage[] {
 }
 
 /**
- * The primary menu. Four words, and they are the product's four ideas in the
- * order a person meets them: start something, use a tool on it, keep working
- * on it, come back to what you saved. Home is the wordmark, not a menu item —
+ * The primary menu: start something, grab a small free tool, use an engine on
+ * it, see what got built and keep working, come back to what you saved. Free
+ * tools sit second so a visitor who just wants something useful finds it fast. Home is the wordmark, not a menu item —
  * every site puts home there and a fifth link buys nothing.
  *
  * Derived from the registry, never hand-kept twice.
  */
-const NAV_ORDER = ["/create", "/engines", "/builds", "/library"];
+const NAV_ORDER = ["/create", "/tools", "/engines", "/builds", "/library"];
 
 export function navPages(): SitePage[] {
   return SITE_PAGES.filter((p) => p.inNav).sort(

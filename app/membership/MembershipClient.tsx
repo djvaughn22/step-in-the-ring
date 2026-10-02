@@ -1,16 +1,14 @@
 "use client";
 
-// Interactive half of the membership page: the free idea capture, account
-// signup/sign-in, tester-code redemption, and (when billing is live)
-// server-created checkout. No entitlement decision is ever made here — the
+// Interactive half of the accounts page: the free idea capture, account
+// signup/sign-in and tester-code redemption. Nothing here sells anything and
+// there is no checkout. No entitlement decision is ever made here — the
 // browser only asks the server and mirrors the answer.
 
 import { useEffect, useState } from "react";
-import { MEMBERSHIP_PRICE_LABEL } from "../members/entitlement";
 
 type Props = {
   configured: boolean;
-  billingLive: boolean;
   signedIn: boolean;
   memberAccess: boolean;
   membershipStatus: string | null;
@@ -111,21 +109,12 @@ export default function MembershipClient(props: Props) {
     else setMessage(String(result.error ?? "That code is not valid."));
   }
 
-  async function checkout() {
-    setBusy(true);
-    setMessage(null);
-    const result = await post("/api/members/checkout", {});
-    setBusy(false);
-    if (result.ok && typeof result.url === "string") window.location.assign(result.url);
-    else setMessage(String(result.error ?? "Checkout is not available."));
-  }
-
   return (
-    <section aria-label="Join Step In The Ring Membership">
+    <section aria-label="Step In The Ring account">
       {/* Free introduction — idea capture */}
       <div style={BOX}>
         <p style={{ fontSize: 14, fontWeight: 900, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>
-          Start free: capture the idea you&apos;d build
+          Capture the idea you&apos;d build
         </p>
         <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 10px", lineHeight: 1.6 }}>
           Say it however it comes out. It stays in this browser — when you
@@ -148,9 +137,8 @@ export default function MembershipClient(props: Props) {
       {!props.configured ? (
         <div style={BOX}>
           <p style={{ fontSize: 13, fontWeight: 800, color: "var(--muted, #94a3b8)", margin: 0, lineHeight: 1.6 }}>
-            Accounts open with the private beta. Nothing can be created or
-            purchased here yet — this page exists so the terms are public
-            before anyone is asked to pay.
+            Accounts are not switched on yet. Everything else on this site
+            works without one — your work saves to this browser.
           </p>
         </div>
       ) : props.signedIn ? (
@@ -169,7 +157,6 @@ export default function MembershipClient(props: Props) {
                 The Engine Room works with no account at all. This is only for
                 the optional cross-device sync described above.
               </p>
-              {billingButton(props.billingLive, busy, checkout)}
               <form onSubmit={redeem} style={{ marginTop: 14 }}>
                 <p style={{ fontSize: 13, fontWeight: 800, margin: "0 0 6px", color: "var(--ink, #e8edf5)" }}>
                   Private tester code
@@ -195,7 +182,7 @@ export default function MembershipClient(props: Props) {
             {mode === "signup" ? "Create your account" : "Sign in"}
           </p>
           <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "0 0 10px", lineHeight: 1.6 }}>
-            Accounts are for an adult, parent, or other responsible purchaser.
+            Accounts are for an adult, parent, or other responsible person.
             Only an email and password are collected.
           </p>
           <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "0 0 10px", lineHeight: 1.6 }}>
@@ -239,21 +226,5 @@ export default function MembershipClient(props: Props) {
         </p>
       )}
     </section>
-  );
-}
-
-function billingButton(billingLive: boolean, busy: boolean, checkout: () => void) {
-  if (!billingLive) {
-    return (
-      <p style={{ fontSize: 13, fontWeight: 800, color: "var(--muted, #94a3b8)", margin: 0, lineHeight: 1.6 }}>
-        Billing is not live yet — joining is by tester code during the
-        private beta.
-      </p>
-    );
-  }
-  return (
-    <button type="button" className="btn btn-primary" onClick={checkout} disabled={busy}>
-      Join — {MEMBERSHIP_PRICE_LABEL}
-    </button>
   );
 }
