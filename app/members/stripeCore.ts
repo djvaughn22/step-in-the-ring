@@ -2,7 +2,7 @@
 // Stripe membership commerce — server-side only.
 //
 // One product, one price, one cadence (test-locked):
-//   Step In The Ring Membership — $7.77 per month.
+//   Step In The Ring Membership — one monthly amount, kept in server config.
 // No annual plan, no lifetime plan, no tiers, no trials, no discounts.
 //
 // Security rules (test-locked):

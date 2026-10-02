@@ -15,7 +15,7 @@ relying on it for anything beyond this reconciliation.
 ## What this sprint actually changed
 
 - Removed the "Choose your way in" opportunity panel (Start free / Five Hour
-  Sprint $1,500 / Team Sprint $5,000) from the Home hero — [`app/create/RingApp.tsx`](../app/create/RingApp.tsx).
+  Sprint / Team Sprint, with prices) from the Home hero — [`app/create/RingApp.tsx`](../app/create/RingApp.tsx).
   Replaced with a real, live "Made in The Ring" proof panel (three tiles
   pulled from `ECOSYSTEM`, same data the lower `/explore`-linked proof band
   used — that redundant lower band was removed since proof now lives in the
@@ -27,7 +27,7 @@ relying on it for anything beyond this reconciliation.
   the routes themselves.
 - Deleted the `.opp-*` / `.opportunity-panel` CSS and the `create/RingApp.tsx`
   allowlist entry in [`app/lib/publicPriceGuard.test.ts`](../app/lib/publicPriceGuard.test.ts)
-  — the Home hero no longer needs a carve-out to show `$1,500` / `$5,000`
+  — the Home hero no longer needs a carve-out to show a price
   because it no longer shows any price.
 - Replaced the test suite that *locked the sales wall in place*
   (`RingApp.test.ts`'s "the opportunity panel" describe block, added
