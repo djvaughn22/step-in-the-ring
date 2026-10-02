@@ -8,15 +8,17 @@ const PRIVATE_HEADERS = [
   { key: "X-Robots-Tag", value: "noindex, nofollow" },
 ];
 
-const PRIVATE_ROUTES = [
+export const PRIVATE_ROUTES = [
   "/author",
   "/author/:path*",
   "/api/author/:path*",
   "/owner",
   "/owner/:path*",
   // The /engines directory itself is public and the same for everyone, so
-  // it is allowed in search. The Engine Room below it is not.
-  "/engines/:path*",
+  // it is allowed in search. The Engine Room below it is not. Note that
+  // "/engines/:path*" would also match bare "/engines" (zero segments).
+  "/engines/room",
+  "/engines/room/:path*",
   "/projects",
   "/projects/:path*",
   "/api/engines/:path*",
