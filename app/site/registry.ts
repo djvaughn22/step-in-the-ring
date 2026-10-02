@@ -154,7 +154,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/builds",
     name: "Owner’s Builds",
-    what: "Explore the live websites, tools, games, experiments, and products built through the Step In The Ring process.",
+    what: "Open the live websites, tools and games built here, then pick up your own builds further down the same page.",
     access: "public",
     group: "builds",
     inNav: true,

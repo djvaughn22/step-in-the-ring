@@ -13,8 +13,11 @@ function BuildLink({ build, children, className }: { build: { href: string; exte
 
 export default function OwnerBuildsShowroom() {
   const [category, setCategory] = useState<"all" | OwnerBuildCategory>("all");
+  // "All builds" skips the featured ones because they sit right above it. A
+  // category filter shows everything in that category, featured or not —
+  // otherwise "Books & media" would quietly leave out half of its own builds.
   const visible = useMemo(
-    () => ownerBuildsForCategory(category).filter((build) => !build.featured),
+    () => (category === "all" ? OWNER_BUILDS.filter((build) => !build.featured) : ownerBuildsForCategory(category)),
     [category],
   );
   const featured = ownerBuildsForCategory("all").filter((build) => build.featured);
@@ -24,15 +27,15 @@ export default function OwnerBuildsShowroom() {
       <div className="owner-showroom-hero">
         <span className="kicker">Owner&apos;s Builds</span>
         <h1 id="owner-builds-heading">See what we&apos;ve built.</h1>
-        <p>Every project starts with an idea. Explore the live websites, tools, games, experiments, and products built through the Step In The Ring process—and use them as inspiration for what you could create next.</p>
+        <p>Every one of these started as a rough idea. They are real websites, tools, games, and experiments you can open right now, free. Look around, then bring your own idea.</p>
         <div className="actions">
-          <Link className="btn btn-gold" href="/products/ready-to-build">I want to build something like this →</Link>
-          <Link className="btn btn-ghost" href="/create">Start with an idea</Link>
+          <Link className="btn btn-gold" href="/create">I want to build something like this →</Link>
+          <Link className="btn btn-ghost" href="/products/ready-to-build#computer-check">Check my computer first</Link>
         </div>
       </div>
 
       <div className="owner-featured" aria-labelledby="featured-builds-heading">
-        <div className="owner-section-head"><div><span className="kicker">A few places to begin</span><h2 id="featured-builds-heading">Featured builds</h2></div><span className="owner-count">{OWNER_BUILD_CATEGORIES.length - 1} ways to explore</span></div>
+        <div className="owner-section-head"><div><span className="kicker">A few places to begin</span><h2 id="featured-builds-heading">Featured builds</h2></div><span className="owner-count">{featured.length} to start with</span></div>
         <div className="owner-featured-grid">
           {featured.map((build) => <OwnerBuildCard key={build.name} build={build} featured />)}
         </div>
@@ -46,7 +49,7 @@ export default function OwnerBuildsShowroom() {
         {visible.length > 0 ? <div className="owner-build-grid">{visible.map((build) => <OwnerBuildCard key={build.name} build={build} />)}</div> : <div className="owner-empty"><h3>No builds in this category yet.</h3><p>Come back as more projects take shape, or start something with the idea box.</p><Link className="text-link" href="/create">Start a new build →</Link></div>}
       </div>
 
-      <div className="owner-showroom-cta"><span className="kicker">Your turn</span><h2>Which one makes you want to try?</h2><p>Take the pattern that catches your eye, bring your own subject, and start with the computer and idea you already have.</p><div className="actions"><Link className="btn btn-gold" href="/products/ready-to-build">Get Ready to Build →</Link><Link className="text-link" href="/create">Open the creation process →</Link></div></div>
+      <div className="owner-showroom-cta"><span className="kicker">Your turn</span><h2>Which one makes you want to try?</h2><p>Take the pattern that catches your eye and bring your own subject. One sentence is enough to start, and it costs nothing.</p><div className="actions"><Link className="btn btn-gold" href="/create">Start with my idea →</Link><Link className="text-link" href="/products/ready-to-build#computer-check">Not sure your computer is ready? Check it first →</Link></div></div>
     </section>
   );
 }

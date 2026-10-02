@@ -58,7 +58,28 @@ describe("Owner’s Builds showroom", () => {
     const html = renderToStaticMarkup(createElement(OwnerBuildsShowroom));
     expect(html).toContain('href="https://crossheartpray.com" target="_blank" rel="noopener noreferrer"');
     expect(html).toContain('href="/products/ready-to-build"');
-    expect(html).toContain('href="/products/five-hour-sprint"');
+    expect(html).toContain('href="/five-hour-sprint-tool"');
+    // The card describes the free planning tool, so it must not point at the
+    // paid service page.
+    expect(html).not.toContain('href="/products/five-hour-sprint"');
+  });
+
+  it("keeps the page to one h1 and leads with the free next step", () => {
+    const html = renderToStaticMarkup(createElement(OwnerBuildsShowroom));
+    expect(html.match(/<h1/g)).toHaveLength(1);
+    expect(html).toMatch(/<a class="btn btn-gold" href="\/create">I want to build something like this/);
+  });
+
+  it("a category filter includes its featured builds", async () => {
+    const container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    await act(async () => root!.render(createElement(OwnerBuildsShowroom)));
+    const products = [...container.querySelectorAll("button")].find((b) => b.textContent === "Products & systems") as HTMLButtonElement;
+    await act(async () => products.click());
+    const names = [...container.querySelectorAll("#all-builds .owner-build-card h3")].map((h) => h.textContent);
+    expect(names.sort()).toEqual(ownerBuildsForCategory("products").map((b) => b.name).sort());
+    expect(names).toContain("Step In The Ring");
   });
 
   it("filters the showroom with native buttons and keeps the active state accessible", async () => {

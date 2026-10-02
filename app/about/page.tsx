@@ -38,8 +38,8 @@ export default function AboutPage() {
         <p style={{ border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, color: "var(--text)", margin: 0 }}>
           Saying an idea, reading the plan back, and opening any Engine needs
           no account — that work stays on this device unless you download it.
-          Signing in is only for making a Build follow you to another
-          device — free during the open beta.
+          Accounts only make a Build follow you to another device. They are
+          invite-only while we test them, and they cost nothing.
         </p>
       </Section>
 

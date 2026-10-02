@@ -18,7 +18,7 @@ import { engineMatrix, MEMBERSHIP_PRICE_LABEL, MEMBERSHIP_PRODUCT_NAME } from ".
 import { currentMember } from "../members/session";
 import { memberStoreConfigured } from "../members/store";
 import { readStripeConfig, stripeConfigured } from "../members/stripeCore";
-import { ACTIVATION_LABEL } from "../engines/engines";
+import { ACTIVATION_LABEL, ENGINES } from "../engines/engines";
 import MembershipClient from "./MembershipClient";
 import { Sheet, PageHead, Section } from "../site/ui";
 
@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Membership",
   description:
-    "Step In The Ring Membership — open beta, price TBD. Take an idea from iDontCry or anywhere else and turn it into a real first build, with saved projects and guided engines.",
+    "Everything in Step In The Ring is free to use with no account. Accounts, which only sync your saved builds between devices, are invite-only while we test them.",
 };
 
 const FREE_ALWAYS = [
@@ -55,7 +55,10 @@ export default async function MembershipPage({
   const configured = memberStoreConfigured();
   const billingLive = stripeConfigured(readStripeConfig());
   const member = await currentMember();
-  const matrix = engineMatrix().filter((r) => r.access === "member");
+  // Hidden engines (the folded-in Etsy duplicate, the internal Builds store)
+  // still grant access to old saved work, but they are not things to list.
+  const hiddenIds = new Set(ENGINES.filter((e) => e.hidden).map((e) => e.id));
+  const matrix = engineMatrix().filter((r) => r.access === "member" && !hiddenIds.has(r.id));
   const prefillEngine = typeof sp.engine === "string" ? sp.engine : null;
   const prefillIdea = typeof sp.idea === "string" ? sp.idea.slice(0, 500) : null;
   const source = typeof sp.source === "string" ? sp.source.slice(0, 40) : null;
@@ -73,26 +76,7 @@ export default async function MembershipPage({
         kicker="Optional"
         title={MEMBERSHIP_PRODUCT_NAME}
         lead="You do not need an account to use Step In The Ring — the Engine Room, every engine, and the Five Hour Sprint tool are open right now, and your work saves to this browser as you go. An account is for one thing: making your saved builds follow you to another device. Your ideas, projects, and output remain yours either way."
-      >
-        {!billingLive && (
-          <div style={{ border: "1px solid var(--gold-glow)", borderRadius: 14, padding: "14px 16px", marginTop: 20 }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold)", margin: 0, lineHeight: 1.6 }}>
-              Billing is not live yet — nothing on this page can be purchased
-              today. When it opens, the exact terms below are what
-              you&apos;ll see at checkout — nothing hidden.
-            </p>
-          </div>
-        )}
-
-        <p style={{ fontSize: 14, fontWeight: 800, margin: "20px 0 4px", color: "var(--muted)" }}>
-          Future price: {MEMBERSHIP_PRICE_LABEL}
-        </p>
-        <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>
-          Monthly recurring billing, once billing opens. Cancel any time from
-          the billing portal — paid access runs to the end of the period you
-          already paid for.
-        </p>
-      </PageHead>
+      />
 
       <Section title="What stays free">
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
@@ -114,6 +98,30 @@ export default async function MembershipPage({
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section
+        title="If membership billing opens later"
+        lead="Published early, so nobody is surprised later."
+      >
+        {!billingLive && (
+          <div style={{ border: "1px solid var(--gold-glow)", borderRadius: 14, padding: "14px 16px" }}>
+            <p style={{ fontSize: 13, fontWeight: 800, color: "var(--gold)", margin: 0, lineHeight: 1.6 }}>
+              Billing is not live yet — nothing on this page can be purchased
+              today. When it opens, the exact terms below are what
+              you&apos;ll see at checkout — nothing hidden.
+            </p>
+          </div>
+        )}
+
+        <p style={{ fontSize: 14, fontWeight: 800, margin: "16px 0 4px", color: "var(--muted)" }}>
+          Future price: {MEMBERSHIP_PRICE_LABEL}
+        </p>
+        <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>
+          Monthly recurring billing, once billing opens. Cancel any time from
+          the billing portal — paid access runs to the end of the period you
+          already paid for.
+        </p>
       </Section>
 
       <Section

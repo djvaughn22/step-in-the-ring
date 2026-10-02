@@ -211,11 +211,11 @@ export const OWNER_BUILDS: OwnerBuild[] = [
   },
   {
     name: "Five Hour Sprint",
-    description: "A focused build-window plan for turning one working session into a concrete packet.",
+    description: "A free planning tool for turning one five-hour working session into a concrete packet.",
     category: "products",
     categoryLabel: "Products & systems",
     lesson: "What it shows: a useful constraint can turn a large ambition into one finishable work session.",
-    href: "/products/five-hour-sprint",
+    href: "/five-hour-sprint-tool",
     external: false,
     status: "Product",
     emoji: "⏱️",
