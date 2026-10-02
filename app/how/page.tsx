@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LOOP_TOOLS } from "../tools/loop";
 import Link from "next/link";
 import Playbook from "./Playbook";
 import liveProducts from "../live/live-products.json";
@@ -51,6 +52,7 @@ const LOOP = [
 
 const NAV_CONCEPTS = [
   { name: "Create", body: "Where ideas begin. Say what you want to make." },
+  { name: "Free tools", body: "Small tools that each do one job, like cutting an idea down or checking it before you share." },
   { name: "Engines", body: "Focused tools for when one part of the work needs real help." },
   { name: "Builds", body: "Things you're actively making. Come back and continue." },
   { name: "Library", body: "Things you saved and may want again." },
@@ -88,11 +90,12 @@ export default function HowPage() {
 
         <section className="band" style={{ paddingTop: 34 }}>
           <div className="loop">
-            {LOOP.map((s) => (
+            {LOOP.map((s, i) => (
               <div key={s.n} className="loop-step">
                 <span className="loop-n">{s.n}</span>
                 <h3 className="loop-t">{s.title}</h3>
                 <p className="loop-d">{s.body}</p>
+                <Link className="loop-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label} →</Link>
               </div>
             ))}
           </div>
@@ -101,7 +104,7 @@ export default function HowPage() {
         <section className="band">
           <div className="band-head">
             <h2 className="band-title">Where each step happens</h2>
-            <p className="band-note">Four places, always the same four.</p>
+            <p className="band-note">Five places, always the same five.</p>
           </div>
           <div className="bench-cols">
             {NAV_CONCEPTS.map((c) => (
