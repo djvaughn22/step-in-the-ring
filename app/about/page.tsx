@@ -43,8 +43,9 @@ export default function AboutPage() {
         </p>
       </Section>
 
-      {/* The consulting card — after the site's own story. */}
-      <div style={{ marginTop: 46 }}>
+      {/* The one consulting path — weekend help by email, after the site's
+          own story. The footer and homepage link here. */}
+      <div id="weekend-consulting" style={{ marginTop: 46, scrollMarginTop: 96 }}>
         <AboutDestinationCard card={BUILD_WITH_CARD} />
       </div>
 

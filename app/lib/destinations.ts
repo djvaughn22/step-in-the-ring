@@ -80,15 +80,21 @@ export type DestinationCardContent = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Say-less (owner, 2026-07-20): one plain fact, one email action. No pitch.
+// The one consulting path on the site (Oct 1 2026, owner direction): weekend
+// help, asked for by email. No prices, packages, scopes, forms or promises of
+// availability — those stay private. A person reads the email and replies.
+export const WEEKEND_CONSULTING_HREF =
+  "mailto:ask@openmirrorllc.com?subject=Weekend%20consulting%20question";
+
 export const BUILD_WITH_CARD: DestinationCardContent = {
-  heading: "Building something of your own?",
+  heading: "Want a hand on the weekend?",
   body: [
-    "Open Mirror takes one outside project at a time, when there is a good fit. Email and we'll talk.",
+    "I do a little consulting on weekends, helping people turn an idea into something that works. If you'd like to ask, send a short email about what you're working on. No forms and no pressure. If it's a fit and there's time, we'll talk.",
   ],
   destinations: [
     {
-      label: "Email Open Mirror",
-      href: "mailto:ask@openmirrorllc.com?subject=Open%20Mirror%20Inquiry",
+      label: "Ask about weekend consulting",
+      href: WEEKEND_CONSULTING_HREF,
       kind: "consulting",
       enabled: true,
       status: "available",

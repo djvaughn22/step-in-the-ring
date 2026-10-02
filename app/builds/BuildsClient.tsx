@@ -379,9 +379,8 @@ export default function BuildsClient({
                 </Link>
               )}
               <p className="tiny" style={{ marginTop: 16 }}>
-                Starting is free and needs no account. Rather have a hand finishing
-                one specific thing?{" "}
-                <Link href="/products/five-hour-sprint">Ask about a Five Hour Sprint</Link>.
+                Starting is free and needs no account. Need a nudge?{" "}
+                <Link href="/tools">Try the free tools</Link>.
               </p>
             </div>
           </section>

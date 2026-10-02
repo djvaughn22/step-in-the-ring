@@ -1,6 +1,6 @@
 "use client";
 
-// Account workspace: membership status, billing portal, saved projects
+// Account workspace: access status, saved projects
 // (reopen/export/delete), user-triggered import of browser-local Engine Room
 // projects, logout, and account deletion request. The server owns every
 // authorization decision — this component only calls and mirrors.
@@ -40,7 +40,6 @@ export default function AccountClient(props: {
   membershipStatus: string;
   memberAccess: boolean;
   activeUntil: string | null;
-  billingLive: boolean;
 }) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -64,15 +63,6 @@ export default function AccountClient(props: {
       cancelled = true;
     };
   }, [reloadKey]);
-
-  async function portal() {
-    setBusy(true);
-    const res = await fetch("/api/members/portal", { method: "POST" });
-    const data = (await res.json().catch(() => null)) as { ok?: boolean; url?: string; error?: string } | null;
-    setBusy(false);
-    if (data?.ok && data.url) window.location.href = data.url;
-    else setMessage(data?.error ?? "The billing portal is not available.");
-  }
 
   async function logout() {
     await fetch("/api/members/logout", { method: "POST" });
@@ -141,7 +131,7 @@ export default function AccountClient(props: {
   return (
     <>
       <div style={BOX}>
-        <p style={LABEL}>Membership</p>
+        <p style={LABEL}>Account</p>
         <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px" }}>
           Status: <strong>{props.membershipStatus}</strong>
           {props.activeUntil ? ` · access through ${new Date(props.activeUntil).toLocaleDateString()}` : ""}
@@ -150,22 +140,10 @@ export default function AccountClient(props: {
           {props.memberAccess && (
             <a href="/engines" className="btn btn-primary">Open the engines</a>
           )}
-          {props.billingLive && (
-            <button type="button" className="btn btn-ghost" onClick={portal} disabled={busy}>
-              Billing portal
-            </button>
-          )}
           {!props.memberAccess && (
-            <a href="/membership" className="btn btn-ghost">See membership</a>
+            <a href="/membership" className="btn btn-ghost">About accounts</a>
           )}
         </div>
-        {!props.billingLive && (
-          <p style={{ fontSize: 12, color: "var(--muted)", margin: "10px 0 0", lineHeight: 1.6 }}>
-            Billing is not live yet (private beta), so there is no billing
-            portal to open. Cancellation, when billing exists, happens there —
-            and canceling never disables a computer or this account.
-          </p>
-        )}
       </div>
 
       <div style={BOX}>

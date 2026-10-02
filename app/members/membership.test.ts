@@ -482,21 +482,22 @@ describe("projects", () => {
 describe("membership surface honesty", () => {
   const read = (rel: string) => readFileSync(join(__dirname, "..", rel), "utf8");
 
-  it("the membership page shows the exact price, private beta truth, and no pressure tactics", () => {
-    const page = stripComments(read("membership/page.tsx"));
-    expect(page).toMatch(/\$7\.77 per month|MEMBERSHIP_PRICE_LABEL/);
-    expect(page).toMatch(/Monthly recurring billing/);
-    expect(page).toMatch(/Billing is not live yet/);
-    expect(page).toMatch(/never disables a computer/i);
+  it("the public accounts page sells nothing: no price, billing, checkout, or pressure", () => {
+    // Usefulness-first (Oct 2026): pricing stays private. The public page
+    // and its client say what is free and what an optional account adds.
+    const page = stripComments(read("membership/page.tsx") + read("membership/MembershipClient.tsx"));
+    expect(page).not.toMatch(/MEMBERSHIP_PRICE|\$\d|price|billing|checkout|subscri|purchase|cancel any time/i);
+    expect(page).not.toMatch(/\/api\/members\/checkout/);
     expect(page).toMatch(/remain yours/i);
-    expect(page).toMatch(/What stays free/);
+    expect(page).toMatch(/Free, no account needed/);
+    expect(page).toMatch(/cost nothing/);
     expect(page).not.toMatch(/countdown|only \d+ left|limited spots|was \$|\btestimonial/i);
     expect(page).not.toMatch(/free trial|% off|discount/i);
   });
 
   it("iDontCry stays free in the membership copy and the gate never touches iDontCry", () => {
     const page = read("membership/page.tsx");
-    expect(page).toMatch(/iDontCry — the family playground stays free/);
+    expect(page).toMatch(/carrying one in from iDontCry/);
   });
 
   it("the Engine Room is open to everyone — the owner check only decides whether owner-only engines are in the list", () => {

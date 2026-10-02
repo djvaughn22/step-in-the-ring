@@ -53,7 +53,7 @@ export default function ComputerCheck() {
               ))}
             </div>
             <p className={styles.small}>Choose one to see where to look. This page does not scan or change your computer, and your choice is not saved or sent.</p>
-            <noscript><p>Turn on JavaScript to use these choices. You can still read the process and planned kit below. Before changing your computer, make a backup and check that you can open the saved files.</p></noscript>
+            <noscript><p>Turn on JavaScript to use these choices. You can still read the process and the free path below. Before changing your computer, make a backup and check that you can open the saved files.</p></noscript>
           </>
         ) : (
           <>
@@ -80,7 +80,7 @@ export default function ComputerCheck() {
                   <p>This first step helps you gather information. The full guided readiness check is still being prepared. Memory, free space, operating-system support, and each tool’s requirements still need to be checked before choosing a setup.</p>
                 </div>
                 <p>If you cannot access your files or are not sure they are backed up, stop before erasing anything and get help. Back up first, then decide whether to keep, clean up, or rebuild the old setup.</p>
-                <a className="btn btn-gold" href="#included">See what the kit will help with →</a>
+                <a className="btn btn-gold" href="#included">See the free path →</a>
                 <button type="button" className={styles.backButton} onClick={() => setNext(false)}>Back to finding my details</button>
               </>
             ) : (

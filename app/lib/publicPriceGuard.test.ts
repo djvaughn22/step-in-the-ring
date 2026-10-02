@@ -5,20 +5,13 @@
 // The allowlist below is a hand-reviewed, closed set of files where a
 // "$<digits>" pattern is either structural, not a price (SQL positional
 // placeholders and regex replacement backreferences, both producing
-// strings like "$1", "$2" that are never rendered to a visitor), or a real
-// approved price rather than a TBD placeholder:
+// strings like "$1", "$2" that are never rendered to a visitor), or the dormant
+// server-only billing amount:
 //   - members/stripeCore.ts: server-only comment, the dormant Stripe amount.
-//   - products/five-hour-sprint/page.tsx (2026-08-27): the Five Hour Sprint
-//     service's Founding/Standard/Team prices are real and owner-approved,
-//     unlike the still-undecided membership price this guard was written
-//     to protect. There is still no live checkout on that page — the one
-//     action is "Apply for a Sprint" — so this does not claim billing is
-//     live, only that these are the real terms once an application is
-//     accepted. This page is reachable only by its own URL — it is no
-//     longer promoted from Home or the primary navigation (2026-08-29
-//     product reset).
-// Anything added to this list must be re-verified as non-customer-visible
-// or, per the Sprint page, an intentionally published real price.
+// Usefulness-first (Oct 2026): nothing on the public site shows a price.
+// The Sprint service page that once held the only approved public prices
+// was retired, so no page belongs on this list.
+// Anything added to this list must be re-verified as non-customer-visible.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -31,7 +24,6 @@ const ALLOWLIST = new Set(
     "planner/signals.ts", // regex replacement backreferences: $1
     "planner/normalize.ts", // regex replacement backreferences: $1
     "members/stripeCore.ts", // server-only comment, real dormant Stripe price
-    "products/five-hour-sprint/page.tsx", // real, owner-approved Sprint prices — see note above
   ].map((p) => path.join(APP_DIR, p)),
 );
 

@@ -144,6 +144,7 @@ describe("the menu", () => {
     expect(navPages()[0].path).toBe("/create");
     expect(navPages().map((p) => p.path)).toEqual([
       "/create",
+      "/tools",
       "/engines",
       "/builds",
       "/library",
@@ -153,6 +154,7 @@ describe("the menu", () => {
   it("says the same four words the product is organised around", () => {
     expect(navPages().map((p) => p.name)).toEqual([
       "Create",
+      "Free tools",
       "Engines",
       "Owner’s Builds",
       "Library",

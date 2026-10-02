@@ -29,6 +29,7 @@ import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
+import { WEEKEND_CONSULTING_HREF } from "../lib/destinations";
 import { QUICK_START, QUICK_STARTERS, STARTING_POINT_GROUPS, STARTING_POINTS } from "./starting-points";
 import { displayName, featuredCapabilities } from "../vnext/capabilities";
 import {
@@ -526,16 +527,15 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="home-proof-links"><Link className="text-link" href="/builds">See everything we&apos;ve built&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
           <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">A simple loop</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Bring the idea","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Build it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Improve or finish","Refine what works. Finish when it’s ready."]].map(([n,t,d])=><li className="how-step" key={n}><span><span className="round-label">Round </span>{n}</span><h3>{t}</h3><p>{d}</p></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
-          <section className="home-tools" aria-labelledby="tools-heading"><div className="section-intro"><span className="kicker">Optional engines</span><h2 id="tools-heading">Need a focused starting point?</h2><p>Pick a tool when you know the kind of help you need. You can always start with the idea box instead.</p></div><div className="tool-list">{FEATURED_ENGINES.slice(0, 3).map((c)=><Link href={c.href} className="tool-row" key={c.id}><span className="tool-symbol" aria-hidden="true"><WorkshopIcon kind={c.id === "idea" ? "solve" : c.id === "design-shop" ? "create" : "build"} /></span><span><strong>{displayName(c)}</strong><span>{c.useWhen ?? c.what}</span></span><span aria-hidden="true">→</span></Link>)}</div><Link className="text-link" href="/engines">Explore all engines&nbsp; →</Link></section>
-          {/* The human door. Everything above is free and needs no account;
-              this is for someone who would rather talk to a person. Every
-              link is a real, existing way in — no checkout lives behind any. */}
+          <section className="home-tools" aria-labelledby="tools-heading"><div className="section-intro"><span className="kicker">Optional engines</span><h2 id="tools-heading">Need a focused starting point?</h2><p>Pick a tool when you know the kind of help you need. You can always start with the idea box instead.</p></div><div className="tool-list">{FEATURED_ENGINES.slice(0, 3).map((c)=><Link href={c.href} className="tool-row" key={c.id}><span className="tool-symbol" aria-hidden="true"><WorkshopIcon kind={c.id === "idea" ? "solve" : c.id === "design-shop" ? "create" : "build"} /></span><span><strong>{displayName(c)}</strong><span>{c.useWhen ?? c.what}</span></span><span aria-hidden="true">→</span></Link>)}</div><div className="home-proof-links"><Link className="text-link" href="/engines">Explore all engines&nbsp; →</Link><Link className="text-link" href="/tools">Or grab a small free tool&nbsp; →</Link></div></section>
+          {/* Help for someone who is unsure: two free tools and the one human
+              path (weekend consulting by email). Nothing here is for sale. */}
           <section className="home-help" aria-labelledby="help-heading">
-            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">You don&apos;t have to do it alone.</h2><p>Everything on this page is free and needs no account. If you&apos;d rather talk to a person, here are the real ways in.</p></div>
+            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">You don&apos;t have to do it alone.</h2><p>Everything here is free and needs no account. Pick the kind of help that fits.</p></div>
             <ul className="help-list">
-              <li><strong>Not sure where to start?</strong><span>Send one line about what you&apos;re thinking. A person reads it.</span><a className="text-link" href="mailto:ask@openmirrorllc.com?subject=Step%20In%20The%20Ring%20question">Email a question&nbsp; →</a></li>
+              <li><strong>Not sure where to start?</strong><span>Small free tools that each do one job: cut an idea down, test it with a real person, check it before you share it.</span><Link className="text-link" href="/tools">Open the free tools&nbsp; →</Link></li>
               <li><strong>Is your computer up to it?</strong><span>A free, one-question-at-a-time check before you change or buy anything.</span><Link className="text-link" href="/products/ready-to-build#computer-check">Check my computer&nbsp; →</Link></li>
-              <li><strong>Need one thing finished?</strong><span>Ask about a Five Hour Sprint with the owner. Applying is free and commits you to nothing.</span><Link className="text-link" href="/products/five-hour-sprint">See how a Sprint works&nbsp; →</Link></li>
+              <li><strong>Want a hand on the weekend?</strong><span>I do a little consulting on weekends. Ask by email. No forms, no pressure.</span><a className="text-link" href={WEEKEND_CONSULTING_HREF}>Ask about weekend help&nbsp; →</a></li>
             </ul>
           </section>
           <section className="home-final"><RingMark /><span className="kicker">Your next move</span><h2>Bring the next idea.</h2><p>One sentence is enough to get started.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Step into the Ring&nbsp; →</button></section>
