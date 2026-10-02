@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import FeedbackForm from "./FeedbackForm";
+import { statusLabel } from "../members/statusLabel";
 
 type ProjectSummary = {
   id: string;
@@ -133,7 +134,7 @@ export default function AccountClient(props: {
       <div style={BOX}>
         <p style={LABEL}>Account</p>
         <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px" }}>
-          Status: <strong>{props.membershipStatus}</strong>
+          Status: <strong>{statusLabel(props.membershipStatus)}</strong>
           {props.activeUntil ? ` · access through ${new Date(props.activeUntil).toLocaleDateString()}` : ""}
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

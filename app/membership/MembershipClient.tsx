@@ -6,6 +6,7 @@
 // browser only asks the server and mirrors the answer.
 
 import { useEffect, useState } from "react";
+import { statusLabel } from "../members/statusLabel";
 
 type Props = {
   configured: boolean;
@@ -147,7 +148,7 @@ export default function MembershipClient(props: Props) {
             Your account
           </p>
           <p style={{ fontSize: 13, color: "var(--muted, #94a3b8)", margin: "0 0 12px" }}>
-            Status: <strong>{props.membershipStatus}</strong>
+            Status: <strong>{statusLabel(props.membershipStatus)}</strong>
             {props.activeUntil ? ` · access through ${new Date(props.activeUntil).toLocaleDateString()}` : ""}
           </p>
           <a href={props.enginesHref} className="btn btn-primary">Enter the Engine Room</a>
