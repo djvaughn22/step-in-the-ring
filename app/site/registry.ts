@@ -305,9 +305,16 @@ export const SITE_PAGES: SitePage[] = [
     group: "owner",
   },
   {
+    path: "/owner/usage",
+    name: "Usage",
+    what: "Owner view of visitors, return visits and what gets used. Counts only.",
+    access: "owner",
+    group: "owner",
+  },
+  {
     path: "/owner/feedback",
     name: "Feedback",
-    what: "Owner view of feedback sent from inside the product.",
+    what: "Owner view of feedback from testers, with or without an account.",
     access: "owner",
     group: "owner",
   },

@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
   if (denied) return denied;
   const store = await getMemberStore();
   if (!store) return NextResponse.json({ ok: false, error: "No database configured." }, { status: 503 });
-  const feedback = await listAllFeedback(store);
+  const members = (await listAllFeedback(store)).map((f) => ({ ...f, from: "member" as const, replyEmail: "" }));
+  // Visitor notes (no account). A failure here must not hide member notes.
+  const visitors = (await store.listVisitorFeedback().catch(() => [])).map((f) => ({ ...f, userId: "", from: "visitor" as const }));
+  const feedback = [...members, ...visitors].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return NextResponse.json({ ok: true, feedback });
 }
 
@@ -36,6 +39,7 @@ export async function PATCH(req: NextRequest) {
   const id = typeof body.id === "string" ? body.id : "";
   const status: FeedbackStatus = body.status === "reviewed" ? "reviewed" : "new";
   if (!id) return NextResponse.json({ ok: false, error: "Missing id." }, { status: 422 });
-  await markFeedbackStatus(store, id, status);
+  if (body.from === "visitor") await store.updateVisitorFeedbackStatus(id, status);
+  else await markFeedbackStatus(store, id, status);
   return NextResponse.json({ ok: true });
 }

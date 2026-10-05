@@ -3,6 +3,7 @@ import "./globals.css";
 import OpenMirrorFooter from "./OpenMirrorFooter";
 import RingHeader from "./site/RingHeader";
 import QuietFooterLink from "./site/QuietFooterLink";
+import UsageCounter from "./site/UsageCounter";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -89,6 +90,7 @@ export default function RootLayout({
         <RingHeader />
         {children}
         <QuietFooterLink />
+        <UsageCounter />
         <OpenMirrorFooter />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Y89TD7NPS0"

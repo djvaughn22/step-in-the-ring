@@ -41,6 +41,12 @@ export default function AboutPage() {
           Accounts only make a Build follow you to another device. They are
           invite-only while we test them, and they cost nothing.
         </p>
+        <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--muted)", margin: "12px 0 0" }}>
+          While it&apos;s in testing, we count visits and which pages and tools
+          get used, so we know what&apos;s worth building next. We never count
+          what you type. If your browser asks not to be tracked, we count
+          nothing. The site also uses Google Analytics for page visits.
+        </p>
       </Section>
 
       {/* The one consulting path — weekend help by email, after the site's

@@ -2945,3 +2945,35 @@ html[data-om-theme="light"] .ft-tool { color-scheme: light; }
 .startbox textarea:focus-visible,
 .gate input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }
+
+/* ── Tester feedback (2026-10-04) — footer disclosure + open form ── */
+.tfb { max-width: 560px; margin: 10px auto 0; text-align: left; }
+.tfb-open { margin: 0; max-width: none; border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: var(--panel); }
+.tfb-title { margin: 0 0 10px; font-size: 17px; font-weight: 900; color: var(--text); }
+.tfb-summary { cursor: pointer; color: var(--gold); font-weight: 800; font-size: 13px; text-align: center; list-style-position: inside; }
+.tfb-summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+.tfb[open] .tfb-summary { margin-bottom: 12px; }
+.tfb-form { display: grid; gap: 8px; }
+.tfb-kinds { border: 0; padding: 0; margin: 0 0 4px; display: flex; flex-wrap: wrap; gap: 8px; }
+.tfb-kinds legend { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 8px; padding: 0; }
+.tfb-kind { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line2); border-radius: 999px; padding: 7px 12px; font-size: 13px; color: var(--muted); cursor: pointer; min-height: 36px; }
+.tfb-kind input { accent-color: var(--gold); margin: 0; }
+.tfb-kind.on { border-color: var(--gold); color: var(--text); }
+.tfb-kind:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
+.tfb-label { font-size: 13px; font-weight: 800; color: var(--text); }
+.tfb-opt { font-weight: 400; color: var(--muted); }
+.tfb-input { width: 100%; box-sizing: border-box; background: var(--bg, transparent); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 15px; }
+textarea.tfb-input { resize: vertical; min-height: 84px; }
+.tfb-input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
+.tfb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.tfb-go { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+.tfb-fine { font-size: 12px; color: var(--muted); flex: 1; min-width: 200px; }
+.tfb-err { min-height: 1em; margin: 0; font-size: 13px; font-weight: 800; color: var(--gold); }
+.tfb-done { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 14px; color: var(--text); }
+.tfb-again { background: none; border: 0; cursor: pointer; font: inherit; color: var(--gold); padding: 0; }
+.test-runs { margin: 0; padding-left: 22px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: var(--muted); }
+.test-runs strong { color: var(--text); }
+.test-runs a, #help-test .band-note a { color: var(--gold); font-weight: 700; }
+#tell-us { scroll-margin-top: 90px; }
+.tfb-kind { white-space: nowrap; flex: 0 0 auto; }
+#help-test .band-note { margin-top: 16px; }

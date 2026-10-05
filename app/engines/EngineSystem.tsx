@@ -569,7 +569,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 8, flexWrap: "wrap" }}>
               <span className="kicker" style={{ margin: 0 }}>Your projects</span>
               <div style={{ display: "flex", gap: 8 }}>
-                <a href="/account#feedback" className="btn btn-ghost btn-small">Give feedback</a>
+                <a href="#tester-feedback" className="btn btn-ghost btn-small">Give feedback</a>
                 <button onClick={startNew} className="btn btn-gold">+ New project</button>
               </div>
             </div>

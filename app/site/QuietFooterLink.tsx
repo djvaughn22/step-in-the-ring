@@ -23,6 +23,7 @@
 
 import Link from "next/link";
 import RingMark from "./RingMark";
+import TesterFeedback from "./TesterFeedback";
 
 export default function QuietFooterLink() {
   return (
@@ -33,9 +34,9 @@ export default function QuietFooterLink() {
         <Link href="/everything">Everything on this site</Link>
       </p>
       <p className="site-quiet-footer-beta">
-        Open beta. Keep a copy of anything important.{" "}
-        <Link href="/account#feedback">Send feedback</Link>.
+        Open beta. Keep a copy of anything important. Something off, or something you loved?
       </p>
+      <TesterFeedback title="Send feedback, no account needed" />
     </div>
   );
 }
