@@ -75,7 +75,7 @@ export default async function EverythingPage() {
         <Jump
           items={[
             { label: "Create", href: "#create" },
-            { label: "Engines", href: "#engines" },
+            { label: "Tools & engines", href: "#engines" },
             { label: "Builds", href: "#builds" },
             { label: "Library", href: "#library" },
             { label: "Learn", href: "#learn" },
@@ -97,8 +97,8 @@ export default async function EverythingPage() {
 
       <Band
         id="engines"
-        title="Engines"
-        note="Focused tools that make one part of something. Open to anyone — no account to look, and none to use one."
+        title="Tools and engines"
+        note="Free tools and step-by-step guides, then the engines that make one part of something. Open to anyone, no account needed."
       >
         <PageRows pages={pagesInGroup("engines")} />
       </Band>

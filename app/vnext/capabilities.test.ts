@@ -85,3 +85,11 @@ describe("every engine on the catalog has what a person needs to decide", () => 
     }
   });
 });
+
+describe("one home per tool", () => {
+  it("keeps the step-by-step guides on /tools, not on the engine shelves", () => {
+    const ids = enginesByGroup().flatMap((g) => g.items.map((c) => c.id));
+    for (const id of ["build-machine", "first-app", "five-hour-sprint"]) expect(ids).not.toContain(id);
+    expect(enginesByGroup().every((g) => g.items.every((c) => c.kind === "engine"))).toBe(true);
+  });
+});

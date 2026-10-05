@@ -298,7 +298,8 @@ export function displayName(c: Capability): string {
 }
 
 /** Everything that belongs on the engines page, shelf by shelf, in order.
- *  Hidden engines and surfaces without a group never appear. */
+ *  Only real engines: the step-by-step guides (Build Machine, the first
+ *  build, the Sprint planner) have one home, on /tools (Oct 4 2026). */
 export function enginesByGroup(): { id: EngineGroup; title: string; note: string; items: Capability[] }[] {
   const all = allCapabilities();
   return ENGINE_GROUPS.map((g) => ({
@@ -306,7 +307,7 @@ export function enginesByGroup(): { id: EngineGroup; title: string; note: string
     // Working first, then beta, then owner-only. Nobody should have to scan
     // past three things they cannot open to find the one they can.
     items: all
-      .filter((c) => c.group === g.id && !HIDDEN_FROM_ENGINES.has(c.id))
+      .filter((c) => c.kind === "engine" && c.group === g.id && !HIDDEN_FROM_ENGINES.has(c.id))
       .sort((a, b) => rank(a) - rank(b) || displayName(a).localeCompare(displayName(b))),
   })).filter((g) => g.items.length > 0);
 }

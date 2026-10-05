@@ -115,8 +115,9 @@ export default function EnginesPage() {
       </p>
 
       <p className="tiny" style={{ marginTop: 10 }}>
-        Want something smaller than an engine?{" "}
-        <Link href="/tools">The free tools</Link> each do one job in a few minutes.
+        Looking for the Build Machine, the first-build walkthrough or the Five
+        Hour Sprint planner? They are step-by-step guides, so they live with{" "}
+        <Link href="/tools">the free tools</Link>.
       </p>
     </Sheet>
   );
