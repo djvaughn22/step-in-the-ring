@@ -54,11 +54,18 @@ describe("official homepage identity", () => {
       expect(cards[i].textContent).toContain(`Visit ${project.name}`);
     });
   });
-  it("keeps three real starting routes, five ordered rounds, and secondary engines", () => {
+  // Oct 2026 simplification: each thing appears once. The idea box is the
+  // hero, so no path card repeats it; engines are one path card, not a
+  // second section; Ready to Build lives in "Want a hand?".
+  it("keeps three distinct ways in, five ordered rounds, and no repeated sections", () => {
     const doc = home();
-    expect([...doc.querySelectorAll(".path-card")].map(a => a.getAttribute("href"))).toEqual(["/build", "/create", "/engines"]);
+    expect([...doc.querySelectorAll(".path-card")].map(a => a.getAttribute("href"))).toEqual(["/build", "/tools", "/engines"]);
     expect(doc.querySelectorAll("ol.how-steps > li")).toHaveLength(5);
-    expect(doc.querySelectorAll(".tool-row")).toHaveLength(3);
+    expect(doc.querySelectorAll(".tool-row")).toHaveLength(0);
+    expect(doc.querySelector(".ready-build-promo")).toBeNull();
+    expect(doc.querySelectorAll('a[href^="/products/ready-to-build"]')).toHaveLength(1);
+    expect(doc.querySelector('a[href="/whats-built#tell-us"]')).not.toBeNull();
+    expect(doc.querySelectorAll(".home-page > section").length).toBeLessThanOrEqual(6);
     for (const href of ["/everything", "/how", "/engines", "/whats-built"]) expect(doc.querySelector(`a[href="${href}"]`)).not.toBeNull();
     expect(doc.querySelector(".startbox button[type=submit]")?.textContent).toBe("Step into the Ring");
   });

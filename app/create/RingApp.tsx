@@ -508,17 +508,16 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </div>
             <div className="home-entry">{theBox}</div>
           </section>
-          <section className="ready-build-promo" aria-labelledby="ready-build-title">
-            <div><span className="kicker">Your first rep starts here</span><h2 id="ready-build-title">Old computer. New possibilities.</h2><p>Ready to Build: turn the computer you already have into an AI build machine, then launch your first simple project.</p></div>
-            <Link className="btn btn-gold" href="/products/ready-to-build">Meet Ready to Build →</Link>
-          </section>
+          {/* A returning visitor gets one quiet offer to continue — never the
+              work's own title on the front door. */}
+          <ContinueStrip />
           <section className="home-paths" aria-labelledby="paths-heading">
-            <div className="section-intro"><span className="kicker">Choose your first move</span><h2 id="paths-heading">Start where you are.</h2></div>
+            <div className="section-intro"><span className="kicker">Or pick a way in</span><h2 id="paths-heading">Start where you are.</h2><p>The idea box above works for anything. These are for when you already know the kind of help you want.</p></div>
             <div className="path-grid">
               {[
-                ["build", "Build something", "Turn an idea into a working app or site.", "/build", "build"],
-                ["create", "Create something", "Make a game, story, song, design, or more.", "/create", "create"],
-                ["solve", "Solve or plan something", "Work through a problem, project, or next step.", "/engines", "solve"],
+                ["build", "Build your first website or app", "Six short rounds, from an idea to your own link on the internet.", "/build", "build"],
+                ["tools", "Grab a free tool", "Small tools that each do one job: cut an idea down, test it, check it before you share.", "/tools", "create"],
+                ["solve", "Go deeper with an engine", "Idea, Design Shop, Build, Music, Plan and more. Each one makes one part of the thing.", "/engines", "solve"],
               ].map(([id, title, text, href, icon]) => (
                 <Link className="path-card" href={href} key={id}>
                   <span className={`path-icon path-icon-${id}`} aria-hidden="true"><WorkshopIcon kind={icon} /></span>
@@ -533,15 +532,15 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="home-proof-links"><Link className="text-link" href="/builds">See everything we&apos;ve built&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
           <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">A simple loop</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Bring the idea","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Build it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Improve or finish","Refine what works. Finish when it’s ready."]].map(([n,t,d],i)=><li className="how-step" key={n}><span><span className="round-label">Round </span>{n}</span><h3>{t}</h3><p>{d}</p><Link className="how-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label}&nbsp;→</Link></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
-          <section className="home-tools" aria-labelledby="tools-heading"><div className="section-intro"><span className="kicker">Optional engines</span><h2 id="tools-heading">Need a focused starting point?</h2><p>Pick a tool when you know the kind of help you need. You can always start with the idea box instead.</p></div><div className="tool-list">{FEATURED_ENGINES.slice(0, 3).map((c)=><Link href={c.href} className="tool-row" key={c.id}><span className="tool-symbol" aria-hidden="true"><WorkshopIcon kind={c.id === "idea" ? "solve" : c.id === "design-shop" ? "create" : "build"} /></span><span><strong>{displayName(c)}{c.activation !== "working" && <span className="status-pill status-beta tool-pill">Beta</span>}</strong><span>{c.useWhen ?? c.what}</span></span><span aria-hidden="true">→</span></Link>)}</div><div className="home-proof-links"><Link className="text-link" href="/engines">Explore all engines&nbsp; →</Link><Link className="text-link" href="/tools">Or grab a small free tool&nbsp; →</Link></div></section>
-          {/* Help for someone who is unsure: two free tools and the one human
-              path (weekend consulting by email). Nothing here is for sale. */}
+          {/* Help for someone who is unsure: the computer check, the one human
+              path (weekend consulting by email), and a way to tell us what
+              happened. Nothing here is for sale. */}
           <section className="home-help" aria-labelledby="help-heading">
             <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">You don&apos;t have to do it alone.</h2><p>Everything here is free and needs no account. Pick the kind of help that fits.</p></div>
             <ul className="help-list">
-              <li><strong>Not sure where to start?</strong><span>Small free tools that each do one job: cut an idea down, test it with a real person, check it before you share it.</span><Link className="text-link" href="/tools">Open the free tools&nbsp; →</Link></li>
-              <li><strong>Is your computer up to it?</strong><span>A free, one-question-at-a-time check before you change or buy anything.</span><Link className="text-link" href="/products/ready-to-build#computer-check">Check my computer&nbsp; →</Link></li>
+              <li><strong>Is your computer up to it?</strong><span>Ready to Build: a free, one-question-at-a-time check, then a guide to turning the computer you already have into one that builds.</span><Link className="text-link" href="/products/ready-to-build">Meet Ready to Build&nbsp; →</Link></li>
               <li><strong>Want a hand on the weekend?</strong><span>I do a little consulting on weekends. Ask by email. No forms, no pressure.</span><a className="text-link" href={WEEKEND_CONSULTING_HREF}>Ask about weekend help&nbsp; →</a></li>
+              <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>
           <section className="home-final"><RingMark /><span className="kicker">Your next move</span><h2>Bring the next idea.</h2><p>One sentence is enough to get started.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Step into the Ring&nbsp; →</button></section>

@@ -25,6 +25,29 @@ export interface LegacySource {
    *  person actually put something in. Without it, opening a tool once would
    *  show up as "work". */
   hasWork?: (parsed: unknown) => boolean;
+  /** The person's own name for the latest thing in here, shown back to
+   *  them on Your work (their browser, their words). Never sent anywhere. */
+  titleOf?: (parsed: unknown) => string | null;
+}
+
+/** A short, single-line version of something the person typed. */
+function shortTitle(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const t = v.replace(/\s+/g, " ").trim();
+  if (!t) return null;
+  return t.length > 60 ? `${t.slice(0, 57).trimEnd()}…` : t;
+}
+
+const field = (name: string) => (parsed: unknown) =>
+  parsed && typeof parsed === "object" ? shortTitle((parsed as Record<string, unknown>)[name]) : null;
+
+/** The most recently touched item in a list (by updatedAt when it has one). */
+function latestOf(list: unknown, name: string): string | null {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  const items = list.filter((x): x is Record<string, unknown> => !!x && typeof x === "object");
+  const sorted = [...items].sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")));
+  const pick = sorted.some((x) => x.updatedAt) ? sorted[0] : items[items.length - 1];
+  return pick ? shortTitle(pick[name]) : null;
 }
 
 /** Any of these fields holds real text (or a non-empty list). */
@@ -40,6 +63,8 @@ function filled(fields: string[]): (parsed: unknown) => boolean {
 }
 
 export interface LegacyFinding extends LegacySource {
+  /** See LegacySource.titleOf. */
+  title?: string | null;
   /** How many saved things are in there. `null` = present but not countable. */
   count: number | null;
   present: boolean;
@@ -53,7 +78,7 @@ export interface LegacyFinding extends LegacySource {
 export const LEGACY_SOURCES: LegacySource[] = [
   { key: "sitr-plans-v3", label: "Saved plans", emoji: "📋", href: "/", storage: "local" },
   { key: "sitr-creation-current-v1", label: "Your last creation", emoji: "✨", href: "/", storage: "local" },
-  { key: "sitr-engine-projects-v1", label: "Engine Room projects", emoji: "🧰", href: "/engines/room", storage: "local" },
+  { key: "sitr-engine-projects-v1", label: "Engine Room projects", emoji: "🧰", href: "/engines/room", storage: "local", titleOf: (p) => latestOf((p as { projects?: unknown } | null)?.projects, "name") },
   { key: "creation-engine-projects-v1", label: "Engine projects (earlier key)", emoji: "🧰", href: "/engines/room", storage: "local" },
   { key: "sitr-projects-v1", label: "Project OS records", emoji: "🗂️", href: "/projects", storage: "local" },
   { key: "sitr-music-songs-v1", label: "Songs", emoji: "🎵", href: "/engines/room?engine=music", storage: "local" },
@@ -64,10 +89,10 @@ export const LEGACY_SOURCES: LegacySource[] = [
   { key: "sitr-story-partner", label: "Story Partner work", emoji: "📓", href: "/author", storage: "indexeddb" },
   // The free tools and the Sprint planner (2026-10-04): they always saved to
   // this browser, but nothing pointed back to them.
-  { key: "fhs-sprints", label: "Five Hour Sprint plans", emoji: "⏱️", href: "/five-hour-sprint-tool", storage: "local" },
-  { key: "sitr-tool-first-version", label: "First version cutter", emoji: "✂️", href: "/tools/first-version", storage: "local", hasWork: filled(["idea", "doneMeans", "items"]) },
-  { key: "sitr-tool-try-it", label: "Try-it script", emoji: "🧪", href: "/tools/try-it", storage: "local", hasWork: filled(["what", "task", "notes.did", "notes.stuck", "notes.said", "notes.change"]) },
-  { key: "sitr-tool-one-liner", label: "One-line explainer", emoji: "💬", href: "/tools/one-liner", storage: "local", hasWork: filled(["name", "what", "who", "helps"]) },
+  { key: "fhs-sprints", label: "Five Hour Sprint plans", emoji: "⏱️", href: "/five-hour-sprint-tool", storage: "local", titleOf: (p) => latestOf(p, "deliverable") },
+  { key: "sitr-tool-first-version", label: "First version cutter", emoji: "✂️", href: "/tools/first-version", storage: "local", hasWork: filled(["idea", "doneMeans", "items"]), titleOf: field("idea") },
+  { key: "sitr-tool-try-it", label: "Try-it script", emoji: "🧪", href: "/tools/try-it", storage: "local", hasWork: filled(["what", "task", "notes.did", "notes.stuck", "notes.said", "notes.change"]), titleOf: field("what") },
+  { key: "sitr-tool-one-liner", label: "One-line explainer", emoji: "💬", href: "/tools/one-liner", storage: "local", hasWork: filled(["name", "what", "who", "helps"]), titleOf: field("name") },
   { key: "sitr-tool-launch-checklist", label: "Launch checklist", emoji: "✅", href: "/tools/launch-checklist", storage: "local", hasWork: filled(["done"]) },
 ];
 
@@ -86,6 +111,14 @@ function countOf(raw: string): number | null {
     return 1;
   } catch {
     // Present but unreadable by this scanner. The owning surface still opens it.
+    return null;
+  }
+}
+
+function titleFrom(source: LegacySource, parsed: unknown): string | null {
+  try {
+    return source.titleOf ? source.titleOf(parsed) : null;
+  } catch {
     return null;
   }
 }
@@ -124,12 +157,18 @@ export function findLegacyWork(sources: LegacySource[] = LEGACY_SOURCES): Legacy
       } catch {
         parsed = null;
       }
-      if (source.hasWork(parsed)) out.push({ ...source, present: true, count: null });
+      if (source.hasWork(parsed)) out.push({ ...source, present: true, count: null, title: titleFrom(source, parsed) });
       continue;
     }
     const count = countOf(raw);
     if (count === 0) continue; // an empty list is not "work you left here"
-    out.push({ ...source, present: true, count });
+    let parsed: unknown = null;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = null;
+    }
+    out.push({ ...source, present: true, count, title: titleFrom(source, parsed) });
   }
   return out;
 }

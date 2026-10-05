@@ -26,6 +26,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { BuildRecordV1 } from "./build";
+import { findLegacyWork } from "./legacy";
+import { loadCurrentCreation } from "../creation/record";
 
 /** The card itself, kept separate from data-fetching so it's directly
  *  testable: given a Build, it never renders its title or status. */
@@ -45,8 +47,39 @@ export function KeepGoingCard({ latest }: { latest: BuildRecordV1 }) {
   );
 }
 
+/** A visitor with no account but with work in this browser (Oct 2026: no
+ *  sign-up). Same rule as above: nothing about the work itself is printed. */
+export function WelcomeBackCard() {
+  return (
+    <div className="continue-strip">
+      <p className="continue-strip-text">Welcome back. Your work is where you left it.</p>
+      <div className="continue-strip-actions">
+        <Link className="btn btn-gold btn-small" href="/library">
+          Pick up where you left off →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/** Anything worth coming back to in this browser? Settings don't count. */
+export function hasLocalWork(): boolean {
+  try {
+    if (loadCurrentCreation()) return true;
+    return findLegacyWork().some((f) => f.key !== "sitr-builder-defaults-v1");
+  } catch {
+    return false;
+  }
+}
+
 export default function ContinueStrip() {
   const [builds, setBuilds] = useState<BuildRecordV1[] | null>(null);
+  const [local, setLocal] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after mount
+    setLocal(hasLocalWork());
+  }, []);
 
   useEffect(() => {
     let live = true;
@@ -68,7 +101,14 @@ export default function ContinueStrip() {
     };
   }, []);
 
-  if (!builds || builds.length === 0) return null;
+  if (!builds || builds.length === 0) {
+    if (!local) return null;
+    return (
+      <section className="band band-tight continue-strip-section" aria-label="Welcome back">
+        <WelcomeBackCard />
+      </section>
+    );
+  }
 
   // Newest first is already the API's order — the top one is what they were
   // last doing, and that is the only one worth offering to continue.
