@@ -85,6 +85,34 @@ export interface AnalyticsEvent {
 }
 
 export type FeedbackCategory = "bug" | "confusing" | "idea" | "other";
+
+// Feedback from anyone using the site, account or not (2026-10-04). Kept in
+// its own table: member feedback is tied to a user row, and most testers
+// never make an account. The reply email is optional and only ever typed by
+// the person themselves.
+export type VisitorFeedbackCategory = "bug" | "confusing" | "idea" | "loved";
+export interface VisitorFeedbackRecord {
+  id: string;
+  category: VisitorFeedbackCategory;
+  message: string;
+  contextUrl: string;
+  replyEmail: string;
+  status: "new" | "reviewed";
+  createdAt: string;
+}
+
+/** One row of the owner's usage view: how many times, on which Central day. */
+export interface EventSummaryRow {
+  event: string;
+  source: string;
+  day: string; // YYYY-MM-DD, America/Chicago
+  count: number;
+}
+
+/** The owner reads usage in their own day, not UTC. */
+export function centralDay(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+}
 export type FeedbackStatus = "new" | "reviewed";
 
 export interface FeedbackRecord {
@@ -155,6 +183,12 @@ export interface MemberStore {
   createFeedback(f: FeedbackRecord): Promise<void>;
   listFeedback(): Promise<FeedbackRecord[]>;
   updateFeedbackStatus(id: string, status: FeedbackStatus): Promise<void>;
+  // feedback from anyone, no account needed
+  createVisitorFeedback(f: VisitorFeedbackRecord): Promise<void>;
+  listVisitorFeedback(): Promise<VisitorFeedbackRecord[]>;
+  updateVisitorFeedbackStatus(id: string, status: "new" | "reviewed"): Promise<void>;
+  // usage counts for the owner, grouped by event, source and Central day
+  summarizeEvents(sinceIso: string): Promise<EventSummaryRow[]>;
   // Five Hour Sprint (paid service) applications
   createSprintApplication(a: SprintApplicationRecord): Promise<void>;
   listSprintApplications(): Promise<SprintApplicationRecord[]>;
@@ -172,6 +206,7 @@ export class MemoryMemberStore implements MemberStore {
   stripeEvents = new Set<string>();
   events: AnalyticsEvent[] = [];
   feedback = new Map<string, FeedbackRecord>();
+  visitorFeedback = new Map<string, VisitorFeedbackRecord>();
   sprintApplications = new Map<string, SprintApplicationRecord>();
 
   async createUser(u: UserRecord) {
@@ -255,6 +290,28 @@ export class MemoryMemberStore implements MemberStore {
   async recordEvent(e: AnalyticsEvent) {
     this.events.push({ ...e });
   }
+  async summarizeEvents(sinceIso: string) {
+    const rows = new Map<string, EventSummaryRow>();
+    for (const e of this.events) {
+      if (e.createdAt < sinceIso) continue;
+      const day = centralDay(e.createdAt);
+      const key = `${e.event}|${e.source}|${day}`;
+      const row = rows.get(key) ?? { event: e.event, source: e.source, day, count: 0 };
+      row.count += 1;
+      rows.set(key, row);
+    }
+    return [...rows.values()];
+  }
+  async createVisitorFeedback(f: VisitorFeedbackRecord) {
+    this.visitorFeedback.set(f.id, { ...f });
+  }
+  async listVisitorFeedback() {
+    return [...this.visitorFeedback.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  async updateVisitorFeedbackStatus(id: string, status: "new" | "reviewed") {
+    const existing = this.visitorFeedback.get(id);
+    if (existing) this.visitorFeedback.set(id, { ...existing, status });
+  }
   async createFeedback(f: FeedbackRecord) {
     this.feedback.set(f.id, { ...f });
   }
@@ -278,6 +335,19 @@ export class MemoryMemberStore implements MemberStore {
 }
 
 // ── Postgres implementation ─────────────────────────────────────────────────
+
+/** Same statement as migrations/004_visitor_feedback.sql (a test keeps them equal). */
+export const VISITOR_FEEDBACK_DDL = `CREATE TABLE IF NOT EXISTS visitor_feedback (
+  id           text PRIMARY KEY,
+  category     text NOT NULL,
+  message      text NOT NULL,
+  context_url  text NOT NULL DEFAULT '',
+  reply_email  text NOT NULL DEFAULT '',
+  status       text NOT NULL DEFAULT 'new',
+  created_at   timestamptz NOT NULL
+);
+CREATE INDEX IF NOT EXISTS visitor_feedback_created_idx ON visitor_feedback(created_at);
+CREATE INDEX IF NOT EXISTS member_events_created_idx ON member_events(created_at);`;
 // Schema in migrations/001_membership.sql. Uses the pg Pool lazily so builds
 // and tests never open a connection.
 
@@ -480,6 +550,57 @@ export class PgMemberStore implements MemberStore {
       `INSERT INTO member_events (event, source, created_at) VALUES ($1,$2,$3)`,
       [e.event, e.source, e.createdAt],
     );
+  }
+  async summarizeEvents(sinceIso: string) {
+    const { rows } = await this.pool.query(
+      `SELECT event, source,
+              to_char(created_at AT TIME ZONE 'America/Chicago', 'YYYY-MM-DD') AS day,
+              count(*)::int AS count
+         FROM member_events
+        WHERE created_at >= $1
+        GROUP BY 1, 2, 3`,
+      [sinceIso],
+    );
+    return rows.map((r) => ({ event: String(r.event), source: String(r.source ?? ""), day: String(r.day), count: Number(r.count) }));
+  }
+
+  // migrations/004_visitor_feedback.sql, applied on first use so the feature
+  // works on a database that predates it. Additive only; never alters data.
+  private visitorTable: Promise<unknown> | null = null;
+  private ensureVisitorTable() {
+    this.visitorTable ??= this.pool
+      .query(VISITOR_FEEDBACK_DDL)
+      .catch((err) => {
+        this.visitorTable = null;
+        throw err;
+      });
+    return this.visitorTable;
+  }
+  private mapVisitorFeedback = (r: Record<string, unknown>): VisitorFeedbackRecord => ({
+    id: String(r.id),
+    category: String(r.category) as VisitorFeedbackCategory,
+    message: String(r.message),
+    contextUrl: String(r.context_url ?? ""),
+    replyEmail: String(r.reply_email ?? ""),
+    status: r.status === "reviewed" ? "reviewed" : "new",
+    createdAt: String(r.created_at),
+  });
+  async createVisitorFeedback(f: VisitorFeedbackRecord) {
+    await this.ensureVisitorTable();
+    await this.pool.query(
+      `INSERT INTO visitor_feedback (id, category, message, context_url, reply_email, status, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [f.id, f.category, f.message, f.contextUrl, f.replyEmail, f.status, f.createdAt],
+    );
+  }
+  async listVisitorFeedback() {
+    await this.ensureVisitorTable();
+    const { rows } = await this.pool.query(`SELECT * FROM visitor_feedback ORDER BY created_at DESC LIMIT 500`);
+    return rows.map(this.mapVisitorFeedback);
+  }
+  async updateVisitorFeedbackStatus(id: string, status: "new" | "reviewed") {
+    await this.ensureVisitorTable();
+    await this.pool.query(`UPDATE visitor_feedback SET status=$2 WHERE id=$1`, [id, status]);
   }
 
   private mapFeedback = (r: Record<string, unknown>): FeedbackRecord => ({

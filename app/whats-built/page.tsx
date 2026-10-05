@@ -17,6 +17,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Sheet, Masthead, Band } from "../site/ui";
 import { displayName, enginesByGroup, type Capability } from "../vnext/capabilities";
+import TesterFeedback from "../site/TesterFeedback";
 
 export const metadata: Metadata = {
   title: "What's built",
@@ -172,10 +173,30 @@ export default function WhatsBuiltPage() {
   return (
     <Sheet>
       <Masthead
-        kicker="Status"
+        kicker="Open beta"
         title="What’s built, and what isn’t yet"
-        lead="Everything here is free. This page says plainly what you can use today and what is still being made."
+        lead="Everything here is free while it’s being tested. This page says plainly what you can use today, what is still being made, and how to tell us what you find."
       />
+
+      <Band id="help-test" title="You’re early. Help test it." note="Ten minutes is plenty. Try any of these, then tell us what happened.">
+        <ol className="test-runs">
+          <li>
+            <strong>Bring a real idea.</strong> Type something you actually want to make into{" "}
+            <Link href="/create">the idea box</Link>. Does the first move make sense?
+          </li>
+          <li>
+            <strong>Cut it down.</strong> Run the same idea through the{" "}
+            <Link href="/tools/first-version">first version cutter</Link>. Is what’s left small enough to finish?
+          </li>
+          <li>
+            <strong>Try one beta engine.</strong> Open one from the list below that fits what you’re making. Is what
+            you get back something you’d actually use?
+          </li>
+        </ol>
+        <p className="band-note">
+          <a href="#tell-us">Tell us what happened ↓</a>
+        </p>
+      </Band>
 
       <Band
         id="works"
@@ -201,11 +222,14 @@ export default function WhatsBuiltPage() {
         <List items={NOT_YET} />
       </Band>
 
-      <p className="band-note" style={{ marginTop: 32 }}>
-        Not sure where to begin? <Link href="/create">Say what you want to make</Link>, or{" "}
-        <Link href="/tools">grab a free tool</Link>. Found something that doesn&apos;t work? Email{" "}
-        <a href="mailto:ask@openmirrorllc.com?subject=Step%20In%20The%20Ring%20problem">ask@openmirrorllc.com</a>.
-      </p>
+      <section className="band" id="tell-us">
+        <TesterFeedback open title="Tell us what happened" />
+        <p className="band-note" style={{ marginTop: 14 }}>
+          Rather email? <a href="mailto:ask@openmirrorllc.com?subject=Step%20In%20The%20Ring%20feedback">ask@openmirrorllc.com</a>.
+          Not sure where to begin? <Link href="/create">Say what you want to make</Link>, or{" "}
+          <Link href="/tools">grab a free tool</Link>.
+        </p>
+      </section>
     </Sheet>
   );
 }

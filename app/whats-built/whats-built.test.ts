@@ -20,7 +20,7 @@ describe("What's built", () => {
   it("links only to public pages or to an engine visitors can open", () => {
     const openEngines = new Set(engines.filter((c) => !c.ownerOnly).map((c) => c.href));
     for (const href of hrefs) {
-      if (href.startsWith("mailto:")) continue;
+      if (href.startsWith("mailto:") || href.startsWith("#")) continue;
       const ok = publicPaths.has(href.split("#")[0]) || openEngines.has(href);
       expect(ok, `${href} is not an open page`).toBe(true);
     }

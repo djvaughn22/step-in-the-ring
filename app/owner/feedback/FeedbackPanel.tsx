@@ -9,9 +9,11 @@ import { useCallback, useEffect, useState } from "react";
 interface FeedbackItem {
   id: string;
   userId: string;
-  category: "bug" | "confusing" | "idea" | "other";
+  category: "bug" | "confusing" | "idea" | "other" | "loved";
   message: string;
   contextUrl: string;
+  from: "member" | "visitor";
+  replyEmail: string;
   status: "new" | "reviewed";
   createdAt: string;
 }
@@ -21,6 +23,7 @@ const CATEGORY_LABEL: Record<FeedbackItem["category"], string> = {
   confusing: "Something was confusing",
   idea: "An idea",
   other: "Other",
+  loved: "Something they loved",
 };
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
@@ -41,7 +44,7 @@ export default function FeedbackPanel() {
     refresh().then(setItems).catch(() => setItems([]));
   }, [refresh]);
 
-  const setStatus = async (id: string, status: FeedbackItem["status"]) => {
+  const setStatus = async (id: string, from: FeedbackItem["from"], status: FeedbackItem["status"]) => {
     if (busyId) return;
     setBusyId(id);
     setMessage("");
@@ -49,7 +52,7 @@ export default function FeedbackPanel() {
       await fetch("/api/owner/feedback", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, status }),
+        body: JSON.stringify({ id, from, status }),
       });
       setItems(await refresh());
     } catch {
@@ -67,8 +70,9 @@ export default function FeedbackPanel() {
       </p>
       <h1 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 6px" }}>Tester feedback</h1>
       <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.55, margin: "0 0 14px" }}>
-        Every submission from every signed-in account, newest first. Mark an
-        item reviewed once you have read it — nothing is ever deleted here.
+        Every note, newest first: from signed-in accounts and from the form
+        anyone can use. Mark an item reviewed once you have read it — nothing
+        is ever deleted here.
       </p>
 
       <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
@@ -101,10 +105,19 @@ export default function FeedbackPanel() {
             <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 10px", lineHeight: 1.5 }}>
               {new Date(f.createdAt).toLocaleString()}
               {f.contextUrl ? ` · from ${f.contextUrl}` : ""}
+              {f.from === "visitor" ? " · no account" : " · member"}
             </p>
+            {f.replyEmail && (
+              <p style={{ fontSize: 12.5, margin: "0 0 10px" }}>
+                Wants a reply:{" "}
+                <a href={`mailto:${f.replyEmail}?subject=${encodeURIComponent("Your Step In The Ring feedback")}`} style={{ color: "var(--gold)", fontWeight: 800 }}>
+                  {f.replyEmail}
+                </a>
+              </p>
+            )}
             <button
               type="button"
-              onClick={() => setStatus(f.id, f.status === "new" ? "reviewed" : "new")}
+              onClick={() => setStatus(f.id, f.from, f.status === "new" ? "reviewed" : "new")}
               disabled={busyId === f.id}
               style={{ background: "transparent", color: "var(--muted)", border: "1px solid var(--line)", borderRadius: 10, padding: "6px 12px", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
             >

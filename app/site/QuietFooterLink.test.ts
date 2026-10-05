@@ -39,8 +39,11 @@ describe("QuietFooterLink carries the open-beta safety line", () => {
     expect(src).toMatch(/Open beta\. Keep a copy of anything important\./);
   });
 
-  it("links to the real feedback destination", () => {
-    expect(src).toMatch(/href="\/account#feedback"/);
+  // 2026-10-04: the old link went to /account, a sign-in wall for every
+  // tester without an account. The footer now carries the form itself.
+  it("carries a feedback form anyone can use, not a link behind sign-in", () => {
+    expect(src).toMatch(/<TesterFeedback /);
+    expect(src).not.toMatch(/account#feedback/);
   });
 
   it("carries no duplicate big creation CTA — this is a footer, not a second hero", () => {
