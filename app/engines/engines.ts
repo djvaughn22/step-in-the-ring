@@ -169,7 +169,7 @@ export const ENGINES: Engine[] = [
     blurb: "You know roughly what it is. We define the MVP, the architecture, and a detailed build prompt ready for your coding tool.",
     technical: true,
     activation: "beta",
-    output: "A build prompt detailed enough to hand to your coding tool, plus the MVP scope and architecture behind it.",
+    output: "A step-by-step prompt to paste into your coding assistant, plus what the first version includes and how it fits together.",
     beginWith: "An idea you're ready to build, and who it's for.",
     statusNote: "Generates a real package. It writes the brief — it does not write the code. Not the same thing as /build, the beginner walkthrough.",
     suggestedStage: "Building",
@@ -193,7 +193,7 @@ export const ENGINES: Engine[] = [
     blurb: "A product, service, or digital download. We define the customer, the offer, the price hypothesis, and the first real validation.",
     technical: false,
     activation: "beta",
-    output: "An offer someone could actually buy: customer, format, price hypothesis, and the first validation test.",
+    output: "An offer someone could actually buy: who it's for, what it is, a starting price to test, and the first test to run.",
     beginWith: "Something you want to sell and who it's for.",
     suggestedStage: "Shaping",
     intake: [
@@ -216,7 +216,7 @@ export const ENGINES: Engine[] = [
     blurb: "It works — now it needs to face the public. We assess readiness, find blockers, and build a launch package with a first measurable result.",
     technical: true,
     activation: "beta",
-    output: "A launch package: what's not ready, the production checks, the message, and one number to measure.",
+    output: "A launch package: what isn't ready yet, the checks to run, the message to send, and one number to watch.",
     beginWith: "A built product ready to introduce to real people.",
     suggestedStage: "Launching",
     intake: [
@@ -239,7 +239,7 @@ export const ENGINES: Engine[] = [
     blurb: "Say what broke in your own words. We look before we touch, protect what still works, and hand you a careful repair plan with checks so it stays fixed.",
     technical: true,
     activation: "beta",
-    output: "A careful repair prompt that inspects before it edits, plus the regression checks around it.",
+    output: "A careful repair prompt that looks before it changes anything, plus checks that the rest still works.",
     beginWith: "A specific problem, failure, or confusing behavior.",
     suggestedStage: "Repairing",
     intake: [
@@ -262,7 +262,7 @@ export const ENGINES: Engine[] = [
     blurb: "It's live and working. We find the bottleneck, pick one growth hypothesis, and design the smallest experiment with a decision rule.",
     technical: false,
     activation: "beta",
-    output: "One growth hypothesis and the smallest experiment that would prove it, with a decision rule.",
+    output: "One idea for growing, the smallest test that would prove it, and how to read the result.",
     beginWith: "An existing project and the result you want to improve.",
     suggestedStage: "Growing",
     intake: [
@@ -285,7 +285,7 @@ export const ENGINES: Engine[] = [
     blurb: "An event, campaign, build, or effort that isn't code. We turn it into phases, owners, milestones, and the next concrete action.",
     technical: false,
     activation: "beta",
-    output: "A real-world plan: milestones, owners, dependencies, risks, and the next concrete action.",
+    output: "A real-world plan: the steps, who does what, what has to happen first, the risks, and the next action.",
     beginWith: "A goal, deadline, or deliverable that needs a workable plan.",
     suggestedStage: "Planning",
     intake: [
@@ -383,7 +383,7 @@ export const ENGINES: Engine[] = [
     // "beta" over "working": real output, but one whole path is genuinely
     // owner-only, not a rough edge that will smooth itself out.
     activation: "beta",
-    output: "A shaped new game idea for anyone; a playable doku world published live to OpenDoku when the owner runs the re-theme path.",
+    output: "A shaped game idea you can take further. Publishing it as a playable game is owner-only for now.",
     beginWith: "A game idea, or a game you already have to re-theme.",
     statusNote: "Shaping a new game idea works for anyone. Re-theming an existing template and publishing it to OpenDoku needs the OpenDoku repo on the machine running the site, so that path only works for the owner right now — a visitor there gets an honest note, not a broken button. MineDoku on OpenDoku was published this way.",
   },
@@ -402,7 +402,7 @@ export const ENGINES: Engine[] = [
     // page — we can't watch that part, so this stays beta until the first
     // video is live (the Xumo box fix is queued to be that video).
     activation: "beta",
-    output: "A complete production package for one proven fix — voiceover script, shot list, YouTube title/description/tags, pinned comment, thumbnail plan, article, and social versions. You film it and press publish.",
+    output: "Everything to film and post one fix you know: a script, a shot list, the YouTube title and description, and social posts. You film it and press publish.",
     statusNote: "The package is real and downloadable. The camera and the YouTube upload button are yours — the engine prepares everything and keeps the record.",
     beginWith: "One thing you already know how to fix or do — no filming yet.",
   },
@@ -421,7 +421,7 @@ export const ENGINES: Engine[] = [
     // reveals no project data. It earns "working" when a manuscript actually
     // comes out the other side.
     activation: "owner-only",
-    output: "A growing novel project — memories, characters, relationships, storylines, scenes with full revision history, series planning, and a chapter outline — saved in the author's browser, exportable as backups.",
+    output: "A private novel workspace: memories, characters, scenes and a chapter outline, kept in the author's browser.",
     beginWith: "A memory, draft, recording, or story you want to develop.",
     statusNote: "Private: the working room is password-protected and the writing is local-first — it stays in the author's browser and is not intentionally stored on this site's server.",
   },
@@ -439,7 +439,7 @@ export const ENGINES: Engine[] = [
     // loads/saves locally. Stays BETA — it's a starting shape to write from,
     // not a finished, polished piece.
     activation: "beta",
-    output: "A story (or note/article) shape you can keep writing from — premise, opening line, problem, and ending — plus a copy-ready prompt to keep going elsewhere.",
+    output: "A story or article shape to keep writing from: premise, opening line, problem and ending, plus a prompt to continue elsewhere.",
     beginWith: "One line of what you want to write, however it comes out.",
   },
   {
@@ -458,7 +458,7 @@ export const ENGINES: Engine[] = [
     // which we can't verify from here. Claiming "works" would be us vouching
     // for a step we never watched happen.
     activation: "beta",
-    output: "One next move at a time toward a real exported track — plus, for a song already under way, a preserved source moving toward a playable Version One. The audio comes out of your music software, not out of this page.",
+    output: "One next step at a time toward a finished track, from a first idea or a song you've started. The audio comes from your own music software, not this page.",
     beginWith: "A one-line idea of what you want to make, and the tool you're using (or \"not sure yet\").",
   },
   {
