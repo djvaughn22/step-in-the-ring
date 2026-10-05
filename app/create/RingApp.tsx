@@ -317,6 +317,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
      the link navigate normally. sessionStorage, this tab — never described to
      anyone as saved work. */
   function keepThisBuild() {
+    // Kept in this browser first (2026-10-04: no sign-up — Your work shows
+    // it). The draft still rides along for an invited tester who wants it on
+    // their account from /builds.
+    if (view) saveCurrentCreation(view.record);
     saveDraft(description, answers);
     track("build_kept_from_step_in", {});
   }
@@ -773,7 +777,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             onSeeWholePlan={() => go("result")}
             onKeep={keepThisBuild}
             onOpenHelp={seedEngineWithRecord}
-            keepHref="/builds"
+            keepHref="/library#your-idea"
           />
         </div>
       </main>
@@ -838,16 +842,13 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="card">
               <div className="plan-label">Keep going with this</div>
               <p style={{ fontSize: 14.5, color: "var(--text)", margin: "0 0 12px" }}>
-                Save it as a build and it&apos;s on your account — still here tomorrow, on
-                any device, with the next move on it.
+                It&apos;s kept in this browser, under Your work, with the next move on
+                it. Come back any time on this device.
               </p>
               <div className="actions">
-                <a
-                  className="btn btn-gold"
-                  href={`/builds?intent=${encodeURIComponent(description.trim().slice(0, 2000))}`}
-                >
-                  Make it a build →
-                </a>
+                <Link className="btn btn-gold" href="/library#your-idea">
+                  See it in Your work →
+                </Link>
               </div>
             </div>
 

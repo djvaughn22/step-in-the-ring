@@ -17,11 +17,11 @@ import {
   BUILD_STAGE_LABEL, BUILD_STAGE_LINE, BUILD_STAGES, type BuildRecordV1,
 } from "../vnext/build";
 import { clearDraft, loadDraft } from "../vnext/draft";
-import { deleteCurrentCreationIfMatches, loadCurrentCreation, viewOf } from "../creation/record";
+import { deleteCurrentCreationIfMatches, loadCurrentCreation } from "../creation/record";
 import type { CreationRecordV1 } from "../creation/types";
-import { shapingFromView } from "../vnext/shape";
 import { DeleteBuildControl } from "./DeleteBuildControl";
 import OwnerBuildsShowroom from "./OwnerBuildsShowroom";
+import LocalBuildCard from "./LocalBuildCard";
 
 /* Where this build actually is. A filled track says it at a glance; the old
    row of pills made every stage look equally true. */
@@ -122,47 +122,10 @@ function BuildCard({
   );
 }
 
-/**
- * The one browser-local creation — `sitr-creation-current-v1` — shown and
- * made deletable in its own right. Distinct section from the account list
- * on purpose: it is not the same storage, and deleting it never touches an
- * account Build (or vice versa; see the reconciliation in BuildsClient).
- */
-function LocalBuildCard({
-  record,
-  onDeleted,
-}: {
-  record: CreationRecordV1;
-  onDeleted: () => void;
-}) {
-  const shaping = useMemo(() => shapingFromView(viewOf(record)), [record]);
-  const resumeHref = `/create?idea=${encodeURIComponent(record.originalIdea.slice(0, 600))}`;
-  return (
-    <article className="buildcard">
-      <span className="bc-stage">Only in this browser</span>
-      <h2 className="bc-name">{shaping.title}</h2>
-      <p className="bc-read">{shaping.reading}</p>
-      <div className="bc-foot">
-        <Link className="btn btn-gold" href={resumeHref}>
-          Continue
-        </Link>
-        <DeleteBuildControl
-          onConfirm={async () => {
-            const ok = deleteCurrentCreationIfMatches(record.creationId);
-            if (ok) onDeleted();
-            return ok;
-          }}
-        />
-      </div>
-    </article>
-  );
-}
-
 export default function BuildsClient({
   builds,
   signedIn,
   canSave,
-  storeConfigured,
   email,
   initialIntent,
   listFailed,
@@ -170,7 +133,8 @@ export default function BuildsClient({
   builds: BuildRecordV1[];
   signedIn: boolean;
   canSave: boolean;
-  storeConfigured: boolean;
+  /** Still passed by the page; nothing here offers an account any more. */
+  storeConfigured?: boolean;
   email: string | null;
   /** Handed over from the landing page as ?intent=, read on the server. */
   initialIntent: string;
@@ -257,6 +221,10 @@ export default function BuildsClient({
       <div className="page">
         <OwnerBuildsShowroom />
 
+        {/* Owner's Builds is the showroom. A visitor's own work lives in Your
+            work (/library), kept in their browser — no account involved. Only
+            an invited tester who is signed in sees account builds here. */}
+        {signedIn ? (
         <div className="owner-personal-builds" id="your-builds">
         <header className="mast">
           {/* The showroom above owns the page's one h1; this is the visitor's
@@ -338,65 +306,22 @@ export default function BuildsClient({
           </section>
         )}
 
-        {!signedIn && (
-          <section className="home-section">
-            {/* Somebody arrived here from their own idea. Their words are the
-                valuable thing — show them back, carry them through the sign-in
-                round trip, and never make them retype what they already said. */}
-            {waiting && (
-              <div className="card card-gold" style={{ marginBottom: 16 }}>
-                <div className="plan-label">Ready to keep</div>
-                <p style={{ fontSize: 15, color: "var(--text)", lineHeight: 1.6, margin: 0 }}>
-                  {intent.trim()}
-                </p>
-                <p className="tiny" style={{ marginTop: 10 }}>
-                  Your words come with you through signing in — you won&apos;t retype this. Until
-                  it&apos;s on your account it only exists in this tab, so it isn&apos;t saved yet.
-                </p>
-              </div>
-            )}
-            <div className="empty">
-              <h2>{waiting ? "Sign in and it's yours" : "What do you want to make?"}</h2>
-              <p>
-                {storeConfigured
-                  ? "A build saved to your account lives on the server, not just in this browser, so it is still there on your phone tomorrow."
-                  : "Accounts are not switched on for this site yet. Anything you have made here is still in this browser and is listed below."}
-              </p>
-              {storeConfigured ? (
-                <div className="actions" style={{ justifyContent: "center" }}>
-                  {/* The draft rides in sessionStorage, so the return trip is a
-                      plain /builds: no idea-sized URL, nothing to truncate. */}
-                  <a className="btn btn-gold btn-big" href="/members/login?returnTo=%2Fbuilds">
-                    Sign in
-                  </a>
-                  <Link className="btn btn-ghost btn-big" href="/create">
-                    {waiting ? "Change what I said" : "Start something"}
-                  </Link>
-                </div>
-              ) : (
-                <Link className="btn btn-gold btn-big" href="/create">
-                  Start something
-                </Link>
-              )}
-              <p className="tiny" style={{ marginTop: 16 }}>
-                Starting is free and needs no account. Need a nudge?{" "}
-                <Link href="/tools">Try the free tools</Link>.
-              </p>
-            </div>
-          </section>
-        )}
-
         {/* Everything from before vNext. Read-only, always shown. */}
         <LegacyWork />
 
         <div className="divider" />
         <p className="tiny" style={{ textAlign: "center" }}>
           {email ? `Signed in as ${email}. ` : ""}
-          Finished work you can use again is in your{" "}
-          <Link href="/library" className="more">Library</Link>. The tools are on{" "}
-          <Link href="/engines" className="more">Engines</Link>.
+          Everything else you made is in{" "}
+          <Link href="/library" className="more">Your work</Link>.
         </p>
         </div>
+        ) : (
+          <p className="tiny owner-yourwork-note" id="your-builds">
+            Looking for what you made? It&apos;s in <Link href="/library" className="more">Your work</Link>,
+            kept in this browser. No account needed.
+          </p>
+        )}
       </div>
     </main>
   );

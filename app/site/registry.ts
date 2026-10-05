@@ -194,7 +194,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/builds",
     name: "Owner’s Builds",
-    what: "Open the live websites, tools and games built here, then pick up your own builds further down the same page.",
+    what: "The showroom: live websites, tools and games built this way. Open any of them.",
     access: "public",
     group: "builds",
     inNav: true,
@@ -203,8 +203,8 @@ export const SITE_PAGES: SitePage[] = [
   // ── Library ────────────────────────────────────────────────────────────
   {
     path: "/library",
-    name: "Library",
-    what: "Work you saved and can use again, and the starting points you can run from.",
+    name: "Your work",
+    what: "Everything you started here, kept in this browser. No account needed.",
     access: "public",
     group: "library",
     inNav: true,
@@ -259,22 +259,15 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     path: "/membership",
-    name: "Accounts",
-    what: "What an optional account adds (your builds on every device), and signing in.",
+    name: "No account needed",
+    what: "Everything here is free with no account. Invited testers sign in here.",
     access: "public",
     group: "account",
   },
   {
     path: "/members/login",
-    name: "Sign in",
-    what: "Sign in to reach your saved builds from any device.",
-    access: "public",
-    group: "account",
-  },
-  {
-    path: "/members/signup",
-    name: "Create an account",
-    what: "Make an account so your builds follow you between devices.",
+    name: "Tester sign-in",
+    what: "For invited testers only. There is no sign-up.",
     access: "public",
     group: "account",
   },
@@ -368,7 +361,9 @@ export function pagesWithAccess(access: Access): SitePage[] {
  *
  * Derived from the registry, never hand-kept twice.
  */
-const NAV_ORDER = ["/create", "/tools", "/engines", "/builds", "/library"];
+// Making first (Create, tools, engines), then what YOU made,
+// then the owner's showroom — two different things, kept apart.
+const NAV_ORDER = ["/create", "/tools", "/engines", "/library", "/builds"];
 
 export function navPages(): SitePage[] {
   return SITE_PAGES.filter((p) => p.inNav).sort(

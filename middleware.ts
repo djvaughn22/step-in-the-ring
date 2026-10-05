@@ -42,7 +42,6 @@ const PUBLIC_ROUTES = [
   "/live",
   "/membership",
   "/members/login",
-  "/members/signup",
   "/owner",
 ];
 

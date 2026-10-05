@@ -36,12 +36,13 @@ describe("Engine Room end state — no universal Open Mirror step", () => {
     expect(gated).toMatch(/Ask Open Mirror to push it live/);
   });
 
-  it("tells every engine the honest, real thing: saved locally, and a real path into an account", () => {
+  it("tells every engine the honest, real thing: saved locally, and where to find it again", () => {
     expect(src).toMatch(/What&apos;s next/);
     expect(src).toMatch(/saved right here in Your projects/);
-    // Real capability that already exists (/account's import button) —
-    // not a fabricated one-tap "save to library" action.
-    expect(src).toMatch(/href="\/account"/);
+    // No sign-up (Oct 2026): the work is found again in Your work, not by
+    // making an account.
+    expect(src).toMatch(/href="\/library"/);
+    expect(src).not.toMatch(/href="\/account"/);
     expect(src).not.toMatch(/Save to (Build|Library)/);
   });
 

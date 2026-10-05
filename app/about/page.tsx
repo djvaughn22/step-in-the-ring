@@ -27,8 +27,7 @@ export default function AboutPage() {
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
           <li>Say what you need help with and get back a clear next step — a plan and a ready-to-use builder prompt when it&apos;s something to build.</li>
           <li>Open a focused engine when you already know what kind of thing you&rsquo;re making.</li>
-          <li>Keep what you&rsquo;re making as a Build, and come back to it any time.</li>
-          <li>Save what an engine makes for you in your Library, and use it again.</li>
+          <li>Come back to everything you started in Your work, kept in this browser.</li>
           <li>Follow the first-build coach in six short rounds if you&rsquo;ve never built before.</li>
           <li>See finished things that started here, and <Link href="/whats-built">what works today versus what is still being built</Link>.</li>
         </ul>
@@ -36,10 +35,9 @@ export default function AboutPage() {
 
       <Section title="Your work">
         <p style={{ border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, color: "var(--text)", margin: 0 }}>
-          Saying an idea, reading the plan back, and opening any Engine needs
-          no account — that work stays on this device unless you download it.
-          Accounts only make a Build follow you to another device. They are
-          invite-only while we test them, and they cost nothing.
+          Nothing here needs an account, and there is no sign-up. What you
+          make stays on this device unless you download it, and you&apos;ll find
+          it under <Link href="/library">Your work</Link>.
         </p>
         <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--muted)", margin: "12px 0 0" }}>
           While it&apos;s in testing, we count visits and which pages and tools

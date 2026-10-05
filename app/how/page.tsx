@@ -19,7 +19,7 @@ import liveProducts from "../live/live-products.json";
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "Say what you need help with, get it shaped into something clear, then act on it. No account needed — sign in only if you want a Build to follow you to another device.",
+    "Say what you need help with, get it shaped into something clear, then act on it. No account needed: your work is kept in your browser.",
 };
 
 const LOOP = [
@@ -46,7 +46,7 @@ const LOOP = [
   {
     n: "05",
     title: "Go again",
-    body: "Continue the Build, save something useful to your Library, or start the next one.",
+    body: "Pick it up again from Your work, keep what helped, or start the next one.",
   },
 ];
 
@@ -54,8 +54,8 @@ const NAV_CONCEPTS = [
   { name: "Create", body: "Where ideas begin. Say what you want to make." },
   { name: "Free tools", body: "Small tools that each do one job, like cutting an idea down or checking it before you share." },
   { name: "Engines", body: "Focused tools for when one part of the work needs real help." },
-  { name: "Builds", body: "Things you're actively making. Come back and continue." },
-  { name: "Library", body: "Things you saved and may want again." },
+  { name: "Your work", body: "Everything you started, kept in this browser. Come back and continue." },
+  { name: "Owner’s Builds", body: "The showroom: real sites and games made this way, to open and borrow ideas from." },
 ];
 
 type LiveProduct = {
@@ -82,8 +82,8 @@ export default function HowPage() {
           <h1 className="mast-title">One loop, five steps</h1>
           <p className="mast-lead">
             The same five steps whether you&apos;re making an app, a song, a
-            game or a plan. No account needed — sign in only if you want a
-            Build to follow you to another device.
+            game or a plan. No account needed: your work is kept in this
+            browser, under Your work.
           </p>
           <hr className="rule mast-rule" />
         </header>
@@ -104,7 +104,7 @@ export default function HowPage() {
         <section className="band">
           <div className="band-head">
             <h2 className="band-title">Where each step happens</h2>
-            <p className="band-note">Five places, always the same five.</p>
+            <p className="band-note">The same five places, in the same order as the menu.</p>
           </div>
           <div className="bench-cols">
             {NAV_CONCEPTS.map((c) => (

@@ -146,8 +146,8 @@ describe("the menu", () => {
       "/create",
       "/tools",
       "/engines",
-      "/builds",
       "/library",
+      "/builds",
     ]);
   });
 
@@ -156,8 +156,8 @@ describe("the menu", () => {
       "Create",
       "Free tools",
       "Engines",
+      "Your work",
       "Owner’s Builds",
-      "Library",
     ]);
   });
 });

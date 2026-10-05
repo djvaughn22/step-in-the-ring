@@ -59,6 +59,8 @@ export const RETIRED_SALES_REDIRECTS = [
 // projects. One showroom now; old links land on it.
 export const MERGED_PAGE_REDIRECTS = [
   { source: "/explore", destination: "/builds", permanent: true },
+  // No sign-up (owner, Oct 4 2026). Sign-in already admits invited testers.
+  { source: "/members/signup", destination: "/members/login", permanent: false },
 ];
 
 const nextConfig: NextConfig = {

@@ -79,22 +79,16 @@ describe("Your Builds", () => {
     expect(html).toContain("needs live access");
   });
 
-  it("shows a signed-out visitor how to keep what they started", () => {
-    const html = page({
-      signedIn: false,
-      initialIntent: DOG,
-    });
-    expect(html).toContain("Ready to keep");
-    expect(html).toContain("socks he has stolen");
-    // Honest about what a draft is.
-    expect(html).toContain("isn&#x27;t saved yet");
-    expect(html).toContain("/members/login?returnTo=%2Fbuilds");
-  });
-
-  it("does not offer sign-in that cannot work", () => {
-    const html = page({ signedIn: false, storeConfigured: false, initialIntent: DOG });
-    expect(html).toContain("are not switched on");
-    expect(html).not.toContain("/members/login");
+  // 2026-10-04, no sign-up: Owner's Builds is the showroom. A visitor's own
+  // work lives in Your work (/library), in their browser.
+  it("shows a signed-out visitor the showroom and points them to Your work, never to sign in", () => {
+    for (const storeConfigured of [true, false]) {
+      const html = page({ signedIn: false, storeConfigured, initialIntent: DOG });
+      expect(html).toContain("See what we&#x27;ve built.");
+      expect(html).toContain('href="/library"');
+      expect(html).not.toContain("/members/login");
+      expect(html).not.toContain("Your workspace");
+    }
   });
 
   it("says nothing about earlier work when there is none to show", () => {

@@ -36,11 +36,12 @@ describe("the primary nav still carries every door in the mobile sheet", () => {
     expect(header).toMatch(/\.\.\.SECONDARY/);
   });
 
-  it("SECONDARY names How and Account", () => {
+  it("SECONDARY names How it works and What's built, and no account door", () => {
     const secondary = header.slice(header.indexOf("const SECONDARY"), header.indexOf("];", header.indexOf("const SECONDARY")));
-    for (const name of ["How", "Account"]) {
+    for (const name of ["How it works", "What's built"]) {
       expect(secondary).toContain(`"${name}"`);
     }
+    expect(secondary).not.toMatch(/\/account|\/members/);
   });
 });
 

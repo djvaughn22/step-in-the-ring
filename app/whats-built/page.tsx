@@ -95,6 +95,12 @@ const WORKS: Item[] = [
   },
   ...catalog.filter((c) => !c.ownerOnly && c.activation === "working").map((c) => engineItem(c, "works")),
   {
+    name: "Your work",
+    what: "Everything you started here, in one place, kept in this browser.",
+    status: "works",
+    href: "/library",
+  },
+  {
     name: "Owner’s Builds",
     what: "The live websites, tools and games made this way. Open any of them.",
     status: "works",
@@ -108,8 +114,8 @@ const BETA: Item[] = catalog
 
 const PRIVATE: Item[] = [
   {
-    name: "Accounts",
-    what: "Only needed to reach your builds from another device. Joining is invite-only during testing, and there is no password recovery yet.",
+    name: "Tester accounts",
+    what: "A few invited testers have accounts so their builds follow them between devices. There is no sign-up, and nobody else needs one.",
     status: "private",
     href: "/membership",
   },
@@ -125,11 +131,6 @@ const NOT_YET: Item[] = [
   {
     name: "Publishing your own game",
     what: "Anyone can shape a game idea in the Game Engine. Publishing a playable game to OpenDoku only works for the owner for now.",
-    status: "planned",
-  },
-  {
-    name: "Open sign-up and account recovery",
-    what: "Accounts stay invite-only until both are ready. Nothing else here needs one.",
     status: "planned",
   },
 ];

@@ -27,9 +27,9 @@ describe("How It Works — one coherent loop", () => {
     }
   });
 
-  it("connects the loop to Create, Engines, Builds and Library", () => {
+  it("connects the loop to the menu: Create, Free tools, Engines, Your work, Owner's Builds", () => {
     expect(src).toMatch(/const NAV_CONCEPTS = \[/);
-    for (const name of ["Create", "Engines", "Builds", "Library"]) {
+    for (const name of ["Create", "Free tools", "Engines", "Your work", "Owner’s Builds"]) {
       expect(src).toContain(name);
     }
   });
@@ -51,7 +51,9 @@ describe("How It Works — one coherent loop", () => {
     // Superseded 2026-08-24: opening an Engine no longer needs a sign-in —
     // only making a Build follow you to another device does.
     expect(src).toMatch(/no account needed/i);
-    expect(src).toMatch(/sign in only if you want a\s*\n?\s*build to follow you/i);
+    // No sign-up (Oct 2026): the page never invites signing in.
+    expect(src).toMatch(/your work is kept in (this|your)\s*\n?\s*browser/i);
+    expect(src).not.toMatch(/sign in/i);
     expect(src.toLowerCase()).not.toContain("sign in when you want to");
   });
 

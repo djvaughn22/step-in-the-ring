@@ -26,9 +26,9 @@ import LibraryClient, { type SavedItem } from "./LibraryClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Library",
+  title: "Your work",
   description:
-    "Work you saved and can use again — engine projects on your account, anything kept in this browser, and the starting points you can run from.",
+    "Everything you started on Step In The Ring, kept in this browser. No account needed.",
 };
 
 export default async function LibraryPage() {

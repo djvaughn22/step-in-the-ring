@@ -8,7 +8,6 @@ import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import LibraryClient, { type SavedItem } from "./LibraryClient";
-import { STARTING_POINTS } from "../create/starting-points";
 
 const SONG: SavedItem = {
   id: "p1",
@@ -40,57 +39,43 @@ function page(props: Partial<Parameters<typeof LibraryClient>[0]> = {}) {
   );
 }
 
-describe("The Library", () => {
-  it("is about saved work, not about the tool catalog", () => {
-    // It used to list all twelve engines, which is what /engines is for now.
-    // Two pages listing the same tools is a duplicate, not a library.
-    const html = page();
-    expect(html).toContain("Saved work");
+describe("Your work", () => {
+  it("is about the visitor's own work, not the tool catalog", () => {
+    const html = page({ signedIn: false });
+    expect(html).toContain("Your work");
     expect(html).not.toContain("Idea Engine");
     expect(html).not.toContain("Fix Engine");
   });
 
-  it("lists what an engine made, what made it, and when", () => {
+  it("never asks a visitor to sign in or make an account", () => {
+    const html = page({ signedIn: false });
+    expect(html).not.toContain("/members/login");
+    expect(html).not.toContain("/members/signup");
+    expect(html).not.toMatch(/sign in/i);
+    expect(html).toContain("No account needed");
+  });
+
+  it("lists what an engine made for a signed-in tester, what made it, and when", () => {
     const html = page({ saved: [STICKER, SONG] });
+    expect(html).toContain("On your tester account");
     expect(html).toContain("Grandfather Song");
     expect(html).toContain("Music Engine");
     expect(html).toContain("Dog Dad sticker");
     expect(html).toContain("3 days ago");
     expect(html).toContain("today");
-    // Back to the engine that made it — the only thing that can open it.
     expect(html).toContain("/engines/room?engine=music&amp;p=p1");
+    expect(html).toContain("/builds#your-builds");
   });
 
-  it("sends somebody with nothing saved somewhere useful", () => {
-    const html = page();
-    expect(html).toContain("Nothing saved yet");
-    expect(html).toContain("/engines");
-  });
-
-  it("never reports a database failure as an empty library", () => {
+  it("never reports a database failure as having nothing saved", () => {
     const html = page({ listFailed: true });
     expect(html).toContain("didn&#x27;t load");
     expect(html).toContain("nothing was lost");
   });
 
-  it("tells a signed-out visitor what signing in actually buys them", () => {
+  it("does not repeat the Create page's starting points", () => {
     const html = page({ signedIn: false });
-    expect(html).toContain("follow you to another device");
-    expect(html).toContain("/members/login");
-  });
-
-  it("offers every starting point as something you can run again", () => {
-    const html = page();
-    for (const sp of STARTING_POINTS) {
-      expect(html, sp.label).toContain(sp.label);
-    }
-    // Each one opens the create flow with the sentence half written, and the
-    // stem is what makes that true.
-    expect(html).toContain("/create?stem=");
-  });
-
-  it("points at Builds for work in progress, so the two never blur", () => {
-    const html = page({ saved: [SONG] });
-    expect(html).toContain("/builds");
+    expect(html).not.toContain("/create?stem=");
+    expect(html).toContain('href="/create"');
   });
 });

@@ -12,8 +12,14 @@ import { findLegacyWork, type LegacyFinding } from "./legacy";
 export default function LegacyWork({
   heading = "Your earlier work",
   note = "Saved in this browser from before. Nothing was moved or changed — these open exactly where they always did.",
+  empty = null,
+  skip = [],
 }: {
+  /** Storage keys this page already shows in its own way. */
+  skip?: string[];
   heading?: string;
+  /** Shown instead, once storage has been read and nothing was found. */
+  empty?: React.ReactNode;
   /** The line under the heading. Both live in here, not in the parent, so the
    *  whole section disappears when there is nothing — a heading with an empty
    *  space under it reads like something failed to load. */
@@ -25,10 +31,13 @@ export default function LegacyWork({
     // Browser storage can only be read after mount — same pattern the planner
     // uses to load saved plans.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFound(findLegacyWork());
+    setFound(findLegacyWork().filter((f) => !skip.includes(f.key)));
+    // skip is a literal list at each call site
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (found === null || found.length === 0) return null;
+  if (found === null) return null;
+  if (found.length === 0) return <>{empty}</>;
 
   return (
     <section className="band" aria-label={heading}>

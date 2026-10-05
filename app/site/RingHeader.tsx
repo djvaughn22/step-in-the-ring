@@ -29,13 +29,13 @@ import { useState } from "react";
 import { navPages } from "./registry";
 import OpenMirrorThemeToggle, { AppearanceMenu } from "../OpenMirrorTheme";
 
-// The four doors in .ring-nav are the product. These two are the things a
-// person needs occasionally and should not have to hunt for: what this is,
-// and their own account. Kept visually quieter on purpose — they are not
-// part of the making loop.
+// The doors in .ring-nav are the product. These two are what a first-time
+// visitor asks next: how does this work, and what actually works today?
+// No Account link (owner, Oct 4 2026: no sign-up); invited testers sign in
+// from the footer.
 const SECONDARY = [
-  { name: "How", href: "/how" },
-  { name: "Account", href: "/account" },
+  { name: "How it works", href: "/how" },
+  { name: "What's built", href: "/whats-built" },
 ];
 
 export default function RingHeader() {

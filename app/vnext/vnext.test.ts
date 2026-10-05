@@ -226,9 +226,16 @@ describe("Preservation — pre-vNext work is still findable", () => {
       "app/build-machine/page.tsx", "app/live/page.tsx", "app/engines/page.tsx",
       "app/projects/page.tsx", "app/account/page.tsx", "app/author/page.tsx",
       "app/membership/page.tsx", "app/five-hour-sprint-tool/page.tsx",
-      "app/members/login/page.tsx", "app/members/signup/page.tsx", "app/owner/page.tsx",
+      "app/members/login/page.tsx", "app/owner/page.tsx",
     ];
     for (const r of routes) expect(existsSync(join(ROOT, r)), `${r} was removed`).toBe(true);
+  });
+
+  it("the retired sign-up page still lands on sign-in (owner: no sign-up, Oct 2026)", async () => {
+    const { MERGED_PAGE_REDIRECTS } = await import("../../next.config");
+    expect(MERGED_PAGE_REDIRECTS).toContainEqual(
+      expect.objectContaining({ source: "/members/signup", destination: "/members/login" }),
+    );
   });
 
   it("retired sales pages still land somewhere free instead of a 404", async () => {
