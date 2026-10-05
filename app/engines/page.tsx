@@ -109,9 +109,8 @@ export default function EnginesPage() {
       </Band>
 
       <p className="tiny" style={{ marginTop: 34 }}>
-        No account needed — open any engine and your work saves to this
-        browser as you go. An account is only for making it follow you to
-        another device. <Link href="/membership">What that means</Link>.
+        No account needed. Open any engine and your work is kept in this
+        browser; it shows up in <Link href="/library">Your work</Link>.
       </p>
 
       <p className="tiny" style={{ marginTop: 10 }}>

@@ -21,6 +21,22 @@ export interface LegacySource {
   href: string;
   /** IndexedDB stores are counted by their own module, not here. */
   storage: "local" | "indexeddb";
+  /** For stores that hold a blank form after one visit: true only when the
+   *  person actually put something in. Without it, opening a tool once would
+   *  show up as "work". */
+  hasWork?: (parsed: unknown) => boolean;
+}
+
+/** Any of these fields holds real text (or a non-empty list). */
+function filled(fields: string[]): (parsed: unknown) => boolean {
+  return (parsed) => {
+    if (!parsed || typeof parsed !== "object") return false;
+    const o = parsed as Record<string, unknown>;
+    return fields.some((f) => {
+      const v = f.includes(".") ? (o[f.split(".")[0]] as Record<string, unknown> | undefined)?.[f.split(".")[1]] : o[f];
+      return (typeof v === "string" && v.trim().length > 0) || (Array.isArray(v) && v.length > 0);
+    });
+  };
 }
 
 export interface LegacyFinding extends LegacySource {
@@ -46,6 +62,13 @@ export const LEGACY_SOURCES: LegacySource[] = [
   { key: "sitr-game-world-v1", label: "Game world", emoji: "🎮", href: "/engines/room?engine=game", storage: "local" },
   { key: "sitr-builder-defaults-v1", label: "Builder defaults", emoji: "⚙️", href: "/", storage: "local" },
   { key: "sitr-story-partner", label: "Story Partner work", emoji: "📓", href: "/author", storage: "indexeddb" },
+  // The free tools and the Sprint planner (2026-10-04): they always saved to
+  // this browser, but nothing pointed back to them.
+  { key: "fhs-sprints", label: "Five Hour Sprint plans", emoji: "⏱️", href: "/five-hour-sprint-tool", storage: "local" },
+  { key: "sitr-tool-first-version", label: "First version cutter", emoji: "✂️", href: "/tools/first-version", storage: "local", hasWork: filled(["idea", "doneMeans", "items"]) },
+  { key: "sitr-tool-try-it", label: "Try-it script", emoji: "🧪", href: "/tools/try-it", storage: "local", hasWork: filled(["what", "task", "notes.did", "notes.stuck", "notes.said", "notes.change"]) },
+  { key: "sitr-tool-one-liner", label: "One-line explainer", emoji: "💬", href: "/tools/one-liner", storage: "local", hasWork: filled(["name", "what", "who", "helps"]) },
+  { key: "sitr-tool-launch-checklist", label: "Launch checklist", emoji: "✅", href: "/tools/launch-checklist", storage: "local", hasWork: filled(["done"]) },
 ];
 
 function countOf(raw: string): number | null {
@@ -94,6 +117,16 @@ export function findLegacyWork(sources: LegacySource[] = LEGACY_SOURCES): Legacy
       raw = null;
     }
     if (raw === null) continue;
+    if (source.hasWork) {
+      let parsed: unknown = null;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        parsed = null;
+      }
+      if (source.hasWork(parsed)) out.push({ ...source, present: true, count: null });
+      continue;
+    }
     const count = countOf(raw);
     if (count === 0) continue; // an empty list is not "work you left here"
     out.push({ ...source, present: true, count });

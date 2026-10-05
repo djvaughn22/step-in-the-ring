@@ -2965,7 +2965,7 @@ html[data-om-theme="light"] .ft-tool { color-scheme: light; }
 .tfb-input { width: 100%; box-sizing: border-box; background: var(--bg, transparent); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 15px; }
 textarea.tfb-input { resize: vertical; min-height: 84px; }
 .tfb-input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
-.tfb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.tfb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
 .tfb-go { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
 .tfb-fine { font-size: 12px; color: var(--muted); flex: 1; min-width: 200px; }
 .tfb-err { min-height: 1em; margin: 0; font-size: 13px; font-weight: 800; color: var(--gold); }
@@ -2977,3 +2977,13 @@ textarea.tfb-input { resize: vertical; min-height: 84px; }
 #tell-us { scroll-margin-top: 90px; }
 .tfb-kind { white-space: nowrap; flex: 0 0 auto; }
 #help-test .band-note { margin-top: 16px; }
+/* Seven header links need ~1040px. Between the phone breakpoint and that,
+   the two secondary links move into the Menu sheet instead of pushing the
+   page sideways. */
+@media (min-width: 861px) and (max-width: 1100px) {
+  .ring-bar-end a { display: none; }
+  .ring-burger { display: inline-flex; }
+  .ring-sheet.open { display: block; border-top: 1px solid rgba(255, 255, 255, 0.16); background: var(--deep); padding: 10px 24px 20px; }
+  .ring-sheet.open a { display: block; padding: 15px 4px; font-size: 16px; font-weight: 800; color: #FFFFFF; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, 0.14); min-height: 52px; }
+  .ring-sheet.open a:hover { color: var(--accent); }
+}

@@ -109,7 +109,7 @@ export default function SteppedIn({
           <p style={{ fontSize: 14.5, color: "var(--text)", margin: "0 0 14px", lineHeight: 1.6 }}>
             {signedIn
               ? "Save it as a build and it's on your account — still here tomorrow, on any device, with the next move on it."
-              : "Right now this only exists on this screen. Keep it and it's on your account — still here tomorrow, on any device, with the next move on it."}
+              : "Right now this only exists on this screen. Keep it and it's saved in this browser, under Your work, with the next move on it."}
           </p>
           <div className="actions">
             <a className="btn btn-gold" href={keepHref} onClick={onKeep}>

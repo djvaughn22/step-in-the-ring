@@ -121,17 +121,11 @@ export default function TesterFeedback({ open = false, title = "Tell us how it w
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        {/* Left empty by people; bots fill it in. */}
-        <input
-          className="tfb-hp"
-          type="text"
-          name="website"
-          tabIndex={-1}
-          autoComplete="off"
-          aria-hidden="true"
-          value={website}
-          onChange={(e) => setWebsite(e.target.value)}
-        />
+        {/* Left empty by people; bots fill it in. Hidden from assistive tech
+            and the keyboard as a whole, not just visually. */}
+        <div className="tfb-hp" aria-hidden="true">
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+        </div>
         <div className="tfb-go">
           <button className="btn btn-gold btn-small" type="submit" disabled={state === "sending" || !message.trim()}>
             {state === "sending" ? "Sending…" : "Send note"}

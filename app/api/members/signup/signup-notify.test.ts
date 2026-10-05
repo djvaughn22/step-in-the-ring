@@ -221,8 +221,10 @@ describe("shared-password join door — owner notification", () => {
 
   it("keeps mail credentials, the shared password and notification triggers out of the client", () => {
     const client = [
+      // The sign-up page was retired (Oct 2026); sign-in and the account
+      // page are the client surfaces left.
       readFileSync(
-        join(process.cwd(), "app/members/signup/SignupContent.tsx"),
+        join(process.cwd(), "app/membership/MembershipClient.tsx"),
         "utf8",
       ),
       readFileSync(

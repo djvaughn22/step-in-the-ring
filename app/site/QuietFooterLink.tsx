@@ -29,9 +29,9 @@ export default function QuietFooterLink() {
   return (
     <div className="site-quiet-footer">
       <Link href="/" className="footer-brand"><RingMark />Step In The Ring</Link>
-      <nav aria-label="Step In The Ring footer"><Link href="/create">Create</Link><Link href="/tools">Free tools</Link><Link href="/builds">Owner&apos;s Builds</Link><Link href="/products/ready-to-build">Ready to Build</Link><Link href="/whats-built">What&apos;s built</Link><Link href="/about#weekend-consulting">Weekend help</Link><Link href="/account">Account</Link></nav>
+      <nav aria-label="Step In The Ring footer"><Link href="/create">Create</Link><Link href="/tools">Free tools</Link><Link href="/library">Your work</Link><Link href="/builds">Owner&apos;s Builds</Link><Link href="/products/ready-to-build">Ready to Build</Link><Link href="/whats-built">What&apos;s built</Link><Link href="/about">About</Link><Link href="/about#weekend-consulting">Weekend help</Link></nav>
       <p>
-        <Link href="/everything">Everything on this site</Link>
+        <Link href="/everything">Everything on this site</Link> · <Link href="/members/login">Tester sign-in</Link>
       </p>
       <p className="site-quiet-footer-beta">
         Open beta. Keep a copy of anything important. Something off, or something you loved?

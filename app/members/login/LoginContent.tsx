@@ -85,9 +85,9 @@ export default function LoginContent() {
     <main>
       <div className="page" style={{ maxWidth: 500, margin: "0 auto", paddingTop: 60 }}>
         <section style={{ marginBottom: 40 }}>
-          <h1 style={{ marginBottom: 8 }}>Sign in to Step In The Ring</h1>
+          <h1 style={{ marginBottom: 8 }}>Tester sign-in</h1>
           <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 0 }}>
-            Email and password.
+            For invited testers: your email and the tester password you were given.
           </p>
         </section>
 
@@ -153,9 +153,10 @@ export default function LoginContent() {
 
         <div style={{ textAlign: "center", marginTop: 20 }}>
           <p style={{ fontSize: 14, color: "var(--muted)" }}>
-            No account yet?{" "}
-            <Link href="/members/signup" style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 700 }}>
-              Sign up →
+            This is for invited testers. Everyone else: you don&apos;t need an
+            account.{" "}
+            <Link href="/create" style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 700 }}>
+              Start something →
             </Link>
           </p>
         </div>

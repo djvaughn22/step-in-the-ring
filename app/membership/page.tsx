@@ -2,6 +2,10 @@
 // Accounts — the public page at /membership (the path is kept so old links,
 // the account redirect and middleware keep working).
 //
+// No sign-up (Oct 4 2026, owner direction): this page tells a visitor they
+// don't need an account, and lets an invited tester sign in. There is no
+// account-creation form here or anywhere public.
+//
 // Usefulness-first (Oct 1 2026, owner direction): nothing is sold here. This
 // page never shows a price, billing terms, a checkout button or "membership"
 // sales copy. It says what is free (everything), what an optional account
@@ -20,9 +24,9 @@ import { Sheet, PageHead, Section } from "../site/ui";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Accounts",
+  title: "No account needed",
   description:
-    "Everything in Step In The Ring is free to use with no account. An optional account only syncs your saved builds between devices.",
+    "Everything in Step In The Ring is free to use with no account. Your work is kept in your browser.",
 };
 
 const FREE_ALWAYS = [
@@ -33,11 +37,6 @@ const FREE_ALWAYS = [
   "Work saves to this browser as you go — it's there when you come back on this device",
 ];
 
-const ACCOUNT_ADDS = [
-  "Your saved builds and projects follow you to another device or browser",
-  "One-click, always-asked-first import of work you already made in this browser",
-  "Export or delete your own projects, or the whole account, whenever you choose",
-];
 
 export default async function MembershipPage({
   searchParams,
@@ -60,9 +59,9 @@ export default async function MembershipPage({
   return (
     <Sheet>
       <PageHead
-        kicker="Optional"
-        title="Accounts"
-        lead="You do not need an account to use Step In The Ring. Every tool here is free and open right now, and your work saves to this browser as you go. An account does one thing: it makes your saved builds follow you to another device. Your ideas, projects, and output remain yours either way."
+        kicker="Accounts"
+        title="No account needed"
+        lead="Everything on Step In The Ring is free and open right now. Your work is kept in this browser as you go, and it's all in Your work when you come back. Your ideas, projects, and output remain yours."
       />
 
       <Section title="Free, no account needed">
@@ -74,40 +73,42 @@ export default async function MembershipPage({
             </li>
           ))}
         </ul>
-        <p style={{ fontSize: 14, margin: "12px 0 0" }}>
-          <Link href="/tools" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>See every free tool →</Link>
-        </p>
+        <div className="actions" style={{ marginTop: 14 }}>
+          {prefillEngine ? (
+            <Link className="btn btn-gold" href={enginesHref}>Continue to the engine →</Link>
+          ) : (
+            <Link className="btn btn-gold" href="/create">Start something</Link>
+          )}
+          <Link className="btn btn-ghost" href="/library">Your work</Link>
+        </div>
       </Section>
 
       <Section
-        title="What an account adds"
-        lead="Accounts are invite-only while we test them. They cost nothing."
+        title="Invited testers"
+        lead="A few invited testers have accounts so their builds follow them between devices. They cost nothing, and there's no sign-up."
       >
-        <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
-          {ACCOUNT_ADDS.map((x) => (
-            <li key={x} style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "0 0 8px", paddingLeft: 18, position: "relative" }}>
-              <span aria-hidden="true" style={{ position: "absolute", left: 0, color: "var(--gold)" }}>★</span>
-              {x}
-            </li>
-          ))}
-        </ul>
+        {member ? (
+          <MembershipClient
+            configured={configured}
+            signedIn
+            memberAccess={Boolean(member.access.memberAccess)}
+            membershipStatus={member.access.status ?? null}
+            activeUntil={member.access.activeUntil ?? null}
+            prefillEngine={prefillEngine}
+            prefillIdea={prefillIdea}
+            source={source}
+            enginesHref={enginesHref}
+          />
+        ) : (
+          <p style={{ fontSize: 14, margin: 0 }}>
+            <Link href="/members/login?returnTo=%2Faccount" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>
+              Tester sign-in →
+            </Link>
+          </p>
+        )}
       </Section>
 
-      <div style={{ marginTop: 46 }}>
-        <MembershipClient
-          configured={configured}
-          signedIn={Boolean(member)}
-          memberAccess={Boolean(member?.access.memberAccess)}
-          membershipStatus={member?.access.status ?? null}
-          activeUntil={member?.access.activeUntil ?? null}
-          prefillEngine={prefillEngine}
-          prefillIdea={prefillIdea}
-          source={source}
-          enginesHref={enginesHref}
-        />
-      </div>
-
-      <Section title="What an account stores">
+      <Section title="What a tester account stores">
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {[
             "Your email, a password hash, your access status, and the projects you choose to save. Nothing else.",

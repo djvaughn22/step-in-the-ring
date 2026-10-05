@@ -1015,9 +1015,8 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
         <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
           This is saved right here in Your projects — come back anytime to
           continue or start another cycle. Take it with you using the copy
-          and download buttons above, or bring it into{" "}
-          <a href="/account" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>your account</a>{" "}
-          so it follows you to another device.
+          and download buttons above. It also shows up in{" "}
+          <a href="/library" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Your work</a>.
         </p>
       </div>
 

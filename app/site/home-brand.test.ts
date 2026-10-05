@@ -38,7 +38,8 @@ describe("official homepage identity", () => {
       const html = renderToStaticMarkup(createElement(component));
       expect(html).toContain('src="/icons/ring-mark.svg"');
       expect(html).toContain("Step In The Ring");
-      expect(html).toContain('href="/account"');
+      // No sign-up: no account door in the header; testers sign in from the footer.
+      expect(html).toContain(component === RingHeader ? 'href="/whats-built"' : 'href="/members/login"');
     }
   });
   it("gives every project its registry identity and a separate maker endorsement", () => {

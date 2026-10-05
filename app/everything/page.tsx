@@ -153,7 +153,7 @@ export default async function EverythingPage() {
         )}
       </Band>
 
-      <Band id="account" title="Your account">
+      <Band id="account" title="Accounts and access" note="No account needed for anything here. These are for invited testers and shared previews.">
         <PageRows pages={pagesInGroup("account")} />
       </Band>
 
