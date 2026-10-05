@@ -127,6 +127,7 @@ export default function MembershipClient(props: Props) {
           onChange={(e) => setIdea(e.target.value)}
           rows={3}
           maxLength={500}
+          aria-label="Your idea"
           style={{ ...INPUT, resize: "vertical" }}
           placeholder="e.g. A pole-vault game my kids invented that deserves a real version…"
         />
@@ -180,8 +181,14 @@ export default function MembershipClient(props: Props) {
       ) : (
         <div style={BOX}>
           <p style={{ fontSize: 14, fontWeight: 900, margin: "0 0 10px", color: "var(--ink, #e8edf5)" }}>
-            {mode === "signup" ? "Create your account" : "Sign in"}
+            {mode === "signup" ? "Join the private test" : "Sign in"}
           </p>
+          {mode === "signup" && (
+            <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "0 0 10px", lineHeight: 1.6 }}>
+              Joining needs the tester password you were given. No password?
+              You don&apos;t need one: everything above works without an account.
+            </p>
+          )}
           <p style={{ fontSize: 12, color: "var(--muted, #94a3b8)", margin: "0 0 10px", lineHeight: 1.6 }}>
             Accounts are for an adult, parent, or other responsible person.
             Only an email and password are collected.
@@ -197,6 +204,7 @@ export default function MembershipClient(props: Props) {
               onChange={(e) => setEmail(e.target.value)}
               style={INPUT}
               placeholder="you@example.com"
+              aria-label="Email"
               autoComplete="email"
             />
             <input
@@ -204,11 +212,12 @@ export default function MembershipClient(props: Props) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={INPUT}
-              placeholder={mode === "signup" ? "Choose a password (10+ characters)" : "Password"}
+              placeholder={mode === "signup" ? "Tester password you were given" : "Password"}
+              aria-label={mode === "signup" ? "Tester password" : "Password"}
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
             />
             <button className="btn btn-primary" disabled={busy}>
-              {mode === "signup" ? "Create account" : "Sign in"}
+              {mode === "signup" ? "Join the test" : "Sign in"}
             </button>
           </form>
           <button

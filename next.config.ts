@@ -55,12 +55,18 @@ export const RETIRED_SALES_REDIRECTS = [
   { source: "/shop", destination: "/tools", permanent: false },
 ];
 
+// Oct 4 2026: /explore repeated the Owner's Builds showroom with fewer
+// projects. One showroom now; old links land on it.
+export const MERGED_PAGE_REDIRECTS = [
+  { source: "/explore", destination: "/builds", permanent: true },
+];
+
 const nextConfig: NextConfig = {
   async headers() {
     return PRIVATE_ROUTES.map((source) => ({ source, headers: PRIVATE_HEADERS }));
   },
   async redirects() {
-    return [...DIGITAL_FRONT_DESK_REDIRECTS, ...RETIRED_SALES_REDIRECTS];
+    return [...DIGITAL_FRONT_DESK_REDIRECTS, ...RETIRED_SALES_REDIRECTS, ...MERGED_PAGE_REDIRECTS];
   },
 };
 

@@ -58,7 +58,7 @@ describe("official homepage identity", () => {
     expect([...doc.querySelectorAll(".path-card")].map(a => a.getAttribute("href"))).toEqual(["/build", "/create", "/engines"]);
     expect(doc.querySelectorAll("ol.how-steps > li")).toHaveLength(5);
     expect(doc.querySelectorAll(".tool-row")).toHaveLength(3);
-    for (const href of ["/everything", "/how", "/engines"]) expect(doc.querySelector(`a[href="${href}"]`)).not.toBeNull();
+    for (const href of ["/everything", "/how", "/engines", "/whats-built"]) expect(doc.querySelector(`a[href="${href}"]`)).not.toBeNull();
     expect(doc.querySelector(".startbox button[type=submit]")?.textContent).toBe("Step into the Ring");
   });
   it("lets a starter seed the form, the final invitation focus it, and submit enter shaping", async () => {

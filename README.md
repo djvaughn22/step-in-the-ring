@@ -19,7 +19,7 @@ Push to `main` — Vercel auto-deploys production.
 - **Production:** https://stepinthering.com — branch `main`, auto-deploys on push (Vercel).
 - **Framework:** Next.js 16.2.9 (App Router). Build: `npm run build`. Tests: `npm test`.
 - **Routes (checked 2026-09-30 against `app/**/page.tsx`):**
-  - Public: `/`, `/build`, `/build-machine`, `/builds` (+ `/[id]`), `/create`, `/explore`, `/library`, `/engines`, `/how`, `/about`, `/shop`, `/five-hour-sprint-tool`, `/products/five-hour-sprint` (+ `/apply`), `/products/ready-to-build`, `/membership`, `/live`, `/preview`, `/everything`.
+  - Public: `/`, `/build`, `/build-machine`, `/builds` (+ `/[id]`), `/create`, `/tools` (+ four tools), `/library`, `/engines`, `/how`, `/whats-built`, `/about`, `/five-hour-sprint-tool`, `/products/ready-to-build`, `/membership`, `/live`, `/preview`, `/everything`. Redirects only: `/explore` → `/builds`, `/shop` → `/tools`, `/products/five-hour-sprint` → `/five-hour-sprint-tool`.
   - Members (session cookie, `middleware.ts`): `/members/login`, `/members/signup`, `/account`, `/projects`, `/api/members/*`.
   - Owner (`app/owner/gate.ts` `PROTECTED_PREFIXES`, `STORY_OWNER_PASSWORD` session): `/owner/*`, `/author`, `/engines/room`, `/api/owner/*`.
   - Digital Front Desk: **moved to iDontCry on 2026-09-30** (canonical: `https://idontcry.com/digital-front-desk`, repo `/home/dj/idontcry`). This repo's pages, API routes and in-memory store are removed; `next.config.ts` `DIGITAL_FRONT_DESK_REDIRECTS` sends every old `/uat/digital-front-desk/*` page there (307). Live since `48a9e3b` (2026-09-30): the old API routes return 404 and the pages redirect. `DIGITAL_FRONT_DESK_UAT_ENABLED` was removed from Vercel Production.

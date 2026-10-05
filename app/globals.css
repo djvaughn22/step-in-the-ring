@@ -2931,3 +2931,17 @@ html[data-om-theme="light"] .ft-tool { color-scheme: light; }
 .loop-tool:hover, .how-tool:hover { text-decoration: underline; text-underline-offset: 3px; }
 .ft-step h2:focus { outline: none; }
 .ft-step h2:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* ── Visitor journey pass (2026-10-04) ── */
+/* One quiet line under the hero promise: it's free, and here's what works. */
+.hero-copy p.hero-status { margin-top: 14px; font-size: 15px; color: var(--muted); }
+.hero-status a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.hero-status a:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* A beta flag beside an engine name on the home page. */
+.tool-row .tool-pill { display: inline-block; margin: 0 0 0 8px; vertical-align: 2px; color: var(--gold); font-size: 10px; line-height: 1; }
+/* Status rows with nothing to open don't pretend to be links. */
+.row.row-static:hover { background: none; padding-left: 4px; }
+/* Text fields keep a real outline on keyboard focus, not just a border tint. */
+.startbox textarea:focus-visible,
+.gate input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }

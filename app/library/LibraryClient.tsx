@@ -70,10 +70,10 @@ export default function LibraryClient({
         </div>
 
         <section className="band card card-gold" aria-labelledby="ready-kit-heading">
-          <span className="kicker">A practical starter kit · Coming soon</span>
+          <span className="kicker">Free guide · Works today</span>
           <h2 id="ready-kit-heading">Ready to Build</h2>
-          <p>Rebuild an old computer, set up your AI workspace, and publish a first simple project.</p>
-          <Link className="text-link" href="/products/ready-to-build">Explore the kit →</Link>
+          <p>Check the computer you already have, set it up safely, and publish a first simple project.</p>
+          <Link className="text-link" href="/products/ready-to-build">Open the free guide →</Link>
         </section>
 
         {listFailed && (

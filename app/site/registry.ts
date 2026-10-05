@@ -219,6 +219,13 @@ export const SITE_PAGES: SitePage[] = [
     group: "learn",
   },
   {
+    path: "/whats-built",
+    name: "What’s built",
+    what: "What works today, what is in beta, what is private, and what is still being built.",
+    access: "public",
+    group: "learn",
+  },
+  {
     path: "/about",
     name: "About",
     what: "What this is, who makes it, and what happens to what you type.",
@@ -227,13 +234,6 @@ export const SITE_PAGES: SitePage[] = [
   },
 
   // ── Proof ──────────────────────────────────────────────────────────────
-  {
-    path: "/explore",
-    name: "Explore",
-    what: "Real things that got made. Open them — they're live.",
-    access: "public",
-    group: "proof",
-  },
   {
     path: "/live",
     name: "Things made here",
@@ -417,7 +417,7 @@ export interface EcosystemProject {
   /** Shown on the home page. A SHORT row of the strongest ones — the point is
    *  "people really finish things here", and five makes that point as well as
    *  ten. Step In The Ring is a product, not the Open Mirror portfolio; the
-   *  full list lives on /explore and on Open Mirror itself. */
+   *  full list lives on /builds and on Open Mirror itself. */
   featured?: boolean;
 }
 
