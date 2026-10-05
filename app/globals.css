@@ -2987,3 +2987,4 @@ textarea.tfb-input { resize: vertical; min-height: 84px; }
   .ring-sheet.open a { display: block; padding: 15px 4px; font-size: 16px; font-weight: 800; color: #FFFFFF; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, 0.14); min-height: 52px; }
   .ring-sheet.open a:hover { color: var(--accent); }
 }
+.ex-card .ex-title { display: block; margin-top: 4px; font-size: 14px; font-weight: 700; color: var(--text); overflow-wrap: anywhere; }

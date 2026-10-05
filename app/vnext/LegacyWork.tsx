@@ -51,10 +51,13 @@ export default function LegacyWork({
             <span className="ex-name">
               <span aria-hidden="true">{f.emoji}</span> {f.label}
             </span>
+            {f.title && <span className="ex-title">“{f.title}”</span>}
             <span className="ex-who">
               {f.count === null
                 ? "Saved here — open it to pick up where you left off"
-                : `${f.count} saved`}
+                : f.title
+                  ? `${f.count} saved · latest shown`
+                  : `${f.count} saved`}
             </span>
           </a>
         ))}

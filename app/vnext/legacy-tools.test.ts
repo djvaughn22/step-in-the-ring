@@ -38,4 +38,21 @@ describe("free tools in Your work", () => {
     localStorage.setItem("sitr-tool-one-liner", "{not json");
     expect(keys()).toEqual([]);
   });
+
+  it("shows the person's own name for the latest thing, shortened", () => {
+    localStorage.setItem("sitr-tool-first-version", JSON.stringify({ ...EMPTY_CUTTER, idea: "  A chore   chart  " }));
+    localStorage.setItem("fhs-sprints", JSON.stringify([{ id: "a", deliverable: "Old one" }, { id: "b", deliverable: "Finish the sign-up page" }]));
+    localStorage.setItem(
+      "sitr-engine-projects-v1",
+      JSON.stringify({ version: 1, projects: [
+        { id: "1", name: "Older", updatedAt: "2026-09-01T00:00:00Z" },
+        { id: "2", name: "x".repeat(90), updatedAt: "2026-10-01T00:00:00Z" },
+      ] }),
+    );
+    const byKey = Object.fromEntries(findLegacyWork().map((f) => [f.key, f.title]));
+    expect(byKey["sitr-tool-first-version"]).toBe("A chore chart");
+    expect(byKey["fhs-sprints"]).toBe("Finish the sign-up page");
+    expect(byKey["sitr-engine-projects-v1"]).toHaveLength(58);
+    expect(byKey["sitr-engine-projects-v1"]?.endsWith("…")).toBe(true);
+  });
 });
