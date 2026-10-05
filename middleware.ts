@@ -32,8 +32,8 @@ const PUBLIC_ROUTES = [
   // The directory and the proof pages are the front of the product — they are
   // public by definition. /shop is deliberately absent: it is a shared preview
   // and gates itself in the page, which is where preview access belongs.
-  "/explore",
   "/everything",
+  "/whats-built",
   "/preview",
   "/about",
   "/how",

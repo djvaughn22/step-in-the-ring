@@ -30,7 +30,7 @@ export default function AboutPage() {
           <li>Keep what you&rsquo;re making as a Build, and come back to it any time.</li>
           <li>Save what an engine makes for you in your Library, and use it again.</li>
           <li>Follow the first-build coach in six short rounds if you&rsquo;ve never built before.</li>
-          <li>See finished things that started here.</li>
+          <li>See finished things that started here, and <Link href="/whats-built">what works today versus what is still being built</Link>.</li>
         </ul>
       </Section>
 

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 const FREE_ALWAYS = [
   "Every engine in the Engine Room, run end to end, with no sign-in",
-  "The free tools: the Five Hour Sprint planner, first-version cutter, try-it script and launch checklist",
+  "The free tools: the Five Hour Sprint planner, first-version cutter, try-it script, one-line explainer and launch checklist",
   "The Build Machine guide and the Ready to Build computer check",
   "Starting an idea here, or carrying one in from iDontCry",
   "Work saves to this browser as you go — it's there when you come back on this device",

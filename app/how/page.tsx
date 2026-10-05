@@ -121,7 +121,7 @@ export default function HowPage() {
         {/* Restrained, real proof near the end of the explanation — not the
             hero, not a portfolio. Every entry here is something an Engine
             actually pushed live; app/live/live-products.json is the same
-            data /live and /explore read, not a separate claim. */}
+            data /live reads, not a separate claim. */}
         {MADE_HERE.length > 0 && (
           <section className="band">
             <div className="band-head">
@@ -141,7 +141,8 @@ export default function HowPage() {
               ))}
             </div>
             <p className="tiny" style={{ marginTop: 14 }}>
-              <Link href="/live" className="more">Every push, newest first →</Link>
+              <Link href="/live" className="more">Every push, newest first →</Link>{" "}
+              <Link href="/whats-built" className="more">What works today →</Link>
             </p>
           </section>
         )}

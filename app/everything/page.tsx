@@ -178,7 +178,7 @@ export default async function EverythingPage() {
           ))}
         </Tiles>
         <p style={{ marginTop: 20, fontSize: 14 }}>
-          More of them on <Link href="/explore" className="more">Explore</Link>, and the
+          More of them on <Link href="/builds" className="more">Owner&apos;s Builds</Link>, and the
           whole company&apos;s work at{" "}
           <a
             className="more"

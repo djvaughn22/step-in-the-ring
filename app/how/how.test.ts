@@ -65,8 +65,8 @@ describe("How It Works — one coherent loop", () => {
 // The Ring-as-portal correction (2026-08-30): near the end of the
 // explanation, show restrained, REAL proof that things get pushed live from
 // inside an Engine — not founder vanity, not a portfolio, and never
-// fabricated. This must read from the same live-products.json /live and
-// /explore already read, never a hand-typed duplicate list that could drift.
+// fabricated. This must read from the same live-products.json /live
+// already reads, never a hand-typed duplicate list that could drift.
 describe("How It Works — real proof near the end, not a portfolio", () => {
   it("reads live-products.json directly rather than hand-listing entries", () => {
     expect(src).toMatch(/import liveProducts from "\.\.\/live\/live-products\.json"/);

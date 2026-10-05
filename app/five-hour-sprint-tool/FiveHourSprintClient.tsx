@@ -421,7 +421,7 @@ export default function FiveHourSprintClient() {
           </div>
         )}
 
-        <ToolFooter made="You have a sprint plan." />
+        <ToolFooter made={sprints.length > 0 ? "You have a sprint plan." : undefined} />
       </div>
     </main>
   );
