@@ -2834,6 +2834,9 @@ html[data-om-theme="light"] .home-final h2 { color: #fff !important; }
 .owner-build-card-top { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
 .owner-build-icon { font-size: 27px; line-height: 1; }
 .owner-status { border: 1px solid color-mix(in srgb, var(--owner-accent) 65%, var(--line2)); border-radius: 999px; padding: 5px 8px; color: var(--owner-accent); font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+/* Light theme: the bright accents read at ~2:1 on white; mix each toward the
+   ink so every status label (Live, Product, Outreach…) clears 4.5:1. */
+html[data-om-theme="light"] .owner-status { color: color-mix(in srgb, var(--owner-accent) 40%, #0f172a); }
 .owner-category { display: block; margin-top: 18px; color: var(--dim); font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .owner-build-card h3 { margin: 8px 0 10px; font-size: 20px; overflow-wrap: anywhere; }
 .owner-build-card > p { font-size: 14px; line-height: 1.55; }

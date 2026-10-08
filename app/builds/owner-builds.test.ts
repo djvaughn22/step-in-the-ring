@@ -14,7 +14,7 @@ describe("Owner’s Builds registry", () => {
     expect(OWNER_BUILDS.length).toBeGreaterThanOrEqual(12);
     for (const build of OWNER_BUILDS) {
       expect(build.href).toMatch(/^(https:\/\/|\/)/);
-      expect(["Live", "Product", "Game", "Experiment", "In progress"]).toContain(build.status);
+      expect(["Live", "Product", "Game", "Experiment", "In progress", "Outreach"]).toContain(build.status);
       expect(build.description.length).toBeGreaterThan(25);
       expect(build.lesson).toMatch(/^What it shows:/);
       if (build.external) expect(build.href).toMatch(/^https:\/\//);
@@ -99,3 +99,24 @@ describe("Owner’s Builds showroom", () => {
     expect(directory.textContent).not.toContain("CrossHeartPray");
   });
 });
+
+// Owner, 2026-10-08: CrossHeartPray stays in the showroom as an outreach
+// project — labelled so, linked to its own site, and never shown as a product.
+describe("CrossHeartPray in the showroom", () => {
+  it("keeps its card, link and attribution, labelled Outreach", () => {
+    const chp = OWNER_BUILDS.find((b) => b.name === "CrossHeartPray");
+    expect(chp).toBeDefined();
+    expect(chp!.status).toBe("Outreach");
+    expect(chp!.href).toBe("https://crossheartpray.com");
+    expect(chp!.external).toBe(true);
+    expect(chp!.featured).toBe(true);
+    expect(chp!.lesson).toMatch(/^What it shows: /);
+    expect(chp!.lesson).toMatch(/published/);
+    expect(chp!.lesson).not.toMatch(/\bAI\b|buy|price|offer/i);
+  });
+
+  it("is the only outreach card", () => {
+    expect(OWNER_BUILDS.filter((b) => b.status === "Outreach").map((b) => b.name)).toEqual(["CrossHeartPray"]);
+  });
+});
+
