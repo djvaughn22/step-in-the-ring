@@ -6,7 +6,9 @@ export type OwnerBuildCategory =
   | "products"
   | "experiments";
 
-export type OwnerBuildStatus = "Live" | "Product" | "Game" | "Experiment" | "In progress";
+// "Outreach" (owner, 2026-10-08): live, free, and kept out of every sales
+// path. CrossHeartPray is shown here for what it demonstrates, not offered.
+export type OwnerBuildStatus = "Live" | "Product" | "Game" | "Experiment" | "In progress" | "Outreach";
 
 export type OwnerBuild = {
   name: string;
@@ -66,10 +68,10 @@ export const OWNER_BUILDS: OwnerBuild[] = [
     description: "A quiet daily place to read Scripture, follow a reading plan, and pray.",
     category: "websites",
     categoryLabel: "Websites & causes",
-    lesson: "What it shows: stored source material, thoughtful pacing, and small daily actions can make a calm public website.",
+    lesson: "What it shows: the first idea here, one daily habit of reading and prayer, published as a free public site. Stored Scripture text and a paced reading plan carry it, and it grows one small feature at a time.",
     href: "https://crossheartpray.com",
     external: true,
-    status: "Live",
+    status: "Outreach",
     emoji: "✝️",
     accent: "#C9A94A",
     featured: true,
