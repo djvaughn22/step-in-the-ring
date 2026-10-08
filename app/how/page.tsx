@@ -36,7 +36,7 @@ const LOOP = [
   {
     n: "03",
     title: "Make it",
-    body: "Turn it into something real — open an Engine if a focused tool helps, or take it to the AI already in your corner, like ChatGPT or Claude.",
+    body: "Turn it into something real — open an Engine if a focused tool helps, or take the brief to whatever tool or person you already work with.",
   },
   {
     n: "04",
@@ -48,6 +48,20 @@ const LOOP = [
     title: "Go again",
     body: "Pick it up again from Your work, keep what helped, or start the next one.",
   },
+];
+
+// What a visitor actually gets, in plain terms (owner direction 2026-10-07:
+// goal, included steps, real output, time and limits, live vs beta, price).
+// Keep every line true of the planner as it ships. No paid option exists;
+// do not add one here until a real, working offer does.
+const WHAT_YOU_GET = [
+  { label: "Your goal", body: "One idea you want to turn into a real first version: an app, a song, a game, a plan, a page." },
+  { label: "Steps included", body: "Say it, shape it, make it, try it, go again. Free tools and Engines help with single steps." },
+  { label: "What you leave with", body: "A written plan: what version one does, what it leaves out, what “done” looks like, the tools it needs, the next step, and a brief you can copy." },
+  { label: "Time", body: "The plan appears as soon as you describe the idea. How long building version one takes depends on the idea and is up to you." },
+  { label: "Limits", body: "It plans and guides; it does not build the thing for you. Work is kept in this browser only, so clearing site data clears it. Kids should build with a parent." },
+  { label: "Live or beta", body: "The planner and free tools work today. Some Engines are still in beta: see What’s built for the current list." },
+  { label: "Cost", body: "Free, no account. There is no paid option today." },
 ];
 
 const NAV_CONCEPTS = [
@@ -88,7 +102,25 @@ export default function HowPage() {
           <hr className="rule mast-rule" />
         </header>
 
-        <section className="band" style={{ paddingTop: 34 }}>
+        <section className="band" style={{ paddingTop: 34 }} aria-labelledby="what-you-get">
+          <div className="band-head">
+            <h2 className="band-title" id="what-you-get">What you get</h2>
+            <p className="band-note">The plain version, before you start.</p>
+          </div>
+          <dl className="card" style={{ margin: 0, display: "grid", gap: 12 }}>
+            {WHAT_YOU_GET.map((w) => (
+              <div key={w.label}>
+                <dt className="plan-label" style={{ marginBottom: 2 }}>{w.label}</dt>
+                <dd style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: "var(--text)" }}>
+                  {w.body}
+                  {w.label === "Live or beta" && <> <Link href="/whats-built" className="more">What’s built →</Link></>}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className="band">
           <div className="loop">
             {LOOP.map((s, i) => (
               <div key={s.n} className="loop-step">

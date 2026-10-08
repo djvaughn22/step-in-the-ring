@@ -74,8 +74,11 @@ describe("RingApp result screen — the takeaway prompt isn't software-only lang
     expect(src).not.toMatch(/building tool you already use/);
   });
 
-  it("names the real range of where this goes: AI, a person, or yourself", () => {
-    expect(src).toMatch(/Bring it to an AI, hand it to a person, or just start on it yourself\./);
+  // 2026-10-07 owner direction: no AI positioning in public copy. The
+  // range stays (a tool, a person, yourself); the tool is never named as AI.
+  it("names the real range of where this goes: any tool, a person, or yourself", () => {
+    expect(src).toMatch(/Use it with any tool you like, hand it to a person, or just start on it yourself\./);
+    expect(src).not.toMatch(/Bring it to an AI/);
   });
 });
 
@@ -256,7 +259,7 @@ describe("the takeaway prompt renders as typography, not raw markdown source", (
 // third name for the same thing.
 describe("the takeaway card is titled 'builder prompt' only for real software", () => {
   it("branches the card title and copy label on software.verdict === \"central\"", () => {
-    const card = src.slice(src.indexOf('{/* The handoff.'), src.indexOf("Bring it to an AI"));
+    const card = src.slice(src.indexOf('{/* The handoff.'), src.indexOf("Use it with any tool you like"));
     expect(card).toMatch(/view\?\.software\.verdict === "central" \? "Your builder prompt" : "Your brief"/);
     expect(card).toMatch(/view\?\.software\.verdict === "central" \? "Copy builder prompt" : "Copy brief"/);
   });

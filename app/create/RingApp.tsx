@@ -1029,7 +1029,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               </div>
               <BriefView text={builderPrompt} />
               <p className="field-help" style={{ marginTop: 12, marginBottom: 0 }}>
-                Bring it to an AI, hand it to a person, or just start on it yourself.
+                Use it with any tool you like, hand it to a person, or just start on it yourself.
               </p>
               {view && (
                 <div style={{ borderTop: "1px solid var(--line)", marginTop: 14, paddingTop: 14 }}>

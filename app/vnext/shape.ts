@@ -132,7 +132,7 @@ export function firstMoveFrom(view: CreationView, versionOne: string[]): string 
     const test = view.software.nonSoftwareTest;
     return test
       ? endWithStop(test)
-      : "Read the brief below, then bring it to a person, a reference, or an AI who can see the real thing.";
+      : "Read the brief below, then bring it to a person or a reference who can see the real thing.";
   }
   const test = view.software.nonSoftwareTest;
   const testFirst = view.software.verdict === "test-first" || view.software.verdict === "optional";

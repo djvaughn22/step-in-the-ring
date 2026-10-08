@@ -90,3 +90,20 @@ describe("How It Works — real proof near the end, not a portfolio", () => {
     expect(src).toMatch(/href="\/live"/);
   });
 });
+
+// 2026-10-07 owner direction: the execution steps are spelled out plainly
+// (goal, steps, output, time, limits, live vs beta, cost), with no AI
+// positioning and no invented paid offer.
+describe("How It Works — what you get, stated plainly", () => {
+  it("covers goal, steps, output, time, limits, live/beta and cost", () => {
+    for (const label of ["Your goal", "Steps included", "What you leave with", "Time", "Limits", "Live or beta", "Cost"]) {
+      expect(src).toContain(`label: "${label}"`);
+    }
+    expect(src).toContain('href="/whats-built"');
+  });
+
+  it("says there is no paid option, and names no AI", () => {
+    expect(src).toContain("There is no paid option today.");
+    expect(src).not.toMatch(/\bAI\b|ChatGPT|Claude/);
+  });
+});
