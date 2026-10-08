@@ -15,7 +15,7 @@ const IDEA_TYPES = [
   "Family app",
   "Sports team app",
   "Faith app",
-  "AI tool",
+  "Simple tool",
   "Local service",
   "I'm not sure",
 ] as const;
@@ -27,13 +27,13 @@ const SUGGEST: Record<IdeaType, { first: string; pages: string[] }> = {
   "Family app": { first: "One private page your family actually checks — photos, dates, notes.", pages: ["Home", "Photos", "Calendar", "Notes"] },
   "Sports team app": { first: "One page with the schedule and last game's score.", pages: ["Home", "Schedule", "Roster", "Scores"] },
   "Faith app": { first: "One page with a daily verse and a prayer.", pages: ["Home", "Daily Verse", "Prayer", "About"] },
-  "AI tool": { first: "One page: a text box, a button, and a helpful result.", pages: ["Home", "The Tool", "About"] },
+  "Simple tool": { first: "One page: a text box, a button, and a helpful result.", pages: ["Home", "The Tool", "About"] },
   "Local service": { first: "One page that says what you offer, your area, and your phone number.", pages: ["Home", "Services", "Area", "Contact"] },
   "I'm not sure": { first: "One page about something you love. You can change everything later.", pages: ["Home", "About"] },
 };
 
 const TOOLS: { name: string; emoji: string; what: string }[] = [
-  { name: "ChatGPT", emoji: "💬", what: "Your thinking partner — planning, writing prompts, and figuring out errors." },
+  { name: "A chat assistant", emoji: "💬", what: "Any chat assistant you already use, for planning pages and explaining errors. It is a separate service with its own account; this page does not include one." },
   { name: "Linux Terminal", emoji: "⌨️", what: "The command box. You type a command, the computer does it." },
   { name: "VS Code", emoji: "📝", what: "The editor where your app's files live and get changed." },
   { name: "Git", emoji: "💾", what: "The save system. Every commit is a snapshot you can go back to." },
@@ -134,7 +134,9 @@ export default function FirstAppCoach() {
       /* eslint-disable react-hooks/set-state-in-effect -- client-only localStorage hydration */
       if (s) {
         if (s.round) setRound(s.round);
-        if (s.ideaType) setIdeaType(s.ideaType);
+        // "AI tool" was renamed "Simple tool" (2026-10-08); keep saved progress.
+        const savedType = s.ideaType === "AI tool" ? "Simple tool" : s.ideaType;
+        if (savedType && (IDEA_TYPES as readonly string[]).includes(savedType)) setIdeaType(savedType as IdeaType);
         if (s.appName) setAppName(s.appName);
         if (s.purpose) setPurpose(s.purpose);
         hadProgress = Boolean(s.appName || s.purpose || (s.round && s.round > 1));
@@ -166,7 +168,7 @@ export default function FirstAppCoach() {
   }, [round, ideaType, appName, purpose]);
 
   const folder = slugify(appName);
-  const suggestion = SUGGEST[ideaType ?? "I'm not sure"];
+  const suggestion = SUGGEST[ideaType ?? "I'm not sure"] ?? SUGGEST["I'm not sure"];
   const stack = "Next.js + Tailwind CSS, saved on GitHub, hosted on Vercel";
   const displayName = appName.trim() || "My First App";
 
@@ -226,11 +228,16 @@ export default function FirstAppCoach() {
           </h1>
           <p style={{ fontSize: 15, color: "var(--muted)", margin: "0 0 14px" }}>without knowing where to start</p>
           <p className="card" style={{ fontSize: 14, lineHeight: 1.7, padding: "14px 16px", margin: 0, textAlign: "left" }}>
-            <strong style={{ color: "var(--gold)" }}>ChatGPT</strong> helps you think.{" "}
+            <strong style={{ color: "var(--gold)" }}>A chat assistant</strong> helps you plan.{" "}
             <strong style={{ color: "var(--gold)" }}>Linux terminal</strong> runs the commands.{" "}
             <strong style={{ color: "var(--gold)" }}>GitHub</strong> saves your code.{" "}
             <strong style={{ color: "var(--gold)" }}>Vercel</strong> hosts it.{" "}
             <strong style={{ color: "var(--gold)" }}>GoDaddy</strong> points your domain to it.
+            <br />
+            <span style={{ color: "var(--muted)" }}>
+              Each of these is a separate service you sign up for yourself. A domain name costs money; this page
+              gives you the steps and the text to copy, not the services.
+            </span>
           </p>
         </header>
 
@@ -385,11 +392,11 @@ export default function FirstAppCoach() {
               </div>
               <pre style={{ fontSize: 12.5, color: "var(--muted)", whiteSpace: "pre-wrap", margin: 0, lineHeight: 1.7, fontFamily: "inherit" }}>{kit}</pre>
             </div>
-            <PromptBlock title="💬 Paste into ChatGPT (plan your pages)" text={chatgptPrompt} />
-            <PromptBlock title="🤖 Paste into Claude Code (build it)" text={claudePrompt} />
+            <PromptBlock title="💬 Paste into your chat assistant (plan your pages)" text={chatgptPrompt} />
+            <PromptBlock title="🛠️ Paste into your coding tool (build it) · needs a tool that can edit the files in your project folder" text={claudePrompt} />
             <div className="card" style={{ padding: 20, marginBottom: 14 }}>
               <h3 style={{ fontSize: 16, fontWeight: 900, margin: "0 0 6px" }}>🆘 I'm stuck</h3>
-              <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px" }}>Fill these in, copy the prompt, paste it into ChatGPT. That's how everyone debugs.</p>
+              <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px" }}>Fill these in, copy the text, and paste it into your chat assistant, or send it to someone who can help. Saying what you ran, what you expected, and the exact error is how most bugs get solved.</p>
               {(["ran", "expected", "got"] as const).map((k) => (
                 <textarea
                   key={k}
