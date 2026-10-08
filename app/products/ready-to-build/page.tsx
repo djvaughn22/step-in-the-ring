@@ -21,7 +21,7 @@ const steps = [
   ["Protect it", "Back up anything important before wiping, reinstalling, or changing the machine."],
   ["Rebuild it", "Clean up the existing system or install a better-supported setup when that makes sense."],
   ["Prepare it", "Install the workspace and tools used in the Step In The Ring process."],
-  ["Build it", "Bring an idea, work with an AI coding agent, test the result, and improve it."],
+  ["Build it", "Bring an idea, work with a coding tool you choose, test the result, and improve it."],
   ["Go live", "Publish the project and receive a real link you can share."],
 ];
 // The free path: every item is a real page on this site that works today.
@@ -32,7 +32,7 @@ const kit = [
   ] },
   { title: "Prepare your workspace", items: [
     ["Install the one supported Linux setup, step by step", "/build-machine"],
-    ["Read the software playbook: editor, Git, GitHub, AI assistant, deploys", "/how"],
+    ["Read the software playbook: editor, Git, GitHub, a coding tool, deploys", "/how"],
   ] },
   { title: "Make your first project real", items: [
     ["Follow the first build in six short rounds", "/build"],
@@ -51,11 +51,11 @@ const examples = [
 const faqs = [
   ["Do I need a new computer?", "Start with the computer you already own. The readiness checklist helps you decide whether it can run a supported operating system and the tools you need before you buy anything."],
   ["What if my computer is old?", "Age alone does not decide it. Storage, memory, condition, and operating-system support matter. Back up important files before making changes. Some machines benefit from a cleanup or an affordable upgrade; others are not worth rebuilding. The guide helps you make that call."],
-  ["Do I need to know how to code?", "No prior coding experience is required to start. You will describe what you want in plain language and learn to inspect, test, and change the result. AI is in your corner; you still make the decisions. Kids should build with a parent."],
-  ["Can I use Windows, Mac, or Linux?", "The computer check above covers all three. The step-by-step Build Machine guide uses one supported Linux setup; on Windows or Mac you can install the same tools (a code editor, Git, Node.js) from their official pages. Your machine must support a suitable operating system and the tools you choose. You do not need to run an AI model on the computer itself."],
+  ["Do I need to know how to code?", "No prior coding experience is required to start. You will describe what you want in plain language and learn to inspect, test, and change the result. You make the decisions. Kids should build with a parent."],
+  ["Can I use Windows, Mac, or Linux?", "The computer check above covers all three. The step-by-step Build Machine guide uses one supported Linux setup; on Windows or Mac you can install the same tools (a code editor, Git, Node.js) from their official pages. Your machine must support a suitable operating system and the tools you choose. Most coding tools you might choose are separate services with their own accounts."],
   ["What can I realistically build in one day?", "Aim for one simple project: a personal site, a small resource page, or a basic tracker. Computer repairs, a slow setup, or learning a new tool can take longer. Larger apps, accounts, payments, and sensitive data need more design, testing, and iteration."],
-  ["Is this the same as blindly accepting AI-generated code?", "No. Work in small steps. Ask the agent to explain changes, review them, test the page on a phone and a computer, and keep a recoverable copy in Git. Check that private information and credentials stay out of your published project. A confident AI answer is not a passing test."],
-  ["Does any of this cost money?", "No. The guide and the tools on this site are free and need no account. Outside services you might choose, such as an AI assistant, hosting, or a domain name, can have separate costs of their own. Check each provider's terms before you sign up."],
+  ["Is this the same as blindly accepting generated code?", "No. Work in small steps. Ask your coding tool to explain changes, review them, test the page on a phone and a computer, and keep a recoverable copy in Git. Check that private information and credentials stay out of your published project. A confident answer is not a passing test."],
+  ["Does any of this cost money?", "No. The guide and the tools on this site are free and need no account. Outside services you might choose, such as a coding tool, hosting, or a domain name, can have separate costs of their own. Check each provider's terms before you sign up."],
 ];
 
 export default function ReadyToBuildPage() {
@@ -67,8 +67,8 @@ export default function ReadyToBuildPage() {
           <span className="kicker">Have an old computer?</span>
           <p className={styles.product}>Ready to Build</p>
           <h1>Before you buy a new one, <span>find out what yours can become.</span></h1>
-          <p className={styles.subtitle}>That computer sitting in a closet—or running slowly on your desk—may be enough to become your personal AI build machine. Ready to Build walks you through the decision safely: check the computer, protect or remove the old setup, rebuild it if needed, install the right tools, and create your first live project.</p>
-          <p>An AI build machine is simply a computer set up to make websites and apps with an AI coding assistant. Back up first, then decide what to keep or remove.</p>
+          <p className={styles.subtitle}>That computer sitting in a closet—or running slowly on your desk—may be enough to become your personal build machine. Ready to Build walks you through the decision safely: check the computer, protect or remove the old setup, rebuild it if needed, install the right tools, and create your first live project.</p>
+          <p>A build machine is simply a computer set up to make websites and apps: a code editor, Git, Node.js, and a coding tool you choose (a separate service with its own sign-up). Back up first, then decide what to keep or remove.</p>
           <div className={styles.actions}><a className="btn btn-gold" href="#computer-check">Check my computer <span aria-hidden="true">→</span></a><a className={styles.textLink} href="#process">See the whole process ↓</a></div>
           <p className={styles.small}>A first simple live project in a day is a goal, not a guarantee. Repairs, setup, and larger ideas can take longer.</p>
         </div>

@@ -32,7 +32,9 @@ describe("Ready to Build", () => {
     expect(doc.querySelector("h1")?.textContent).toBe("Before you buy a new one, find out what yours can become.");
     const hero = doc.querySelector("main > header")!;
     expect(hero.textContent).toContain("Have an old computer?");
-    expect(hero.textContent).toContain("An AI build machine is simply a computer");
+    expect(hero.textContent).toContain("A build machine is simply a computer");
+    expect(hero.textContent).toContain("a separate service with its own sign-up");
+    expect(hero.textContent).not.toMatch(/\bAI\b/);
     expect(hero.querySelector('a[href="#computer-check"]')?.textContent).toContain("Check my computer");
     expect(hero.querySelector('a[href="#process"]')?.textContent).toContain("See the whole process");
     expect(hero.querySelector('a[href^="mailto:"]')).toBeNull();
