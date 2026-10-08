@@ -133,7 +133,7 @@ export function recommendEngines(v: CreationView): Recommendation {
       return {
         primary: null,
         promptPathWhy:
-          "This isn't something to build or a version to pick — it's a real question. The brief below has exactly what you said; bring it to a person, a reference, or an AI who can actually see the real thing, and check anything it tells you.",
+          "This isn't something to build or a version to pick — it's a real question. The brief below has exactly what you said; bring it to a person or a reference who can actually see the real thing, and check anything you are told.",
         alternates,
       };
 

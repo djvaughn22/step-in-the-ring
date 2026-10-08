@@ -598,7 +598,7 @@ function deriveCompletionAction(
   // only, so a named "app" or "site" never gets pulled in here) — this text
   // isn't a build to complete at all.
   if (shape === "unknown" && looksLikeGeneralHelp(productText)) {
-    return "Read the brief below, then bring it to a person, a reference, or an AI who can see the real thing.";
+    return "Read the brief below, then bring it to a person or a reference who can see the real thing.";
   }
   if (destination && permissions.push) {
     return `Inspect the ${destination} repository, build the feature there, test it, then commit and push.`;
