@@ -9,6 +9,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import liveProducts from "../live/live-products.json";
+import { playbookMarkdown } from "../creation/playbook";
 
 const src = readFileSync(join(__dirname, "page.tsx"), "utf8");
 const playbook = readFileSync(join(__dirname, "Playbook.tsx"), "utf8");
@@ -105,5 +106,10 @@ describe("How It Works — what you get, stated plainly", () => {
   it("says there is no paid option, and names no AI", () => {
     expect(src).toContain("There is no paid option today.");
     expect(src).not.toMatch(/\bAI\b|ChatGPT|Claude/);
+  });
+
+  it("the software playbook it renders (and exports as Markdown) names no AI either", () => {
+    expect(playbookMarkdown()).not.toMatch(/\bAI\b|ChatGPT|Claude/);
+    expect(playbookMarkdown()).toContain("A coding tool you choose");
   });
 });
