@@ -20,7 +20,7 @@ export const PLAYBOOK_STEPS: PlaybookStep[] = [
       "A code editor (VS Code) and a terminal you're not afraid of.",
       "Git, plus a GitHub account for backup and deploys.",
       "Node (or the runtime your builds need) — template: install from the official site, then `node --version`.",
-      "A coding tool you choose, signed in. It is a separate service with its own sign-up.",
+      "A coding tool you choose, signed in.",
       "A browser for testing, and a deploy platform (Vercel's free tier is enough).",
       "Secrets live in local files that never enter git — never in code, never in prompts.",
       "One folder where every repository lives, so nothing gets lost.",
