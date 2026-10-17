@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: "%s | StepInTheRing",
   },
   description:
-    "Say what you need help with, in your own words — something to make, fix, understand, or plan. Leave with a clear next step, and free tools when it's software.",
+    "Say what you need help with, in your own words — something to make, fix, understand, or plan. Leave with a clear next step, and the tools to start when it's software.",
   applicationName: "Step In The Ring",
   appleWebApp: { capable: true, title: "The Ring", statusBarStyle: "black-translucent" },
   openGraph: {

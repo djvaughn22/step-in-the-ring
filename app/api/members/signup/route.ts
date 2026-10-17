@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 
 const UNCONFIGURED = {
   ok: false,
-  error: "Accounts are not open yet — membership is in private beta.",
+  error: "Accounts are for invited testers right now.",
 };
 
 function clientIp(req: NextRequest): string {

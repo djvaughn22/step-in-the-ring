@@ -144,7 +144,7 @@ export default function OnboardingFlow({
 
             {path && platform && (
               <button onClick={() => setStep(2)} className="btn btn-gold" style={{ width: "100%", marginTop: 12 }}>
-                Get the free tools →
+                Get the tools →
               </button>
             )}
           </div>

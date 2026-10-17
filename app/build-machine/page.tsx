@@ -10,7 +10,7 @@ import BuildMachineClient from "./BuildMachineClient";
 export const metadata: Metadata = {
   title: "Build Machine",
   description:
-    "Turn a computer you already have into a real local build environment. Assess it, prepare it safely, install the one supported Linux setup, verify it works, and open the ecosystem. Free during the open beta.",
+    "Turn a computer you already have into a real local build environment. Assess it, prepare it safely, install the one supported Linux setup, verify it works, and open the ecosystem.",
 };
 
 export default function BuildMachinePage() {

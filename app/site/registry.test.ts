@@ -154,7 +154,7 @@ describe("the menu", () => {
   it("says the same four words the product is organised around", () => {
     expect(navPages().map((p) => p.name)).toEqual([
       "Create",
-      "Free tools",
+      "Tools",
       "Engines",
       "Your work",
       "Owner’s Builds",

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   const config = readStripeConfig();
   if (!config.secretKeyPresent) {
-    return NextResponse.json({ ok: false, error: "Billing is not live yet." }, { status: 503 });
+    return NextResponse.json({ ok: false, error: "This isn't available." }, { status: 503 });
   }
   const gateway = await getStripeGateway(process.env.STRIPE_SECRET_KEY!);
   const result = await openBillingPortal(gateway, config, store, ctx.user.id);

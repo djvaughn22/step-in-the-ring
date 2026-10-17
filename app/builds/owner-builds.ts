@@ -52,7 +52,7 @@ export const OWNER_BUILDS: OwnerBuild[] = [
   },
   {
     name: "Ready to Build",
-    description: "A free, computer-first guide for checking, protecting, preparing, and building with the machine you already have.",
+    description: "A computer-first guide for checking, protecting, preparing, and building with the machine you already have.",
     category: "products",
     categoryLabel: "Products & systems",
     lesson: "What it shows: a practical guide can explain the safe first step before anyone changes a thing.",
@@ -68,7 +68,7 @@ export const OWNER_BUILDS: OwnerBuild[] = [
     description: "A quiet daily place to read Scripture, follow a reading plan, and pray.",
     category: "websites",
     categoryLabel: "Websites & causes",
-    lesson: "What it shows: the first idea here, one daily habit of reading and prayer, published as a free public site. Stored Scripture text and a paced reading plan carry it, and it grows one small feature at a time.",
+    lesson: "What it shows: the first idea here, one daily habit of reading and prayer, published as a public site. Stored Scripture text and a paced reading plan carry it, and it grows one small feature at a time.",
     href: "https://crossheartpray.com",
     external: true,
     status: "Outreach",
@@ -213,7 +213,7 @@ export const OWNER_BUILDS: OwnerBuild[] = [
   },
   {
     name: "Five Hour Sprint",
-    description: "A free planning tool for turning one five-hour working session into a concrete packet.",
+    description: "A planning tool for turning one five-hour working session into a concrete packet.",
     category: "products",
     categoryLabel: "Products & systems",
     lesson: "What it shows: a useful constraint can turn a large ambition into one finishable work session.",

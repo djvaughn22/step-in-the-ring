@@ -90,7 +90,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/products/ready-to-build",
     name: "Ready to Build",
-    what: "A free guide for the computer you already have: check it, set it up, and launch your first simple project.",
+    what: "A guide for the computer you already have: check it, set it up, and launch your first simple project.",
     access: "public",
     group: "learn",
   },
@@ -116,8 +116,8 @@ export const SITE_PAGES: SitePage[] = [
   // and saves only to this device.
   {
     path: "/tools",
-    name: "Free tools",
-    what: "Every free tool here in one place, each one a few minutes long. No account, nothing to buy.",
+    name: "Tools",
+    what: "Every tool here in one place, each one a few minutes long. No account needed.",
     access: "public",
     group: "engines",
     inNav: true,
@@ -260,7 +260,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/membership",
     name: "No account needed",
-    what: "Everything here is free with no account. Invited testers sign in here.",
+    what: "Nothing here needs an account. Invited testers sign in here.",
     access: "public",
     group: "account",
   },
@@ -464,7 +464,7 @@ export const ECOSYSTEM: EcosystemProject[] = [
     emoji: "🎬",
     what: "Keep track of what you've watched and find the next thing worth your night.",
     who: "Anyone tired of scrolling three apps to find nothing.",
-    real: "Search, tracking, a Top 222 list, and a recommendation desk that costs nothing to run.",
+    real: "Search, tracking, a Top 222 list, and a recommendation desk.",
     liveUrl: "https://watchednotwatched.com",
     repoPublic: false,
     status: "live",

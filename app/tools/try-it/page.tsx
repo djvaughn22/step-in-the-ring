@@ -6,7 +6,7 @@ import TryItClient from "./TryItClient";
 export const metadata: Metadata = {
   title: "Try-it script",
   description:
-    "A short script for putting what you made in front of one real person, and a place to write down what happened. Free, no account.",
+    "A short script for putting what you made in front of one real person, and a place to write down what happened. No account needed.",
 };
 
 export default function TryItPage() {

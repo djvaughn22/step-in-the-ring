@@ -283,12 +283,11 @@ export default function BuildMachineClient() {
               <div style={card}>
                 <p style={{ fontSize: 16, fontWeight: 900, margin: "0 0 8px" }}>Install: Linux Mint 22 (Cinnamon or Xfce)</p>
                 <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 12 }}>
-                  The single supported path — built on an Ubuntu 24.04 base. The full step-by-step guide,
-                  scripts, and troubleshooting live in the{" "}
-                  <a href="https://openmirrorllc.com/products/old-laptop-to-build-machine" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)" }}>
-                    Old Laptop → Build Machine guide
-                  </a>{" — "}
-                  this checklist tracks your progress through it.
+                  The single supported path — built on an Ubuntu 24.04 base. Follow the{" "}
+                  <a href="https://linuxmint-installation-guide.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold)" }}>
+                    official Linux Mint installation guide
+                  </a>{" "}
+                  for the install itself; this checklist tracks your progress through it.
                 </p>
                 {INSTALL_CHECKLIST_ITEMS.map((item, i) => (
                   <label key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10, fontSize: 14 }}>

@@ -489,8 +489,8 @@ describe("membership surface honesty", () => {
     expect(page).not.toMatch(/MEMBERSHIP_PRICE|\$\d|price|billing|checkout|subscri|purchase|cancel any time/i);
     expect(page).not.toMatch(/\/api\/members\/checkout/);
     expect(page).toMatch(/remain yours/i);
-    expect(page).toMatch(/Free, no account needed/);
-    expect(page).toMatch(/cost nothing/);
+    expect(page).toMatch(/No account needed/);
+    expect(page).toMatch(/There's no sign-up/);
     expect(page).not.toMatch(/countdown|only \d+ left|limited spots|was \$|\btestimonial/i);
     expect(page).not.toMatch(/free trial|% off|discount/i);
   });

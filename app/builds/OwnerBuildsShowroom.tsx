@@ -27,7 +27,7 @@ export default function OwnerBuildsShowroom() {
       <div className="owner-showroom-hero">
         <span className="kicker">Owner&apos;s Builds</span>
         <h1 id="owner-builds-heading">See what we&apos;ve built.</h1>
-        <p>Every one of these started as a rough idea. They are real websites, tools, games, and experiments you can open right now, free. Look around, then bring your own idea.</p>
+        <p>Every one of these started as a rough idea. They are real websites, tools, games, and experiments you can open right now. Look around, then bring your own idea.</p>
         <div className="actions">
           <Link className="btn btn-gold" href="/create">I want to build something like this →</Link>
           <Link className="btn btn-ghost" href="/products/ready-to-build#computer-check">Check my computer first</Link>
@@ -49,7 +49,7 @@ export default function OwnerBuildsShowroom() {
         {visible.length > 0 ? <div className="owner-build-grid">{visible.map((build) => <OwnerBuildCard key={build.name} build={build} />)}</div> : <div className="owner-empty"><h3>No builds in this category yet.</h3><p>Come back as more projects take shape, or start something with the idea box.</p><Link className="text-link" href="/create">Start a new build →</Link></div>}
       </div>
 
-      <div className="owner-showroom-cta"><span className="kicker">Your turn</span><h2>Which one makes you want to try?</h2><p>Take the pattern that catches your eye and bring your own subject. One sentence is enough to start, and it costs nothing.</p><div className="actions"><Link className="btn btn-gold" href="/create">Start with my idea →</Link><Link className="text-link" href="/products/ready-to-build#computer-check">Not sure your computer is ready? Check it first →</Link></div></div>
+      <div className="owner-showroom-cta"><span className="kicker">Your turn</span><h2>Which one makes you want to try?</h2><p>Take the pattern that catches your eye and bring your own subject. One sentence is enough to start.</p><div className="actions"><Link className="btn btn-gold" href="/create">Start with my idea →</Link><Link className="text-link" href="/products/ready-to-build#computer-check">Not sure your computer is ready? Check it first →</Link></div></div>
     </section>
   );
 }

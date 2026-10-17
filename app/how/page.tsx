@@ -51,22 +51,22 @@ const LOOP = [
 ];
 
 // What a visitor actually gets, in plain terms (owner direction 2026-10-07:
-// goal, included steps, real output, time and limits, live vs beta, price).
-// Keep every line true of the planner as it ships. No paid option exists;
-// do not add one here until a real, working offer does.
+// goal, included steps, real output, time and limits, live vs beta, account).
+// Keep every line true of the planner as it ships. No money talk here
+// (owner, 2026-10-17): say what you get, not what it costs.
 const WHAT_YOU_GET = [
   { label: "Your goal", body: "One idea you want to turn into a real first version: an app, a song, a game, a plan, a page." },
-  { label: "Steps included", body: "Say it, shape it, make it, try it, go again. Free tools and Engines help with single steps." },
+  { label: "Steps included", body: "Say it, shape it, make it, try it, go again. Tools and Engines help with single steps." },
   { label: "What you leave with", body: "A written plan: what version one does, what it leaves out, what “done” looks like, the tools it needs, the next step, and a brief you can copy." },
   { label: "Time", body: "The plan appears as soon as you describe the idea. How long building version one takes depends on the idea and is up to you." },
   { label: "Limits", body: "It plans and guides; it does not build the thing for you. Work is kept in this browser only, so clearing site data clears it. Kids should build with a parent." },
-  { label: "Live or beta", body: "The planner and free tools work today. Some Engines are still in beta: see What’s built for the current list." },
-  { label: "Cost", body: "Free, no account. There is no paid option today." },
+  { label: "Live or beta", body: "The planner and tools work today. Some Engines are still in beta: see What’s built for the current list." },
+  { label: "Account", body: "None needed. Your work stays in this browser." },
 ];
 
 const NAV_CONCEPTS = [
   { name: "Create", body: "Where ideas begin. Say what you want to make." },
-  { name: "Free tools", body: "Small tools that each do one job, like cutting an idea down or checking it before you share." },
+  { name: "Tools", body: "Small tools that each do one job, like cutting an idea down or checking it before you share." },
   { name: "Engines", body: "Focused tools for when one part of the work needs real help." },
   { name: "Your work", body: "Everything you started, kept in this browser. Come back and continue." },
   { name: "Owner’s Builds", body: "The showroom: real sites and games made this way, to open and borrow ideas from." },

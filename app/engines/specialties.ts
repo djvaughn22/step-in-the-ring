@@ -310,14 +310,11 @@ const etsySpecialties: Record<string, SpecialtyFn> = {
   },
   "Legal & trademark flags": (e, a) => {
     return [
-      `Brand name used: check Open Mirror trademark policy.`,
+      `Brand name used: make sure you have the right to use it.`,
       `Any quotes / designs from others? Ensure usage rights.`,
       `Etsy shop policy: set clear refund/shipping policy.`,
       `Tax: register for sales tax in your state if applicable.`,
     ].join("\n");
-  },
-  "Open Mirror placement guidance": (e, a) => {
-    return `If launching under an Open Mirror brand:\n- Notify the hub (openmirrorllc.com).\n- Link back to TheDJCares or your site.\n- Share sales + feedback weekly.`;
   },
 };
 

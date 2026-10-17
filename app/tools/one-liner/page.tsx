@@ -6,7 +6,7 @@ import ExplainerClient from "./ExplainerClient";
 export const metadata: Metadata = {
   title: "One-line explainer",
   description:
-    "Turn what you made into a page title, a one-line description, and a message to send with the link, in your own words. Free, no account.",
+    "Turn what you made into a page title, a one-line description, and a message to send with the link, in your own words. No account needed.",
 };
 
 export default function OneLinerPage() {
