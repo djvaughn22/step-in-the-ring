@@ -501,9 +501,9 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
         <div className="page home-page">
           <section className="home-hero">
             <div className="hero-copy">
-              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>From idea to real.</span></span></div>
-              <h1>Bring the idea.<br /><span>Leave with something real.</span></h1>
-              <p>A rough idea is enough. Shape it, build it, and make it work.</p>
+              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>Plans for your ideas</span></span></div>
+              <h1>Describe your idea.<br /><span>Get a plan.</span></h1>
+              <p>A website, an app, a song, a game, or a plan. Write it your way and get a written plan for the first version, with the next step.</p>
               <p className="hero-status">Free, and no account needed. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
             </div>
             <div className="home-entry">{theBox}</div>
@@ -512,16 +512,16 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               work's own title on the front door. */}
           <ContinueStrip />
           <section className="home-paths" aria-labelledby="paths-heading">
-            <div className="section-intro"><span className="kicker">Or pick a way in</span><h2 id="paths-heading">Start where you are.</h2><p>The idea box above works for anything. These are for when you already know the kind of help you want.</p></div>
+            <div className="section-intro"><span className="kicker">Or pick a way in</span><h2 id="paths-heading">Other ways to start</h2><p>The idea box above works for anything. These are for when you already know the kind of help you want.</p></div>
             <div className="path-grid">
               {[
-                ["build", "Build your first website or app", "Six short rounds, from an idea to your own link on the internet.", "/build", "build"],
-                ["tools", "Grab a free tool", "Small tools that each do one job: cut an idea down, test it, check it before you share.", "/tools", "create"],
-                ["solve", "Go deeper with an engine", "Idea, Design Shop, Build, Music, Plan and more. Each one makes one part of the thing.", "/engines", "solve"],
-              ].map(([id, title, text, href, icon]) => (
+                ["build", "Build your first website or app", "Six short rounds, from an idea to your own link on the internet.", "/build", "build", "Start the six rounds"],
+                ["tools", "Grab a free tool", "Small tools that each do one job: cut an idea down, test it, check it before you share.", "/tools", "create", "See the free tools"],
+                ["solve", "Go deeper with an engine", "Idea, Design Shop, Build, Music, Plan and more. Each one helps with one kind of work.", "/engines", "solve", "See the engines"],
+              ].map(([id, title, text, href, icon, cta]) => (
                 <Link className="path-card" href={href} key={id}>
                   <span className={`path-icon path-icon-${id}`} aria-hidden="true"><WorkshopIcon kind={icon} /></span>
-                  <span><strong>{title}</strong><span>{text}</span><em>Begin here&nbsp; →</em></span>
+                  <span><strong>{title}</strong><span>{text}</span><em>{cta}&nbsp; →</em></span>
                 </Link>
               ))}
             </div>
@@ -531,19 +531,19 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true">{p.emoji}</span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit {p.name} ↗</span><span className="project-endorsement"><RingMark />Made in the Ring</span></a>)}</div>
             <div className="home-proof-links"><Link className="text-link" href="/builds">See everything we&apos;ve built&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
-          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">A simple loop</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Bring the idea","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Build it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Improve or finish","Refine what works. Finish when it’s ready."]].map(([n,t,d],i)=><li className="how-step" key={n}><span><span className="round-label">Round </span>{n}</span><h3>{t}</h3><p>{d}</p><Link className="how-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label}&nbsp;→</Link></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
+          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">Five rounds</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Say it","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Make it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Go again","Keep what works, or start the next one."]].map(([n,t,d],i)=><li className="how-step" key={n}><span><span className="round-label">Round </span>{n}</span><h3>{t}</h3><p>{d}</p><Link className="how-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label}&nbsp;→</Link></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
           {/* Help for someone who is unsure: the computer check, the one human
               path (weekend consulting by email), and a way to tell us what
               happened. Nothing here is for sale. */}
           <section className="home-help" aria-labelledby="help-heading">
-            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">You don&apos;t have to do it alone.</h2><p>Everything here is free and needs no account. Pick the kind of help that fits.</p></div>
+            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">Help and feedback</h2><p>Everything here is free and needs no account.</p></div>
             <ul className="help-list">
               <li><strong>Is your computer up to it?</strong><span>Ready to Build: a free, one-question-at-a-time check, then a guide to turning the computer you already have into one that builds.</span><Link className="text-link" href="/products/ready-to-build">Meet Ready to Build&nbsp; →</Link></li>
               <li><strong>Want a hand on the weekend?</strong><span>I do a little consulting on weekends. Ask by email. No forms, no pressure.</span><a className="text-link" href={WEEKEND_CONSULTING_HREF}>Ask about weekend help&nbsp; →</a></li>
               <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>
-          <section className="home-final"><RingMark /><span className="kicker">Your next move</span><h2>Bring the next idea.</h2><p>One sentence is enough to get started.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Step into the Ring&nbsp; →</button></section>
+          <section className="home-final"><RingMark /><h2>Have an idea?</h2><p>Write it in the box at the top of this page.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Go to the idea box&nbsp; ↑</button></section>
         </div>
       </main>
     );
@@ -567,10 +567,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                 <RingMark />
                 The Ring
               </h1>
-              <p className="ring-tagline">Bring the idea. Leave with something real.</p>
+              <p className="ring-tagline">Describe your idea. Get a plan.</p>
               <p className="ring-sub" style={{ marginTop: 16 }}>
-                Start with one sentence. Shape it, build it, and keep moving
-                until it works.
+                Start with one sentence. You get a written plan and the next
+                step.
               </p>
 
               {/* The one visual nod to the name — a frame, not a costume. */}
