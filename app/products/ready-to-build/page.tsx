@@ -7,11 +7,11 @@ import styles from "./ready.module.css";
 
 export const metadata: Metadata = {
   title: "Ready to Build",
-  description: "A free guide for the computer you already have: check it, protect your files, set it up, and get to your first simple live project.",
+  description: "A guide for the computer you already have: check it, protect your files, set it up, and get to your first simple live project.",
   alternates: { canonical: "/products/ready-to-build" },
   openGraph: {
     title: "Ready to Build | Step In The Ring",
-    description: "Your computer. Your idea. Your first live project. A free, step-by-step guide.",
+    description: "Your computer. Your idea. Your first live project. A step-by-step guide.",
     url: "/products/ready-to-build",
   },
 };
@@ -55,13 +55,13 @@ const faqs = [
   ["Can I use Windows, Mac, or Linux?", "The computer check above covers all three. The step-by-step Build Machine guide uses one supported Linux setup; on Windows or Mac you can install the same tools (a code editor, Git, Node.js) from their official pages. Your machine must support a suitable operating system and the tools you choose. Most coding tools you might choose are separate services with their own accounts."],
   ["What can I realistically build in one day?", "Aim for one simple project: a personal site, a small resource page, or a basic tracker. Computer repairs, a slow setup, or learning a new tool can take longer. Larger apps, accounts, payments, and sensitive data need more design, testing, and iteration."],
   ["Is this the same as blindly accepting generated code?", "No. Work in small steps. Ask your coding tool to explain changes, review them, test the page on a phone and a computer, and keep a recoverable copy in Git. Check that private information and credentials stay out of your published project. A confident answer is not a passing test."],
-  ["Does any of this cost money?", "No. The guide and the tools on this site are free and need no account. Outside services you might choose, such as a coding tool, hosting, or a domain name, can have separate costs of their own. Check each provider's terms before you sign up."],
+  ["Do I need to buy anything?", "No. Start with the computer you already have; the guide and the tools on this site need no account. Outside services you might choose, such as a coding tool, hosting, or a domain name, can have separate costs of their own. Check each provider's terms before you sign up."],
 ];
 
 export default function ReadyToBuildPage() {
   return (
     <main className={styles.page}>
-      <Link className="breadcrumb" href="/tools">← Free tools</Link>
+      <Link className="breadcrumb" href="/tools">← Tools</Link>
       <header className={styles.hero}>
         <div>
           <span className="kicker">Have an old computer?</span>
@@ -95,7 +95,7 @@ export default function ReadyToBuildPage() {
 
       <RealProjects />
 
-      <section id="included" className={styles.section} aria-labelledby="kit-heading"><div className={styles.sectionIntro}><span className="kicker">The free path</span><h2 id="kit-heading">What you will get help with</h2><p>Everything below is a free page on this site that works today. Do them in order, or jump to the one you need. No account, no download, nothing to buy.</p></div><div className={styles.threeColumns}>{kit.map(group => <article className={styles.kitCard} key={group.title}><h3>{group.title}</h3><ul>{group.items.map(([label, href]) => <li key={label}>{href.startsWith("#") ? <a href={href}>{label}</a> : <Link href={href}>{label}</Link>}</li>)}</ul></article>)}</div><div className={styles.note}><strong>One prompt starts the work. You stay in charge.</strong><p>Review, test, and approve what goes live. Then improve what you made, one small rep at a time.</p></div></section>
+      <section id="included" className={styles.section} aria-labelledby="kit-heading"><div className={styles.sectionIntro}><span className="kicker">Step by step</span><h2 id="kit-heading">What you will get help with</h2><p>Everything below is a page on this site that works today. Do them in order, or jump to the one you need. No account, no download.</p></div><div className={styles.threeColumns}>{kit.map(group => <article className={styles.kitCard} key={group.title}><h3>{group.title}</h3><ul>{group.items.map(([label, href]) => <li key={label}>{href.startsWith("#") ? <a href={href}>{label}</a> : <Link href={href}>{label}</Link>}</li>)}</ul></article>)}</div><div className={styles.note}><strong>One prompt starts the work. You stay in charge.</strong><p>Review, test, and approve what goes live. Then improve what you made, one small rep at a time.</p></div></section>
 
       <section className={styles.section} aria-labelledby="examples-heading"><div className={styles.sectionIntro}><span className="kicker">What you can build</span><h2 id="examples-heading">Start with something that matters to you.</h2><p>Learn a process you can repeat, not just instructions for copying one project. Keep the first version small enough to finish.</p></div><div className={styles.examples}>{examples.map(([title, copy], i) => <article key={title}><span className={styles.number}>0{i + 1}</span><h3>{title}</h3><p>{copy}</p></article>)}</div></section>
 

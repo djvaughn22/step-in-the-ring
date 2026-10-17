@@ -106,7 +106,7 @@ export async function betaAdmit(
   if (!expected) {
     return {
       ok: false,
-      error: "Step In The Ring is not open yet — membership is in private beta.",
+      error: "Accounts are for invited testers right now.",
       status: 503,
     };
   }

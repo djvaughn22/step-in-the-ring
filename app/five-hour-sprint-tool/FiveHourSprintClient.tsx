@@ -138,7 +138,7 @@ export default function FiveHourSprintClient() {
     <main>
       <div className="page">
         <header className="mast">
-          <a href="/tools" className="breadcrumb">← Free tools</a>
+          <a href="/tools" className="breadcrumb">← Tools</a>
           <h1 className="mast-title">Five Hour Sprint</h1>
           <p className="fhs-pitch">
             One thing. Five hours. Make real progress.

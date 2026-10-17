@@ -2,7 +2,7 @@
 // account. Pure and client-safe: no store, no billing, no prices.
 
 const LABELS: Record<string, string> = {
-  free: "Free account (saved builds stay in this browser)",
+  free: "Account (saved builds stay in this browser)",
   pending: "Waiting for an invite",
   tester: "Invited tester (builds sync between devices)",
   owner: "Owner",

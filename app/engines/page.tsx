@@ -116,7 +116,7 @@ export default function EnginesPage() {
       <p className="tiny" style={{ marginTop: 10 }}>
         Looking for the Build Machine, the first-build walkthrough or the Five
         Hour Sprint planner? They are step-by-step guides, so they live with{" "}
-        <Link href="/tools">the free tools</Link>.
+        <Link href="/tools">the tools</Link>.
       </p>
     </Sheet>
   );

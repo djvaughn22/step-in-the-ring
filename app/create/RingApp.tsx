@@ -29,7 +29,6 @@ import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
-import { WEEKEND_CONSULTING_HREF } from "../lib/destinations";
 import { LOOP_TOOLS } from "../tools/loop";
 import { QUICK_START, QUICK_STARTERS, STARTING_POINT_GROUPS, STARTING_POINTS } from "./starting-points";
 import { displayName, featuredCapabilities } from "../vnext/capabilities";
@@ -504,7 +503,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               <div className="hero-signature"><RingMark /><span>Step In The Ring<span>Plans for your ideas</span></span></div>
               <h1>Describe your idea.<br /><span>Get a plan.</span></h1>
               <p>A website, an app, a song, a game, or a plan. Write it your way and get a written plan for the first version, with the next step.</p>
-              <p className="hero-status">Free, and no account needed. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
+              <p className="hero-status">No account needed. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
             </div>
             <div className="home-entry">{theBox}</div>
           </section>
@@ -516,7 +515,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="path-grid">
               {[
                 ["build", "Build your first website or app", "Six short rounds, from an idea to your own link on the internet.", "/build", "build", "Start the six rounds"],
-                ["tools", "Grab a free tool", "Small tools that each do one job: cut an idea down, test it, check it before you share.", "/tools", "create", "See the free tools"],
+                ["tools", "Grab a tool", "Small tools that each do one job: cut an idea down, test it, check it before you share.", "/tools", "create", "See the tools"],
                 ["solve", "Go deeper with an engine", "Idea, Design Shop, Build, Music, Plan and more. Each one helps with one kind of work.", "/engines", "solve", "See the engines"],
               ].map(([id, title, text, href, icon, cta]) => (
                 <Link className="path-card" href={href} key={id}>
@@ -532,14 +531,12 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="home-proof-links"><Link className="text-link" href="/builds">See everything we&apos;ve built&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
           <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">Five rounds</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Say it","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Make it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Go again","Keep what works, or start the next one."]].map(([n,t,d],i)=><li className="how-step" key={n}><span><span className="round-label">Round </span>{n}</span><h3>{t}</h3><p>{d}</p><Link className="how-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label}&nbsp;→</Link></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
-          {/* Help for someone who is unsure: the computer check, the one human
-              path (weekend consulting by email), and a way to tell us what
-              happened. Nothing here is for sale. */}
+          {/* Help for someone who is unsure: the computer check and a way to
+              tell us what happened. Nothing here is for sale. */}
           <section className="home-help" aria-labelledby="help-heading">
-            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">Help and feedback</h2><p>Everything here is free and needs no account.</p></div>
+            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">Help and feedback</h2><p>Nothing here needs an account.</p></div>
             <ul className="help-list">
-              <li><strong>Is your computer up to it?</strong><span>Ready to Build: a free, one-question-at-a-time check, then a guide to turning the computer you already have into one that builds.</span><Link className="text-link" href="/products/ready-to-build">Meet Ready to Build&nbsp; →</Link></li>
-              <li><strong>Want a hand on the weekend?</strong><span>I do a little consulting on weekends. Ask by email. No forms, no pressure.</span><a className="text-link" href={WEEKEND_CONSULTING_HREF}>Ask about weekend help&nbsp; →</a></li>
+              <li><strong>Is your computer up to it?</strong><span>Ready to Build: a one-question-at-a-time check, then a guide to turning the computer you already have into one that builds.</span><Link className="text-link" href="/products/ready-to-build">Meet Ready to Build&nbsp; →</Link></li>
               <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>

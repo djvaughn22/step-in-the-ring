@@ -6,7 +6,7 @@ import ChecklistClient from "./ChecklistClient";
 export const metadata: Metadata = {
   title: "Launch checklist",
   description:
-    "The checks to run before you share a link: phone, links, privacy, a backup, and a way to reach you. Free, no account.",
+    "The checks to run before you share a link: phone, links, privacy, a backup, and a way to reach you. No account needed.",
 };
 
 export default function LaunchChecklistPage() {

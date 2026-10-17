@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "The Engine Room",
   description:
-    "Start creating in 1, 2, 3. Choose what to make, get the free tools, and finish a real first project.",
+    "Start creating in 1, 2, 3. Choose what to make, get the tools you need, and finish a real first project.",
   robots: { index: false, follow: false, nocache: true },
 };
 

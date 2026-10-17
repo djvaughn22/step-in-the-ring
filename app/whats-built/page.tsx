@@ -64,7 +64,7 @@ const WORKS: Item[] = [
     href: "/create",
   },
   {
-    name: "Free tools",
+    name: "Tools",
     what: "First version cutter, try-it script, one-line explainer and launch checklist. A few minutes each.",
     status: "works",
     href: "/tools",
@@ -83,7 +83,7 @@ const WORKS: Item[] = [
   },
   {
     name: "Ready to Build and the computer check",
-    what: "A free guide for the computer you already have: check it, back it up, set it up, and launch a first project.",
+    what: "A guide for the computer you already have: check it, back it up, set it up, and launch a first project.",
     status: "works",
     href: "/products/ready-to-build",
   },
@@ -176,7 +176,7 @@ export default function WhatsBuiltPage() {
       <Masthead
         kicker="Open beta"
         title="What’s built, and what isn’t yet"
-        lead="Everything here is free while it’s being tested. This page says plainly what you can use today, what is still being made, and how to tell us what you find."
+        lead="This page says plainly what you can use today, what is still being made, and how to tell us what you find."
       />
 
       <Band id="help-test" title="You’re early. Help test it." note="Ten minutes is plenty. Try any of these, then tell us what happened.">
@@ -228,7 +228,7 @@ export default function WhatsBuiltPage() {
         <p className="band-note" style={{ marginTop: 14 }}>
           Rather email? <a href="mailto:ask@openmirrorllc.com?subject=Step%20In%20The%20Ring%20feedback">ask@openmirrorllc.com</a>.
           Not sure where to begin? <Link href="/create">Say what you want to make</Link>, or{" "}
-          <Link href="/tools">grab a free tool</Link>.
+          <Link href="/tools">grab a tool</Link>.
         </p>
       </section>
     </Sheet>

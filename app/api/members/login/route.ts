@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   const store = await getMemberStore();
   if (!store) {
     return NextResponse.json(
-      { ok: false, error: "Accounts are not open yet — membership is in private beta." },
+      { ok: false, error: "Accounts are for invited testers right now." },
       { status: 503 },
     );
   }

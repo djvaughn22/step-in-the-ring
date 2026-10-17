@@ -28,9 +28,9 @@ describe("How It Works — one coherent loop", () => {
     }
   });
 
-  it("connects the loop to the menu: Create, Free tools, Engines, Your work, Owner's Builds", () => {
+  it("connects the loop to the menu: Create, Tools, Engines, Your work, Owner's Builds", () => {
     expect(src).toMatch(/const NAV_CONCEPTS = \[/);
-    for (const name of ["Create", "Free tools", "Engines", "Your work", "Owner’s Builds"]) {
+    for (const name of ["Create", "Tools", "Engines", "Your work", "Owner’s Builds"]) {
       expect(src).toContain(name);
     }
   });
@@ -93,18 +93,19 @@ describe("How It Works — real proof near the end, not a portfolio", () => {
 });
 
 // 2026-10-07 owner direction: the execution steps are spelled out plainly
-// (goal, steps, output, time, limits, live vs beta, cost), with no AI
-// positioning and no invented paid offer.
+// (goal, steps, output, time, limits, live vs beta, account), with no AI
+// positioning and no money talk (owner, 2026-10-17: no free/price framing).
 describe("How It Works — what you get, stated plainly", () => {
-  it("covers goal, steps, output, time, limits, live/beta and cost", () => {
-    for (const label of ["Your goal", "Steps included", "What you leave with", "Time", "Limits", "Live or beta", "Cost"]) {
+  it("covers goal, steps, output, time, limits, live/beta and account", () => {
+    for (const label of ["Your goal", "Steps included", "What you leave with", "Time", "Limits", "Live or beta", "Account"]) {
       expect(src).toContain(`label: "${label}"`);
     }
     expect(src).toContain('href="/whats-built"');
   });
 
-  it("says there is no paid option, and names no AI", () => {
-    expect(src).toContain("There is no paid option today.");
+  it("talks about neither price nor free, and names no AI", () => {
+    expect(src).toContain('{ label: "Account", body: "None needed. Your work stays in this browser." }');
+    expect(src).not.toMatch(/\bfree\b|\bpaid\b|\bprice/i);
     expect(src).not.toMatch(/\bAI\b|ChatGPT|Claude/);
   });
 

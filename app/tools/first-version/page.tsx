@@ -6,7 +6,7 @@ import CutterClient from "./CutterClient";
 export const metadata: Metadata = {
   title: "First version cutter",
   description:
-    "List everything your idea could do, sort it into now, later and not doing, and leave with a first version small enough to finish. Free, no account.",
+    "List everything your idea could do, sort it into now, later and not doing, and leave with a first version small enough to finish. No account needed.",
 };
 
 export default function FirstVersionPage() {

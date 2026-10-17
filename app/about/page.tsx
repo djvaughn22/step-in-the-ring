@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import AboutDestinationCard from "../components/AboutDestinationCard";
-import { BUILD_WITH_CARD } from "../lib/destinations";
 import { Sheet, PageHead, Section } from "../site/ui";
 
 export const metadata: Metadata = {
@@ -46,12 +44,6 @@ export default function AboutPage() {
           nothing. The site also uses Google Analytics for page visits.
         </p>
       </Section>
-
-      {/* The one consulting path — weekend help by email, after the site's
-          own story. The footer and homepage link here. */}
-      <div id="weekend-consulting" style={{ marginTop: 46, scrollMarginTop: 96 }}>
-        <AboutDestinationCard card={BUILD_WITH_CARD} />
-      </div>
 
       <p style={{ fontSize: 13, lineHeight: 1.7, color: "var(--muted)", margin: "28px 0 0" }}>
         StepInTheRing is an{" "}

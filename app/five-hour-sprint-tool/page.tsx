@@ -6,7 +6,7 @@ import FiveHourSprintClient from "./FiveHourSprintClient";
 
 export const metadata: Metadata = {
   title: "Five Hour Sprint planner",
-  description: "Plan, track, and report on one focused five-hour build session. Free, no account, saves to this browser.",
+  description: "Plan, track, and report on one focused five-hour build session. No account; it saves to this browser.",
 };
 
 export default function FiveHourSprintToolPage() {

@@ -54,7 +54,7 @@ export async function createProject(
   now: Date = new Date(),
 ): Promise<ProjectResult<ProjectRecord>> {
   if (!access.memberAccess) {
-    return { ok: false, error: "Saving projects needs an active membership.", status: 403 };
+    return { ok: false, error: "Saving projects needs tester access.", status: 403 };
   }
   const title = sanitizeTitle(input.title);
   if (!title) return { ok: false, error: "A project title is required.", status: 422 };
@@ -118,7 +118,7 @@ export async function updateProject(
   now: Date = new Date(),
 ): Promise<ProjectResult<ProjectRecord>> {
   if (!access.memberAccess) {
-    return { ok: false, error: "Updating projects needs an active membership.", status: 403 };
+    return { ok: false, error: "Updating projects needs tester access.", status: 403 };
   }
   const project = await ownedProject(store, actingUserId, projectId);
   if (!project) return { ok: false, error: "Project not found.", status: 404 };
@@ -192,7 +192,7 @@ export async function importLocalProjects(
   now: Date = new Date(),
 ): Promise<ProjectResult<{ imported: number; skipped: number }>> {
   if (!access.memberAccess) {
-    return { ok: false, error: "Importing projects needs an active membership.", status: 403 };
+    return { ok: false, error: "Importing projects needs tester access.", status: 403 };
   }
   if (!Array.isArray(items) || items.length === 0 || items.length > 50) {
     return { ok: false, error: "Choose between 1 and 50 projects to import.", status: 422 };

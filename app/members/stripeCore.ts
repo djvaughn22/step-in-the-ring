@@ -132,7 +132,7 @@ export async function startCheckout(
   user: { id: string; email: string },
 ): Promise<{ ok: true; url: string } | { ok: false; error: string; status: number }> {
   if (!stripeConfigured(config)) {
-    return { ok: false, error: "Billing is not live yet — membership is in private beta.", status: 503 };
+    return { ok: false, error: "This isn't available.", status: 503 };
   }
   const session = await gateway.createCheckoutSession({
     priceId: config.priceId!,
@@ -152,7 +152,7 @@ export async function openBillingPortal(
   userId: string,
 ): Promise<{ ok: true; url: string } | { ok: false; error: string; status: number }> {
   if (!stripeConfigured(config)) {
-    return { ok: false, error: "Billing is not live yet.", status: 503 };
+    return { ok: false, error: "This isn't available.", status: 503 };
   }
   const entitlement = await store.getEntitlement(userId);
   if (!entitlement?.stripeCustomerId) {

@@ -58,12 +58,12 @@ export default function LibraryClient({
       <div className="empty">
         <h2>Nothing here yet</h2>
         <p>
-          Start with an idea or a free tool. Whatever you make shows up here,
+          Start with an idea or a tool. Whatever you make shows up here,
           kept in this browser. No account needed.
         </p>
         <div className="actions" style={{ justifyContent: "center" }}>
           <Link className="btn btn-gold" href="/create">Start with an idea</Link>
-          <Link className="btn btn-ghost" href="/tools">Open the free tools</Link>
+          <Link className="btn btn-ghost" href="/tools">Open the tools</Link>
         </div>
       </div>
     </section>
@@ -147,7 +147,7 @@ export default function LibraryClient({
         <div className="divider" />
         <p className="tiny" style={{ textAlign: "center" }}>
           Starting something new? <Link href="/create" className="more">Say what you want to make</Link>, or{" "}
-          <Link href="/tools" className="more">grab a free tool</Link>.
+          <Link href="/tools" className="more">grab a tool</Link>.
         </p>
       </div>
     </main>

@@ -45,14 +45,14 @@ describe("Ready to Build", () => {
     expect([...doc.querySelectorAll("#process h3")].map(el => el.textContent)).toEqual(["Check it", "Protect it", "Rebuild it", "Prepare it", "Build it", "Go live"]);
     expect(doc.querySelector("#included h2")?.textContent).toBe("What you will get help with");
   });
-  it("is a free guide: no waitlist, no purchase, every path item a real page", () => {
+  it("is a guide: no waitlist, no purchase, every path item a real page", () => {
     const doc = render();
     expect(doc.querySelector("#first-build")).toBeNull();
     expect(doc.querySelector('a[href^="mailto:"]')).toBeNull();
     expect(doc.querySelector('a[href*="checkout"]')).toBeNull();
     const text = doc.body.textContent ?? "";
     expect(text).not.toMatch(/\$\s*\d|founding|early access|purchase|one-time|low-cost|price|kit is in preparation/i);
-    expect(doc.querySelector("#included")?.textContent).toContain("Everything below is a free page on this site");
+    expect(doc.querySelector("#included")?.textContent).toContain("Everything below is a page on this site");
     const pathLinks = [...doc.querySelectorAll<HTMLAnchorElement>("#included li a")].map((a) => a.getAttribute("href"));
     expect(pathLinks).toEqual(expect.arrayContaining(["#computer-check", "/build-machine", "/how", "/build", "/tools/first-version", "/tools/launch-checklist"]));
     for (const href of pathLinks) {
@@ -68,7 +68,7 @@ describe("Ready to Build", () => {
       expect(faq.firstElementChild?.tagName).toBe("SUMMARY");
       expect(faq.querySelector("p")?.textContent?.length).toBeGreaterThan(40);
     }
-    expect(doc.body.textContent).toContain("Does any of this cost money?");
+    expect(doc.body.textContent).toContain("Do I need to buy anything?");
     expect(doc.body.textContent).toContain("Larger apps");
     expect(doc.body.textContent).toContain("separate costs");
     expect(doc.querySelectorAll("#included li")).toHaveLength(7);

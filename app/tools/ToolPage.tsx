@@ -20,10 +20,10 @@ export default function ToolPage({
   return (
     <main>
       <div className="page" style={{ maxWidth: 820 }}>
-        <Link className="breadcrumb" href="/tools">← Free tools</Link>
-        <Masthead kicker="Free tool" title={title} lead={lead} />
+        <Link className="breadcrumb" href="/tools">← Tools</Link>
+        <Masthead kicker="Tool" title={title} lead={lead} />
         <p className="ft-privacy">
-          Free, no account. What you type stays in this browser and is never sent anywhere.
+          No account needed. What you type stays in this browser and is never sent anywhere.
         </p>
         {children}
         {next ? <div className="ft-next">{next}</div> : null}

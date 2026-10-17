@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const config = readStripeConfig();
   if (!store || !stripeConfigured(config)) {
     return NextResponse.json(
-      { ok: false, error: "Billing is not live yet — membership is in private beta." },
+      { ok: false, error: "This isn't available." },
       { status: 503 },
     );
   }

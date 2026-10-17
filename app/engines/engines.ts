@@ -325,7 +325,7 @@ export const ENGINES: Engine[] = [
       { key: "concept", label: "Phrase or visual concept", placeholder: "One strong idea or phrase you're building around.", type: "text" },
       { key: "concern", label: "Major concern or risk", placeholder: "What worries you about this one?", type: "textarea", optional: true },
     ],
-    specialties: ["Product decision & recommendation", "Etsy listing draft (title, description, tags, price hypothesis)", "Organic social launch pack (hooks, concepts, captions, hashtags)", "Open Mirror placement guidance", "Fulfillment & production notes", "Legal & trademark flags"],
+    specialties: ["Product decision & recommendation", "Etsy listing draft (title, description, tags, price hypothesis)", "Organic social launch pack (hooks, concepts, captions, hashtags)", "Fulfillment & production notes", "Legal & trademark flags"],
   },
   {
     id: "design-shop",

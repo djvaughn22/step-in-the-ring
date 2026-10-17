@@ -98,7 +98,7 @@ export default async function EverythingPage() {
       <Band
         id="engines"
         title="Tools and engines"
-        note="Free tools and step-by-step guides, then the engines that make one part of something. Open to anyone, no account needed."
+        note="Tools and step-by-step guides, then the engines that make one part of something. Open to anyone, no account needed."
       >
         <PageRows pages={pagesInGroup("engines")} />
       </Band>

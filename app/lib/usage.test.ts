@@ -146,7 +146,7 @@ describe("the owner's usage report", () => {
     expect(report.days[0]).toMatchObject({ day: today, visitors: 1, pageViews: 2, ideas: 1 });
     expect(report.days[1]).toMatchObject({ day: yesterday, visitors: 1, engineOutputs: 1 });
     expect(report.days).toHaveLength(14);
-    expect(report.topPages.map((p) => p.name)).toEqual(expect.arrayContaining(["Home", "Free tools"]));
+    expect(report.topPages.map((p) => p.name)).toEqual(expect.arrayContaining(["Home", "Tools"]));
     expect(report.engines).toEqual([{ id: "plan", starts: 1, outputs: 1 }]);
   });
 
