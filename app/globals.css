@@ -1355,6 +1355,8 @@ body { font-synthesis-weight: none; }
   text-decoration-color: var(--line2);
 }
 .startbox-eg button:hover { color: var(--gold); text-decoration-color: var(--gold); }
+/* Keep each starter and the comma/period after it on one line. */
+.startbox-eg-item { white-space: nowrap; }
 
 /* ── Four doors ── */
 .doors {
