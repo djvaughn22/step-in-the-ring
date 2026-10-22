@@ -15,7 +15,7 @@
 // reusable instead of a second homepage.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { FormEvent, ReactNode, RefObject, useRef } from "react";
+import { FormEvent, Fragment, ReactNode, RefObject, useRef } from "react";
 
 export interface Starter {
   emoji: string;
@@ -117,12 +117,17 @@ export default function CreationEntry({
             {help ? `${help} ` : null}
             Or start with{" "}
             {starters.map((s, i) => (
-              <span key={s.label}>
-                <button type="button" onClick={() => applyStem(s.stem)}>
-                  {s.label.toLowerCase()}
-                </button>
-                {i < starters.length - 2 ? ", " : i === starters.length - 2 ? " or " : "."}
-              </span>
+              <Fragment key={s.label}>
+                {/* The label and its comma/period never split; the spaces
+                    between starters stay outside so the line can wrap. */}
+                <span className="startbox-eg-item">
+                  <button type="button" onClick={() => applyStem(s.stem)}>
+                    {s.label.toLowerCase()}
+                  </button>
+                  {i < starters.length - 2 ? "," : i === starters.length - 1 ? "." : ""}
+                </span>
+                {i < starters.length - 2 ? " " : i === starters.length - 2 ? " or " : ""}
+              </Fragment>
             ))}
           </p>
         )}
