@@ -67,7 +67,7 @@ describe("official homepage identity", () => {
     expect(doc.querySelector('a[href="/whats-built#tell-us"]')).not.toBeNull();
     expect(doc.querySelectorAll(".home-page > section").length).toBeLessThanOrEqual(6);
     for (const href of ["/everything", "/how", "/engines", "/whats-built"]) expect(doc.querySelector(`a[href="${href}"]`)).not.toBeNull();
-    expect(doc.querySelector(".startbox button[type=submit]")?.textContent).toBe("Step into the Ring");
+    expect(doc.querySelector(".startbox button[type=submit]")?.textContent).toBe("Start a project");
   });
   it("lets a starter seed the form, the final invitation focus it, and submit enter shaping", async () => {
     Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });

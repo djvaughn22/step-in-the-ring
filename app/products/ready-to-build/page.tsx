@@ -35,7 +35,7 @@ const kit = [
     ["Read the software playbook: editor, Git, GitHub, a coding tool, deploys", "/how"],
   ] },
   { title: "Make your first project real", items: [
-    ["Follow the first build in six short rounds", "/build"],
+    ["Follow the first build in six short steps", "/build"],
     ["Cut your idea down to a first version you can finish", "/tools/first-version"],
     ["Run the launch checklist before you share the link", "/tools/launch-checklist"],
   ] },
@@ -99,9 +99,9 @@ export default function ReadyToBuildPage() {
 
       <section className={styles.section} aria-labelledby="examples-heading"><div className={styles.sectionIntro}><span className="kicker">What you can build</span><h2 id="examples-heading">Start with something that matters to you.</h2><p>Learn a process you can repeat, not just instructions for copying one project. Keep the first version small enough to finish.</p></div><div className={styles.examples}>{examples.map(([title, copy], i) => <article key={title}><span className={styles.number}>0{i + 1}</span><h3>{title}</h3><p>{copy}</p></article>)}</div></section>
 
-      <section className={styles.section} aria-labelledby="faq-heading"><div className={styles.sectionIntro}><span className="kicker">A few fair questions</span><h2 id="faq-heading">Before you step in.</h2></div><div className={styles.faq}>{faqs.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
+      <section className={styles.section} aria-labelledby="faq-heading"><div className={styles.sectionIntro}><span className="kicker">A few fair questions</span><h2 id="faq-heading">Before you start.</h2></div><div className={styles.faq}>{faqs.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
 
-      <section className={styles.closing}><RingMark /><span className="kicker">Ready when you are</span><h2>Take the computer you already have.<br />Bring the idea you keep putting off.<br /><span>Step in and build it.</span></h2><a className="btn btn-gold btn-big" href="#computer-check">Check my computer →</a></section>
+      <section className={styles.closing}><RingMark /><span className="kicker">Ready when you are</span><h2>Take the computer you already have.<br />Bring the idea you keep putting off.<br /><span>Start building it.</span></h2><a className="btn btn-gold btn-big" href="#computer-check">Check my computer →</a></section>
     </main>
   );
 }

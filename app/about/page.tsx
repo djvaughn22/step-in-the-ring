@@ -26,7 +26,7 @@ export default function AboutPage() {
           <li>Say what you need help with and get back a clear next step — a plan and a ready-to-use builder prompt when it&apos;s something to build.</li>
           <li>Open a focused engine when you already know what kind of thing you&rsquo;re making.</li>
           <li>Come back to everything you started in Your work, kept in this browser.</li>
-          <li>Follow the first-build coach in six short rounds if you&rsquo;ve never built before.</li>
+          <li>Follow the first-build coach in six short steps if you&rsquo;ve never built before.</li>
           <li>See finished things that started here, and <Link href="/whats-built">what works today versus what is still being built</Link>.</li>
         </ul>
       </Section>

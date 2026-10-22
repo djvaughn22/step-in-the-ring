@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     template: "%s | StepInTheRing",
   },
   description:
-    "Say what you need help with, in your own words — something to make, fix, understand, or plan. Leave with a clear next step, and the tools to start when it's software.",
+    "A workshop to turn an idea into a first version. Plan, write, and build your next digital product or creative project, one clear step at a time.",
   applicationName: "Step In The Ring",
-  appleWebApp: { capable: true, title: "The Ring", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Step In The Ring", statusBarStyle: "black-translucent" },
   openGraph: {
     title: "Step In The Ring",
     description:
-      "Say it rough — whatever you need help with. Leave with a clear next step. Part of Open Mirror LLC.",
+      "Make the first version real. A workshop for web apps, websites, books, music, digital art, games and more. Part of Open Mirror LLC.",
     url: "https://stepinthering.com",
     siteName: "Step In The Ring",
     type: "website",

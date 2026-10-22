@@ -204,7 +204,7 @@ const SURFACES: Capability[] = [
     group: "make",
     title: "Your first build",
     useWhen: "You have never built anything and want the whole thing walked through once.",
-    example: "Six short rounds that end with something real running on your own screen. No account.",
+    example: "Six short steps that end with something real running on your own screen. No account.",
   },
   {
     id: "five-hour-sprint",
@@ -224,7 +224,7 @@ const SURFACES: Capability[] = [
     kind: "surface",
     name: "Live builds",
     emoji: "📦",
-    what: "Things that were built through the Ring and are live on the internet right now.",
+    what: "Things that were built with Step In The Ring and are live on the internet right now.",
     href: "/live",
     activation: "working",
     needs: ["examples", "proof", "what came out of this"],

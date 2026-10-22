@@ -282,7 +282,7 @@ describe("The new shell", () => {
 
   it("asks the one question through the shared creation entry", () => {
     expect(home).toContain("CreationEntry");
-    expect(read("app/vnext/CreationEntry.tsx")).toContain("What do you want to create?");
+    expect(read("app/vnext/CreationEntry.tsx")).toContain("What are you creating?");
   });
 
   it("does not paste an engine catalog onto the hero", () => {

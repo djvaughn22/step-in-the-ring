@@ -159,7 +159,7 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
 
       <div style={card}>
         <label htmlFor="music-paste-back" style={label}>What happened?</label>
-        <p style={{ ...sub, margin: "0 0 8px" }}>Paste a response, or tell The Ring what you did. Leave it blank if it&apos;s simply done.</p>
+        <p style={{ ...sub, margin: "0 0 8px" }}>Paste a response, or describe what you did. Leave it blank if it&apos;s simply done.</p>
         <textarea id="music-paste-back" value={noteDraft} onChange={(e) => setNoteDraft(e.target.value)}
           placeholder="e.g., &quot;Done. The beat feels too empty.&quot; or paste what an assistant told you."
           style={{ ...input, minHeight: 70, resize: "vertical", marginBottom: 12 }} />

@@ -96,7 +96,7 @@ export function recommendEngine(i: Interpretation): EngineHandoff | null {
       engineId: "build",
       name: "Build your first web app",
       route: "/build",
-      why: "Six guided rounds from idea to a live site — made for a first build.",
+      why: "Six guided steps from idea to a live site — made for a first build.",
       seed: seedBuild(i),
     };
   }

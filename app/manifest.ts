@@ -5,7 +5,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Step In The Ring",
-    short_name: "The Ring",
+    short_name: "Step In The Ring",
     description:
       "Say a rough idea in your own words, walk out with a plan for version one — then build it, test it locally, and push it live.",
     start_url: "/",

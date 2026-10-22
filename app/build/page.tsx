@@ -341,7 +341,7 @@ export default function FirstAppCoach() {
         {round === 5 && (
           <section className="card" style={{ padding: 20 }}>
             <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Deploy to Vercel</h2>
-            <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 14px" }}>No commands this round — Vercel does the lifting.</p>
+            <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 14px" }}>No commands in this step — Vercel does the lifting.</p>
             <ol style={{ fontSize: 14, lineHeight: 1.9, color: "var(--text)", paddingLeft: 20, margin: "0 0 14px" }}>
               <li>Go to <strong>vercel.com</strong> and sign in with GitHub (free).</li>
               <li>Click <strong>Add New → Project</strong> and import <strong>{folder}</strong>.</li>

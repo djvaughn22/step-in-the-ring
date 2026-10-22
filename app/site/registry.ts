@@ -185,7 +185,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/build",
     name: "Your first build, step by step",
-    what: "Six short rounds that end with something real running on your own screen. No account.",
+    what: "Six short steps that end with something real running on your own screen. No account.",
     access: "public",
     group: "engines",
   },
