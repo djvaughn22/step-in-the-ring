@@ -170,7 +170,7 @@ export function recommendEngines(v: CreationView): Recommendation {
             engineId: "first-build",
             name: "Build your first web app",
             route: "/build",
-            why: "Six guided rounds from idea to a live site — made for a first build.",
+            why: "Six guided steps from idea to a live site — made for a first build.",
           },
           alternates,
         };

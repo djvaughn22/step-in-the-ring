@@ -40,7 +40,7 @@ export interface CreationEntryProps {
   value: string;
   onValueChange: (next: string) => void;
   onSubmit: (e: FormEvent) => void;
-  /** Default: "What do you want to create?" */
+  /** Default: "What are you creating?" */
   heading?: string;
   help?: string;
   submitLabel?: string;
@@ -60,10 +60,10 @@ export default function CreationEntry({
   value,
   onValueChange,
   onSubmit,
-  heading = "What do you want to create?",
-  help = "An app, a business, a game, a book, a song, a practice plan, a repair — messy is fine. If it belongs on something you already have, say which one.",
-  submitLabel = "Step in →",
-  placeholder = 'e.g. "A puzzle game where you pick a photo and drag the pieces back together."',
+  heading = "What are you creating?",
+  help = "Start with a rough idea. Shape it as you go. If it belongs on something you already have, say which one.",
+  submitLabel = "Start a project",
+  placeholder = "A web app, a book, a song, a game, a digital artwork—or something else…",
   rows = 5,
   starters = DEFAULT_STARTERS,
   actions,
@@ -87,7 +87,7 @@ export default function CreationEntry({
   }
 
   return (
-    <section aria-label="Start a creation" className="startbox">
+    <section aria-label="Start a project" className="startbox">
       <form onSubmit={onSubmit}>
         <label htmlFor={id}>{heading}</label>
 

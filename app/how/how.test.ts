@@ -83,7 +83,7 @@ describe("How It Works — real proof near the end, not a portfolio", () => {
   });
 
   it("names it plainly as real, pushed work — not a claim about the owner", () => {
-    expect(src).toMatch(/Made through the Ring/);
+    expect(src).toMatch(/Built with Step In The Ring/);
     expect(src).toMatch(/Pushed live from inside an Engine, not a mockup/);
   });
 

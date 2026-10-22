@@ -77,7 +77,7 @@ const WORKS: Item[] = [
   },
   {
     name: "Your first build, step by step",
-    what: "Six short rounds for a first web app, from idea to your own domain.",
+    what: "Six short steps for a first web app, from idea to your own domain.",
     status: "works",
     href: "/build",
   },

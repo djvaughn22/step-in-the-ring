@@ -285,7 +285,7 @@ export default function BuildsClient({
                   ? "Still your words — edit them if you want, then keep it. It becomes a build on your account."
                   : "Say it however it comes out. It becomes a build you can come back to."
               }
-              submitLabel={busy ? "Saving" : waiting ? "Keep this build" : "Step in"}
+              submitLabel={busy ? "Saving" : waiting ? "Keep this build" : "Start a project"}
               disabled={busy || !canSave}
               rows={4}
               starters={waiting ? [] : undefined}

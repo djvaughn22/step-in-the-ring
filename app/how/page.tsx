@@ -157,7 +157,7 @@ export default function HowPage() {
         {MADE_HERE.length > 0 && (
           <section className="band">
             <div className="band-head">
-              <h2 className="band-title">Made through the Ring</h2>
+              <h2 className="band-title">Built with Step In The Ring</h2>
               <p className="band-note">Pushed live from inside an Engine, not a mockup.</p>
             </div>
             <div className="stack">

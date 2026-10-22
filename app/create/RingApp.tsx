@@ -6,7 +6,7 @@ import { buildBuilderPrompt } from "../planner/builder-prompt";
 import { BUILD_SEED_KEY } from "../planner/handoff";
 import Link from "next/link";
 import RingMark from "../site/RingMark";
-import WorkshopIcon from "../site/WorkshopIcon";
+import WorkshopIcon, { iconKindFor } from "../site/WorkshopIcon";
 import BriefView from "./BriefView";
 import CreationEntry from "../vnext/CreationEntry";
 import SteppedIn from "../vnext/SteppedIn";
@@ -372,7 +372,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
   function handleSave() {
     if (!plan) return;
     setSaved(savePlan(input, plan.title.value));
-    setFlash("Saved to your corner.");
+    setFlash("Saved to your work.");
     setTimeout(() => setFlash(""), 2500);
   }
 
@@ -396,10 +396,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
   const theBox = (
     <CreationEntry
       id="idea-description"
-      heading="What do you want to make?"
-      help="Messy is fine."
-      placeholder="A puzzle game where you pick a photo and drag the pieces back together."
-      submitLabel={mode === "home" ? "Step into the Ring" : "Start"}
+      heading="What are you creating?"
+      help="Start with a rough idea. Shape it as you go."
+      placeholder="A web app, a book, a song, a game, a digital artwork—or something else…"
+      submitLabel={mode === "home" ? "Start a project" : "Start"}
       rows={5}
       value={description}
       onValueChange={setDescription}
@@ -410,7 +410,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
         <>
           {saved.length > 0 && (
             <button type="button" className="btn btn-ghost" onClick={() => go("saved")}>
-              Saved ({saved.length})
+              Saved work ({saved.length})
             </button>
           )}
         </>
@@ -442,10 +442,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               below the fold on a laptop. */}
           <header className="mast mast-tight">
             <span className="kicker">Create</span>
-            <h1 className="mast-title">Start something</h1>
+            <h1 className="mast-title">Start a project</h1>
             <p className="mast-lead">
-              Say what you want to make. You get back what it really is, the
-              smallest version that would actually work, and the first move.
+              Describe what you are creating. You get back what it really is, the
+              smallest first version that would work, and the next step.
             </p>
           </header>
 
@@ -472,7 +472,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                         className="sp"
                         onClick={() => takeStartingPoint(sp.stem)}
                       >
-                        <span className="sp-mark" aria-hidden="true">{sp.emoji}</span>
+                        <span className="sp-mark" aria-hidden="true"><WorkshopIcon kind={iconKindFor(sp.emoji)} /></span>
                         <span className="sp-body">
                           <span className="sp-label">{sp.label}</span>
                           <span className="sp-what">{sp.what}</span>
@@ -500,9 +500,9 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
         <div className="page home-page">
           <section className="home-hero">
             <div className="hero-copy">
-              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>Plans for your ideas</span></span></div>
-              <h1>Describe your idea.<br /><span>Get a plan.</span></h1>
-              <p>A website, an app, a song, a game, or a plan. Write it your way and get a written plan for the first version, with the next step.</p>
+              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>Make the first version real.</span></span></div>
+              <h1>Bring your idea<br /><span>to life.</span></h1>
+              <p>Plan, write, and build your next digital product or creative project—one clear step at a time.</p>
               <p className="hero-status">No account needed. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
             </div>
             <div className="home-entry">{theBox}</div>
@@ -514,9 +514,9 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="section-intro"><span className="kicker">Or pick a way in</span><h2 id="paths-heading">Other ways to start</h2><p>The idea box above works for anything. These are for when you already know the kind of help you want.</p></div>
             <div className="path-grid">
               {[
-                ["build", "Build your first website or app", "Six short rounds, from an idea to your own link on the internet.", "/build", "build", "Start the six rounds"],
-                ["tools", "Grab a tool", "Small tools that each do one job: cut an idea down, test it, check it before you share.", "/tools", "create", "See the tools"],
-                ["solve", "Go deeper with an engine", "Idea, Design Shop, Build, Music, Plan and more. Each one helps with one kind of work.", "/engines", "solve", "See the engines"],
+                ["build", "Build your first website or app", "Six short steps, from an idea to your own link on the internet.", "/build", "build", "Start the six steps"],
+                ["tools", "Use a focused tool", "Small tools that each do one job: narrow an idea, test it, check it before you share.", "/tools", "create", "See the tools"],
+                ["solve", "Go deeper with an engine", "Guided workspaces for writing, design, music, apps, plans and more.", "/engines", "solve", "See the engines"],
               ].map(([id, title, text, href, icon, cta]) => (
                 <Link className="path-card" href={href} key={id}>
                   <span className={`path-icon path-icon-${id}`} aria-hidden="true"><WorkshopIcon kind={icon} /></span>
@@ -526,11 +526,11 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </div>
           </section>
           <section className="home-proof" aria-labelledby="proof-heading">
-            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Step In The Ring</span><h2 id="proof-heading">Made in the Ring.</h2></div></div><p>Real projects that started as a rough idea and are live today.</p></div>
-            <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true">{p.emoji}</span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit {p.name} ↗</span><span className="project-endorsement"><RingMark />Made in the Ring</span></a>)}</div>
+            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Step In The Ring</span><h2 id="proof-heading">Built here.</h2></div></div><p>Real projects that started as a rough idea and are live today.</p></div>
+            <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true">{p.emoji}</span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit {p.name} ↗</span><span className="project-endorsement"><RingMark />Built with Step In The Ring</span></a>)}</div>
             <div className="home-proof-links"><Link className="text-link" href="/builds">See everything we&apos;ve built&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
-          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">Five rounds</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Say it","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Make it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Go again","Keep what works, or start the next one."]].map(([n,t,d],i)=><li className="how-step" key={n}><span><span className="round-label">Round </span>{n}</span><h3>{t}</h3><p>{d}</p><Link className="how-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label}&nbsp;→</Link></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
+          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">Five steps</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Say it","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Make it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Go again","Keep what works, or start the next one."]].map(([n,t,d],i)=><li className="how-step" key={n}><span><span className="round-label">Step </span>{n}</span><h3>{t}</h3><p>{d}</p><Link className="how-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label}&nbsp;→</Link></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
           {/* Help for someone who is unsure: the computer check and a way to
               tell us what happened. Nothing here is for sale. */}
           <section className="home-help" aria-labelledby="help-heading">
@@ -540,7 +540,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>
-          <section className="home-final"><RingMark /><h2>Have an idea?</h2><p>Write it in the box at the top of this page.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Go to the idea box&nbsp; ↑</button></section>
+          <section className="home-final"><RingMark /><h2>Ready to make something?</h2><p>Start with a rough idea in the box at the top of this page.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start a project&nbsp; ↑</button></section>
         </div>
       </main>
     );
@@ -786,7 +786,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
       <main>
         <div className="page">
           <div className="topbar">
-            <span className="topbar-title">Your corner — saved plans</span>
+            <span className="topbar-title">Saved work</span>
             <button className="btn btn-ghost btn-small" onClick={() => go("landing")}>Back</button>
           </div>
           {saved.length === 0 ? (
@@ -1061,7 +1061,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               <button className="btn btn-primary" onClick={() => go("landing")}>Fix this plan</button>
               <button className="btn btn-ghost btn-small" onClick={handleSave}>Save it</button>
               {saved.length > 0 && (
-                <button className="btn btn-ghost btn-small" onClick={() => go("saved")}>Your corner</button>
+                <button className="btn btn-ghost btn-small" onClick={() => go("saved")}>Saved work</button>
               )}
             </div>
             <span role="status" aria-live="polite" className="tiny">{flash}</span>
