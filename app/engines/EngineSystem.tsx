@@ -28,6 +28,8 @@ import { readEtsyPackageFromSearch, type EtsyCreativePackageV1 } from "../creati
 import { recordFromEngineIntake, viewOf } from "../creation/record";
 import { parseCreationRecord } from "../creation/types";
 import ToolFooter from "../site/ToolFooter";
+import ArtifactView from "./artifacts/ArtifactView";
+import { engineArtifact, hasArtifact, IDK } from "./artifacts";
 
 type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
@@ -147,6 +149,9 @@ function valueCheckpoints(steps: Question[]): number[] {
 /** A project name nobody had to type: the first real sentence of their first
  *  real answer, trimmed to a card-sized name. Still editable before saving. */
 function deriveName(e: Engine, a: Record<string, string>): string {
+  // Engines with an artifact already make a clean title ("School fundraiser").
+  const art = engineArtifact(e.id, a);
+  if (art) return art.title;
   const first = wizardSteps(e).find((q) => q.type === "textarea" && filled(a, q.key));
   if (!first) return "";
   const sentence = (a[first.key] ?? "").split(/[.!?\n]/)[0].trim();
@@ -339,9 +344,11 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
   const generate = () => {
     if (!engine) return;
     track("engine_output", { engine: engine.id });
-    const pkg = generatePackage(engine, answers, stage, depth, destination);
-    if (objectiveEdit.trim()) pkg.objective = objectiveEdit.trim();
-    if (Object.keys(specialtyEdits).length > 0) {
+    const named = ensureNamed(engine, answers);
+    const pkg = generatePackage(engine, named, stage, depth, destination);
+    if (pkg.artifact) pkg.objective = `${pkg.artifact.kind}: ${pkg.artifact.title}`;
+    else if (objectiveEdit.trim()) pkg.objective = objectiveEdit.trim();
+    if (!pkg.artifact && Object.keys(specialtyEdits).length > 0) {
       pkg.specialties = { ...pkg.specialties, ...specialtyEdits };
     }
     const cycle: Cycle = {
@@ -350,9 +357,11 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
     let project = activeProject;
     if (project) {
       cycle.index = project.cycles.length;
-      project = { ...project, cycles: [...project.cycles, cycle], stage };
+      // Changed answers belong to the project, so the result and any later
+      // regeneration read what the visitor actually said this time.
+      project = { ...project, answers: named, cycles: [...project.cycles, cycle], stage };
     } else {
-      project = newProject(answers.name || engine.name, engine.id, stage, answers);
+      project = newProject(named.name || engine.name, engine.id, stage, named);
       cycle.index = 0;
       project.cycles = [cycle];
     }
@@ -360,6 +369,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
     setProjects(next);
     setActiveProjectId(project.id);
     setActiveCycleId(cycle.id);
+    setAnswers(named);
     setTab("overview");
     setView("cycle");
   };
@@ -398,6 +408,13 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
     setDepth(path === "launch" ? "deep" : "full");
     setDestination(e.technical ? "claude-code" : "chatgpt");
     setObjectiveEdit(`${PATH_LABELS[path]} cycle: ${PATH_BLURB[path]}`);
+    if (hasArtifact(e.id)) {
+      // Straight to the final step with the answers carried over — the
+      // visitor can step back to change any of them.
+      setWizardStep(wizardSteps(e).length); setWizardPhase("ask");
+      setView("intake");
+      return;
+    }
     setView("review");
   };
 
@@ -713,16 +730,25 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
                           <span className="sr-only">Step {wizardStep + 1} of {steps.length}</span>
                         </div>
                       )}
-                      <label htmlFor={`intake-${q.key}`} style={{ display: "block", fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>{q.label}{q.optional ? " (optional)" : ""}</label>
+                      <label id={`intake-${q.key}-label`} htmlFor={q.type === "choice" ? undefined : `intake-${q.key}`} style={{ display: "block", fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>{q.label}{q.optional ? " (optional)" : ""}</label>
                       {q.help && <p id={`intake-${q.key}-help`} style={{ fontSize: 12.5, color: "var(--muted)", margin: "0 0 8px" }}>{q.help}</p>}
-                      {q.type === "textarea" ? (
+                      {q.type === "choice" && q.options ? (
+                        <div role="group" aria-labelledby={`intake-${q.key}-label`} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {q.options.map((opt) => (
+                            <button key={opt} type="button" aria-pressed={answers[q.key] === opt} onClick={() => setAnswers({ ...answers, [q.key]: opt })}
+                              className={answers[q.key] === opt ? "btn btn-gold" : "btn btn-ghost"} style={{ textAlign: "left", justifyContent: "flex-start" }}>
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      ) : q.type === "textarea" ? (
                         <textarea id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={{ ...input, minHeight: 110, resize: "vertical" }} />
                       ) : (
                         <input id={`intake-${q.key}`} aria-describedby={q.help ? `intake-${q.key}-help` : undefined} value={answers[q.key] ?? ""} onChange={(ev) => setAnswers({ ...answers, [q.key]: ev.target.value })} placeholder={q.placeholder} style={input} />
                       )}
                       <button
                         onClick={() => {
-                          const showValue = filled(answers, q.key) && checkpoints.includes(wizardStep) && !valueShownAt.includes(wizardStep);
+                          const showValue = !hasArtifact(engine.id) && filled(answers, q.key) && checkpoints.includes(wizardStep) && !valueShownAt.includes(wizardStep);
                           if (showValue) { setValueShownAt([...valueShownAt, wizardStep]); setWizardPhase("value"); }
                           else advance();
                         }}
@@ -732,6 +758,16 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
                       >
                         {wizardStep === 0 ? "Start →" : "Continue →"}
                       </button>
+                      {/* "I don't know" is a real answer: the engine picks a
+                          labeled, editable assumption instead. */}
+                      {hasArtifact(engine.id) && q.optional && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                          <button type="button" onClick={() => { setAnswers({ ...answers, [q.key]: IDK }); advance(); }} className="btn btn-ghost btn-small">I don&apos;t know</button>
+                          {steps.every((s) => s.optional || filled(answers, s.key)) && (
+                            <button type="button" onClick={() => generate()} className="btn btn-ghost btn-small">Skip the rest — make it now</button>
+                          )}
+                        </div>
+                      )}
                     </>
                   );
                 })()}
@@ -752,14 +788,20 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
 
                 {atFinal && (
                   <>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", margin: "0 0 12px" }}>One last thing before we build the package.</p>
+                    <p style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", margin: "0 0 12px" }}>{hasArtifact(engine.id) ? "Ready. Name it if you like — it's saved on this device." : "One last thing before we build the package."}</p>
                     <label htmlFor="intake-name" style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>Project name (optional)</label>
                     <input id="intake-name" value={answers.name ?? deriveName(engine, answers)} onChange={(ev) => setAnswers({ ...answers, name: ev.target.value })} placeholder={engine.name} style={input} />
-                    <label htmlFor="intake-stage" style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", margin: "14px 0 4px" }}>Current build stage</label>
-                    <select id="intake-stage" value={stage} onChange={(ev) => setStage(ev.target.value as BuildStage)} style={input}>
-                      {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                    <button onClick={toReview} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Review & customize →</button>
+                    {hasArtifact(engine.id) ? (
+                      <button onClick={() => generate()} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Make it →</button>
+                    ) : (
+                      <>
+                        <label htmlFor="intake-stage" style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text)", margin: "14px 0 4px" }}>Current build stage</label>
+                        <select id="intake-stage" value={stage} onChange={(ev) => setStage(ev.target.value as BuildStage)} style={input}>
+                          {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <button onClick={toReview} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>Review & customize →</button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -852,6 +894,13 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
               setView("intake");
             }}
             onPushRequested={() => updateCycle({ pushRequestedAt: new Date().toISOString() })}
+            onSaveArtifactEdit={(md) => updateCycle({ pkg: { ...activeCycle.pkg, artifactEdited: md } })}
+            onChangeAnswers={() => {
+              setEngineId(activeProject.engineId);
+              setAnswers(activeProject.answers);
+              setWizardStep(0); setWizardPhase("ask");
+              setView("intake");
+            }}
             onBack={() => setView("list")}
           />
         )}
@@ -891,17 +940,23 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
 }
 
 // ---- Cycle result view (tabs + history + actions) ----
-function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, onMarkSent, onReturn, onNext, onNewCycle, onPushRequested, onBack }: {
+function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, onMarkSent, onReturn, onNext, onNewCycle, onPushRequested, onBack, onSaveArtifactEdit, onChangeAnswers }: {
   project: Project; cycle: Cycle; engine: ReturnType<typeof getEngine>; tab: string; setTab: (t: string) => void;
   card: React.CSSProperties; Section: (p: { title: string; body: string }) => React.ReactElement;
   copy: (t: string, l: string) => void;
   onMarkSent: () => void; onReturn: () => void; onNext: (p: NextPath) => void; onNewCycle: () => void; onPushRequested: () => void; onBack: () => void;
+  onSaveArtifactEdit: (markdown: string | undefined) => void; onChangeAnswers: () => void;
 }) {
   const p = cycle.pkg;
   const e = engine!;
+  // The finished artifact — saved with the cycle, or rebuilt from the saved
+  // answers for cycles made before artifacts existed.
+  const art = p.artifact ?? engineArtifact(e.id, project.answers);
   const baseTabs: [string, string][] = [["overview", "Overview"], ["execution", "Execution"], ["verify", "Verify"], ["return", "Return"], ["next", "Next Cycle"]];
   const specialtyTabs = e.specialties.map((title) => [title.toLowerCase().replace(/\s+/g, "-"), title] as [string, string]);
-  const tabs = [...baseTabs, ...specialtyTabs];
+  const tabs: [string, string][] = art
+    ? [["overview", art.kind], ...(e.technical ? [["return", "Return with results"], ["next", "Next cycle"]] as [string, string][] : [])]
+    : [...baseTabs, ...specialtyTabs];
   const bullets = (arr: string[]) => arr.map((x) => `- ${x}`).join("\n");
   return (
     <>
@@ -921,13 +976,25 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
       </div>
 
       {/* tabs */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+      <div style={{ display: tabs.length > 1 ? "flex" : "none", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         {tabs.map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={tab === id ? "btn btn-gold btn-small" : "btn btn-ghost btn-small"}>{label}</button>
         ))}
       </div>
 
-      <div style={card}>
+      {art && tab === "overview" && (
+        <ArtifactView
+          key={cycle.id}
+          artifact={art}
+          edited={p.artifactEdited}
+          card={card}
+          copy={copy}
+          onSaveEdit={onSaveArtifactEdit}
+          onChangeAnswers={onChangeAnswers}
+        />
+      )}
+
+      {!(art && tab === "overview") && <div style={card}>
         {tab === "overview" && (<>
           <Section title="Engine understanding" body={p.understanding} />
           <Section title="Recommended direction" body={p.direction} />
@@ -975,12 +1042,12 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
             return <Section key={title} title={title} body={p.specialties?.[title] ?? `(${title} not found)`} />;
           })}
         </>)}
-      </div>
+      </div>}
 
       {/* primary action bar (matches state) */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
-        <button onClick={() => copy(packageToText(e, project.answers, p), "Full package")} className="btn btn-ghost btn-small">Copy full package</button>
-        {adapterFor(e.id) && (
+        {!art && <button onClick={() => copy(packageToText(e, project.answers, p), "Full package")} className="btn btn-ghost btn-small">Copy full package</button>}
+        {!art && adapterFor(e.id) && (
           <>
             <button
               onClick={() => {
@@ -999,8 +1066,8 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
             </button>
           </>
         )}
-        {cycle.status === "drafted" && <button onClick={onMarkSent} className="btn btn-gold btn-small">Mark as sent</button>}
-        {(cycle.status === "sent" || cycle.status === "drafted") && <button onClick={onReturn} className="btn btn-gold btn-small">Return with results</button>}
+        {(!art || e.technical) && cycle.status === "drafted" && <button onClick={onMarkSent} className="btn btn-ghost btn-small">Mark as sent</button>}
+        {(!art || e.technical) && (cycle.status === "sent" || cycle.status === "drafted") && <button onClick={onReturn} className="btn btn-ghost btn-small">Return with results</button>}
         {cycle.status === "reviewed" && <button onClick={onNewCycle} className="btn btn-ghost btn-small">Manual new cycle</button>}
       </div>
 

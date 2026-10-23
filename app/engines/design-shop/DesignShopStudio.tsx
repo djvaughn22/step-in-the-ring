@@ -3,7 +3,8 @@
 /**
  * Design Shop Engine Studio
  *
- * Workflow: Spark → Explore → Score → Create → Review → Export
+ * Workflow: Spark → pick a direction → finished design package + Etsy draft → Export.
+ * The engine fills the package; the visitor never scores or fills in blanks.
  * Projects save to this device automatically at every step (shared persistence).
  */
 
@@ -31,38 +32,15 @@ type Stage = "projects" | "spark" | "explore" | "score" | "create" | "review" | 
 
 const ENGINE_ID = "design-shop";
 
-interface ScoringState {
-  fun: number;
-  useful: number;
-  giftable: number;
-  originality: number;
-  ease: number;
-  digitalFirst: boolean;
-  bundleable: boolean;
-  physicalReuse: boolean;
-  seasonality: number;
-  ipRisk: number;
-}
 
-const DIMENSIONS = [
-  { id: "fun", label: "Fun", scale: 5, weight: 1 },
-  { id: "useful", label: "Usefulness", scale: 5, weight: 1 },
-  { id: "giftable", label: "Giftability", scale: 5, weight: 1 },
-  { id: "originality", label: "Originality", scale: 5, weight: 1 },
-  { id: "ease", label: "Ease of Creation", scale: 5, weight: 0.5 },
-  { id: "digitalFirst", label: "Digital-First Potential", scale: 1, weight: 1 },
-  { id: "bundleable", label: "Bundle-able", scale: 1, weight: 1 },
-  { id: "physicalReuse", label: "Physical Reuse", scale: 1, weight: 1 },
-  { id: "seasonality", label: "Seasonality (5 = evergreen)", scale: 5, weight: 0.7 },
-  { id: "ipRisk", label: "IP Risk (5 = high risk)", scale: 5, weight: 2 },
-] as const;
 
 // Map a saved project status back to the studio stage so work resumes where it left off.
 function stageFromStatus(status: CreationStatus): Stage {
   switch (status) {
     case "spark": return "spark";
     case "exploring": return "explore";
-    case "selected": return "score";
+    // "score" was retired: a picked direction already has its package.
+    case "selected": return "create";
     case "creating": return "create";
     case "ready-for-review": return "review";
     case "approved":
@@ -118,7 +96,6 @@ export default function DesignShopStudio({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [directions, setDirections] = useState<CreationDirection[]>([]);
   const [selectedDirectionId, setSelectedDirectionId] = useState<string>("");
-  const [scores, setScores] = useState<ScoringState | null>(null);
   const [design, setDesign] = useState<DesignPackage | null>(null);
   const [loading, setLoading] = useState(false);
   const [flash, setFlash] = useState("");
@@ -177,9 +154,8 @@ export default function DesignShopStudio({
     setAnswers(p.answers);
     setDirections(p.directions ?? []);
     setSelectedDirectionId(p.selectedDirectionId ?? "");
-    const bc = p.buildContent as { design?: DesignPackage; scores?: ScoringState } | undefined;
+    const bc = p.buildContent as { design?: DesignPackage } | undefined;
     setDesign(bc?.design ?? null);
-    setScores(bc?.scores ?? null);
     setStage(stageFromStatus(p.status));
   };
 
@@ -188,7 +164,6 @@ export default function DesignShopStudio({
     setAnswers({});
     setDirections([]);
     setSelectedDirectionId("");
-    setScores(null);
     setDesign(null);
     setStage("spark");
   };
@@ -228,29 +203,23 @@ export default function DesignShopStudio({
 
   // ---- EXPLORE ----
   const handleSelectDirection = (dirId: string) => {
+    const dir = directions.find((d) => d.id === dirId);
+    if (!dir) return;
     setSelectedDirectionId(dirId);
-    save({ selectedDirectionId: dirId, status: "selected" });
-    setStage("score");
+    const pkg = createDesignPackageTemplate(dir, answers);
+    setDesign(pkg);
+    save({ selectedDirectionId: dirId, status: "ready-for-review", buildContent: { ...(project?.buildContent ?? {}), design: pkg } });
+    setStage("review");
   };
 
   const selectedDir = directions.find((d) => d.id === selectedDirectionId);
-
-  // ---- SCORE ----
-  const handleScoreChange = (key: string, value: number | boolean) => {
-    setScores((prev) => ({ ...(prev ?? ({} as ScoringState)), [key]: value }));
-  };
-
-  const handleScoreSubmit = () => {
-    save({ status: "creating", buildContent: { ...(project?.buildContent ?? {}), scores } });
-    setStage("create");
-  };
 
   // ---- CREATE ----
   const handleCreateDesign = () => {
     if (!selectedDir) return;
     const pkg = createDesignPackageTemplate(selectedDir, answers);
     setDesign(pkg);
-    save({ status: "ready-for-review", buildContent: { ...(project?.buildContent ?? {}), scores, design: pkg } });
+    save({ status: "ready-for-review", buildContent: { ...(project?.buildContent ?? {}), design: pkg } });
     setStage("review");
   };
 
@@ -279,7 +248,7 @@ export default function DesignShopStudio({
 
   const exportJSON = () => {
     if (!design) return;
-    const pkg = { design, scores, answers, direction: selectedDir };
+    const pkg = { design, answers, direction: selectedDir };
     const name = `${slugify(design.title)}.json`;
     downloadFile(JSON.stringify(pkg, null, 2), name, "application/json");
     recordExport("json", name);
@@ -500,7 +469,7 @@ ${listing.ipChecklist.join("\n")}
             <div style={card}>
               <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>2. Explore 5 Directions</h2>
               <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 20 }}>
-                Five distinct interpretations of &ldquo;{answers.idea}&rdquo;. Pick the one that fits best. You&apos;ll score it next.
+                Five distinct interpretations of &ldquo;{answers.idea}&rdquo;. Pick one — the design package and Etsy listing draft are made for you.
               </p>
 
               {directions.map((dir) => (
@@ -510,56 +479,9 @@ ${listing.ipChecklist.join("\n")}
                   {dir.reasoning && (
                     <p style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic", margin: "0 0 12px" }}>Why: {dir.reasoning}</p>
                   )}
-                  <button onClick={() => handleSelectDirection(dir.id)} className="btn btn-gold btn-small">Score This →</button>
+                  <button onClick={() => handleSelectDirection(dir.id)} className="btn btn-gold btn-small">Use this direction →</button>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* ---- SCORE ---- */}
-        {stage === "score" && selectedDir && (
-          <div>
-            <button onClick={() => setStage("explore")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to directions</button>
-            <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 8 }}>3. Score This Direction</h2>
-              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-                {selectedDir.label} — rate on 10 transparent dimensions. Scores help you decide; they do not predict sales.
-              </p>
-
-              {DIMENSIONS.map((dim) => (
-                <div key={dim.id} style={{ marginBottom: 14 }}>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 4 }}>
-                    {dim.label}
-                    {dim.weight !== 1 && <span style={{ fontSize: 11, color: "var(--muted)", marginLeft: 8 }}>(weight: {dim.weight}x)</span>}
-                  </label>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    {dim.scale === 5
-                      ? [1, 2, 3, 4, 5].map((n) => (
-                          <button key={n} onClick={() => handleScoreChange(dim.id, n)}
-                            style={{
-                              background: scores?.[dim.id as keyof ScoringState] === n ? "var(--gold)" : "var(--surface)",
-                              color: scores?.[dim.id as keyof ScoringState] === n ? "#000" : "var(--text)",
-                              border: `1px solid ${scores?.[dim.id as keyof ScoringState] === n ? "var(--gold)" : "var(--line2)"}`,
-                              borderRadius: 6, padding: "8px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                            }}>{n}</button>
-                        ))
-                      : [true, false].map((v) => (
-                          <button key={String(v)} onClick={() => handleScoreChange(dim.id, v)}
-                            style={{
-                              background: scores?.[dim.id as keyof ScoringState] === v ? "var(--gold)" : "var(--surface)",
-                              color: scores?.[dim.id as keyof ScoringState] === v ? "#000" : "var(--text)",
-                              border: `1px solid ${scores?.[dim.id as keyof ScoringState] === v ? "var(--gold)" : "var(--line2)"}`,
-                              borderRadius: 6, padding: "8px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                            }}>{v ? "Yes" : "No"}</button>
-                        ))}
-                  </div>
-                </div>
-              ))}
-
-              <button onClick={handleScoreSubmit} style={{ width: "100%", marginTop: 16 }} className="btn btn-gold">
-                Proceed to Design →
-              </button>
             </div>
           </div>
         )}
@@ -567,7 +489,7 @@ ${listing.ipChecklist.join("\n")}
         {/* ---- CREATE ---- */}
         {stage === "create" && selectedDir && (
           <div>
-            <button onClick={() => setStage("score")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to scoring</button>
+            <button onClick={() => setStage("explore")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to directions</button>
             <div style={card}>
               <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>4. Create Design Package</h2>
               <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
@@ -585,7 +507,7 @@ ${listing.ipChecklist.join("\n")}
           <div>
             <button onClick={() => setStage("create")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back</button>
             <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>5. Review Package</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>Your design package</h2>
               <Section title="Title" body={design.title} />
               <Section title="Concept" body={design.concept} />
               <Section title="Customer" body={design.customer} />
@@ -593,9 +515,15 @@ ${listing.ipChecklist.join("\n")}
               <Section title="Dimensions" body={design.dimensions} />
               <Section title="Print Specs" body={design.printSpecs} />
               {design.materials && <Section title="Materials" body={design.materials} />}
+              <Section title="Files to make" body={design.files.map((f) => `- ${f}`).join("\n")} />
+              <Section title="Colors" body={design.colors.join(" · ")} />
+              <Section title="Fonts" body={design.fonts.join(" · ")} />
+              <Section title="Words on the design" body={design.originalCopy.map((c) => `- ${c}`).join("\n")} />
               <Section title="Accessibility" body={design.accessibilityNotes} />
+              <Section title="Etsy listing draft" body={buildEtsyDraft().replace(/^# .*\n\n/, "")} />
+              <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "0 0 8px" }}>Colors, fonts and tags are starting choices — change them in your design tool. Check the price and tags against similar listings before publishing.</p>
               <button onClick={handleApproveDesign} className="btn btn-gold" style={{ width: "100%", marginTop: 16 }}>
-                Approve & Export →
+                Looks right — export it →
               </button>
             </div>
           </div>

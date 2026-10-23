@@ -3,35 +3,37 @@
 /**
  * Idea Engine Studio.
  *
- * Flow: Start → Ideas → Compare → Decide → Handoff.
- * Real output: one saved decision record, handed directly into the next
- * engine's intake. Projects save on this device automatically.
+ * Flow: Start → three versions (one recommended) → pick → finished decision →
+ * handoff. The engine lays out the versions and fills the decision in; the
+ * visitor picks one and can edit it. Projects save on this device.
  */
 
 import { useEffect, useState } from "react";
 import {
-  generateAngles, handoffAnswers, isFullyScored, rankCandidates, totalScore,
-  HANDOFF_TARGETS, IDEA_FACTORS,
-  type IdeaCandidate, type IdeaDecision,
+  decisionFor, decisionToMarkdown, handoffAnswers, ideaVersions, recommendVersion,
+  HANDOFF_TARGETS,
+  type IdeaCandidate, type IdeaDecision, type IdeaVersion,
 } from "./idea.engine";
 import type { CreationProject } from "../shared/creation-engine.types";
 import { CREATION_STATUS_LABELS } from "../shared/creation-engine.types";
 import {
-  createProject, deleteProject, getProject, getProjectsByEngine, uid, updateProject,
+  createProject, deleteProject, getProject, getProjectsByEngine, updateProject,
 } from "../shared/persistence";
+import { downloadText, slug } from "../artifacts/ArtifactView";
+import { shortName } from "../artifacts/text";
 
-type Stage = "projects" | "start" | "ideas" | "compare" | "decide" | "done";
+type Stage = "projects" | "start" | "versions" | "done";
 
 const ENGINE_ID = "idea";
 
 /** A project name nobody had to type: the first sentence of the idea,
  *  trimmed to a card-sized name. Still editable. */
 function deriveIdeaName(seed: string): string {
-  const sentence = seed.split(/[.!?\n]/)[0].trim();
-  return sentence.length > 48 ? `${sentence.slice(0, 45)}…` : sentence || "Untitled idea";
+  return shortName(seed) || "Untitled idea";
 }
 
 interface IdeaContent {
+  /** Pre-2026-10 saves: the old compare-and-score list. Read, never written. */
   candidates?: IdeaCandidate[];
   selectedId?: string;
   decision?: IdeaDecision;
@@ -54,10 +56,9 @@ export default function IdeaStudio({
   const [project, setProject] = useState<CreationProject | null>(null);
   const [stage, setStage] = useState<Stage>("start");
   const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers ?? {});
-  const [candidates, setCandidates] = useState<IdeaCandidate[]>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [decision, setDecision] = useState<IdeaDecision | null>(null);
-  const [newIdea, setNewIdea] = useState("");
+  const [editing, setEditing] = useState(false);
   const [flash, setFlash] = useState("");
 
   useEffect(() => {
@@ -71,6 +72,10 @@ export default function IdeaStudio({
   }, [initialAnswers]);
 
   const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2000); };
+  const copy = async (text: string, what: string) => {
+    try { await navigator.clipboard.writeText(text); say(`${what} copied`); }
+    catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
+  };
 
   const persist = (patch: Partial<CreationProject>) => {
     if (!project) return;
@@ -81,24 +86,24 @@ export default function IdeaStudio({
     setSaved(getProjectsByEngine(ENGINE_ID));
   };
 
-  const content = (): IdeaContent => (project?.buildContent as IdeaContent) ?? {};
+  const seed = answers.seed ?? "";
+  const versions: IdeaVersion[] = seed.trim() ? ideaVersions(seed, answers.who ?? "") : [];
+  const recommended = recommendVersion(seed, answers.constraint ?? "");
+  const pickedLabel = versions.find((v) => v.id === selectedId)?.label ?? "Your version";
 
   // ---- PROJECTS ----
   const openProject = (p: CreationProject) => {
     setProject(p);
     setAnswers(p.answers);
     const c = (p.buildContent as IdeaContent) ?? {};
-    setCandidates(c.candidates ?? []);
     setSelectedId(c.selectedId ?? "");
     setDecision(c.decision ?? null);
-    if (c.decision) setStage("done");
-    else if (c.selectedId) setStage("decide");
-    else if (c.candidates && c.candidates.length > 0) setStage("compare");
-    else setStage("start");
+    setEditing(false);
+    setStage(c.decision ? "done" : p.answers.seed ? "versions" : "start");
   };
 
   const startNew = () => {
-    setProject(null); setAnswers({}); setCandidates([]); setSelectedId(""); setDecision(null);
+    setProject(null); setAnswers({}); setSelectedId(""); setDecision(null); setEditing(false);
     setStage("start");
   };
 
@@ -109,78 +114,27 @@ export default function IdeaStudio({
     const filledAnswers = { ...answers, name };
     let p = project;
     if (!p) { p = createProject(ENGINE_ID, name, filledAnswers); setProject(p); }
-    const seedCandidate: IdeaCandidate = { id: uid(), text: answers.seed, origin: "yours" };
-    const initial = candidates.length > 0 ? candidates : [seedCandidate];
-    setCandidates(initial);
     setAnswers(filledAnswers);
-    const next = { ...p, name, answers: filledAnswers, status: "exploring" as const, buildContent: { candidates: initial } };
+    const next = { ...p, name, answers: filledAnswers, status: "exploring" as const };
     updateProject(next); setProject(next); setSaved(getProjectsByEngine(ENGINE_ID));
-    setStage("ideas");
+    setStage("versions");
   };
 
-  // ---- IDEAS ----
-  const addIdea = () => {
-    if (!newIdea.trim()) return;
-    if (candidates.length >= 8) { say("8 ideas is enough — compare them"); return; }
-    const next = [...candidates, { id: uid(), text: newIdea.trim(), origin: "yours" as const }];
-    setCandidates(next); setNewIdea("");
-    persist({ buildContent: { ...content(), candidates: next } });
-  };
-
-  const addAngles = () => {
-    const angles = generateAngles(answers.seed, answers.who).filter(
-      (a) => !candidates.some((c) => c.id === a.id),
-    );
-    const room = Math.max(0, 8 - candidates.length);
-    const next = [...candidates, ...angles.slice(0, room)];
-    setCandidates(next);
-    persist({ buildContent: { ...content(), candidates: next } });
-    if (room === 0) say("8 ideas is enough — compare them");
-  };
-
-  const removeIdea = (id: string) => {
-    const next = candidates.filter((c) => c.id !== id);
-    setCandidates(next);
-    persist({ buildContent: { ...content(), candidates: next } });
-  };
-
-  // ---- COMPARE ----
-  const setScore = (candidateId: string, factorId: string, value: number) => {
-    const next = candidates.map((c) =>
-      c.id === candidateId ? { ...c, scores: { ...(c.scores ?? {}), [factorId]: value } } : c,
-    );
-    setCandidates(next);
-    persist({ buildContent: { ...content(), candidates: next } });
-  };
-
-  const selectIdea = (id: string) => {
-    setSelectedId(id);
-    persist({ status: "selected", buildContent: { ...content(), candidates, selectedId: id } });
-    const chosen = candidates.find((c) => c.id === id);
-    setDecision({
-      description: chosen?.text ?? "",
-      intendedUser: answers.who ?? "",
-      problem: answers.problem ?? "",
-      simplestFirstVersion: "",
-      requiredTools: "",
-      nextEngineId: "",
-      firstAction: "",
-      decidedAt: "",
-    });
-    setStage("decide");
-  };
-
-  // ---- DECIDE ----
-  const saveDecision = () => {
-    if (!decision) return;
-    if (!decision.description || !decision.simplestFirstVersion || !decision.nextEngineId || !decision.firstAction) {
-      say("Fill in the decision — including next engine and first action");
-      return;
-    }
-    const final = { ...decision, decidedAt: new Date().toISOString() };
-    setDecision(final);
-    persist({ status: "approved", buildContent: { ...content(), candidates, selectedId, decision: final } });
+  // ---- PICK → the finished decision ----
+  const pick = (v: IdeaVersion) => {
+    const d = decisionFor(v, seed, answers.who ?? "", answers.problem ?? "", recommended);
+    setSelectedId(v.id);
+    setDecision(d);
+    setEditing(false);
+    persist({ status: "approved", buildContent: { selectedId: v.id, decision: d } });
     setStage("done");
+  };
+
+  const saveEdit = () => {
+    if (!decision) return;
+    persist({ buildContent: { selectedId, decision } });
+    setEditing(false);
+    say("Saved");
   };
 
   // ---- STYLES ----
@@ -192,8 +146,6 @@ export default function IdeaStudio({
 
   if (!ready) return <div className="page"><div style={{ height: 200 }} /></div>;
 
-  const ranked = rankCandidates(candidates);
-  const allScored = candidates.length > 0 && candidates.every(isFullyScored);
 
   return (
     <main>
@@ -246,7 +198,7 @@ export default function IdeaStudio({
             )}
             <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>What are you thinking about?</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Say it however it comes out. You&apos;ll compare a few versions, pick one, and leave with a decision and a first action.
+              Say it however it comes out. You&apos;ll get three ways to try it, one recommended, and leave with a decision, a dated first action, and how to tell if it worked.
             </p>
             <div style={{ marginBottom: 14 }}>
               <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>The idea, however it comes out</label>
@@ -256,7 +208,7 @@ export default function IdeaStudio({
               ["who", "Who is it for? (optional)", "One specific person or group"],
               ["problem", "What problem or moment does it fit? (optional)", "Why it would matter to them"],
               ["name", "Project name (optional)", "A working name is fine"],
-              ["constraint", "Biggest constraint right now? (optional)", "Time, money, skills, a deadline"],
+              ["constraint", "Biggest limit right now? (optional)", "Time, money, skills, a deadline"],
             ] as const).map(([key, label, placeholder]) => (
               <div key={key} style={{ marginBottom: 14 }}>
                 <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>{label}</label>
@@ -264,171 +216,102 @@ export default function IdeaStudio({
               </div>
             ))}
             <button onClick={submitStart} disabled={!answers.seed?.trim()} style={{ width: "100%", marginTop: 8, opacity: !answers.seed?.trim() ? 0.5 : 1 }} className="btn btn-gold">
-              Collect the ideas →
+              Show me ways to try it →
             </button>
           </div>
         )}
 
-        {/* ---- IDEAS ---- */}
-        {stage === "ideas" && (
+        {/* ---- VERSIONS: the engine's work, one recommended ---- */}
+        {stage === "versions" && (
           <div>
-            <button onClick={() => setStage("start")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back</button>
-            <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>2. Collect the ideas</h2>
-              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-                Your idea is first. Add other versions you&apos;re weighing (up to 8 total), or add a few generated angles to react to.
-              </p>
-
-              {candidates.map((c) => (
-                <div key={c.id} style={{ display: "flex", gap: 8, alignItems: "flex-start", padding: "10px 0", borderBottom: "1px solid var(--line2)" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 14, color: "var(--text)", margin: 0, lineHeight: 1.5 }}>{c.text}</p>
-                    <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", margin: "4px 0 0" }}>
-                      {c.origin === "yours" ? "Yours" : "Generated angle"}
-                    </p>
-                  </div>
-                  <button onClick={() => removeIdea(c.id)} className="btn btn-ghost btn-small" aria-label={`Remove idea: ${c.text.slice(0, 40)}`}>Remove</button>
-                </div>
-              ))}
-
-              <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-                <input value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addIdea(); }} placeholder="Add another version of the idea" aria-label="Add another idea" style={{ ...input, flex: 1 }} />
-                <button onClick={addIdea} className="btn btn-ghost btn-small">Add</button>
-              </div>
-              <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                <button onClick={addAngles} className="btn btn-ghost btn-small">Add generated angles</button>
-                <button onClick={() => setStage("compare")} disabled={candidates.length < 2} className="btn btn-gold btn-small" style={{ opacity: candidates.length < 2 ? 0.5 : 1 }}>
-                  {candidates.length < 2 ? "Add at least 2 to compare" : "Compare them →"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ---- COMPARE ---- */}
-        {stage === "compare" && (
-          <div>
-            <button onClick={() => setStage("ideas")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to ideas</button>
+            <button onClick={() => setStage("start")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Change the idea</button>
             <div style={{ ...card, marginBottom: 14 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>3. Compare and pick</h2>
-              <p style={{ fontSize: 13, color: "var(--muted)", margin: 0 }}>
-                Score each idea 1–5 on five factors. The ranking assists your judgment — you make the pick.
+              <h2 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 6px" }}>Three ways to try it</h2>
+              <p style={{ fontSize: 13.5, color: "var(--muted)", margin: 0, lineHeight: 1.5 }}>
+                From the cheapest test to the full thing. Pick one — the decision, first action and next step are filled in for you.
               </p>
             </div>
-
-            {ranked.map((c) => (
-              <div key={c.id} style={{ ...card, marginBottom: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
-                  <p style={{ fontSize: 14, fontWeight: 800, color: "var(--text)", margin: "0 0 10px", lineHeight: 1.5, flex: 1 }}>{c.text}</p>
-                  {isFullyScored(c) && (
-                    <span style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", flexShrink: 0 }}>{totalScore(c)}/25</span>
-                  )}
-                </div>
-                {IDEA_FACTORS.map((f) => (
-                  <div key={f.id} style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 12.5, fontWeight: 700, color: "var(--text)", margin: "0 0 2px" }}>{f.label}</p>
-                    <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 6px" }}>{f.question}</p>
-                    <div style={{ display: "flex", gap: 6 }}>
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <button key={n} onClick={() => setScore(c.id, f.id, n)}
-                          aria-label={`${f.label} ${n} for: ${c.text.slice(0, 30)}`}
-                          style={{
-                            background: c.scores?.[f.id] === n ? "var(--gold)" : "var(--surface)",
-                            color: c.scores?.[f.id] === n ? "#000" : "var(--text)",
-                            border: `1px solid ${c.scores?.[f.id] === n ? "var(--gold)" : "var(--line2)"}`,
-                            borderRadius: 6, padding: "7px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                          }}>{n}</button>
-                      ))}
-                    </div>
+            {versions.map((v) => {
+              const isRec = v.id === recommended.id;
+              return (
+                <div key={v.id} style={{ ...card, marginBottom: 12, borderColor: isRec ? "var(--gold)" : undefined }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline", flexWrap: "wrap" }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 900, margin: 0, color: "var(--text)" }}>{v.label}</h3>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: isRec ? "var(--gold)" : "var(--muted)" }}>{isRec ? "Recommended" : v.effort}</span>
                   </div>
-                ))}
-                <button onClick={() => selectIdea(c.id)} className="btn btn-gold btn-small" style={{ marginTop: 4 }}>
-                  Pick this one →
-                </button>
-              </div>
-            ))}
-            {!allScored && (
-              <p style={{ fontSize: 12.5, color: "var(--muted)" }}>
-                Unscored ideas sink to the bottom. You can pick any idea at any time — scoring just makes the trade-offs visible.
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* ---- DECIDE ---- */}
-        {stage === "decide" && decision && (
-          <div>
-            <button onClick={() => setStage("compare")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to comparison</button>
-            <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>4. Lock the decision</h2>
-              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-                This record is the output. Fill it in plainly — it becomes the starting answers for the next engine.
-              </p>
-              {([
-                ["description", "The idea, stated clearly *", "textarea"],
-                ["intendedUser", "Intended user *", "text"],
-                ["problem", "Problem or purpose", "text"],
-                ["simplestFirstVersion", "Simplest first version *", "textarea"],
-                ["requiredTools", "Required tools (free where possible)", "text"],
-                ["firstAction", "First action — the very next thing you'll do *", "text"],
-              ] as const).map(([key, label, kind]) => (
-                <div key={key} style={{ marginBottom: 14 }}>
-                  <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>{label}</label>
-                  {kind === "textarea" ? (
-                    <textarea value={decision[key]} onChange={(e) => setDecision({ ...decision, [key]: e.target.value })} style={{ ...input, minHeight: 60, resize: "vertical" }} />
-                  ) : (
-                    <input value={decision[key]} onChange={(e) => setDecision({ ...decision, [key]: e.target.value })} style={input} />
-                  )}
+                  <p style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.55, margin: "6px 0 8px" }}>{v.what}</p>
+                  <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5, margin: "0 0 4px" }}><b style={{ color: "var(--text)" }}>Effort:</b> {v.effort} · <b style={{ color: "var(--text)" }}>Tools:</b> {v.tools}</p>
+                  <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5, margin: "0 0 10px" }}><b style={{ color: "var(--text)" }}>It worked if:</b> {v.test}</p>
+                  {isRec && <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5, margin: "0 0 10px" }}>Why this one: {recommended.why}.</p>}
+                  <button onClick={() => pick(v)} className={`btn btn-small ${isRec ? "btn-gold" : "btn-ghost"}`}>Go with this →</button>
                 </div>
-              ))}
+              );
+            })}
+          </div>
+        )}
 
-              <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 6 }}>Next engine *</label>
-              {HANDOFF_TARGETS.map((t) => (
-                <label key={t.engineId} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 0", cursor: "pointer" }}>
-                  <input type="radio" name="nextEngine" checked={decision.nextEngineId === t.engineId} onChange={() => setDecision({ ...decision, nextEngineId: t.engineId })} style={{ marginTop: 3 }} />
-                  <span>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: "var(--text)" }}>{t.label}</span>
-                    <span style={{ display: "block", fontSize: 12.5, color: "var(--muted)" }}>{t.when}</span>
-                  </span>
-                </label>
-              ))}
-
-              <button onClick={saveDecision} className="btn btn-gold" style={{ width: "100%", marginTop: 14 }}>
-                Save the decision →
-              </button>
+        {/* ---- DONE: the finished decision ---- */}
+        {stage === "done" && decision && (() => {
+          const md = decisionToMarkdown(decision, project?.name ?? "Idea", pickedLabel);
+          const target = HANDOFF_TARGETS.find((t) => t.engineId === decision.nextEngineId);
+          const rows: [keyof IdeaDecision, string, boolean][] = [
+            ["description", "The idea", true],
+            ["intendedUser", "For", false],
+            ["problem", "Why it matters", false],
+            ["simplestFirstVersion", "First version", true],
+            ["requiredTools", "Tools", false],
+            ["firstAction", "First action", true],
+            ["successTest", "How you'll know it worked", true],
+          ];
+          return (
+            <div style={card}>
+              <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>Idea decision · {pickedLabel}</p>
+              <h2 style={{ fontSize: 19, fontWeight: 900, margin: "0 0 6px" }}>{project?.name ?? "Your idea"}</h2>
+              {decision.whyThis && <p style={{ fontSize: 13.5, color: "var(--muted)", margin: "0 0 14px", lineHeight: 1.5 }}>{decision.whyThis}</p>}
+              {rows.map(([key, lbl, wide]) => {
+                const value = (decision[key] as string | undefined) ?? "";
+                if (!editing && !value) return null;
+                return (
+                  <div key={key} style={{ marginBottom: 12 }}>
+                    <label htmlFor={`decision-${key}`} style={{ display: "block", fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 3px" }}>{lbl}</label>
+                    {editing ? (
+                      wide
+                        ? <textarea id={`decision-${key}`} value={value} onChange={(e) => setDecision({ ...decision, [key]: e.target.value })} style={{ ...input, minHeight: 60, resize: "vertical" }} />
+                        : <input id={`decision-${key}`} value={value} onChange={(e) => setDecision({ ...decision, [key]: e.target.value })} style={input} />
+                    ) : (
+                      <p style={{ fontSize: 14, color: "var(--text)", margin: 0, lineHeight: 1.55 }}>{value}</p>
+                    )}
+                  </div>
+                );
+              })}
+              {editing ? (
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <button onClick={saveEdit} className="btn btn-gold btn-small">Save edits</button>
+                  <button onClick={() => setEditing(false)} className="btn btn-ghost btn-small">Cancel</button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => onHandoff(decision.nextEngineId, handoffAnswers(decision, project?.name ?? "Idea"))}
+                    className="btn btn-gold"
+                    style={{ width: "100%", marginTop: 4 }}
+                  >
+                    Continue in the {target?.label ?? "next engine"} →
+                  </button>
+                  <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "8px 0 12px" }}>
+                    {target?.when} Your answers carry over — nothing to retype.
+                  </p>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button onClick={() => copy(md, "Decision")} className="btn btn-ghost btn-small">Copy</button>
+                    <button onClick={() => downloadText(`${slug(project?.name ?? "idea")}.md`, md)} className="btn btn-ghost btn-small">Download .md</button>
+                    <button onClick={() => setEditing(true)} className="btn btn-ghost btn-small">Edit</button>
+                    <button onClick={() => setStage("versions")} className="btn btn-ghost btn-small">Pick a different version</button>
+                  </div>
+                </>
+              )}
             </div>
-          </div>
-        )}
-
-        {/* ---- DONE ---- */}
-        {stage === "done" && decision && (
-          <div style={card}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 12 }}>Decision saved</h2>
-            {([
-              ["The idea", decision.description],
-              ["Intended user", decision.intendedUser],
-              ["Problem / purpose", decision.problem || "(not stated)"],
-              ["Simplest first version", decision.simplestFirstVersion],
-              ["Required tools", decision.requiredTools || "(none listed)"],
-              ["First action", decision.firstAction],
-            ] as const).map(([label, body]) => (
-              <div key={label} style={{ marginBottom: 12 }}>
-                <p style={{ fontSize: 12, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 3px" }}>{label}</p>
-                <p style={{ fontSize: 14, color: "var(--text)", margin: 0, lineHeight: 1.55 }}>{body}</p>
-              </div>
-            ))}
-            <button
-              onClick={() => onHandoff(decision.nextEngineId, handoffAnswers(decision, project?.name ?? "Idea"))}
-              className="btn btn-gold"
-              style={{ width: "100%", marginTop: 8 }}
-            >
-              Continue in the {HANDOFF_TARGETS.find((t) => t.engineId === decision.nextEngineId)?.label ?? "next engine"} →
-            </button>
-            <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "10px 0 0" }}>
-              Your answers carry over as the starting point — nothing to retype.
-            </p>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </main>
   );

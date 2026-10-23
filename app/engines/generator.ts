@@ -4,6 +4,7 @@ import type { BuildStage, Depth, Destination, Engine } from "./engines";
 import { DEPTH_LABELS, DESTINATION_LABELS } from "./engines";
 import type { ExecutionPackage } from "./store";
 import { generateSpecialties } from "./specialties";
+import { artifactToMarkdown, engineArtifact } from "./artifacts";
 import { adapterFor, adapterForType, engineFit } from "../creation/adapters";
 import { loadBuilderDefaults } from "../creation/builder-defaults";
 import { recordFromEngineIntake, viewOf } from "../creation/record";
@@ -384,11 +385,17 @@ export function generatePackage(
     returnTemplate: returnTemplate(a, e, destination),
     nextCycleNote: `After you run this and return with results, StepInTheRing will inspect what actually happened and recommend Fix, Refine, Expand, or Launch — then generate the next focused package. Strong products are built in passes, not one giant request.`,
     specialties: generateSpecialties(e.id, e.specialties, a, stage),
+    artifact: engineArtifact(e.id, a) ?? undefined,
   };
 }
 
 // Flatten a package into one copyable document.
 export function packageToText(e: Engine, a: A, p: ExecutionPackage): string {
+  // Engines with a finished artifact hand over that artifact — not the old
+  // twelve-section template around it.
+  if (p.artifactEdited) return p.artifactEdited;
+  const art = p.artifact ?? engineArtifact(e.id, a);
+  if (art) return artifactToMarkdown(art);
   const parts = [
     `# ${val(a, "name") || "Project"} — ${e.name} execution package`,
     `\n## 1. Engine Understanding\n${p.understanding}`,

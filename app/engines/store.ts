@@ -1,5 +1,6 @@
 // Local-first project memory. "Saved on this device." Versioned + safe-parsed.
 import type { BuildStage, Depth, Destination } from "./engines";
+import type { EngineArtifact } from "./artifacts/types";
 
 export interface ExecutionPackage {
   createdAt: string;
@@ -20,6 +21,11 @@ export interface ExecutionPackage {
   nextCycleNote: string;
   // Engine-specific specialties (Pass 2 deepening).
   specialties?: Record<string, string>;
+  // The finished artifact the engine promises (plan, repair brief, MVP scope…).
+  // Optional: cycles saved before it existed regenerate it from their answers.
+  artifact?: EngineArtifact;
+  // The visitor's own edits to the artifact, as Markdown. Wins over `artifact`.
+  artifactEdited?: string;
 }
 
 export type CycleStatus = "drafted" | "sent" | "returned" | "reviewed";

@@ -196,7 +196,7 @@ export async function generateProductDirections(
   const variations = [
     {
       label: "Core Concept",
-      description: `The straightforward version: ${idea} as a ${productType.toLowerCase()} for ${customer}.`,
+      description: `The straightforward version: ${idea.replace(/^[A-Z](?=[a-z ])/, (c) => c.toLowerCase()).replace(/[.!]+$/, "")}${productType && productType !== "product" ? ` as a ${productType.toLowerCase()}` : ""}${customer && customer !== "the person you have in mind" ? `, for ${customer}` : ""}, done cleanly and well.`,
       reasoning: "Start simple. If people want it, this is the MVP.",
     },
     {
@@ -258,27 +258,91 @@ export function createDesignPackageTemplate(
   direction: CreationDirection,
   answers: Record<string, string>,
 ): DesignPackage {
-  const productType = answers.productType || "Printable";
+  const productType = answers.productType || inferProductType(answers.idea || "");
+  const name = cleanName(answers.name || answers.idea || "Design");
+  const forWho = (answers.idea || "").match(/\bfor\s+(?:my\s+|the\s+|our\s+)?([a-z][a-z' -]{2,30}?)(?:[.,!]|$)/i)?.[1];
+  const customer = answers.customer?.trim() || (forWho ? `People shopping for ${forWho}` : "Gift buyers");
+  const palette = paletteFor(`${answers.theme ?? ""} ${answers.idea ?? ""} ${answers.occasion ?? ""}`);
 
   return {
-    title: `${answers.name || "Untitled"} — ${direction.label}`,
+    title: `${name} — ${direction.label}`,
     concept: direction.description,
-    customer: answers.customer || "Gift buyer",
+    customer,
     productType,
     theme: answers.theme,
     productFormat: productType.toLowerCase(),
-    files: [],
+    files: filesFor(productType),
     dimensions: guessProductDimensions(productType),
     printSpecs: guessProductSpecs(productType),
-    colors: [],
-    fonts: [],
-    materials: guessProductMaterials(productType),
-    bundleSuggestions: [],
-    accessibilityNotes: "Use readable fonts; high contrast for printables; clear instructions.",
+    colors: palette.colors,
+    fonts: palette.fonts,
+    materials: /printable|digital/i.test(productType) ? "None — it's a digital file the buyer prints." : guessProductMaterials(productType),
+    bundleSuggestions: bundleFor(productType),
+    accessibilityNotes: "Body text at least 12 pt on print (16 px on screen); dark text on a light background; don't rely on color alone to carry meaning.",
     mockupRequirements: ["Front mockup on product", "Lifestyle image (in use)", "Flat lay / detail shot"],
-    originalCopy: answers.spark ? [answers.spark] : [],
+    originalCopy: copyLines(name, answers),
     productionNotes: "",
   };
+}
+
+/** "a simple logo for a family game night" → "Family game night logo"-ish card name. */
+function cleanName(s: string): string {
+  const t = s.split(/[.!?\n]/)[0].trim().replace(/^(i need|i want|make me|design)\s+/i, "").replace(/^(a|an|the|my|some)\s+/i, "");
+  const short = t.length > 48 ? `${t.slice(0, 47).replace(/\s+\S*$/, "")}` : t;
+  return short ? short[0].toUpperCase() + short.slice(1) : "Design";
+}
+
+function inferProductType(idea: string): string {
+  const i = idea.toLowerCase();
+  if (/shirt|tee|hoodie/.test(i)) return "T-Shirt / Apparel";
+  if (/mug|cup|tumbler/.test(i)) return "Mug / Drinkware";
+  if (/sticker/.test(i)) return "Sticker Sheet";
+  if (/card|deck/.test(i)) return "Card Deck";
+  if (/tote|bag/.test(i)) return "Tote / Bag";
+  if (/poster|wall|art print/.test(i)) return "Wall Print / Art";
+  if (/journal|planner|notebook/.test(i)) return "Journal / Planner";
+  if (/game|activity|bingo|puzzle/.test(i)) return "Game / Activity Pack";
+  return "Printable / Digital";
+}
+
+function paletteFor(text: string): { colors: string[]; fonts: string[] } {
+  const t = text.toLowerCase();
+  if (/kid|child|game|party|fun|birthday/.test(t)) return { colors: ["Sunny yellow #F6C343", "Sky blue #4A90D9", "Coral #F27D6B", "Ink #1F2A44"], fonts: ["Fredoka (headings)", "Nunito (body)"] };
+  if (/faith|church|bible|prayer/.test(t)) return { colors: ["Warm cream #F5EFE3", "Deep navy #1E2A44", "Muted gold #B9975B"], fonts: ["Cormorant Garamond (headings)", "Lato (body)"] };
+  if (/fitness|sport|team|coach|run/.test(t)) return { colors: ["Bold navy #13294B", "Electric orange #F26B21", "White #FFFFFF"], fonts: ["Oswald (headings)", "Inter (body)"] };
+  if (/holiday|christmas|winter/.test(t)) return { colors: ["Pine green #2F5D50", "Cranberry #A4243B", "Snow #F7F7F2"], fonts: ["Playfair Display (headings)", "Source Sans 3 (body)"] };
+  return { colors: ["Charcoal #2B2D33", "Soft sand #EDE6DA", "Accent blue #2F6FB0"], fonts: ["Poppins (headings)", "Inter (body)"] };
+}
+
+function filesFor(productType: string): string[] {
+  const t = productType.toLowerCase();
+  if (t.includes("printable") || t.includes("journal") || t.includes("game")) return ["US Letter PDF (8.5 × 11 in)", "A4 PDF", "PNG preview image for the listing"];
+  if (t.includes("card")) return ["Print-ready PDF with bleed", "Front and back PNGs", "Preview image"];
+  if (t.includes("sticker")) return ["PNG with transparent background, 300 DPI", "Cut-line file (SVG)", "Preview image"];
+  if (t.includes("shirt") || t.includes("mug") || t.includes("tote")) return ["PNG with transparent background at the print size, 300 DPI", "Mockup image"];
+  if (t.includes("wall")) return ["High-res PDF at 8 × 10 and 11 × 14 in", "Preview image"];
+  return ["Print-ready PDF", "Preview image"];
+}
+
+function bundleFor(productType: string): string[] {
+  const t = productType.toLowerCase();
+  if (t.includes("printable") || t.includes("game")) return ["A matching blank version people can fill in", "A second color set"];
+  if (t.includes("card")) return ["A matching envelope or gift tag sheet"];
+  return ["The same design on a second product (sticker, mug or tote)"];
+}
+
+function copyLines(name: string, answers: Record<string, string>): string[] {
+  const lines = [name];
+  const idea = (answers.idea || "").toLowerCase();
+  if (/weekly|week/.test(idea) && /chart|tracker|planner|checklist|schedule|chore/.test(idea)) {
+    lines.push("Column headings: Mon · Tue · Wed · Thu · Fri · Sat · Sun", "A checkbox in each day, and a \"Done this week!\" box at the bottom");
+  } else if (/chart|tracker|checklist/.test(idea)) {
+    lines.push("A checkbox beside every line, and a space for the date");
+  }
+  if (answers.spark?.trim()) lines.push(answers.spark.trim());
+  if (answers.customer?.trim()) lines.push(`Made for ${answers.customer.trim().replace(/^[A-Z]/, (c) => c.toLowerCase())}`);
+  if (answers.occasion?.trim()) lines.push(`Perfect for ${answers.occasion.trim().toLowerCase()}`);
+  return lines;
 }
 
 function guessProductDimensions(productType: string): string {
@@ -355,9 +419,12 @@ export function generateEtsyListingDraft(
   const productType = answers.productType || "Printable";
   const isDigital = productType.includes("Digital") || productType.includes("Printable");
 
+  const name = design.title.split(" — ")[0];
+  const typeWord = productType.split(" / ")[0];
+  const titleParts = [name, name.toLowerCase().includes(typeWord.toLowerCase()) ? "" : typeWord, answers.occasion?.trim(), answers.customer?.trim() ? `for ${answers.customer.trim()}` : "", isDigital ? "Instant Download" : ""].filter(Boolean);
   return {
-    title: `${design.title.slice(0, 120)}`,
-    description: `${design.concept}\n\nWhat you get:\n- ${design.files.join("\n- ")}\n\nPerfect for: ${design.customer}`,
+    title: titleParts.join(" | ").slice(0, 140),
+    description: `${design.concept}\n\nWhat you get:\n- ${design.files.join("\n- ")}\n\nMade for: ${design.customer}${isDigital ? "\n\nThis is a digital file — nothing is shipped. Print at home or at a print shop." : ""}`,
     tags: generateEtsyTags(design, answers),
     category: guessEtsyCategory(productType),
     price: estimatePrice(productType),
@@ -366,8 +433,8 @@ export function generateEtsyListingDraft(
     materials: design.materials ? design.materials.split(", ") : [],
     files: design.files,
     thumbnail: "Create mockup showing product in use",
-    socialCaption: `New: ${design.title}. Perfect for ${design.customer}. Link in bio.`,
-    videoOrReelConcept: `Quick unboxing / walkthrough of ${design.title}`,
+    socialCaption: `New: ${name}. Made for ${design.customer.replace(/^[A-Z]/, (c) => c.toLowerCase())}. Link in bio.`,
+    videoOrReelConcept: isDigital ? `15 seconds: the printed ${name.toLowerCase().replace(/^printable\s+/, "")} on a fridge or desk, someone filling it in` : `15 seconds: ${name.toLowerCase()} in use, then a close-up of the detail`,
     ipChecklist: [
       "✓ No celebrity references",
       "✓ No copyrighted characters",
@@ -405,11 +472,15 @@ function generateEtsyTags(design: DesignPackage, answers: Record<string, string>
   if (design.customer.toLowerCase().includes("teacher")) tags.push("teacher");
   if (design.customer.toLowerCase().includes("coach")) tags.push("sports");
 
-  // Use case
+  // Words from the idea itself, so the tags describe THIS product.
+  const stop = new Set(["a", "an", "the", "for", "and", "with", "of", "to", "my", "our", "simple", "need", "want", "make"]);
+  for (const w of (answers.idea || "").toLowerCase().split(/[^a-z]+/)) {
+    if (w.length > 3 && !stop.has(w) && !tags.includes(w)) tags.push(w);
+  }
+  if (answers.occasion) tags.push(answers.occasion.toLowerCase().slice(0, 20));
   tags.push("unique gift");
-  tags.push("party");
 
-  return tags.slice(0, 13);
+  return [...new Set(tags)].slice(0, 13);
 }
 
 function guessEtsyCategory(productType: string): string {
