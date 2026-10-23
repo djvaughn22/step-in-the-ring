@@ -1,6 +1,12 @@
 # Engine status — what actually works
 
-Verified by running each engine on **2026-07-15**. Not copied from a registry,
+**Latest pass: 2026-10-23 — usefulness rescue.** Every public engine was run
+in the real UI with a first-time visitor scenario (a weekly chore board as the
+shared example) at 375px wide. The rule now: an engine ends with a usable
+artifact — never a template, echoed answers, or a form for the visitor to fill
+in — and says so plainly where it can't. See "2026-10-23 usefulness pass" below.
+
+Originally verified by running each engine on **2026-07-15**. Not copied from a registry,
 not inherited from an earlier note. If you change an engine, re-run it and
 update this file.
 
@@ -77,3 +83,48 @@ Two different things that both say "build":
 
 Don't merge them. The planner hands beginners to `/build` (via the
 `sitr-build-seed` key) and hands defined software work to the builder prompt.
+
+
+## 2026-10-23 usefulness pass
+
+The problem: visitors did the engine's work. Idea asked for 25 ratings and a
+blank decision form; Build/Fix/Plan returned generic advice ("build the single
+core action", "[name] by [date]", "engine or specialty not found").
+
+The fix: Build, Fix, Plan, Sell, Launch and Grow now produce a finished
+artifact from `app/engines/artifacts/` (deterministic — no AI). Questions were
+cut to the ones that change the result; every optional one takes "I don't
+know", which becomes a labeled, editable assumption. The result page leads with
+the artifact: next action, sections, assumptions/unknowns, paste-ready prompt,
+Copy / Download .md / Edit / Change answers. Edits save with the cycle; older
+saved cycles rebuild their artifact from their answers. Filler phrases are
+banned by `app/engines/artifacts/artifacts.test.ts`.
+
+Scenario run in the browser for each (375px, no horizontal overflow on any):
+
+| Engine | Scenario | What came out |
+| --- | --- | --- |
+| Build | "weekly chore board where parents assign chores, kids check them off, everyone sees what's done"; device = I don't know | Roles + stories, 4 screens, Chore/Person data, sample data, out-of-scope list, 6 "done when" checks, build prompt. Assumption labeled: one shared device. Edit → save → reload → reopen kept the edit. |
+| Fix | "new chore disappears after refresh"; everything else I don't know | Classified as a persistence bug; 4 ranked causes with signs + fixes; two-minute DevTools check; reproduce steps; regression check; repair prompt. Unrecognised symptoms get an explicit "not a full answer yet". |
+| Plan | "school fundraiser in six weeks with a $3,000 goal", me + two parent volunteers | 5 dated phases with owners and "done when", format options with the math (60 families × pledge), dependencies, dated checkpoints, risks, this week's 3 actions, shareable checklist. Title "School fundraiser". |
+| Sell | printable chore charts, parents of 4–8 year olds, price I don't know | Offer, labeled price to test, sales copy, one-week test, message to send. |
+| Launch | chore board web app with a link, worry "not tested on phones" | Pre-flight checklist (worry first), dated launch week, personal/social/email messages with the real link, result to count. |
+| Grow | weekly signups; "visit but don't sign up"; 400 visitors / 6 signups | Experiment, baseline 6 of 400 (1.5%), win at 8 of 400, flat/worse rules, next three tests. |
+| Idea | chore board sentence | Three distinct versions (paper test / smallest app / full), one recommended with the reason; picking one fills the whole decision (dated first action, how you'll know) and hands off. No scoring. Edits persist after reload. |
+| Design Shop | "a printable weekly chore chart for kids" | Scoring step removed. Picking a direction builds the package: files, colors, fonts, words on the design (day columns), accessibility, Etsy draft with a real title, description ("What you get" filled), tags from the idea. No bracket placeholders. |
+| Game (new idea) | "kids race to finish chores before the timer runs out", Party | The visitor's own idea is now asked for and used as the core action; challenge and replay hook filled as labeled suggestions; "play it today, no building" round. Visitors see the re-theme door marked owner-only. |
+| Writing | short story, kid forgets her chores, dog covers | Pronoun-correct placeholder name (labeled), beginning/middle/end read from the premise, suggested ending labeled, opening line. Follow-up questions are optional. Survives reload. |
+| Music | upbeat theme song, tool not sure | Tempo now follows the words (120 BPM for upbeat); "not sure" names a real browser tool instead of "your music app". |
+| How to Anything | Google Sheets chore chart; teach a kid to ride a bike | Spreadsheets get five real steps. Anything without known steps shows a note that it is general guidance, not exact steps. |
+
+### Not verified / remaining gaps
+
+- **Story Partner** — owner-only; `/author` redirects to sign-in and no owner
+  session was available, so it was not opened and was not changed.
+- **Clipboard** — Copy buttons report "Copy failed" under scripted clicks
+  (no user gesture); not re-tested by hand.
+- **How to Anything** — only spreadsheets and the existing named domains have
+  real steps; everything else is honest general guidance. The "Document it"
+  production-package path was not re-run this pass.
+- **Game** — the re-theme/publish path is still owner-only (see below).
+- **Writing / Game** — shapes to build from, not finished pieces; they say so.

@@ -153,7 +153,7 @@ export default function GameStudio({ onBack, card, initialAnswers, isOwner }: Ga
             </button>
             <button onClick={() => setPath("existing")} style={{ ...card, width: "100%", textAlign: "left", cursor: "pointer", borderLeft: "4px solid var(--gold)" }}>
               <span style={{ fontSize: 15, fontWeight: 900, color: "var(--text)" }}>🧩 I already have a game to change or ship</span>
-              <p className="tiny" style={{ margin: "6px 0 0" }}>Re-theme a proven template, play it here, and publish it for real.</p>
+              <p className="tiny" style={{ margin: "6px 0 0" }}>{isOwner ? "Re-theme a proven template, play it here, and publish it for real." : "Re-theme a proven template. Previewing and publishing only work on the owner's machine for now."}</p>
             </button>
           </>
         )}

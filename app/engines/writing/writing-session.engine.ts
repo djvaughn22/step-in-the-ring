@@ -63,9 +63,10 @@ interface Character {
 function extractCharacter(subject: string): Character {
   const animalMatch = subject.match(/\b(dog|cat|robot|dragon|mouse|bear|rabbit|unicorn|alien|monster|boy|girl|kid)\b/i);
   const animal = animalMatch ? animalMatch[1].toLowerCase() : null;
+  // The creator's own pronoun wins — "a kid who forgets her chores" is a she.
   const pronoun = /\bshe\b|\bher\b|\bgirl\b/i.test(subject) ? "she" : "he";
   if (!animal) return { who: "your main character", pronoun };
-  const names = ANIMAL_NAMES[animal];
+  const names = animal === "kid" ? (pronoun === "she" ? ANIMAL_NAMES.girl : ANIMAL_NAMES.boy) : ANIMAL_NAMES[animal];
   const name = names[hash(subject) % names.length];
   return { who: `${name} the ${animal}`, pronoun };
 }
@@ -136,8 +137,8 @@ export function changeIdea(s: WritingSessionV1, now?: string): WritingSessionV1 
 /** The next question worth asking, or null once kept or asked everything. */
 export function nextPrompt(s: WritingSessionV1): { title: string; placeholder: string } | null {
   if (s.finished) return null;
-  if (s.round === 0) return { title: "What's the problem or challenge in the story?", placeholder: "What goes wrong, or what does the character need to figure out?" };
-  if (s.round === 1) return { title: "How does it end?", placeholder: "How the problem gets solved, or how the story wraps up." };
+  if (s.round === 0) return { title: "Want a different problem? (optional)", placeholder: "Leave blank to keep the one above. Or: what goes wrong, or what the character has to figure out." };
+  if (s.round === 1) return { title: "Want a different ending? (optional)", placeholder: "Leave blank to keep the suggested one. Or: how it gets solved, or how it wraps up." };
   return null;
 }
 
@@ -147,18 +148,44 @@ export function buildShape(s: WritingSessionV1): string {
   const subject = extractSubject(s.idea);
   const { who, pronoun } = extractCharacter(subject);
   const role = extractSecretRole(subject);
+  if (!role) return buildArc(s, subject, who, pronoun);
   const lines = [
     "STORY SHAPE",
-    role
-      ? `${who} takes the "job" very seriously.`
-      : `${who} is at the center of this one.`,
-    role
-      ? `Nobody else knows ${pronoun === "she" ? "she's" : "he's"} ${/^[aeiou]/i.test(role) ? "an" : "a"} ${role}.`
-      : `Premise, in your words: ${s.idea}.`,
-    role ? `Tonight, ${pronoun} decides something needs fixing — and it's ${pronoun === "she" ? "her" : "his"} job to fix it.` : `Tonight, something happens that changes things.`,
+    `${who} takes the "job" very seriously.`,
+    `Nobody else knows ${pronoun === "she" ? "she's" : "he's"} ${/^[aeiou]/i.test(role) ? "an" : "a"} ${role}.`,
+    `Tonight, ${pronoun} decides something needs fixing — and it's ${pronoun === "she" ? "her" : "his"} job to fix it.`,
   ];
   if (s.problem) lines.push("", `The problem: ${s.problem}`);
   if (s.ending) lines.push(`How it ends: ${s.ending}`);
+  if (s.showOpening) lines.push("", buildOpening(s));
+  return lines.join("\n");
+}
+
+/** Beginning, middle and end read straight from the premise: "a kid who
+ *  forgets to do her chores and the dog covers for her" → she forgets (the
+ *  setup), the dog covers (the turn), and a suggested ending to change. */
+function buildArc(s: WritingSessionV1, subject: string, who: string, pronoun: string): string {
+  const name = who === "your main character" ? "Your main character" : who.split(" the ")[0];
+  const action = subject.match(/\bwho\s+(.+)/i)?.[1] ?? "";
+  const [setup, turn] = action.split(/\s+(?:and|but|so|until)\s+(?=the\s|a\s|an\s|her\s|his\s|their\s|everyone|nobody|[A-Z])/);
+  const obj = pronoun === "she" ? "her" : "him";
+  const self = pronoun === "she" ? "herself" : "himself";
+  const helper = turn?.match(/^(the|a|an|her|his|their)\s+(\w+)/i)?.[2];
+  const lines = [
+    "STORY SHAPE",
+    `Main character: ${who}${who === "your main character" ? "" : " (a placeholder name — change it)"}.`,
+    `Premise, in your words: ${s.idea.replace(/[.?!]+$/, "")}.`,
+    "",
+    `Beginning: ${setup ? `${name} ${setup}` : `${name}, on an ordinary day`} — show it once, small, so the reader knows the habit.`,
+    s.problem
+      ? `Middle: ${s.problem}`
+      : turn
+        ? `Middle: ${turn.charAt(0).toUpperCase()}${turn.slice(1)} — and it works, for a while. Then it almost goes wrong in front of everyone.`
+        : `Middle: it catches up with ${obj} — one try to fix it quietly, and it makes things worse.`,
+    s.ending
+      ? `End: ${s.ending}`
+      : `End (a suggestion — change it): ${name} owns up and fixes it ${self}${helper ? `, and the ${helper} gets the thanks` : ""}. The last line shows the next week going differently.`,
+  ];
   if (s.showOpening) lines.push("", buildOpening(s));
   return lines.join("\n");
 }
@@ -196,7 +223,13 @@ function buildOpening(s: WritingSessionV1): string {
   const possessive = pronoun === "she" ? "she'd" : "he'd";
   return role
     ? `OPENING LINE\nEveryone on the street knew ${who} — they just had no idea ${possessive} been ${role} all along.`
-    : `OPENING LINE\nThis is the story of ${who}, and the night everything changed: ${s.idea}.`;
+    : (() => {
+      const name = who === "your main character" ? "It" : who.split(" the ")[0];
+      const setup = subject.match(/\bwho\s+(.+?)(?:\s+(?:and|but|so|until)\s|$)/i)?.[1];
+      return setup && name !== "It"
+        ? `OPENING LINE\nHere's the thing about ${name}: ${pronoun} ${setup}.`
+        : `OPENING LINE\nThis is the story of ${who}: ${s.idea.replace(/[.?!]+$/, "")}.`;
+    })();
 }
 
 /** A copy-ready writing brief — the same shape, framed for taking it further. */

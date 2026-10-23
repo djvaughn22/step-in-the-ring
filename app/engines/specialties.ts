@@ -241,10 +241,7 @@ const planSpecialties: Record<string, SpecialtyFn> = {
   },
   Milestones: (e, a) => {
     return [
-      `Phase 1: [name] — [milestone] by [date].`,
-      `Phase 2: [name] — [milestone] by [date].`,
-      `Phase 3: [name] — [milestone] by [date] (if needed).`,
-      `\nWhat marks completion of each phase? Be specific.`,
+      `The dated plan, with owners and checkpoints, is on the plan's main page.`,
     ].join("\n");
   },
   "Dependencies & owners": (e, a) => {
@@ -270,7 +267,7 @@ const planSpecialties: Record<string, SpecialtyFn> = {
     ].join("\n");
   },
   "Immediate next action": (e, a) => {
-    return `Right now (this week):\n1. [specific action]\n2. [specific action]\n3. [specific action]\n\nDone by [day]: [person]. No boiling the ocean.`;
+    return `See "This week" on the plan's main page — three dated actions with an owner each.`;
   },
 };
 
@@ -279,14 +276,14 @@ const etsySpecialties: Record<string, SpecialtyFn> = {
   "Product decision & recommendation": (e, a) => {
     const concern = val(a, "concern");
     return [
-      `Recommendation: [Build First / Refine / Park / Avoid]`,
+      `Recommendation: ${val(a, "buyer") && val(a, "concept") ? "Build First — the buyer and the concept are both clear" : "Refine — name the buyer and the core phrase first"}`,
       `Reasoning: based on buyer clarity, production fit, brand alignment.`,
       concern ? `Main concern: ${concern}\n\nMitigation: ...` : `No major concerns stated — verify during listing draft.`,
     ].join("\n");
   },
   "Etsy listing draft": (e, a) => {
     return [
-      `Title (140 chars): [catchy + keyword-rich]`,
+      `Title (140 chars): ${[val(a, "concept") || val(a, "idea"), val(a, "productType"), val(a, "buyer") ? `for ${val(a, "buyer")}` : ""].filter(Boolean).join(" | ").slice(0, 140)}`,
       `Short description (2–3 sentences): what it is, who it's for, why they'd buy.`,
       `Long description (5–7 bullets): features, use case, materials, dimensions if applicable.`,
       `Tags (13): high-volume + niche keywords your buyer would search.`,
@@ -299,13 +296,13 @@ const etsySpecialties: Record<string, SpecialtyFn> = {
       `Captions (2–3 versions): short story or benefit + CTA.`,
       `Reel/Story/post ideas: showcase the product, behind-the-scenes, customer testimonial.`,
       `Hashtags (15–20): mix high-volume + niche.`,
-      `Posting schedule: Tues/Thurs/Sat at [time your audience is active].`,
+      `Posting schedule: Tues/Thurs/Sat, early evening.`,
     ].join("\n");
   },
   "Fulfillment & production notes": (e, a) => {
     const format = val(a, "format").toLowerCase();
     if (format.includes("digital")) return `Digital fulfillment: send download link via Etsy email after purchase. No production cost.`;
-    if (format.includes("handmade")) return `Handmade: produce to order, ship within 3–5 business days. Production cost per unit: [price]. Time per unit: [hours].`;
+    if (format.includes("handmade")) return `Handmade: produce to order, ship within 3–5 business days. Time one unit and price it at about three times the materials cost.`;
     return `${or(a, "format", "production method")}: set up with POD vendor or plan production timeline.`;
   },
   "Legal & trademark flags": (e, a) => {
@@ -362,70 +359,14 @@ const designShopSpecialties: Record<string, SpecialtyFn> = {
   "Recommended Direction": (e, a) => {
     return `After scoring all 5 directions, select the one with the highest combined score in:\n- Fun + Usefulness + Giftability (what buyers want)\n- Low IP Risk (legal safety)\n- Creation Ease (can you actually build it?)\n\nDo not pick based on a single dimension.`;
   },
-  "Design Package Template": (e, a) => {
-    const productType = or(a, "productType", "TBD");
-    return [
-      `Title: ${or(a, "name", "Untitled")} — [direction label]`,
-      `Concept: [full description of what this product is]`,
-      `Customer: ${or(a, "customer", "TBD")}`,
-      `Product Type: ${productType}`,
-      `Format: [Printable, T-Shirt, Mug, Card, etc.]`,
-      `Dimensions: [specific size]`,
-      `Print Specs: [300 DPI, CMYK, bleed, etc.]`,
-      `Colors: [list colors]`,
-      `Fonts: [list fonts]`,
-      `Materials: [if physical: fabric, ceramic, etc.]`,
-      `Original Copy: [jokes, taglines, phrases unique to this]`,
-      `Accessibility: [readable fonts, contrast, alt text for images]`,
-      `Mockup Requirements: [front, lifestyle, detail shot]`,
-      `Bundle Suggestions: [other products this pairs with]`,
-    ].join("\n");
-  },
-  "Etsy Listing Draft": (e, a) => {
-    return [
-      `Title (140 chars max): [catchy + keyword-rich, include product type]`,
-      ``,
-      `Description (2–3 sentences):`,
-      `What it is. Who it's for. Why they'd buy it.`,
-      ``,
-      `Long Description (5–7 bullets):`,
-      `- What's included (files, physical items, etc.)`,
-      `- Use case or scenario`,
-      `- Dimensions / specifications`,
-      `- What formats are provided`,
-      `- Shipping / delivery info (digital or physical)`,
-      `- Customization options (if any)`,
-      `- Care instructions (if physical)`,
-      ``,
-      `Tags (max 13): keyword1, keyword2, ...`,
-      `[Use high-volume keywords + niche specificity]`,
-      ``,
-      `Price Hypothesis: $[amount based on production cost + 3x markup]`,
-      `Quantity Available: [1 for digital, 10+ for physical]`,
-      `Processing Days: [0 for digital, 3–5 for physical]`,
-    ].join("\n");
-  },
-  "Social Launch Kit": (e, a) => {
-    return [
-      `Instagram Caption (Hook 1):`,
-      `[One-liner that stops the scroll about this product]`,
-      ``,
-      `Caption (Version 2):`,
-      `[Longer version with benefit + CTA]`,
-      ``,
-      `Hashtags (15–20):`,
-      `[Mix high-volume + niche keywords]`,
-      ``,
-      `Reel / Video Concept:`,
-      `[15–30 second idea: unboxing, walkthrough, or demo]`,
-      ``,
-      `Stories / TikTok Hook:`,
-      `[Fastest version: problem → product → solution in 5 sec]`,
-      ``,
-      `Publishing Schedule:`,
-      `Tues/Thurs/Sat at [optimal time for your audience]`,
-    ].join("\n");
-  },
+  "Design Package Template": () => `The finished design package — files, sizes, colors, fonts and the words on the design — is built in the Design Shop studio when you pick a direction.`,
+  "Etsy Listing Draft": () => `The Etsy listing draft (title, description, tags, starting price) is built from the picked direction in the Design Shop studio.`,
+  "Social Launch Kit": (e, a) => [
+      `Hook: ${val(a, "spark") || val(a, "idea") || "the idea in one line"}`,
+      `Caption: ${val(a, "idea") || "This"} — made for ${val(a, "customer") || "you"}. Link in bio.`,
+      `Video: a 15-second clip showing it in use.`,
+      `Post Tues/Thurs/Sat, early evening.`,
+    ].join("\n"),
   "Fulfillment Path": (e, a) => {
     const productType = val(a, "productType").toLowerCase();
     if (productType.includes("digital") || productType.includes("printable")) {

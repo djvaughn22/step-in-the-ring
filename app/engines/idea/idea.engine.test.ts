@@ -1,40 +1,74 @@
-// Idea Engine logic: ranking, scoring completeness, angle generation limits,
-// and handoff prefill integrity against real engine intake keys.
+// Idea Engine logic: the engine does the work — three distinct versions, one
+// recommended, and a decision with nothing left blank — plus handoff prefill
+// integrity against real engine intake keys.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  generateAngles, handoffAnswers, isFullyScored, rankCandidates, totalScore,
-  HANDOFF_TARGETS, IDEA_FACTORS,
-  type IdeaCandidate, type IdeaDecision,
+  decisionFor, decisionToMarkdown, handoffAnswers, ideaVersions, recommendVersion, shapeOf,
+  HANDOFF_TARGETS,
+  type IdeaDecision,
 } from "./idea.engine";
 import { ENGINES } from "../engines";
 
-const scored = (id: string, value: number): IdeaCandidate => ({
-  id, text: id, origin: "yours",
-  scores: Object.fromEntries(IDEA_FACTORS.map((f) => [f.id, value])),
-});
+const CHORES = "A weekly chore board where parents assign chores, kids check them off, and everyone sees what is done.";
+const NOW = new Date("2026-10-22T12:00:00Z");
 
-describe("idea ranking", () => {
-  it("ranks fully scored ideas by total, unscored last", () => {
-    const partial: IdeaCandidate = { id: "partial", text: "partial", origin: "yours", scores: { excitement: 5 } };
-    const ranked = rankCandidates([partial, scored("low", 2), scored("high", 5)]);
-    expect(ranked.map((c) => c.id)).toEqual(["high", "low", "partial"]);
-  });
-
-  it("totals across all five factors", () => {
-    expect(totalScore(scored("x", 3))).toBe(15);
-    expect(isFullyScored(scored("x", 3))).toBe(true);
-    expect(isFullyScored({ id: "y", text: "y", origin: "yours" })).toBe(false);
-  });
-});
-
-describe("angle generation", () => {
-  it("generates a small labeled set, never a flood", () => {
-    const angles = generateAngles("dog treat recipe cards", "dog owners");
-    expect(angles.length).toBeLessThanOrEqual(4);
-    angles.forEach((a) => {
-      expect(a.origin).toBe("angle");
-      expect(a.text).toContain("dog treat recipe cards");
+describe("versions are the engine's work, not rewrites", () => {
+  it("gives three genuinely different versions, not the seed with a suffix", () => {
+    const vs = ideaVersions(CHORES, "my family");
+    expect(vs.map((v) => v.id)).toEqual(["test", "small", "full"]);
+    expect(new Set(vs.map((v) => v.what)).size).toBe(3);
+    expect(new Set(vs.map((v) => v.effort)).size).toBe(3);
+    vs.forEach((v) => {
+      expect(v.what.endsWith("— but the smallest version: one feature, one page, or one product, finished this week.")).toBe(false);
+      expect(v.firstVersion.length).toBeGreaterThan(10);
+      expect(v.test.length).toBeGreaterThan(10);
     });
+  });
+
+  it("reads the shape of the idea", () => {
+    expect(shapeOf(CHORES)).toBe("software");
+    expect(shapeOf("Hand-poured candles that smell like a campfire")).toBe("product");
+    expect(shapeOf("A monthly board-game night at the library")).toBe("event");
+    expect(shapeOf("Dog walking for busy neighbors")).toBe("service");
+  });
+
+  it("recommends the cheapest test when time or money is tight, and says why", () => {
+    const r = recommendVersion(CHORES, "only weekends, no budget");
+    expect(r.id).toBe("test");
+    expect(r.why).toMatch(/weekends/);
+    expect(recommendVersion(CHORES, "").id).toBe("small");
+  });
+});
+
+describe("the decision is finished", () => {
+  it("fills every field the old screen made the visitor write", () => {
+    const vs = ideaVersions(CHORES, "my family");
+    const rec = recommendVersion(CHORES, "");
+    for (const v of vs) {
+      const d = decisionFor(v, CHORES, "my family", "", rec, NOW);
+      expect(d.description).not.toBe("");
+      expect(d.simplestFirstVersion).not.toBe("");
+      expect(d.requiredTools).not.toBe("");
+      expect(d.firstAction).toMatch(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), /);
+      expect(d.successTest).toMatch(/Check on /);
+      expect(d.nextEngineId).not.toBe("");
+      expect(decisionToMarkdown(d, "Chores", v.label)).toContain("First action");
+    }
+  });
+
+  it("hands a software idea to Build with the original sentence intact", () => {
+    const small = ideaVersions(CHORES, "")[1];
+    const d = decisionFor(small, CHORES, "", "", recommendVersion(CHORES, ""), NOW);
+    expect(d.nextEngineId).toBe("build");
+    expect(handoffAnswers(d, "Chores").purpose).toContain("parents assign chores");
+  });
+
+  it("the studio no longer asks for 25 ratings or blank decision fields", () => {
+    const src = readFileSync(join(__dirname, "IdeaStudio.tsx"), "utf8");
+    expect(src).not.toMatch(/IDEA_FACTORS|setScore|\/25/);
+    expect(src).not.toMatch(/Fill in the decision/);
   });
 });
 

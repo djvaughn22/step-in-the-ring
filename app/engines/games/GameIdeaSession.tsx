@@ -47,11 +47,18 @@ export default function GameIdeaSession({ idea, card }: { idea: string; card: Re
   if (!session.genre) {
     return (
       <div style={card}>
+        {session.idea ? (
+          <p style={{ fontSize: 14, color: "var(--text)", margin: "0 0 14px", lineHeight: 1.5 }}>Your idea: {session.idea}</p>
+        ) : (
+          <>
+            <label htmlFor="game-idea-text" style={{ display: "block", fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>What&apos;s the game? (one line, optional)</label>
+            <textarea id="game-idea-text" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="e.g. a game where kids race to finish chores before the timer runs out" style={{ ...input, minHeight: 70, resize: "vertical", marginBottom: 14 }} />
+          </>
+        )}
         <span style={kicker}>What sounds fun?</span>
-        {session.idea && <p style={{ fontSize: 14, color: "var(--text)", margin: "8px 0 14px", lineHeight: 1.5 }}>Your idea: {session.idea}</p>}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
           {GENRES.map((g) => (
-            <button key={g} onClick={() => set(pickGenre(session, g))} className="btn btn-gold btn-small">{GENRE_LABELS[g]}</button>
+            <button key={g} onClick={() => set(pickGenre(session, g, undefined, session.idea ? undefined : draft))} className="btn btn-gold btn-small">{GENRE_LABELS[g]}</button>
           ))}
         </div>
       </div>

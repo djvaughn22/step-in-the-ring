@@ -8,7 +8,7 @@
  * going. Deterministic — no model call, nothing here claims to be AI.
  */
 
-export type TaskDomain = "music" | "website" | "game" | "design" | "physical" | "generic";
+export type TaskDomain = "music" | "website" | "game" | "design" | "physical" | "spreadsheet" | "generic";
 
 function detectTool(goal: string): string | null {
   const g = goal.toLowerCase();
@@ -22,6 +22,7 @@ function detectTool(goal: string): string | null {
 
 export function detectDomain(goal: string): TaskDomain {
   const g = goal.toLowerCase();
+  if (/google sheets?|spreadsheet|excel|\bsheet\b/.test(g)) return "spreadsheet";
   if (/\bbeat\b|\bsong\b|\bmusic\b|\bmelody\b|bandlab|garageband|ableton|\btune\b/.test(g)) return "music";
   if (/\bwebsite\b|\bweb\s?page\b|\bapp\b\s|\bsite\b/.test(g)) return "website";
   if (/\bgame\b/.test(g)) return "game";
@@ -53,6 +54,18 @@ function openingStep(goal: string, domain: TaskDomain): StepContent {
       return { title: "Find the exact source for your exact situation", detail: "Search for your specific version, model, or situation rather than the general topic — generic advice misses the one detail that matters for you." };
   }
 }
+
+/** Real steps for domains where the steps are known — a spreadsheet tracker
+ *  is the same few moves in Google Sheets or Excel. */
+const KNOWN_STEPS: Partial<Record<TaskDomain, StepContent[]>> = {
+  spreadsheet: [
+    { title: "Make the sheet and name the columns", detail: "Open sheets.new (Google Sheets) or a blank Excel workbook. In row 1, type the column names — for a chore chart: Chore, Who, Mon, Tue, Wed, Thu, Fri, Sat, Sun. Make row 1 bold and freeze it (View → Freeze → 1 row)." },
+    { title: "Fill in the rows", detail: "One row per item (one chore per row), with who it belongs to in the second column. Ten rows or fewer is plenty for a first version." },
+    { title: "Add checkboxes", detail: "Select the day columns for your rows, then Insert → Checkbox (Google Sheets) or Developer → Insert → Check Box (Excel). Now anyone can tick a box." },
+    { title: "Make done things stand out", detail: "Select the day cells, then Format → Conditional formatting → \"Custom formula is\" =C2=TRUE with a green fill (adjust C2 to your first day cell). Ticked boxes now turn green." },
+    { title: "Share it or print it", detail: "Share → add the people who need it (\"Editor\" if they tick boxes). Or File → Print, landscape, \"Fit to width\", and stick it on the fridge." },
+  ],
+};
 
 /** The generic act-and-check loop every domain eventually falls into. */
 function loopStep(round: number, domain: TaskDomain): StepContent {
@@ -91,7 +104,9 @@ export function startTask(goal: string, now?: string): TaskSessionV1 {
 }
 
 export function currentStep(s: TaskSessionV1): StepContent & { copyText: string } {
-  const content = s.stepIndex === 0 ? openingStep(s.goal, s.domain) : loopStep(s.stepIndex, s.domain);
+  const known = KNOWN_STEPS[s.domain];
+  const content = known && s.stepIndex < known.length ? known[s.stepIndex]
+    : s.stepIndex === 0 ? openingStep(s.goal, s.domain) : loopStep(s.stepIndex, s.domain);
   const lastNote = s.log[s.log.length - 1]?.note?.trim();
   const notePart = lastNote ? ` Last update: ${lastNote}${/[.!?]$/.test(lastNote) ? "" : "."}` : "";
   const copyText = `Help me with this: ${s.goal}. ${content.detail}${notePart} Give me only the next small step, and keep it beginner-friendly.`;
@@ -113,6 +128,7 @@ const STUCK_TIPS: Record<TaskDomain, string> = {
   website: "Try the Build Engine for a fuller guided path if this grows past one page.",
   game: "Try the Game Engine for help shaping the whole game, not just this step.",
   design: "Try the Design Shop for a fuller design path with real directions to choose from.",
+  spreadsheet: "Tell your spreadsheet app's help (or a helper) the exact menu you can't find — menus differ a little between Google Sheets and Excel.",
   physical: "Search the exact error message, part number, or model — not the general task — and check the manufacturer's own site or manual first.",
   generic: "Break the step down further: what's the smallest piece of it you could try right now?",
 };
@@ -151,4 +167,12 @@ export function parseTaskSession(v: unknown): TaskSessionV1 | null {
     updatedAt: str(o.updatedAt, new Date().toISOString()),
     finishedAt: typeof o.finishedAt === "string" ? o.finishedAt : null,
   };
+}
+
+/** True when the engine is giving general guidance, not steps it actually
+ *  knows for this task — the UI says so instead of dressing it up. */
+export function isGeneralGuidance(s: TaskSessionV1): boolean {
+  const known = KNOWN_STEPS[s.domain];
+  if (known) return s.stepIndex >= known.length;
+  return s.domain === "generic" || s.stepIndex > 0;
 }

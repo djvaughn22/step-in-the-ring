@@ -82,8 +82,19 @@ export interface Move {
 
 export const TOTAL_MOVES = 7;
 
+// "Not sure yet" gets a real pick instead of "your music app": BandLab runs
+// in a browser on any phone or computer, with nothing to install.
 function toolPrefix(tool: Tool): string {
-  return tool === "unsure" ? "In your music app, " : `In ${TOOL_LABELS[tool]}, `;
+  return tool === "unsure" ? "Open BandLab in your browser (bandlab.com — nothing to install; any music app works too). " : `In ${TOOL_LABELS[tool]}, `;
+}
+
+/** A starting tempo that matches the words they used. */
+function tempoFor(goal: string, profile: Profile): { bpm: number; why: string } {
+  const g = goal.toLowerCase();
+  if (/upbeat|happy|dance|fast|energ|party|hype|bouncy|cheer/.test(g)) return { bpm: 120, why: "upbeat and easy to move to" };
+  if (/chill|slow|calm|lullaby|sleep|sad|soft|relax/.test(g)) return { bpm: 75, why: "slow and relaxed" };
+  if (profile === "reggae") return { bpm: 75, why: "a classic one-drop feel" };
+  return { bpm: 90, why: "a comfortable starting speed" };
 }
 
 function toolFor(tool: Tool): string {
@@ -227,11 +238,11 @@ export function buildMove(index: number, ctx: { goal: string; tool: Tool; profil
         : {
             index, stage: "idea",
             title: "Set up a simple project",
-            detail: `${toolPrefix(ctx.tool)}create a new project and set the tempo to 90 BPM — a comfortable starting speed you can change any time.`,
+            detail: `${toolPrefix(ctx.tool)}${ctx.tool === "unsure" ? "Create" : "create"} a new project and set the tempo to ${tempoFor(ctx.goal, ctx.profile).bpm} BPM — ${tempoFor(ctx.goal, ctx.profile).why}. You can change it any time.`,
             copyText: assistantPrompt(ctx, "start a new project and set a comfortable tempo"),
           };
     case 1:
-      return { index, stage: "groove", title: content.groove.title, detail: `${toolPrefix(ctx.tool)}${content.groove.detail[0].toLowerCase()}${content.groove.detail.slice(1)}`, copyText: assistantPrompt(ctx, content.groove.task) };
+      return { index, stage: "groove", title: content.groove.title, detail: `${ctx.tool === "unsure" ? "In BandLab (or any music app), " : toolPrefix(ctx.tool)}${content.groove.detail[0].toLowerCase()}${content.groove.detail.slice(1)}`, copyText: assistantPrompt(ctx, content.groove.task) };
     case 2:
       return { index, stage: "bass", title: content.bass.title, detail: content.bass.detail, copyText: assistantPrompt(ctx, content.bass.task) };
     case 3:
@@ -254,7 +265,7 @@ export function buildMove(index: number, ctx: { goal: string; tool: Tool; profil
       return {
         index, stage: "finish",
         title: "Export the audio",
-        detail: `${toolPrefix(ctx.tool)}export or bounce the track as an MP3 or WAV, and save it where you can find it.`,
+        detail: `${ctx.tool === "unsure" ? "In BandLab (or whichever app you used), " : toolPrefix(ctx.tool)}export or bounce the track as an MP3 or WAV, and save it where you can find it.`,
         copyText: assistantPrompt(ctx, "export or bounce this to a real MP3 or WAV file"),
       };
   }

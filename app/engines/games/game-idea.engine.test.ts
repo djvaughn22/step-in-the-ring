@@ -20,9 +20,9 @@ describe("game idea shaping", () => {
 
   it("asks one question at a time, not everything up front", () => {
     const s = pickGenre(startGameIdea("a game"), "arcade");
-    expect(nextPrompt(s)?.title).toMatch(/obstacle/i);
+    expect(nextPrompt(s)?.title).toMatch(/challenge/i);
     const withObstacle = addObstacle(s, "it gets faster");
-    expect(nextPrompt(withObstacle)?.title).toMatch(/fun/i);
+    expect(nextPrompt(withObstacle)?.title).toMatch(/play again/i);
     const withFun = addFunHook(withObstacle, "beating your own score");
     expect(nextPrompt(withFun)).toBeNull();
     expect(buildShape(withFun)).toContain("it gets faster");
@@ -51,5 +51,15 @@ describe("game idea shaping", () => {
   it("never claims a finished game — always frames it as a shape to build from", () => {
     const s = pickGenre(startGameIdea("a game"), "other");
     expect(buildShape(s).toLowerCase()).toContain("not a finished game");
+  });
+});
+
+describe("the shape uses the creator's idea and is never missing a piece", () => {
+  it("puts the idea's own action in the shape and labels suggestions", () => {
+    const s = pickGenre(startGameIdea(""), "party", undefined, "A game where kids race to finish chores before the timer runs out");
+    const shape = buildShape(s);
+    expect(shape).toContain("Core action: kids race to finish chores before the timer runs out");
+    expect(shape).toMatch(/Challenge: .*\(suggested — change it\)/);
+    expect(shape).toMatch(/PLAY IT TODAY/);
   });
 });

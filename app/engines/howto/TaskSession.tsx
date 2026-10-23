@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { advance, currentStep, finish, startTask, stuckHelp, type TaskSessionV1 } from "./task-session.engine";
+import { advance, currentStep, finish, isGeneralGuidance, startTask, stuckHelp, type TaskSessionV1 } from "./task-session.engine";
 import { clearTaskSession, loadTaskSession, saveTaskSession } from "./task-session.store";
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
@@ -90,6 +90,11 @@ export default function TaskSession({
         <p style={{ fontSize: 11.5, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Next step</p>
         <h2 style={{ fontSize: 17, fontWeight: 900, color: "var(--text)", margin: "0 0 6px" }}>{step.title}</h2>
         <p style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.55, margin: "0 0 14px" }}>{step.detail}</p>
+        {isGeneralGuidance(session) && (
+          <p role="note" style={{ fontSize: 12.5, color: "var(--muted)", lineHeight: 1.5, margin: "0 0 14px", padding: "8px 10px", border: "1px solid var(--line2)", borderRadius: 10 }}>
+            This engine doesn&apos;t know the exact steps for this task — this is general guidance to keep you moving. For exact steps, use Copy and paste it into a helper you trust, or the maker&apos;s own instructions.
+          </p>
+        )}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <button onClick={() => copy(step.copyText)} className="btn btn-gold btn-small">Copy</button>
           <button onClick={() => setStuckOpen((v) => !v)} className="btn btn-ghost btn-small">I&apos;m stuck</button>

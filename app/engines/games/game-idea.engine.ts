@@ -113,8 +113,27 @@ export function startGameIdea(idea: string, now?: string): GameIdeaSessionV1 {
   return { version: 1, id: gameIdeaUid(), idea: idea.trim(), genre: null, obstacle: "", funHook: "", round: 0, finished: false, createdAt: at, updatedAt: at };
 }
 
-export function pickGenre(s: GameIdeaSessionV1, genre: Genre, now?: string): GameIdeaSessionV1 {
-  return { ...s, genre, round: 1, updatedAt: now ?? new Date().toISOString() };
+export function pickGenre(s: GameIdeaSessionV1, genre: Genre, now?: string, idea?: string): GameIdeaSessionV1 {
+  return { ...s, idea: idea !== undefined ? idea.trim() : s.idea, genre, round: 1, updatedAt: now ?? new Date().toISOString() };
+}
+
+/** Suggested challenge and replay hook per genre — shown labeled until the
+ *  creator writes their own, so the shape is never missing a piece. */
+const SUGGESTED: Record<Genre, { obstacle: string; fun: string }> = {
+  arcade: { obstacle: "it speeds up a little every 10 seconds", fun: "beating your own best score by one" },
+  puzzle: { obstacle: "each new puzzle adds one more piece or one new rule", fun: "the moment the last piece clicks" },
+  sports: { obstacle: "the other side (or the clock) gets one chance to block each turn", fun: "a last-second comeback" },
+  party: { obstacle: "every round the timer gets 10 seconds shorter", fun: "racing someone else in the room, out loud" },
+  cards: { obstacle: "any player can block your play once per game", fun: "the bluff that works" },
+  other: { obstacle: "one new twist every round", fun: "almost winning, so you want one more go" },
+};
+
+/** "A game where kids race to finish chores before the timer runs out" → the
+ *  core action, in the creator's own words. */
+function coreFromIdea(idea: string): string {
+  const t = idea.trim().replace(/[.!?]+$/, "");
+  const m = t.match(/\b(?:where|in which|that has|that lets|about)\s+(.+)/i);
+  return m ? m[1] : "";
 }
 
 export function addObstacle(s: GameIdeaSessionV1, obstacle: string, now?: string): GameIdeaSessionV1 {
@@ -138,8 +157,8 @@ export function changeGenre(s: GameIdeaSessionV1, now?: string): GameIdeaSession
 export function nextPrompt(s: GameIdeaSessionV1): { title: string; placeholder: string } | null {
   if (!s.genre || s.finished) return null;
   const t = TEMPLATES[s.genre];
-  if (s.round === 1) return { title: "What's the biggest challenge or obstacle?", placeholder: t.obstaclePrompt };
-  if (s.round === 2) return { title: "What makes it fun enough to play again?", placeholder: t.funPrompt };
+  if (s.round === 1) return { title: "Want a different challenge? (optional)", placeholder: `Leave blank to keep the suggestion. ${t.obstaclePrompt}` };
+  if (s.round === 2) return { title: "Want a different reason to play again? (optional)", placeholder: `Leave blank to keep the suggestion. ${t.funPrompt}` };
   return null;
 }
 
@@ -149,18 +168,23 @@ export function nextPrompt(s: GameIdeaSessionV1): { title: string; placeholder: 
 export function buildShape(s: GameIdeaSessionV1): string {
   if (!s.genre) return "";
   const t = TEMPLATES[s.genre];
+  const core = coreFromIdea(s.idea);
+  const sug = SUGGESTED[s.genre];
   const lines = [
     `FIRST GAME SHAPE — ${GENRE_LABELS[s.genre]}`,
     s.idea ? `Idea: ${s.idea}` : "",
     "",
     `Players: ${t.players}`,
     `Round: ${t.round}`,
-    `Core action: ${t.action}`,
+    `Core action: ${core || t.action}`,
     `Score: ${t.score}`,
     `Restart: ${t.restart}`,
+    `Challenge: ${s.obstacle || `${sug.obstacle} (suggested — change it)`}`,
+    `Why another round: ${s.funHook || `${sug.fun} (suggested — change it)`}`,
+    "",
+    "PLAY IT TODAY, NO BUILDING",
+    `Set a timer for ${/60|90/.test(t.round) ? t.round.match(/\d+/)![0] : "60"} seconds. ${core ? `${core.charAt(0).toUpperCase()}${core.slice(1)}.` : `Do the core action: ${t.action}.`} Score it on paper. Play three rounds and change one rule each time.`,
   ];
-  if (s.obstacle) lines.push(`Challenge: ${s.obstacle}`);
-  if (s.funHook) lines.push(`Why another round: ${s.funHook}`);
   lines.push("", "This is a shape to build from, not a finished game — the smallest playable version is worth making before adding anything else.");
   return lines.filter((l) => l !== "" || lines.indexOf(l) !== 0).join("\n").replace(/\n{3,}/g, "\n\n");
 }
