@@ -1,9 +1,11 @@
 /**
- * Song project model tests — proven against the owner's real first song.
+ * Song project model tests.
  *
- * The raw source below is the owner's exact text, used verbatim as the test
- * fixture on purpose: preserving it byte-for-byte (misspellings, punctuation,
- * "1!!", "!~!!" and all) IS the product requirement. Do not "fix" it.
+ * The raw source below is FICTIONAL (2026-10-29: it replaced the owner's
+ * personal song, per the permanent privacy rule in CLAUDE.md). It keeps the
+ * traits that matter: a lowercase run-on, "...", "1!!", "!~!!", "im" without an
+ * apostrophe. Preserving it byte-for-byte IS the product requirement — do not
+ * "fix" its punctuation or spelling.
  */
 import { describe, expect, it } from "vitest";
 import {
@@ -16,23 +18,23 @@ import {
   type SongProjectV1,
 } from "./song.engine";
 
-const OWNER_SOURCE = `porch light song,...in the winter the power went out on our street, and it took what seemed like forever but after a week the lights came back and after waiting and walking home in the dark, leave the light on! Leave the light on! and i kept it on and stayed close to home and forevermore no matter how late i get back i can see it!1!! we can see it!~!! i may run late, i may get lost, i may miss the last bus but im coming home!
+const SAMPLE_SOURCE = `porch light song,...in the winter the power went out on our street, and it took what seemed like forever but after a week the lights came back and after waiting and walking home in the dark, leave the light on! Leave the light on! and i kept it on and stayed close to home and forevermore no matter how late i get back i can see it!1!! we can see it!~!! i may run late, i may get lost, i may miss the last bus but im coming home!
 these are the lyrics to the melody in my first song. i will come up with notes in my app`;
 
-/** The owner's actual arrival state: words + melody in head, MPK Mini + MPC Beats. */
-function ownerProject(): SongProjectV1 {
+/** A typical arrival state: words + melody in head, MPK Mini + MPC Beats. */
+function sampleProject(): SongProjectV1 {
   const p = createSongProject({
-    workingTitle: "porch light — porch light",
+    workingTitle: "Porch Light",
     startingState: ["lyrics", "melody-in-head"],
     equipment: ["Akai MPK Mini"],
     software: "mpc-beats",
   });
-  return preserveOriginalSource(p, OWNER_SOURCE);
+  return preserveOriginalSource(p, SAMPLE_SOURCE);
 }
 
-/** Walks the owner project all the way to Version One evidence. */
+/** Walks the sample project all the way to Version One evidence. */
 function completedProject(): SongProjectV1 {
-  let p = ownerProject();
+  let p = sampleProject();
   p = { ...p, melodyState: "in-voice-memo", voiceMemo: { status: "captured", reference: "porch-light-full-idea.m4a", strongestParts: "the leave the light on part" } };
   p = {
     ...p,
@@ -56,8 +58,8 @@ function completedProject(): SongProjectV1 {
 
 describe("original source preservation", () => {
   it("preserves the exact raw source, including punctuation and misspellings", () => {
-    const p = ownerProject();
-    expect(p.originalSource!.text).toBe(OWNER_SOURCE);
+    const p = sampleProject();
+    expect(p.originalSource!.text).toBe(SAMPLE_SOURCE);
     // The characteristic artifacts survive byte-for-byte.
     expect(p.originalSource!.text).toContain("see it!1!!");
     expect(p.originalSource!.text).toContain("we can see it!~!!");
@@ -66,17 +68,17 @@ describe("original source preservation", () => {
   });
 
   it("cannot be overwritten by preserving again", () => {
-    const p = ownerProject();
+    const p = sampleProject();
     const attacked = preserveOriginalSource(p, "cleaned up lyrics");
-    expect(attacked.originalSource!.text).toBe(OWNER_SOURCE);
+    expect(attacked.originalSource!.text).toBe(SAMPLE_SOURCE);
   });
 
   it("editing the working copy never touches the original source", () => {
-    let p = makeWorkingCopy(ownerProject());
-    expect(p.workingCopy).toBe(OWNER_SOURCE);
+    let p = makeWorkingCopy(sampleProject());
+    expect(p.workingCopy).toBe(SAMPLE_SOURCE);
     p = updateWorkingCopy(p, "Verse 1: Porch light, coming home...");
     expect(p.workingCopy).toBe("Verse 1: Porch light, coming home...");
-    expect(p.originalSource!.text).toBe(OWNER_SOURCE);
+    expect(p.originalSource!.text).toBe(SAMPLE_SOURCE);
   });
 
   it("preserving empty text does nothing", () => {
@@ -91,7 +93,7 @@ describe("original source preservation", () => {
 
 describe("adaptive starting point", () => {
   it("supports starting with both lyrics and a melody", () => {
-    const p = ownerProject();
+    const p = sampleProject();
     expect(p.startingState).toEqual(["lyrics", "melody-in-head"]);
     expect(p.melodyState).toBe("unknown");
   });
@@ -103,7 +105,7 @@ describe("adaptive starting point", () => {
   });
 
   it("after preservation with a melody in the head, the next action is the voice memo — not beginner setup", () => {
-    const p = { ...ownerProject(), melodyState: "in-head" as const };
+    const p = { ...sampleProject(), melodyState: "in-head" as const };
     const next = nextAction(p);
     expect(next.stage).toBe("melody");
     expect(next.title).toBe("Record the melody before changing it");
@@ -116,12 +118,12 @@ describe("adaptive starting point", () => {
 
 describe("creator boundaries", () => {
   it("lyric writing is disabled by default and hides lyric-writing guidance", () => {
-    const p = ownerProject();
+    const p = sampleProject();
     expect(p.boundaries.allowLyricWriting).toBe(false);
     expect(visibleGuidance(p).lyricWriting).toBe(false);
   });
 
-  it("preserving theological meaning is on by default and authorship is not negotiable", () => {
+  it("preserving the creator's meaning is on by default and authorship is not negotiable", () => {
     const b = defaultBoundaries();
     expect(b.preserveMeaning).toBe(true);
     expect(b.authorshipStaysWithCreator).toBe(true);
@@ -131,7 +133,7 @@ describe("creator boundaries", () => {
   });
 
   it("ask-before-wording-suggestions hides wording suggestions until allowed", () => {
-    const p = ownerProject();
+    const p = sampleProject();
     expect(visibleGuidance(p).wordingSuggestions).toBe(false);
     const open = { ...p, boundaries: { ...p.boundaries, askBeforeWordingSuggestions: false } };
     expect(visibleGuidance(open).wordingSuggestions).toBe(true);
@@ -166,7 +168,7 @@ describe("equipment and software paths", () => {
 
 describe("unknown states", () => {
   it("unknown key, tempo, and time signature are valid and never invented", () => {
-    const p = ownerProject();
+    const p = sampleProject();
     expect(p.key).toEqual({ state: "unknown", value: "" });
     expect(p.tempo).toEqual({ state: "unknown", value: "" });
     expect(p.timeSignature).toEqual({ state: "unknown", value: "" });
@@ -175,7 +177,7 @@ describe("unknown states", () => {
   });
 
   it("partial note entry is valid — one section is enough for the milestone", () => {
-    let p = ownerProject();
+    let p = sampleProject();
     p = {
       ...p,
       notesWork: {
@@ -189,7 +191,7 @@ describe("unknown states", () => {
   });
 
   it("a captured voice memo is an early milestone", () => {
-    let p = ownerProject();
+    let p = sampleProject();
     expect(milestones(p).find((m) => m.id === "melody-captured")!.done).toBe(false);
     p = { ...p, voiceMemo: { status: "captured", reference: "memo.m4a", strongestParts: "" } };
     expect(milestones(p).find((m) => m.id === "melody-captured")!.done).toBe(true);
@@ -204,8 +206,8 @@ describe("unknown states", () => {
 
 describe("hook candidates", () => {
   it("hooks always carry origin creator — never labeled AI-generated", () => {
-    let p = ownerProject();
-    p = addHookCandidate(p, "leave the light on! Leave the light on!");
+    let p = sampleProject();
+    p = addHookCandidate(p, "Leave the light on! Leave the light on!");
     p = addHookCandidate(p, "im coming home");
     expect(p.hookCandidates).toHaveLength(2);
     p.hookCandidates.forEach((h) => expect(h.origin).toBe("creator"));
@@ -224,7 +226,7 @@ describe("hook candidates", () => {
 
 describe("Version One completion standard", () => {
   it("a lyric sheet alone does not count as a completed song", () => {
-    const p = makeWorkingCopy(ownerProject());
+    const p = makeWorkingCopy(sampleProject());
     const check = canDeclareVersionOne(p);
     expect(check.ok).toBe(false);
     expect(check.missing.length).toBeGreaterThan(0);
@@ -232,8 +234,8 @@ describe("Version One completion standard", () => {
   });
 
   it("a plan/checklist/title does not count as a completed song", () => {
-    let p = ownerProject();
-    p = { ...p, softwareChecklist: { m1: true, m2: true, m3: true }, workingTitle: "porch light — porch light (final)" };
+    let p = sampleProject();
+    p = { ...p, softwareChecklist: { m1: true, m2: true, m3: true }, workingTitle: "Porch Light (final)" };
     expect(canDeclareVersionOne(p).ok).toBe(false);
   });
 
@@ -306,11 +308,11 @@ describe("persistence and migration", () => {
   });
 
   it("resume returns to the correct next action after capture", () => {
-    let p = ownerProject();
+    let p = sampleProject();
     p = { ...p, melodyState: "in-voice-memo", voiceMemo: { status: "captured", reference: "memo.m4a", strongestParts: "leave the light on" } };
     const resumed = parseSongProject(JSON.parse(JSON.stringify(p)))!;
     const r = resumeSummary(resumed);
-    expect(r.title).toBe("porch light — porch light");
+    expect(r.title).toBe("Porch Light");
     expect(r.next.stage).toBe("notes");
     expect(r.next.title.toLowerCase()).toContain("notes");
     expect(stageOf(resumed)).toBe("notes");
@@ -323,18 +325,18 @@ describe("persistence and migration", () => {
 
 describe("arrangement", () => {
   it("adding, reordering, duplicating, and editing sections never mutates the original source", () => {
-    let p = ownerProject();
+    let p = sampleProject();
     p = addSection(p, "chorus", "leave the light on! Leave the light on!");
     p = addSection(p, "verse", "in the winter the power went out");
     p = moveSection(p, p.sections[1].id, -1);
     p = duplicateSection(p, p.sections[0].id);
     p = updateSection(p, p.sections[0].id, { content: "edited copy", energy: "full" });
     expect(p.sections.length).toBe(3);
-    expect(p.originalSource!.text).toBe(OWNER_SOURCE);
+    expect(p.originalSource!.text).toBe(SAMPLE_SOURCE);
   });
 
   it("fragments can stay unassigned and sections reorder within bounds", () => {
-    let p = ownerProject();
+    let p = sampleProject();
     p = addSection(p, "fragment", "i may run late, i may get lost");
     expect(p.sections[0].kind).toBe("fragment");
     // Moving past the edge is a no-op, not a crash.

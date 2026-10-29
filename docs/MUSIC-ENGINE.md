@@ -132,12 +132,15 @@ of discarding records. Writes are non-destructive upserts. The Music Session
 uses its own separate key (`sitr-music-session-v1`, one active session,
 safe-parsed via `parseSession()`) and does not touch this store.
 
-## Owner-test scenario
+## Test scenario
 
-The tests use a fictional song ("Porch Light": raw lyrics + melody in head, Akai MPK Mini, MPC Beats). The exact raw
-source lives verbatim in `song.engine.test.ts` as the preservation fixture.
-No owner project data is seeded into the public UI — every visitor starts
-with an empty workspace.
+The tests use a fictional song ("Porch Light": raw lyrics + melody in head,
+Akai MPK Mini, MPC Beats). Its raw source lives in `song.engine.test.ts` as
+the preservation fixture and keeps the traits that matter (run-on lowercase,
+"1!!", "!~!!"). It replaced the owner's personal song on 2026-10-29 under the
+permanent privacy rule in CLAUDE.md — never put a real person's song back in.
+No project data is seeded into the public UI — every visitor starts with an
+empty workspace.
 
 ## Honest limitations
 
