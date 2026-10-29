@@ -635,6 +635,14 @@ export function nextAction(p: SongProjectV1): NextAction {
       detail: "Open a voice recorder and sing or hum the whole idea — straight through unfinished parts. Save it with a name you'll recognize, then record that name here.",
     };
   }
+  // Words but no tune yet: don't send them to "record the melody" they don't have.
+  if (hasLyrics && !melodyExists && !melodyCaptured && !hasProofOfType(p, PROJECT_PROOF_TYPES)) {
+    return {
+      stage: "melody",
+      title: "Find a tune for your words",
+      detail: "Sing or hum the words a few times until a tune sticks, then record it on your phone. When you have one, set \"Where the melody lives\" below. This page can't hear it.",
+    };
+  }
   if (melodyCaptured && p.notesWork.entries.length === 0) {
     return {
       stage: "notes",

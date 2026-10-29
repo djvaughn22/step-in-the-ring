@@ -371,3 +371,14 @@ describe("hooks", () => {
     expect(p.hookCandidates).toHaveLength(1);
   });
 });
+
+describe("words with no tune yet", () => {
+  it("asks for a tune instead of saying to record a melody that doesn't exist", async () => {
+    const { createSongProject, nextAction, preserveOriginalSource } = await import("./song.engine");
+    const p = preserveOriginalSource(createSongProject({ startingState: ["lyrics"] }), "first line\nsecond line");
+    const a = nextAction(p);
+    expect(a.stage).toBe("melody");
+    expect(a.title).toBe("Find a tune for your words");
+    expect(nextAction({ ...p, melodyState: "in-head" }).title).toBe("Record the melody before changing it");
+  });
+});
