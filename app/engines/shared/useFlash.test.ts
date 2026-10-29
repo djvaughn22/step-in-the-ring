@@ -7,14 +7,17 @@ import { useFlash } from "./useFlash";
 
 (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-const probe: { say: (m: string) => void; current: string } = { say: () => {}, current: "" };
-function Probe() {
+// The probe reports each render through a callback, so the test reads the
+// hook's values without the component writing to anything outside itself.
+let current = "";
+let sayLatest: (m: string) => void = () => {};
+function Probe({ onRender }: { onRender: (flash: string, say: (m: string) => void) => void }) {
   const [flash, say] = useFlash(2000);
-  probe.say = say;
-  probe.current = flash;
+  onRender(flash, say);
   return null;
 }
-const say = (m: string) => probe.say(m);
+const record = (flash: string, say: (m: string) => void) => { current = flash; sayLatest = say; };
+const say = (m: string) => sayLatest(m);
 
 describe("useFlash", () => {
   beforeEach(() => { vi.useFakeTimers(); });
@@ -22,15 +25,15 @@ describe("useFlash", () => {
 
   it("keeps a newer message for its full time even when an older one is still counting down", () => {
     const root = createRoot(document.createElement("div"));
-    act(() => root.render(createElement(Probe)));
+    act(() => root.render(createElement(Probe, { onRender: record })));
     act(() => say("first"));
     act(() => { vi.advanceTimersByTime(1500); });
     act(() => say("second"));
-    expect(probe.current).toBe("second");
+    expect(current).toBe("second");
     act(() => { vi.advanceTimersByTime(1000); }); // 2500ms after "first", 1000ms after "second"
-    expect(probe.current).toBe("second");
+    expect(current).toBe("second");
     act(() => { vi.advanceTimersByTime(1100); });
-    expect(probe.current).toBe("");
+    expect(current).toBe("");
     act(() => root.unmount());
   });
 });

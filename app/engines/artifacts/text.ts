@@ -170,7 +170,7 @@ const NOT_A_NOUN = /^(teach|sell|make|build|offer|run|host|start|write|create|he
 /** The thing someone described, as a noun phrase that reads in a sentence:
  *  "I want to make a card game" → "a card game"; "cat stickers" stays plural. */
 export function asThing(s: string): string {
-  let t = lowerFirst(stripEnd(s)).replace(THING_LEAD, "");
+  const t = lowerFirst(stripEnd(s)).replace(THING_LEAD, "");
   if (!t) return t;
   if (/^(a|an|the|my|our|some|\d|one|two|three|\w+ing\b)/i.test(t) || NOT_A_NOUN.test(t)) return t;
   const head = t.split(/\s+(?:for|of|that|which|where|with|to|in|on|about|so|where)\s+|,/i)[0].trim().split(" ").pop() ?? "";
