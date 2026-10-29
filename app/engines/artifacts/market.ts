@@ -65,7 +65,7 @@ export function sellArtifact(a: Answers): EngineArtifact {
     `${money(price.test)}${format === "software" ? "/month" : format === "service" ? " per session" : ""}.`,
     format === "service" ? "→ Book your first session" : "→ Get it now",
   ].join("\n");
-  const message = `Hi! I'm starting to sell ${lowerFirst(stripEnd(product || name))}${customer && !/\bfor\b/i.test(product) ? ` for ${lowerFirst(stripEnd(customer))}` : ""}. It would be ${money(price.test)}. Would you buy one at that price — yes, no, or "only if…"? Honest answers help more than nice ones.`;
+  const message = `Hi! I'm starting to sell ${lowerFirst(stripEnd(product || name))}${customer && !/\bfor\b/i.test(product) ? ` for ${lowerFirst(stripEnd(customer))}` : ""}.${product.includes(money(price.test)) || product.includes(`$${price.test}`) ? "" : ` It would be ${money(price.test)}.`} Would you buy one at that price — yes, no, or "only if…"? Honest answers help more than nice ones.`;
 
   return {
     engineId: "sell",
@@ -169,7 +169,7 @@ function ratio(text: string): { a: number; b: number } | null {
 }
 
 export function growArtifact(a: Answers): EngineArtifact {
-  const measure = lowerFirst(stripEnd(known(a, "measure")));
+  const measure = lowerFirst(stripEnd(known(a, "measure").split(/\s*[;\n]\s*|\s+—\s+|\s+-\s+/)[0]));
   const who = known(a, "who");
   const bottleneck = known(a, "bottleneck");
   const evidence = known(a, "evidence");

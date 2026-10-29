@@ -171,7 +171,7 @@ export function planArtifact(a: Answers, now: Date = new Date()): EngineArtifact
     checkpoints.push(
       `${when(phases[0].end)}: ${phases[0].name.toLowerCase()} is done (${phases[0].doneWhen}). If not, the whole plan slips — fix this first.`,
       `${when(Math.round(total * 0.6))}: more than half the jobs are done.`,
-      `${fmtDate(end)}: ${stripEnd(outcome) || "the outcome"}.`,
+      `${fmtDate(end)}: finish line reached${outcome ? ` — ${shortName(outcome, 60)}` : ""}.`,
     );
   }
 

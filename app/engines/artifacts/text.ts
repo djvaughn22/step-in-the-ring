@@ -36,9 +36,14 @@ export function firstSentence(s: string): string {
 export function shortName(s: string, max = 48): string {
   let t = stripEnd(firstSentence(s)).replace(/^(i want to|i'd like to|we want to|we need to|help me|i need to|i'm|we're|we are|i am)\s+/i, "").replace(/^(a|an|the|my|our)\s+/i, "");
   // "School fundraiser in six weeks with a big goal" → "School fundraiser".
-  const cut = t.split(/\s+(?:in|with|by|before|within|over|that|which|where|so)\s+/i)[0];
+  const cut = t.split(/\s+(?:in|with|by|before|within|over|that|which|where|so|for|on|about|at)\s+|\s*,\s*/i)[0];
   if (cut.split(" ").length >= 2) t = cut;
-  return upperFirst(t.length > max ? `${t.slice(0, max - 1).trim()}…` : t);
+  if (t.length > max) {
+    const words = t.slice(0, max - 1).split(" ");
+    if (words.length > 1) words.pop();
+    t = `${words.join(" ").replace(/[,;:\s]+$/, "")}…`;
+  }
+  return upperFirst(t);
 }
 
 // ---- numbers, money, dates -------------------------------------------------

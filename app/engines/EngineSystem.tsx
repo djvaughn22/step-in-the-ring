@@ -968,7 +968,7 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
         <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
           {project.cycles.map((c) => (
             <div key={c.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 13, color: c.id === cycle.id ? "var(--text)" : "var(--muted)", fontWeight: c.id === cycle.id ? 800 : 400 }}>
-              <span>Cycle {c.index + 1} — {c.objective.slice(0, 46)}{c.objective.length > 46 ? "…" : ""}</span>
+              <span>Cycle {c.index + 1} — {c.objective.length > 46 ? `${c.objective.slice(0, 46).replace(/\s+\S*$/, "")}…` : c.objective}</span>
               <span style={{ flexShrink: 0 }}>{c.status}{c.ret?.recommendation ? ` → ${PATH_LABELS[c.ret.recommendation]}` : ""}</span>
             </div>
           ))}

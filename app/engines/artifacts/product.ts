@@ -39,16 +39,19 @@ const ROLE_WORDS = [
   "sellers", "seller", "guests", "guest", "patients", "patient", "clients", "client", "neighbors", "neighbor",
   "readers", "reader", "fans", "fan", "teams", "team", "roommates", "roommate", "organizers", "organizer",
   "attendees", "attendee", "moms", "mom", "dads", "dad", "grandparents", "grandparent", "people", "everyone",
-  "everybody", "anyone", "i", "we", "you",
+  "everybody", "anyone", "others", "i", "we", "you",
 ];
-const EVERYONE = new Set(["everyone", "everybody", "anyone", "people", "we"]);
+const EVERYONE = new Set(["everyone", "everybody", "anyone", "people", "we", "others"]);
 
 const CREATE = /^(add|assign|create|post|write|log|record|upload|enter|schedule|book|list|submit|make|plan|set|save|suggest|request|propose)$/;
 const UPDATE = /^(check|mark|complete|finish|tick|edit|update|rate|vote|approve|claim|pick|accept|move|cross|reorder|sign|rsvp|reply|answer|pay|confirm|cancel)$/;
 const VIEW = /^(see|view|browse|track|find|search|read|watch|know|compare|follow|get|keep|look|review)$/;
 const SHARE = /^(share|invite|send|message|notify|remind|comment)$/;
 
-const STOP = new Set(["a", "an", "the", "their", "his", "her", "my", "our", "your", "its", "own", "new", "each", "every", "all", "any", "some", "what", "who", "which", "how", "is", "are", "was", "it", "them", "off", "up", "on", "in", "to", "for", "of", "with", "and", "or", "when", "that", "this", "these", "those", "done", "out", "back", "down", "over", "into", "from", "by", "at", "as", "s"]);
+const STOP = new Set(["a", "an", "the", "their", "his", "her", "my", "our", "your", "its", "own", "new", "each", "every", "all", "any", "some", "what", "who", "which", "how", "is", "are", "was", "it", "them", "off", "up", "on", "in", "to", "for", "of", "with", "and", "or", "when", "that", "this", "these", "those", "done", "out", "back", "down", "over", "into", "from", "by", "at", "as", "s",
+  // Quantities and time spans are never the thing being tracked: "post one recipe a week" is about recipes.
+  "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "few", "couple", "many", "more", "most", "other", "others",
+  "day", "days", "week", "weeks", "month", "months", "year", "years", "time", "times", "today", "tonight"]);
 
 function verbBase(w: string): string {
   const v = w.toLowerCase();
@@ -109,7 +112,13 @@ function readClause(clause: string, prevRole: string, prevObject: string): Story
   if (!rawVerb) return null;
   const verb = verbBase(rawVerb);
   const restWords = words.slice(i + 1).map((w) => (/^(them|it)$/i.test(w) && prevObject ? plural(prevObject) : w));
-  const object = restWords.find((w) => !STOP.has(w.toLowerCase()) && !ROLE_WORDS.includes(w.toLowerCase()) && w.length > 2) ?? "";
+  // The head of the first noun phrase: skip leading filler, then take the last
+  // word of the run ("one dinner recipe a week" → "recipe").
+  const isNoun = (w: string) => !/ed$/i.test(w) && !STOP.has(w.toLowerCase()) && !ROLE_WORDS.includes(w.toLowerCase()) && w.length > 2;
+  const start = restWords.findIndex(isNoun);
+  let end = start;
+  while (start >= 0 && restWords[end + 1] && isNoun(restWords[end + 1])) end++;
+  const object = start >= 0 ? restWords[end] : "";
   return { role, action: [verb, ...restWords].join(" "), verb, kind: kindOf(verb), object: object ? singular(object) : "" };
 }
 
