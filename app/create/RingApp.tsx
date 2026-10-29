@@ -35,6 +35,7 @@ import { displayName, featuredCapabilities } from "../vnext/capabilities";
 import {
   CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
 } from "../creation/types";
+import { useTimedFlag, useFlash } from "../engines/shared/useFlash";
 
 type Stage = "landing" | "stepped" | "result" | "saved";
 
@@ -47,17 +48,14 @@ const FEATURED_ENGINES = featuredCapabilities();
 const { primary: HOME_PROOF_PRIMARY, more: HOME_PROOF_MORE } = homepageProof(ECOSYSTEM);
 
 function CopyButton({ text, label, big }: { text: string; label: string; big?: boolean }) {
-  const [copied, setCopied] = useState(false);
+  const [copied, raiseCopied] = useTimedFlag(2200);
   return (
     <>
       <button
         type="button"
         className={`btn ${big ? "btn-gold" : "btn-ghost btn-small"}`}
         onClick={() => {
-          const done = () => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2200);
-          };
+          const done = raiseCopied;
           navigator.clipboard?.writeText(text).then(done).catch(() => {
             // Older phone webviews: fall back to a hidden textarea.
             const ta = document.createElement("textarea");
@@ -206,7 +204,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
   const [description, setDescription] = useState("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState<SavedPlan[]>([]);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2500);
   const [incoming, setIncoming] = useState<HandoffPayloadV1 | null>(null);
   const [defaults, setDefaults] = useState<BuilderDefaults>(loadBuilderDefaults);
   const shapeRef = useRef<HTMLTextAreaElement>(null);
@@ -372,8 +370,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
   function handleSave() {
     if (!plan) return;
     setSaved(savePlan(input, plan.title.value));
-    setFlash("Saved to your work.");
-    setTimeout(() => setFlash(""), 2500);
+    say("Saved to your work.");
   }
 
   /** Promote the creation to a full project — workspace, gates, evidence. */

@@ -21,6 +21,7 @@ import {
 } from "../shared/persistence";
 import { downloadText, slug } from "../artifacts/ArtifactView";
 import { shortName } from "../artifacts/text";
+import { useFlash } from "../shared/useFlash";
 
 type Stage = "projects" | "start" | "versions" | "done";
 
@@ -61,7 +62,7 @@ export default function IdeaStudio({
   const [selectedId, setSelectedId] = useState<string>("");
   const [decision, setDecision] = useState<IdeaDecision | null>(null);
   const [editing, setEditing] = useState(false);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2000);
 
   useEffect(() => {
     const existing = getProjectsByEngine(ENGINE_ID);
@@ -73,8 +74,7 @@ export default function IdeaStudio({
     setReady(true);
   }, [initialAnswers]);
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2000); };
-  const copy = async (text: string, what: string) => {
+    const copy = async (text: string, what: string) => {
     try { await navigator.clipboard.writeText(text); say(`${what} copied`); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };

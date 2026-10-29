@@ -15,12 +15,13 @@ import {
   type GameIdeaSessionV1,
 } from "./game-idea.engine";
 import { clearGameIdeaSession, loadGameIdeaSession, saveGameIdeaSession } from "./game-idea.store";
+import { useFlash } from "../shared/useFlash";
 
 export default function GameIdeaSession({ idea, card }: { idea: string; card: React.CSSProperties }) {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<GameIdeaSessionV1 | null>(null);
   const [draft, setDraft] = useState("");
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2200);
 
   useEffect(() => {
     const existing = loadGameIdeaSession();
@@ -30,8 +31,7 @@ export default function GameIdeaSession({ idea, card }: { idea: string; card: Re
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2200); };
-  const copy = async (text: string) => {
+    const copy = async (text: string) => {
     try { await navigator.clipboard.writeText(text); say("Copied"); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };

@@ -33,6 +33,7 @@ import {
 import {
   disableVaultEncryption, enableVaultEncryption, lockVault, unlockVault, vaultEncryptionState,
 } from "./db";
+import { useFlash } from "../shared/useFlash";
 
 const WORKFLOW =
   "Capture → Preserve → Identify → Classify → Protect → Fictionalize → Connect → Approve. " +
@@ -57,7 +58,7 @@ export default function VaultView({
   const [resetInput, setResetInput] = useState("");
   const [showReset, setShowReset] = useState(false);
   const [vault, setVault] = useState<SourceVaultV1 | null>(null);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(3500);
 
   // transient inputs
   const [newKind, setNewKind] = useState<SourceKind>("person");
@@ -101,8 +102,7 @@ export default function VaultView({
 
   const openVault = () => setVault(loadVault(project.id) ?? createVault(project.id));
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 3500); };
-
+  
   const persist = (next: SourceVaultV1, message?: string) => {
     setVault(next);
     void saveVault(next).then((ok) => {

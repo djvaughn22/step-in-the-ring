@@ -30,6 +30,7 @@ import { parseCreationRecord } from "../creation/types";
 import ToolFooter from "../site/ToolFooter";
 import ArtifactView from "./artifacts/ArtifactView";
 import { engineArtifact, hasArtifact, IDK } from "./artifacts";
+import { useFlash } from "./shared/useFlash";
 
 type View = "list" | "picker" | "intake" | "review" | "edit" | "cycle" | "return";
 const REQUEST_MAILTO = (subject: string, body: string) =>
@@ -248,7 +249,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
   const [activeProjectId, setActiveProjectId] = useState<string>("");
   const [activeCycleId, setActiveCycleId] = useState<string>("");
   const [tab, setTab] = useState("overview");
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2400);
 
   // return flow
   const [review, setReview] = useState<ReviewInput>({ completed: true, correctLive: true, broke: "", wrong: "", deferred: "", readyForPublic: false, raw: "" });
@@ -299,8 +300,7 @@ export default function EngineSystem({ memberMode = false }: { memberMode?: bool
   const activeProject = projects.find((p) => p.id === activeProjectId) || null;
   const activeCycle = activeProject?.cycles.find((c) => c.id === activeCycleId) || null;
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2400); };
-  const copy = async (text: string, label: string) => {
+    const copy = async (text: string, label: string) => {
     try { await navigator.clipboard.writeText(text); say(`${label} copied`); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };

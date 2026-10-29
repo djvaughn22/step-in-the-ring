@@ -27,6 +27,7 @@ import {
   uid,
   updateProject,
 } from "../shared/persistence";
+import { useFlash } from "../shared/useFlash";
 
 type Stage = "projects" | "spark" | "explore" | "score" | "create" | "review" | "export";
 
@@ -98,7 +99,7 @@ export default function DesignShopStudio({
   const [selectedDirectionId, setSelectedDirectionId] = useState<string>("");
   const [design, setDesign] = useState<DesignPackage | null>(null);
   const [loading, setLoading] = useState(false);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2000);
   // An Etsy-listing project being worked on in the builder (from a fresh
   // Dream Shop handoff or a saved project reopened from the list).
   const [builderProject, setBuilderProject] = useState<CreationProject | null>(null);
@@ -118,11 +119,7 @@ export default function DesignShopStudio({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const say = (m: string) => {
-    setFlash(m);
-    setTimeout(() => setFlash(""), 2000);
-  };
-
+  
   const copy = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);

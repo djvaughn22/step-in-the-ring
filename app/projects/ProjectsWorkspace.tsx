@@ -29,6 +29,7 @@ import type { OutputKind, ProjectRecordV1, ProjectStatus } from "../project/mode
 import {
   deleteProjectRecord, loadAllProjects, saveProjectRecord,
 } from "../project/store";
+import { useFlash } from "../engines/shared/useFlash";
 
 /* ── small helpers ────────────────────────────────────────────────────── */
 
@@ -58,7 +59,7 @@ export default function ProjectsWorkspace() {
   const [projects, setProjects] = useState<ProjectRecordV1[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(3000);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR renders empty; saved projects can only be read from localStorage after mount
@@ -75,11 +76,7 @@ export default function ProjectsWorkspace() {
     [projects, selectedId],
   );
 
-  function say(msg: string) {
-    setFlash(msg);
-    window.setTimeout(() => setFlash(""), 3000);
-  }
-
+  
   function put(p: ProjectRecordV1) {
     setProjects(saveProjectRecord(p));
   }

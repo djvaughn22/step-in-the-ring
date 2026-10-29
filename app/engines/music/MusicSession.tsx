@@ -17,6 +17,7 @@ import {
   type MusicSessionV1, type Tool,
 } from "./music-session.engine";
 import { clearSession, loadSession, saveSession } from "./music-session.store";
+import { useFlash } from "../shared/useFlash";
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
 const input = {
@@ -39,7 +40,7 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
   const [toolDraft, setToolDraft] = useState<Tool>("unsure");
   const [noteDraft, setNoteDraft] = useState("");
   const [stuckOpen, setStuckOpen] = useState(false);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2400);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -47,8 +48,7 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
     setReady(true);
   }, []);
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2400); };
-  const copy = async (text: string) => {
+    const copy = async (text: string) => {
     try { await navigator.clipboard.writeText(text); say("Copied"); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };

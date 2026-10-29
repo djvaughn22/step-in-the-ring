@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "../lib/analytics";
+import { useTimedFlag } from "../engines/shared/useFlash";
 
 const STORAGE = "sitr-first-app-v1";
 const SEED_KEY = "sitr-build-seed"; // one-time idea handoff from /engines
@@ -68,17 +69,14 @@ function fallbackCopy(text: string) {
 }
 
 function CopyBtn({ text, label = "Copy" }: { text: string; label?: string }) {
-  const [done, setDone] = useState(false);
+  const [done, raiseDone] = useTimedFlag(1600);
   return (
     <button
       type="button"
       className="btn btn-ghost btn-small"
       style={{ flexShrink: 0 }}
       onClick={() =>
-        copyText(text).then(() => {
-          setDone(true);
-          setTimeout(() => setDone(false), 1600);
-        })
+        copyText(text).then(raiseDone)
       }
     >
       {done ? "✓ Copied" : label}

@@ -7,10 +7,11 @@
  * next step. Deterministic — no model call.
  */
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { advance, currentStep, finish, isGeneralGuidance, startTask, stuckHelp, taskSummary, type TaskSessionV1 } from "./task-session.engine";
 import { clearTaskSession, loadTaskSession, saveTaskSession } from "./task-session.store";
 import { downloadText } from "../artifacts/ArtifactView";
+import { useFlash } from "../shared/useFlash";
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
 const input = {
@@ -34,7 +35,7 @@ export default function TaskSession({
   const [goalDraft, setGoalDraft] = useState(() => seedIdea ?? "");
   const [noteDraft, setNoteDraft] = useState("");
   const [stuckOpen, setStuckOpen] = useState(false);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2200);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -42,9 +43,7 @@ export default function TaskSession({
     setReady(true);
   }, []);
 
-  const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const say = (m: string) => { setFlash(m); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(""), 2200); };
-  const copy = async (text: string) => {
+    const copy = async (text: string) => {
     try { await navigator.clipboard.writeText(text); say("Copied"); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };

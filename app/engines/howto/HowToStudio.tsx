@@ -9,7 +9,7 @@
  * The proof gate is the law here — an uncertain fix never becomes a video.
  */
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildPackage, captureGate, emptyRecord, packageMarkdown, parseRecord,
   proofGate, socialPack, PROOF_LEVELS, XUMO_SEED,
@@ -20,6 +20,7 @@ import {
   createProject, deleteProject, getProject, getProjectsByEngine, uid, updateProject,
 } from "../shared/persistence";
 import TaskSession from "./TaskSession";
+import { useFlash } from "../shared/useFlash";
 
 type Stage = "solutions" | "capture" | "proof" | "package" | "footage" | "publish" | "promote" | "learn";
 
@@ -56,7 +57,7 @@ export default function HowToStudio({
   const [stepsText, setStepsText] = useState("");
   const [snap, setSnap] = useState<Omit<PerformanceSnapshot, "id">>({ date: "", views: "", watchTime: "", ctr: "", notes: "" });
   const [accuracyOk, setAccuracyOk] = useState(false);
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2400);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -64,9 +65,7 @@ export default function HowToStudio({
     setReady(true);
   }, []);
 
-  const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const say = (m: string) => { setFlash(m); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(""), 2400); };
-  const copy = async (text: string, label: string) => {
+    const copy = async (text: string, label: string) => {
     try { await navigator.clipboard.writeText(text); say(`${label} copied`); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };

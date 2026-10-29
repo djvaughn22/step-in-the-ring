@@ -14,6 +14,7 @@ import {
   type WritingSessionV1,
 } from "./writing-session.engine";
 import { clearWritingSession, loadWritingSession, saveWritingSession } from "./writing-session.store";
+import { useFlash } from "../shared/useFlash";
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
 const input = {
@@ -27,7 +28,7 @@ export default function WritingSession({ seedIdea }: { seedIdea?: string }) {
   const [session, setSession] = useState<WritingSessionV1 | null>(null);
   const [ideaDraft, setIdeaDraft] = useState("");
   const [answerDraft, setAnswerDraft] = useState("");
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2200);
 
   useEffect(() => {
     const existing = loadWritingSession();
@@ -37,8 +38,7 @@ export default function WritingSession({ seedIdea }: { seedIdea?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2200); };
-  const copy = async (text: string) => {
+    const copy = async (text: string) => {
     try { await navigator.clipboard.writeText(text); say("Copied"); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };

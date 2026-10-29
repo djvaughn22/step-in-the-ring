@@ -20,6 +20,7 @@ import {
 import type { CreationProject } from "../shared/creation-engine.types";
 import { createProject, getProjectsByEngine, updateProject, uid } from "../shared/persistence";
 import { track } from "../../lib/analytics";
+import { useFlash } from "../shared/useFlash";
 
 type BuilderStage = "details" | "listing" | "approve" | "ready";
 
@@ -127,7 +128,7 @@ export default function EtsyListingBuilder({
   const [pkg, setPkg] = useState<EtsyCreativePackageV1 | null>(null);
   const [listing, setListing] = useState<EtsyListingState | null>(null);
   const [stage, setStage] = useState<BuilderStage>("details");
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(2600);
   const [busy, setBusy] = useState("");
   const [openEtsyWarn, setOpenEtsyWarn] = useState(false);
   const [newTag, setNewTag] = useState("");
@@ -177,11 +178,7 @@ export default function EtsyListingBuilder({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const say = (m: string) => {
-    setFlash(m);
-    setTimeout(() => setFlash(""), 2600);
-  };
-
+  
   // Ref mirror of the listing — two taps in the same tick (or a fast double
   // tap) must not build from a stale closure and drop the first change.
   const listingRef = useRef<EtsyListingState | null>(null);

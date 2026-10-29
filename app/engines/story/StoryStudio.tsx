@@ -41,6 +41,7 @@ import { nextActionFor, SOURCE_STAGE_LABELS, sourceStage } from "./source.engine
 import { CapturePanel, SourceRoom } from "./CaptureFlow";
 import { ConstitutionPanel, ResearchPanel, RevisionsPanel, SeriesPanel, type PanelStyles } from "./StudioPanels";
 import VaultView from "./VaultView";
+import { useFlash } from "../shared/useFlash";
 
 type View =
   | { name: "home" } | { name: "room"; ref: LinkRef } | { name: "novel" } | { name: "vault" }
@@ -82,7 +83,7 @@ export default function StoryStudio({
   const [ready, setReady] = useState(false);
   const [project, setProject] = useState<StoryProjectV1 | null>(null);
   const [view, setView] = useState<View>({ name: "home" });
-  const [flash, setFlash] = useState("");
+  const [flash, say] = useFlash(3000);
 
   // transient inputs
   const [newTitle, setNewTitle] = useState("");
@@ -116,8 +117,7 @@ export default function StoryStudio({
     return () => { alive = false; };
   }, []);
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 3000); };
-
+  
   const persist = (next: StoryProjectV1, message?: string) => {
     setProject(next);
     void saveActiveProject(next).then((ok) => {
