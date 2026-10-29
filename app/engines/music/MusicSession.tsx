@@ -13,11 +13,12 @@
 import { useEffect, useState } from "react";
 import {
   STAGE_LABELS, STAGE_ORDER, TOOLS, TOOL_LABELS,
-  advance, currentMove, isFinished, progress as sessionProgress, startSession, stuckHelp,
+  advance, currentMove, goBack, isFinished, progress as sessionProgress, retry, sessionSummary, startSession, stuckHelp,
   type MusicSessionV1, type Tool,
 } from "./music-session.engine";
 import { clearSession, loadSession, saveSession } from "./music-session.store";
 import { useFlash } from "../shared/useFlash";
+import { downloadText } from "../artifacts/ArtifactView";
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
 const input = {
@@ -48,13 +49,12 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
     setReady(true);
   }, []);
 
-    const copy = async (text: string) => {
+  const copy = async (text: string) => {
     try { await navigator.clipboard.writeText(text); say("Copied"); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };
 
   const start = () => {
-    if (!goalDraft.trim() && toolDraft === "unsure") { /* still allow — "not sure" is valid */ }
     setSession(saveSession(startSession(goalDraft, toolDraft)));
     setGoalDraft(""); setToolDraft("unsure"); setNoteDraft(""); setStuckOpen(false);
   };
@@ -62,6 +62,19 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
   const keepGoing = () => {
     if (!session) return;
     setSession(saveSession(advance(session, noteDraft)));
+    setNoteDraft(""); setStuckOpen(false);
+  };
+
+  const didntWork = () => {
+    if (!session) return;
+    if (!noteDraft.trim()) { say("Write what went wrong first, then press this."); return; }
+    setSession(saveSession(retry(session, noteDraft)));
+    setNoteDraft(""); setStuckOpen(false);
+  };
+
+  const previous = () => {
+    if (!session) return;
+    setSession(saveSession(goBack(session)));
     setNoteDraft(""); setStuckOpen(false);
   };
 
@@ -78,7 +91,7 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
     return (
       <div style={card}>
         <h2 style={{ fontSize: 16.5, fontWeight: 900, margin: "0 0 4px" }}>What do you want to make?</h2>
-        <p style={{ ...sub, margin: "0 0 10px" }}>One idea is plenty — the engine will help shape it.</p>
+        <p style={{ ...sub, margin: "0 0 10px" }}>Say it in a few words. Leave it empty and you get a first-beat walkthrough. Each step is written from your words and the tool you pick.</p>
         <label htmlFor="music-goal" className="sr-only">What do you want to make</label>
         <textarea id="music-goal" value={goalDraft} onChange={(e) => setGoalDraft(e.target.value)}
           placeholder={GOAL_PLACEHOLDER} style={{ ...input, minHeight: 110, resize: "vertical", marginBottom: 14 }} />
@@ -103,14 +116,25 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
   if (isFinished(session)) {
     return (
       <div style={card}>
-        <h2 style={{ fontSize: 16.5, fontWeight: 900, margin: "0 0 6px" }}>You made something</h2>
+        <h2 style={{ fontSize: 16.5, fontWeight: 900, margin: "0 0 6px" }}>All seven steps marked done</h2>
         <p style={{ fontSize: 14, color: "var(--text)", margin: "0 0 4px" }}>
-          <b>{session.goal || "First beat"}</b> — exported {TOOL_LABELS[session.tool]}.
+          <b>{session.goal || "First beat"}</b> · {TOOL_LABELS[session.tool]}
         </p>
         <p style={{ ...sub, margin: "0 0 14px" }}>
-          The audio lives in your music software, not here. Come back any time to shape it further, or start something new.
+          You said each step was done. This page can&apos;t hear or check the track, and it has no audio. If you exported a file, it is in your music software or your downloads.
         </p>
-        <button onClick={startSomethingNew} className="btn btn-gold">Start something new →</button>
+        {session.log.some((e) => e.note.trim()) && (
+          <ol style={{ margin: "0 0 14px", paddingLeft: 20, fontSize: 13.5, color: "var(--text)", lineHeight: 1.5 }}>
+            {session.log.filter((e) => e.note.trim()).map((e, i) => <li key={i}>Step {e.stepIndex + 1}: {e.note}</li>)}
+          </ol>
+        )}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <button onClick={() => copy(sessionSummary(session))} className="btn btn-ghost btn-small">Copy notes</button>
+          <button onClick={() => downloadText("music-notes.txt", sessionSummary(session))} className="btn btn-ghost btn-small">Download notes</button>
+          <button onClick={previous} className="btn btn-ghost btn-small">← Back to step 7</button>
+          <button onClick={startSomethingNew} className="btn btn-gold">Start something new →</button>
+          {flash && <span style={{ fontSize: 12.5, color: "var(--gold)", fontWeight: 800 }}>{flash}</span>}
+        </div>
       </div>
     );
   }
@@ -118,6 +142,7 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
   // ---------------- Active flow ----------------
   const move = currentMove(session);
   const prog = sessionProgress(session);
+  const lastNote = session.log[session.log.length - 1]?.note.trim() ?? "";
 
   return (
     <div>
@@ -147,7 +172,12 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
           <button onClick={() => setStuckOpen((v) => !v)} className="btn btn-ghost btn-small">I&apos;m stuck</button>
           {flash && <span style={{ fontSize: 12.5, color: "var(--gold)", fontWeight: 800 }}>{flash}</span>}
         </div>
-        <p style={{ ...sub, margin: "8px 0 0" }}>Paste it into ChatGPT, Claude, or wherever you get help.</p>
+        <p style={{ ...sub, margin: "8px 0 0" }}>Copy turns this step into a message you can paste into any assistant you use. This page does not contact one.</p>
+        {lastNote && (
+          <p style={{ ...sub, margin: "8px 0 0" }}>
+            You wrote: &ldquo;{lastNote}&rdquo;. This tool doesn&apos;t read it. It is saved and added to the Copy text.
+          </p>
+        )}
         {stuckOpen && (
           <div style={{ background: "var(--surface)", border: "1px solid var(--line2)", borderRadius: 10, padding: 12, marginTop: 12 }}>
             {stuckHelp(session.tool).map((tip, i) => (
@@ -164,10 +194,14 @@ export default function MusicSession({ seedIdea }: { seedIdea?: string }) {
           placeholder="e.g., &quot;Done. The beat feels too empty.&quot; or paste what an assistant told you."
           style={{ ...input, minHeight: 70, resize: "vertical", marginBottom: 12 }} />
         <button onClick={keepGoing} className="btn btn-gold" style={{ width: "100%" }}>Done — keep going →</button>
+        <button onClick={didntWork} className="btn btn-ghost" style={{ width: "100%", marginTop: 8 }}>That didn&apos;t work — stay on this step</button>
         <p style={{ ...sub, margin: "10px 0 0" }}>
           Saved on this device · step {prog.moveIndex + 1} of {prog.moveCount}
         </p>
-        <button onClick={startSomethingNew} className="btn btn-ghost btn-small" style={{ marginTop: 10 }}>Start something new</button>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+          {prog.moveIndex > 0 && <button onClick={previous} className="btn btn-ghost btn-small">← Previous step</button>}
+          <button onClick={startSomethingNew} className="btn btn-ghost btn-small">Start something new</button>
+        </div>
       </div>
     </div>
   );

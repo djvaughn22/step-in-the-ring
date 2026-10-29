@@ -341,6 +341,37 @@ export function advance(session: MusicSessionV1, note: string, now?: string): Mu
   };
 }
 
+/** "That didn't work": records what happened and stays on the same step.
+ *  Nothing reads the note for meaning; it is saved and added to the Copy text. */
+export function retry(session: MusicSessionV1, note: string, now?: string): MusicSessionV1 {
+  if (isFinished(session)) return session;
+  const at = now ?? new Date().toISOString();
+  return { ...session, log: [...session.log, { stepIndex: session.stepIndex, note: note.trim(), at }], updatedAt: at };
+}
+
+/** Back to the previous step. Drops the note that was saved when leaving it. */
+export function goBack(session: MusicSessionV1, now?: string): MusicSessionV1 {
+  if (session.stepIndex <= 0) return session;
+  const at = now ?? new Date().toISOString();
+  const target = session.stepIndex - 1;
+  const lastIdx = session.log.map((e) => e.stepIndex).lastIndexOf(target);
+  const log = lastIdx >= 0 ? session.log.filter((_, i) => i !== lastIdx) : session.log;
+  return { ...session, stepIndex: target, log, updatedAt: at, finishedAt: null };
+}
+
+/** Plain-text record of the session: the goal, the tool, and what was reported at each step. */
+export function sessionSummary(session: MusicSessionV1): string {
+  const lines = session.log.map((e) => `Step ${e.stepIndex + 1}: ${e.note.trim() || "(no note)"}`);
+  return [
+    `Goal: ${session.goal || "First beat"}`,
+    `Tool: ${TOOL_LABELS[session.tool]}`,
+    isFinished(session) ? "You marked all seven steps done." : `You are on step ${session.stepIndex + 1} of ${TOTAL_MOVES}.`,
+    "",
+    lines.length ? "What you reported:" : "No notes yet.",
+    ...lines,
+  ].join("\n") + "\n";
+}
+
 export interface Progress {
   stage: MusicStage;
   stageIndex: number;
@@ -381,7 +412,7 @@ export function stuckHelp(tool: Tool): string[] {
   return [
     STUCK_BY_TOOL[tool],
     "If sound isn't working: check the tab or app isn't muted, and click inside the project once — some tools block audio until you interact with the page.",
-    "Paste what you're seeing below and keep going — the next move will adjust.",
+    "Write what you're seeing below. It is saved with this step and added to the Copy text, so you can paste it to a helper. This tool doesn't read it.",
   ];
 }
 

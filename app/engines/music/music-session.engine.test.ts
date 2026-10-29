@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   STAGE_ORDER, TOOLS, TOOL_LABELS, TOTAL_MOVES,
   advance, currentMove, detectProfile, isFinished, parseSession,
-  progress, startSession, stuckHelp,
+  goBack, progress, retry, sessionSummary, startSession, stuckHelp,
 } from "./music-session.engine";
 
 describe("detectProfile", () => {
@@ -151,5 +151,32 @@ describe("parseSession", () => {
     expect(parseSession(null)).toBeNull();
     expect(parseSession("hello")).toBeNull();
     expect(parseSession({})).toBeNull();
+  });
+});
+
+describe("2026-10-28: retry, back, summary", () => {
+  const base = () => startSession("a laid-back reggae beat", "bandlab");
+  it("retry stays on the step and keeps the note for the Copy text", () => {
+    const s = retry(base(), "no sound comes out");
+    expect(s.stepIndex).toBe(0);
+    expect(currentMove(s).copyText).toContain("no sound comes out");
+  });
+  it("goBack undoes the last step, drops its note, and reopens a finished session", () => {
+    let s = base();
+    for (let i = 0; i < TOTAL_MOVES; i++) s = advance(s, `note ${i}`);
+    expect(isFinished(s)).toBe(true);
+    const back = goBack(s);
+    expect(back.stepIndex).toBe(TOTAL_MOVES - 1);
+    expect(back.finishedAt).toBeNull();
+    expect(back.log.some((e) => e.note === `note ${TOTAL_MOVES - 1}`)).toBe(false);
+    expect(goBack(base()).stepIndex).toBe(0);
+  });
+  it("the stuck tips don't claim the next move will adjust", () => {
+    expect(stuckHelp("bandlab").join(" ")).not.toMatch(/will adjust/);
+  });
+  it("the summary says what the user reported, not that anything was made", () => {
+    const t = sessionSummary(advance(base(), "project open"));
+    expect(t).toContain("Step 1: project open");
+    expect(t).toContain("BandLab");
   });
 });
