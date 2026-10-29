@@ -416,6 +416,8 @@ export function updateWorkingCopy(p: SongProjectV1, text: string): SongProjectV1
 export function addHookCandidate(p: SongProjectV1, text: string): SongProjectV1 {
   const t = text.trim();
   if (!t) return p;
+  // The same line twice is a double-tap, not a second hook.
+  if (p.hookCandidates.some((h) => h.text.toLowerCase() === t.toLowerCase())) return p;
   const hook: HookCandidate = {
     id: songUid(), text: t, origin: "creator",
     status: "candidate", melodicPeak: false, emotionalPeak: false,
@@ -441,7 +443,12 @@ export function removeHook(p: SongProjectV1, id: string): SongProjectV1 {
 export function addSection(p: SongProjectV1, kind: SectionKind, content: string, label?: string): SongProjectV1 {
   const section: SongSection = {
     id: songUid(), kind,
-    label: label?.trim() || SECTION_KIND_LABELS[kind],
+    // A second verse is "Verse 2", so sections can be told apart (a repeated
+    // chorus from duplicateSection keeps its name on purpose).
+    label: label?.trim() || (() => {
+      const n = p.sections.filter((x) => x.kind === kind).length;
+      return n ? `${SECTION_KIND_LABELS[kind]} ${n + 1}` : SECTION_KIND_LABELS[kind];
+    })(),
     content, energy: "",
   };
   return { ...p, sections: [...p.sections, section] };
@@ -925,4 +932,38 @@ export function parseSongProject(v: unknown): SongProjectV1 | null {
           }
         : null,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Export — the notebook as one Markdown file the creator can keep.
+// ---------------------------------------------------------------------------
+
+/** Everything the creator recorded, in plain Markdown. The original source is
+ *  copied byte-for-byte inside a fenced block; nothing is added or reworded. */
+export function songToMarkdown(p: SongProjectV1): string {
+  const fence = (t: string) => "````\n" + t + "\n````";
+  const fact = (name: string, f: MusicalFact) => `- ${name}: ${ELEMENT_STATE_LABELS[f.state]}${f.value.trim() ? ` (${f.value.trim()})` : ""}`;
+  const out: string[] = [
+    `# ${p.workingTitle}`,
+    "",
+    `Saved from Step In The Ring on ${new Date().toISOString().slice(0, 10)}. Everything below was entered by you; the page cannot hear or check audio.`,
+    "",
+    `Software: ${SOFTWARE_LABELS[p.software]}${p.equipment.length ? ` · Equipment: ${p.equipment.join(", ")}` : ""}`,
+  ];
+  if (p.originalSource) out.push("", `## Original words (preserved ${p.originalSource.preservedAt.slice(0, 10)})`, "", fence(p.originalSource.text));
+  if (p.workingCopy && p.workingCopy !== p.originalSource?.text) out.push("", "## Working copy", "", fence(p.workingCopy));
+  const hooks = p.hookCandidates.filter((h) => h.status !== "rejected");
+  if (hooks.length) out.push("", "## Hooks", "", ...hooks.map((h) => `- ${h.text}${h.status === "confirmed" ? " (confirmed)" : ""}`));
+  out.push("", "## Melody", "", `- Where it lives: ${ELEMENT_STATE_LABELS[p.melodyState]}`);
+  if (p.voiceMemo.status === "captured") out.push(`- Voice memo: ${p.voiceMemo.reference.trim() || "captured (no name given)"}`);
+  if (p.voiceMemo.strongestParts.trim()) out.push(`- Strongest parts: ${p.voiceMemo.strongestParts.trim()}`);
+  out.push(fact("Key", p.key), fact("Tempo", p.tempo), fact("Time signature", p.timeSignature));
+  if (p.notesWork.entries.length) {
+    out.push("", "## Notes", "", ...p.notesWork.entries.map((n) => `- ${n.section.trim() || "Section"}: ${n.notes}${n.rhythm.trim() ? ` · rhythm: ${n.rhythm.trim()}` : ""} (${n.confidence})`));
+  }
+  if (p.sections.length) out.push("", "## Sections", "", ...p.sections.map((s, i) => `${i + 1}. ${s.label}${s.energy.trim() ? ` · ${s.energy.trim()}` : ""}${s.content.trim() ? `\n${s.content.trim().split("\n").map((l) => `   ${l}`).join("\n")}` : ""}`));
+  if (p.proofs.length) out.push("", "## Proof (confirmed by you)", "", ...p.proofs.map((x) => `- ${PROOF_TYPE_LABELS[x.type]}: ${x.reference}${x.note.trim() ? ` · ${x.note.trim()}` : ""}`));
+  if (p.versionOne) out.push("", `## Version One (declared ${p.versionOne.declaredAt.slice(0, 10)})`, "", `- What worked: ${p.versionOne.whatWorked}`, `- Next improvement: ${p.versionOne.nextImprovement}`);
+  if (p.sessionNotes.trim()) out.push("", "## Session notes", "", p.sessionNotes.trim());
+  return out.join("\n") + "\n";
 }

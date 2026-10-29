@@ -17,9 +17,10 @@ import {
   addHookCandidate, addProof, addSection, canDeclareVersionOne, checklistFor,
   declareVersionOne, duplicateSection, makeWorkingCopy, milestones, moveSection,
   nextAction, preserveOriginalSource, removeHook, removeProof, removeSection,
-  songUid, stageOf, updateHook, updateSection, updateWorkingCopy, visibleGuidance,
+  songToMarkdown, songUid, stageOf, updateHook, updateSection, updateWorkingCopy, visibleGuidance,
   type ElementState, type ProofType, type SectionKind, type SongProjectV1, type SongStage,
 } from "./song.engine";
+import { downloadText, slug } from "../artifacts/ArtifactView";
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
 const input = {
@@ -36,13 +37,18 @@ const PANELS: [SongStage, string][] = [
 ];
 
 const ELEMENT_STATES = Object.keys(ELEMENT_STATE_LABELS) as ElementState[];
+// Key, tempo and time signature are facts you know or don't; "captured in a
+// voice memo" only makes sense for the melody itself.
+const FACT_STATES: ElementState[] = ["unknown", "not-decided", "will-determine", "confirmed"];
 
-function StateSelect({ id, value, onChange, ariaLabel }: {
-  id: string; value: ElementState; onChange: (s: ElementState) => void; ariaLabel: string;
+function StateSelect({ id, value, onChange, ariaLabel, options = ELEMENT_STATES }: {
+  id: string; value: ElementState; onChange: (s: ElementState) => void; ariaLabel: string; options?: ElementState[];
 }) {
+  // A value saved before the options narrowed still shows instead of silently changing.
+  const shown = options.includes(value) ? options : [...options, value];
   return (
     <select id={id} aria-label={ariaLabel} value={value} onChange={(e) => onChange(e.target.value as ElementState)} style={input}>
-      {ELEMENT_STATES.map((s) => <option key={s} value={s}>{ELEMENT_STATE_LABELS[s]}</option>)}
+      {shown.map((s) => <option key={s} value={s}>{ELEMENT_STATE_LABELS[s]}</option>)}
     </select>
   );
 }
@@ -109,9 +115,14 @@ export default function SongStudio({ project, onChange, onBack }: {
           <p style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>{next.title}</p>
           <p style={{ ...sub, margin: 0 }}>{next.detail}</p>
         </div>
-        <p style={{ ...sub, margin: "10px 0 0" }}>
-          Saved on this device · last saved {new Date(p.updatedAt).toLocaleString()}
-        </p>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", margin: "10px 0 0" }}>
+          <p style={{ ...sub, margin: 0 }}>
+            Saved on this device only · last saved {new Date(p.updatedAt).toLocaleString()}
+          </p>
+          <button onClick={() => downloadText(`${slug(p.workingTitle || "song")}-notebook.md`, songToMarkdown(p))} className="btn btn-ghost btn-small">
+            Download notebook (.md)
+          </button>
+        </div>
       </div>
 
       {/* ---------- Stage panels ---------- */}
@@ -253,6 +264,16 @@ export default function SongStudio({ project, onChange, onBack }: {
               <p style={{ fontSize: 13.5, fontWeight: 800, color: "var(--text)", margin: "12px 0 0" }}>
                 ✓ Voice memo captured{p.voiceMemo.capturedAt ? ` · ${new Date(p.voiceMemo.capturedAt).toLocaleDateString()}` : ""} — the file lives on your device; you confirmed it exists.
               </p>
+            ) : null}
+            {/* A misclick must be reversible. */}
+            {p.voiceMemo.status === "captured" ? (
+              <button className="btn btn-ghost btn-small" style={{ marginTop: 8 }}
+                onClick={() => set({
+                  voiceMemo: { ...p.voiceMemo, status: "none", capturedAt: undefined },
+                  melodyState: p.melodyState === "in-voice-memo" ? "unknown" : p.melodyState,
+                })}>
+                Undo: not captured yet
+              </button>
             ) : (
               <button className="btn btn-gold" style={{ marginTop: 12 }}
                 onClick={() => set({
@@ -292,7 +313,7 @@ export default function SongStudio({ project, onChange, onBack }: {
             <label htmlFor="hook-draft" style={label}>Add a hook from your words</label>
             <div style={{ display: "flex", gap: 8 }}>
               <input id="hook-draft" value={hookDraft} onChange={(e) => setHookDraft(e.target.value)}
-                placeholder='e.g., "leave the light on! Leave the light on!"' style={input} />
+                placeholder='e.g., "Hold the line, hold the line"' style={input} />
               <button onClick={() => { if (hookDraft.trim()) { onChange(addHookCandidate(p, hookDraft)); setHookDraft(""); } }}
                 className="btn btn-gold btn-small" style={{ flexShrink: 0 }}>Add</button>
             </div>
@@ -327,7 +348,7 @@ export default function SongStudio({ project, onChange, onBack }: {
 
             <label htmlFor="note-section" style={label}>Section these notes cover</label>
             <input id="note-section" value={noteSection} onChange={(e) => setNoteSection(e.target.value)}
-              placeholder='e.g., "leave the light on" hook' style={{ ...input, marginBottom: 8 }} />
+              placeholder='e.g., the "hold the line" hook' style={{ ...input, marginBottom: 8 }} />
             <label htmlFor="note-text" style={label}>The notes (names, MIDI numbers, or a rough sequence)</label>
             <textarea id="note-text" value={noteText} onChange={(e) => setNoteText(e.target.value)}
               placeholder="e.g., G G A G E … or 55 55 57 55 52 — however you hear it" style={{ ...input, minHeight: 56, resize: "vertical", marginBottom: 8 }} />
@@ -380,7 +401,7 @@ export default function SongStudio({ project, onChange, onBack }: {
                 <label htmlFor={`fact-${k}`} style={label}>{name}</label>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <div style={{ flex: "1 1 180px" }}>
-                    <StateSelect id={`fact-${k}`} ariaLabel={`${name} state`} value={p[k].state} onChange={(s) => set({ [k]: { ...p[k], state: s } } as Partial<SongProjectV1>)} />
+                    <StateSelect id={`fact-${k}`} ariaLabel={`${name} state`} options={FACT_STATES} value={p[k].state} onChange={(s) => set({ [k]: { ...p[k], state: s } } as Partial<SongProjectV1>)} />
                   </div>
                   <input aria-label={`${name} value`} value={p[k].value} placeholder="Value, once you know it"
                     onChange={(e) => set({ [k]: { ...p[k], value: e.target.value } } as Partial<SongProjectV1>)}
@@ -571,7 +592,7 @@ export default function SongStudio({ project, onChange, onBack }: {
                   </div>
                 )}
                 {projectProof && audioProof && !v1check.ok && (
-                  <p style={{ ...sub, margin: "0 0 12px" }}>Proof is in — finish the remaining items above.</p>
+                  <p style={{ ...sub, margin: "0 0 12px" }}>Proof is in. Tick the remaining items on the Record tab.</p>
                 )}
                 <label htmlFor="v1-worked" style={label}>What worked</label>
                 <input id="v1-worked" value={whatWorked} onChange={(e) => setWhatWorked(e.target.value)} style={{ ...input, marginBottom: 8 }} />

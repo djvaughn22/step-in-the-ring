@@ -350,3 +350,22 @@ describe("a brand-new song project", () => {
     expect(a.title).toMatch(/what you already have/i);
   });
 });
+
+describe("songToMarkdown", () => {
+  it("keeps the original words byte-for-byte and adds nothing the creator didn't enter", async () => {
+    const { createSongProject, preserveOriginalSource, songToMarkdown } = await import("./song.engine");
+    const raw = "leave the porch light on\n  I am almost home ,, \n";
+    const md = songToMarkdown(preserveOriginalSource(createSongProject({ workingTitle: "Porch light" }), raw));
+    expect(md).toContain("````\n" + raw + "\n````");
+    expect(md).toContain("# Porch light");
+    expect(md).not.toMatch(/## Hooks|## Proof|## Version One/);
+  });
+});
+
+describe("hooks", () => {
+  it("ignores the same line added twice", async () => {
+    const { addHookCandidate, createSongProject } = await import("./song.engine");
+    const p = addHookCandidate(addHookCandidate(createSongProject({}), "Hold the line"), " hold the line ");
+    expect(p.hookCandidates).toHaveLength(1);
+  });
+});
