@@ -7,14 +7,14 @@ import { useFlash } from "./useFlash";
 
 (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-let say: (m: string) => void = () => {};
-let current = "";
+const probe: { say: (m: string) => void; current: string } = { say: () => {}, current: "" };
 function Probe() {
-  const [flash, s] = useFlash(2000);
-  say = s;
-  current = flash;
+  const [flash, say] = useFlash(2000);
+  probe.say = say;
+  probe.current = flash;
   return null;
 }
+const say = (m: string) => probe.say(m);
 
 describe("useFlash", () => {
   beforeEach(() => { vi.useFakeTimers(); });
@@ -26,11 +26,11 @@ describe("useFlash", () => {
     act(() => say("first"));
     act(() => { vi.advanceTimersByTime(1500); });
     act(() => say("second"));
-    expect(current).toBe("second");
+    expect(probe.current).toBe("second");
     act(() => { vi.advanceTimersByTime(1000); }); // 2500ms after "first", 1000ms after "second"
-    expect(current).toBe("second");
+    expect(probe.current).toBe("second");
     act(() => { vi.advanceTimersByTime(1100); });
-    expect(current).toBe("");
+    expect(probe.current).toBe("");
     act(() => root.unmount());
   });
 });

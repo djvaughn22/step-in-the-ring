@@ -26,8 +26,8 @@ export default function GameIdeaSession({ idea, card }: { idea: string; card: Re
 
   useEffect(() => {
     const existing = loadGameIdeaSession();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     const next = existing && (!idea || existing.idea === idea) ? existing : startGameIdea(idea);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSession(next);
     setDraft(next.idea);
     setReady(true);
