@@ -9,7 +9,7 @@
  * The proof gate is the law here — an uncertain fix never becomes a video.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   buildPackage, captureGate, emptyRecord, packageMarkdown, parseRecord,
   proofGate, socialPack, PROOF_LEVELS, XUMO_SEED,
@@ -26,13 +26,13 @@ type Stage = "solutions" | "capture" | "proof" | "package" | "footage" | "publis
 const ENGINE_ID = "howto";
 
 const STEPS: { id: Stage; label: string }[] = [
-  { id: "capture", label: "1 Remember" },
-  { id: "proof", label: "2 Prove" },
-  { id: "package", label: "3 Create" },
+  { id: "capture", label: "1 Your story" },
+  { id: "proof", label: "2 Confirm" },
+  { id: "package", label: "3 Package" },
   { id: "footage", label: "4 Footage" },
   { id: "publish", label: "5 Publish" },
   { id: "promote", label: "6 Promote" },
-  { id: "learn", label: "7 Learn" },
+  { id: "learn", label: "7 Check-ins" },
 ];
 
 export default function HowToStudio({
@@ -55,6 +55,7 @@ export default function HowToStudio({
   const [record, setRecord] = useState<SolutionRecord>(emptyRecord());
   const [stepsText, setStepsText] = useState("");
   const [snap, setSnap] = useState<Omit<PerformanceSnapshot, "id">>({ date: "", views: "", watchTime: "", ctr: "", notes: "" });
+  const [accuracyOk, setAccuracyOk] = useState(false);
   const [flash, setFlash] = useState("");
 
   useEffect(() => {
@@ -63,7 +64,8 @@ export default function HowToStudio({
     setReady(true);
   }, []);
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2400); };
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const say = (m: string) => { setFlash(m); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(""), 2400); };
   const copy = async (text: string, label: string) => {
     try { await navigator.clipboard.writeText(text); say(`${label} copied`); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
@@ -133,7 +135,8 @@ export default function HowToStudio({
 
   // ---- publish ----
   const markPublished = () => {
-    if (!record.videoUrl.trim()) { say("Paste the video URL first"); return; }
+    if (!/^https?:\/\/\S+\.\S+/i.test(record.videoUrl.trim())) { say("Paste the full video link, starting with https://"); return; }
+    if (!accuracyOk) { say("Tick the accuracy check first"); return; }
     persist({ ...record, publishedAt: new Date().toISOString() }, "published");
     setStage("promote");
   };
@@ -239,7 +242,7 @@ export default function HowToStudio({
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
             <button onClick={() => setStage("solutions")} className="btn btn-ghost btn-small">Solutions</button>
             {STEPS.map((s) => (
-              <button key={s.id} onClick={() => unlocked(s.id) ? setStage(s.id) : say(s.id === "proof" ? "Finish the capture first" : "Pass the proof review first")}
+              <button key={s.id} onClick={() => unlocked(s.id) ? setStage(s.id) : say(s.id === "proof" ? "Finish the capture first" : "Finish the Confirm step first")}
                 className="btn btn-small"
                 style={{
                   background: stage === s.id ? "var(--gold)" : "var(--surface)",
@@ -260,15 +263,14 @@ export default function HowToStudio({
               <button onClick={() => setMode("help")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Help me do something instead</button>
               <h2 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 6px" }}>Document something you already solved</h2>
               <p style={{ fontSize: 13.5, color: "var(--muted)", margin: "0 0 14px", lineHeight: 1.55 }}>
-                Turn something you know into something that helps — and keep it working for you.
-                Capture what really happened, prove the fix, and leave with the full production package:
-                script, shot list, YouTube listing, thumbnail plan, and social versions.
-                No content quota. The library grows from lived experience.
+                You type what happened and the steps you took. This tool then lays them out as a script, shot list,
+                YouTube title and description, thumbnail text and social posts. It uses only your words and has no way
+                to check that the fix works. You film it and you publish it.
               </p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button onClick={() => startNew()} className="btn btn-gold">+ New solution</button>
                 {saved.length === 0 && (
-                  <button onClick={() => startNew(XUMO_SEED)} className="btn btn-ghost">Start with the Xumo box fix</button>
+                  <button onClick={() => startNew(XUMO_SEED)} className="btn btn-ghost">Try it with a sample fix (Xumo box)</button>
                 )}
               </div>
             </div>
@@ -282,7 +284,7 @@ export default function HowToStudio({
                       <div style={{ minWidth: 0 }}>
                         <p style={{ fontSize: 14, fontWeight: 800, color: "var(--text)", margin: 0 }}>{p.name}</p>
                         <p style={{ fontSize: 12, color: "var(--muted)", margin: "2px 0 0" }}>
-                          {r.publishedAt ? `Published — evergreen asset${r.snapshots.length ? ` · ${r.snapshots.length} check-in${r.snapshots.length !== 1 ? "s" : ""}` : ""}` : buildPackage(r) ? "Package ready — film and publish" : captureGate(r).ready ? "Captured — needs proof review" : "Capture in progress"}
+                          {r.publishedAt ? `Marked published${r.snapshots.length ? ` · ${r.snapshots.length} check-in${r.snapshots.length !== 1 ? "s" : ""}` : ""}` : buildPackage(r) ? "Package ready — film and publish" : captureGate(r).ready ? "Captured — needs proof review" : "Capture in progress"}
                         </p>
                       </div>
                       <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
@@ -300,7 +302,7 @@ export default function HowToStudio({
         {/* ---- 1 REMEMBER ---- */}
         {stage === "capture" && (
           <div style={card}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>1. Remember — what really happened</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>1. Your story — what happened</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
               Rough is fine. Say it the way you&apos;d tell a neighbor. Every answer here becomes the video&apos;s raw material — your words, not generated ones.
             </p>
@@ -326,11 +328,11 @@ export default function HowToStudio({
         {/* ---- 2 PROVE ---- */}
         {stage === "proof" && (
           <div style={card}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>2. Prove — no guesses become facts</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>2. Confirm — how sure are you?</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              This is the gate. Nothing gets scripted, filmed, or published from a guess. An uncertain fix stays in the notebook until you test it again for real.
+              You tell this tool how sure you are. It can&apos;t check any of it. It only holds the package back while you have marked the fix as uncertain or left the confirmation unticked.
             </p>
-            {field("proofNote", "How was the result proven? *", "", "e.g. done on my own box, technician confirmed the same fix", "textarea")}
+            {field("proofNote", "How did you check that it worked? *", "", "e.g. done on my own box, technician confirmed the same fix", "textarea")}
             <label style={label}>Proof level *</label>
             {PROOF_LEVELS.map((p) => (
               <label key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 0", cursor: "pointer" }}>
@@ -343,7 +345,7 @@ export default function HowToStudio({
             ))}
             {record.proofLevel === "uncertain" && (
               <p style={{ fontSize: 13, color: "var(--gold)", fontWeight: 700, margin: "8px 0 0", lineHeight: 1.5 }}>
-                Parked, honestly. Go prove it — do the fix again and watch it work — then come back and change the level.
+                Held back. Do the fix again, watch it work, then come back and change the level.
               </p>
             )}
             <label style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "14px 0 0", cursor: "pointer" }}>
@@ -353,7 +355,7 @@ export default function HowToStudio({
               </span>
             </label>
             <button onClick={confirmProof} className="btn btn-gold" style={{ width: "100%", marginTop: 14 }}>
-              Build the production package →
+              Make the package →
             </button>
             {!proof.ready && proof.missing.length > 0 && (
               <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "10px 0 0" }}>Still needed: {proof.missing.join(" · ")}</p>
@@ -365,11 +367,11 @@ export default function HowToStudio({
         {stage === "package" && pkg && (
           <div style={card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>3. Create — the production package</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>3. Package — script, titles, thumbnail text</h2>
               <button onClick={downloadPackage} className="btn btn-gold btn-small">Download it all (.md)</button>
             </div>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Built entirely from your captured words. Edit anything by going back to Remember — the package rebuilds itself.
+              Built entirely from your captured words. Edit anything by going back to Your story — the package rebuilds itself.
             </p>
             {copyBlock("Title options", pkg.titles.map((t, i) => `${i + 1}. ${t}`).join("\n"))}
             {copyBlock("Voiceover script (this is also the caption file)", pkg.script.map((s) => `[${s.heading}]\n${s.voiceover}`).join("\n\n"))}
@@ -380,9 +382,9 @@ export default function HowToStudio({
         {/* ---- 4 FOOTAGE ---- */}
         {stage === "footage" && pkg && (
           <div style={card}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>4. Footage — film every shot yourself</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>4. Footage — your shot list</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Original footage only: your device, your hands, the real fix happening. Check each shot off as you record it. Clips stay on your phone or camera — this list is the map.
+              Film each shot yourself, then tick it here. This page does not record or store video. The ticks only track your own progress.
             </p>
             {pkg.shotList.map((s) => {
               const done = record.footageDone.includes(s.id);
@@ -404,7 +406,7 @@ export default function HowToStudio({
               <input value={record.footageNotes} onChange={(e) => setRecord({ ...record, footageNotes: e.target.value })} onBlur={() => persist(record)} placeholder="e.g. phone camera roll, July 27 folder" style={input} />
             </div>
             <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "12px 0 0" }}>
-              {record.footageDone.length}/{pkg.shotList.length} shots recorded
+              {record.footageDone.length} of {pkg.shotList.length} shots ticked off by you
             </p>
           </div>
         )}
@@ -412,26 +414,29 @@ export default function HowToStudio({
         {/* ---- 5 PUBLISH ---- */}
         {stage === "publish" && pkg && (
           <div style={card}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>5. Publish — everything YouTube asks for</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>5. Publish — text to paste into YouTube</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Copy each piece straight into the YouTube upload screen. You press the publish button — final approval is always yours.
+              Copy each piece into the YouTube upload screen yourself. This tool does not upload or publish anything.
+              The chapter times marked [m:ss] are blanks: fill them in after you edit the video, and add a sponsor note if one applies.
             </p>
             {copyBlock("Title (pick one)", pkg.titles.map((t, i) => `${i + 1}. ${t}`).join("\n"))}
-            {copyBlock("Description (chapters + disclosure included)", pkg.description)}
+            {copyBlock("Description (chapter times are blanks to fill in)", pkg.description)}
             {copyBlock("Tags", pkg.tags.join(", "))}
             {copyBlock("Pinned comment (add it right after publishing)", pkg.pinnedComment)}
             <div style={{ borderTop: "1px solid var(--line2)", paddingTop: 14 }}>
-              <label style={label}>Final accuracy check</label>
-              <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px", lineHeight: 1.55 }}>
-                Before you press publish over there: the footage shows the real steps, the title claims nothing the record can&apos;t back, and the limits stayed in the description.
-              </p>
-              <label style={label}>Video URL (paste it after publishing)</label>
+              <label style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "0 0 14px", cursor: "pointer" }}>
+                <input type="checkbox" checked={accuracyOk} onChange={(e) => setAccuracyOk(e.target.checked)} style={{ marginTop: 3 }} />
+                <span style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.5 }}>
+                  I checked that my footage shows the real steps, the title claims nothing I can&apos;t back, and the limits are in the description.
+                </span>
+              </label>
+              <label style={label}>Video link (paste it after you have published it yourself)</label>
               <input value={record.videoUrl} onChange={(e) => setRecord({ ...record, videoUrl: e.target.value })} placeholder="https://youtu.be/..." style={input} />
               <button onClick={markPublished} className="btn btn-gold" style={{ width: "100%", marginTop: 12 }}>
-                Mark published → build the social versions
+                I published it — save the link and build the social posts
               </button>
               {record.publishedAt && (
-                <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "8px 0 0" }}>Published {record.publishedAt.slice(0, 10)}</p>
+                <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "8px 0 0" }}>You marked this published on {record.publishedAt.slice(0, 10)}</p>
               )}
             </div>
           </div>
@@ -440,10 +445,10 @@ export default function HowToStudio({
         {/* ---- 6 PROMOTE ---- */}
         {stage === "promote" && pkg && (
           <div style={card}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>6. Promote — one solution, many doors</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>6. Promote — social post text</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Each version fits its platform and points people to the full video — helpful everywhere, spam nowhere.
-              {!record.videoUrl.trim() && " Paste the video URL on the Publish step and the placeholder fills in everywhere."}
+              One version per platform, each pointing to your video link.
+              {!record.videoUrl.trim() && " Add the video link on the Publish step and it fills in here."}
             </p>
             {social.map((p) => copyBlock(p.platform, p.text))}
             {copyBlock("Step In The Ring article (markdown)", pkg.article)}
@@ -453,9 +458,9 @@ export default function HowToStudio({
         {/* ---- 7 LEARN ---- */}
         {stage === "learn" && (
           <div style={card}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>7. Learn — check in, don&apos;t obsess</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>7. Check-ins — your own numbers</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Copy the honest numbers from YouTube Studio now and then. What you learn improves the next solution — you don&apos;t regenerate this one.
+              Type in numbers from YouTube Studio when you want a record. This tool does not fetch them.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
               <div><label style={label}>Date</label><input type="date" value={snap.date} onChange={(e) => setSnap({ ...snap, date: e.target.value })} style={input} /></div>
@@ -476,7 +481,7 @@ export default function HowToStudio({
             ))}
             <div style={{ borderTop: "1px solid var(--line2)", marginTop: 14, paddingTop: 14 }}>
               <p style={{ fontSize: 13.5, color: "var(--text)", fontWeight: 800, margin: "0 0 8px" }}>
-                This one is a permanent asset now. When you solve the next real thing:
+                When you solve something else:
               </p>
               <button onClick={() => startNew()} className="btn btn-gold">+ Start the next solution</button>
             </div>

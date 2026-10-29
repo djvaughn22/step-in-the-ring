@@ -74,7 +74,8 @@ describe("the Xumo package", () => {
 
   it("description carries the disclosure line and the limits", () => {
     expect(pkg.description).toContain("my own experience with my own device");
-    expect(pkg.description).toContain("Not sponsored.");
+    expect(pkg.description).not.toContain("sponsored");
+    expect(pkg.description).toContain("[m:ss] The result");
     expect(pkg.description).toContain(r.limits);
   });
 

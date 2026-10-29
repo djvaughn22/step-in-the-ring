@@ -27,7 +27,7 @@ export function detectDomain(goal: string): TaskDomain {
   if (/\bwebsite\b|\bweb\s?page\b|\bapp\b\s|\bsite\b/.test(g)) return "website";
   if (/\bgame\b/.test(g)) return "game";
   if (/\blogo\b|\bdesign\b|\bposter\b|\bgraphic\b/.test(g)) return "design";
-  if (/\breplace\b|\brepair\b|\bfix\b|\binstall\b|\bassemble\b|\bbuild a\b|\bwire\b|\bplumb\b|\bfaucet\b|\bfaucet\b|\bleak\b/.test(g)) return "physical";
+  if (/\breplace\b|\brepair\b|\bfix\b|\binstall\b|\bassemble\b|\bbuild a\b|\bwire\b|\bplumb\b|\bfaucet\b|\bleak\b/.test(g)) return "physical";
   return "generic";
 }
 
@@ -59,7 +59,7 @@ function openingStep(goal: string, domain: TaskDomain): StepContent {
  *  is the same few moves in Google Sheets or Excel. */
 const KNOWN_STEPS: Partial<Record<TaskDomain, StepContent[]>> = {
   spreadsheet: [
-    { title: "Make the sheet and name the columns", detail: "Open sheets.new (Google Sheets) or a blank Excel workbook. In row 1, type the column names — for a chore chart: Chore, Who, Mon, Tue, Wed, Thu, Fri, Sat, Sun. Make row 1 bold and freeze it (View → Freeze → 1 row)." },
+    { title: "Make the sheet and name the columns", detail: "Open sheets.new (Google Sheets) or a blank Excel workbook. In row 1, type the column names. For example, for a chore chart: Chore, Who, Mon, Tue, Wed, Thu, Fri, Sat, Sun. Make row 1 bold and freeze it (View → Freeze → 1 row)." },
     { title: "Fill in the rows", detail: "One row per item (one chore per row), with who it belongs to in the second column. Ten rows or fewer is plenty for a first version." },
     { title: "Add checkboxes", detail: "Select the day columns for your rows, then Insert → Checkbox (Google Sheets) or Developer → Insert → Check Box (Excel). Now anyone can tick a box." },
     { title: "Make done things stand out", detail: "Select the day cells, then Format → Conditional formatting → \"Custom formula is\" =C2=TRUE with a green fill (adjust C2 to your first day cell). Ticked boxes now turn green." },
@@ -103,19 +103,38 @@ export function startTask(goal: string, now?: string): TaskSessionV1 {
   return { version: 1, id: taskUid(), goal: goal.trim(), domain: detectDomain(goal), stepIndex: 0, log: [], createdAt: at, updatedAt: at, finishedAt: null };
 }
 
-export function currentStep(s: TaskSessionV1): StepContent & { copyText: string } {
+const OK_NOTE = /^(yes|yep|yeah|yup|done|worked|it worked|ok|okay|good|great|finished|did it|got it|all set|works)\b/i;
+
+/** A note that says something went wrong (anything that isn't a plain yes). The
+ *  engine doesn't read it for meaning — it only tells "yes" from "not yes". */
+export function isProblemNote(note: string | undefined): boolean {
+  const n = (note ?? "").trim();
+  return n.length > 0 && !OK_NOTE.test(n);
+}
+
+export function currentStep(s: TaskSessionV1): StepContent & { copyText: string; lastNote: string; problem: boolean } {
   const known = KNOWN_STEPS[s.domain];
-  const content = known && s.stepIndex < known.length ? known[s.stepIndex]
+  const lastNote = s.log[s.log.length - 1]?.note?.trim() ?? "";
+  const problem = isProblemNote(lastNote);
+  const base = known && s.stepIndex < known.length ? known[s.stepIndex]
     : s.stepIndex === 0 ? openingStep(s.goal, s.domain) : loopStep(s.stepIndex, s.domain);
-  const lastNote = s.log[s.log.length - 1]?.note?.trim();
+  // Known steps stay put after a problem (advance() didn't move them); general
+  // guidance switches to the "narrow it down" step.
+  const content = problem && !(known && s.stepIndex < known.length)
+    ? { title: "Change one thing and try again", detail: "Search for the exact wording of what went wrong plus your model or tool name. Then change only one thing and try again, so you can tell what made the difference." }
+    : base;
   const notePart = lastNote ? ` Last update: ${lastNote}${/[.!?]$/.test(lastNote) ? "" : "."}` : "";
   const copyText = `Help me with this: ${s.goal}. ${content.detail}${notePart} Give me only the next small step, and keep it beginner-friendly.`;
-  return { ...content, copyText };
+  return { ...content, copyText, lastNote, problem };
 }
 
 export function advance(s: TaskSessionV1, note: string, now?: string): TaskSessionV1 {
   const at = now ?? new Date().toISOString();
-  return { ...s, stepIndex: s.stepIndex + 1, log: [...s.log, { stepIndex: s.stepIndex, note: note.trim(), at }], updatedAt: at };
+  // A problem on a step this engine really knows repeats that step instead of
+  // skipping to the next one.
+  const known = KNOWN_STEPS[s.domain];
+  const stay = known && s.stepIndex < known.length && isProblemNote(note);
+  return { ...s, stepIndex: stay ? s.stepIndex : s.stepIndex + 1, log: [...s.log, { stepIndex: s.stepIndex, note: note.trim(), at }], updatedAt: at };
 }
 
 export function finish(s: TaskSessionV1, now?: string): TaskSessionV1 {
@@ -149,7 +168,7 @@ export function parseTaskSession(v: unknown): TaskSessionV1 | null {
   const o = v as Record<string, unknown>;
   if (typeof o.id !== "string" || !o.id) return null;
   const goal = str(o.goal);
-  const domains: TaskDomain[] = ["music", "website", "game", "design", "physical", "generic"];
+  const domains: TaskDomain[] = ["music", "website", "game", "design", "physical", "spreadsheet", "generic"];
   return {
     version: 1,
     id: o.id,
@@ -175,4 +194,10 @@ export function isGeneralGuidance(s: TaskSessionV1): boolean {
   const known = KNOWN_STEPS[s.domain];
   if (known) return s.stepIndex >= known.length;
   return s.domain === "generic" || s.stepIndex > 0;
+}
+
+/** Plain-text record of what the person did: the goal and what they reported. */
+export function taskSummary(s: TaskSessionV1): string {
+  const lines = s.log.map((e, i) => `${i + 1}. ${e.note.trim() || "(no note: said it worked)"}`);
+  return [`Goal: ${s.goal}`, s.finishedAt ? "Marked done by you." : "Not marked done yet.", "", lines.length ? "What you reported, in order:" : "No notes yet.", ...lines].join("\n") + "\n";
 }

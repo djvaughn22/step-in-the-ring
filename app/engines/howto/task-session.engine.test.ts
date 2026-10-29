@@ -2,7 +2,7 @@
 // time — not the retrospective evidence-capture form. Locks in the required
 // proof case (BandLab) plus the honest generic fallback for anything else.
 import { describe, expect, it } from "vitest";
-import { advance, currentStep, detectDomain, finish, parseTaskSession, startTask, stuckHelp } from "./task-session.engine";
+import { advance, currentStep, detectDomain, finish, parseTaskSession, startTask, stuckHelp, taskSummary } from "./task-session.engine";
 
 describe("task session — the required proof case", () => {
   it("detects the music domain and names the actual tool", () => {
@@ -65,5 +65,34 @@ describe("task session persistence", () => {
   it("returns null for non-sessions", () => {
     expect(parseTaskSession(null)).toBeNull();
     expect(parseTaskSession({})).toBeNull();
+  });
+});
+
+describe("2026-10-28: the session responds to a reported problem, honestly", () => {
+  it("a problem on general guidance becomes a narrow-it-down step that quotes the note", () => {
+    let s = startTask("replace the cartridge in my faucet");
+    s = advance(s, "the handle won't come off");
+    const step = currentStep(s);
+    expect(step.problem).toBe(true);
+    expect(step.title).toMatch(/one thing/i);
+    expect(step.lastNote).toBe("the handle won't come off");
+  });
+  it("a plain yes moves on without a problem step", () => {
+    const s = advance(startTask("replace the cartridge in my faucet"), "Yes, done");
+    expect(currentStep(s).problem).toBe(false);
+  });
+  it("a problem on a step the engine knows repeats that step", () => {
+    let s = startTask("a google sheets chore chart");
+    s = advance(s, "I can't find Insert");
+    expect(s.stepIndex).toBe(0);
+    expect(currentStep(s).title).toMatch(/name the columns/i);
+    s = advance(s, "");
+    expect(s.stepIndex).toBe(1);
+  });
+  it("summarises what was reported and never claims it was verified", () => {
+    const s = finish(advance(startTask("a task"), "worked"));
+    const t = taskSummary(s);
+    expect(t).toContain("Goal: a task");
+    expect(t).toContain("worked");
   });
 });

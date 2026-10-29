@@ -7,9 +7,10 @@
  * next step. Deterministic — no model call.
  */
 
-import { useEffect, useState } from "react";
-import { advance, currentStep, finish, isGeneralGuidance, startTask, stuckHelp, type TaskSessionV1 } from "./task-session.engine";
+import { useEffect, useState, useRef } from "react";
+import { advance, currentStep, finish, isGeneralGuidance, startTask, stuckHelp, taskSummary, type TaskSessionV1 } from "./task-session.engine";
 import { clearTaskSession, loadTaskSession, saveTaskSession } from "./task-session.store";
+import { downloadText } from "../artifacts/ArtifactView";
 
 const card = { background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, padding: 18 } as const;
 const input = {
@@ -41,7 +42,8 @@ export default function TaskSession({
     setReady(true);
   }, []);
 
-  const say = (m: string) => { setFlash(m); setTimeout(() => setFlash(""), 2200); };
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const say = (m: string) => { setFlash(m); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(""), 2200); };
   const copy = async (text: string) => {
     try { await navigator.clipboard.writeText(text); say("Copied"); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
@@ -78,7 +80,18 @@ export default function TaskSession({
       <div style={card}>
         <h2 style={{ fontSize: 16.5, fontWeight: 900, margin: "0 0 6px" }}>Done</h2>
         <p style={{ fontSize: 14, color: "var(--text)", margin: "0 0 14px" }}>{session.goal}</p>
-        <button onClick={startSomethingNew} className="btn btn-gold">Start something new →</button>
+        <p style={{ ...sub, margin: "0 0 14px" }}>You marked this done after {session.log.length} {session.log.length === 1 ? "step" : "steps"}. Nothing was checked by this tool.</p>
+        {session.log.some((e) => e.note.trim()) && (
+          <ol style={{ margin: "0 0 14px", paddingLeft: 20, fontSize: 13.5, color: "var(--text)", lineHeight: 1.5 }}>
+            {session.log.filter((e) => e.note.trim()).map((e, i) => <li key={i}>{e.note}</li>)}
+          </ol>
+        )}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <button onClick={() => copy(taskSummary(session))} className="btn btn-ghost btn-small">Copy notes</button>
+          <button onClick={() => downloadText("how-to-notes.txt", taskSummary(session))} className="btn btn-ghost btn-small">Download notes</button>
+          <button onClick={startSomethingNew} className="btn btn-gold">Start something new →</button>
+          {flash && <span style={{ fontSize: 12.5, color: "var(--gold)", fontWeight: 800 }}>{flash}</span>}
+        </div>
       </div>
     );
   }
@@ -88,9 +101,14 @@ export default function TaskSession({
   return (
     <div>
       <div style={{ ...card, marginBottom: 14, borderLeft: "4px solid var(--gold)" }}>
-        <p style={{ fontSize: 11.5, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Next step</p>
+        <p style={{ fontSize: 11.5, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Step {session.log.length + 1}{step.problem ? " · you reported a problem" : ""}</p>
         <h2 style={{ fontSize: 17, fontWeight: 900, color: "var(--text)", margin: "0 0 6px" }}>{step.title}</h2>
         <p style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.55, margin: "0 0 14px" }}>{step.detail}</p>
+        {step.lastNote && (
+          <p style={{ fontSize: 12.5, color: "var(--muted)", lineHeight: 1.5, margin: "0 0 12px" }}>
+            You wrote: &ldquo;{step.lastNote}&rdquo;. This tool doesn&apos;t read it. It saves it here and adds it to the Copy text.
+          </p>
+        )}
         {isGeneralGuidance(session) && (
           <p role="note" style={{ fontSize: 12.5, color: "var(--muted)", lineHeight: 1.5, margin: "0 0 14px", padding: "8px 10px", border: "1px solid var(--line2)", borderRadius: 10 }}>
             This engine doesn&apos;t know the exact steps for this task — this is general guidance to keep you moving. For exact steps, use Copy and paste it into a helper you trust, or the maker&apos;s own instructions.

@@ -215,12 +215,12 @@ export function buildPackage(r: SolutionRecord): SolutionPackage | null {
   }
   script.push({
     heading: "The fix, step by step",
-    voiceover: steps.map((s, i) => `Step ${i + 1}. ${s}`).join(" "),
+    voiceover: steps.map((s, i) => `Step ${i + 1}. ${s.replace(/[.!\s]+$/, "")}.`).join(" "),
     shotIds: steps.map((_, i) => `shot-step-${i + 1}`),
   });
   script.push({
     heading: "The result",
-    voiceover: `${r.result.trim()} ${r.proofNote.trim()}`.trim(),
+    voiceover: [r.result, r.proofNote].map((t) => t.trim()).filter(Boolean).map((t) => (/[.!?]$/.test(t) ? t : `${t}.`)).join(" "),
     shotIds: ["shot-result"],
   });
   if (r.limits.trim()) {
@@ -231,8 +231,9 @@ export function buildPackage(r: SolutionRecord): SolutionPackage | null {
     });
   }
 
-  // Chapters ride the same section order. Timestamps get filled after the edit.
-  const chapters = ["0:00 " + script.map((s) => s.heading).join("\n0:00 ")];
+  // Chapters ride the same section order. The tool has not seen the video, so
+  // only the first time (0:00) is real; the rest are marked for the maker to fill in.
+  const chapters = [script.map((s, i) => `${i === 0 ? "0:00" : "[m:ss]"} ${s.heading}`).join("\n")];
 
   const proofLine =
     r.proofLevel === "documented"
@@ -251,7 +252,7 @@ export function buildPackage(r: SolutionRecord): SolutionPackage | null {
     `Chapters:`,
     chapters[0],
     ``,
-    `${proofLine} Not sponsored.`,
+    proofLine,
   ].filter((line, i, arr) => !(line === "" && arr[i - 1] === "")).join("\n");
 
   const shortScript = [
@@ -281,7 +282,7 @@ export function buildPackage(r: SolutionRecord): SolutionPackage | null {
     `**Result:** ${r.result.trim()}`,
     r.limits.trim() ? `\n**When this won't help:** ${r.limits.trim()}` : ``,
     ``,
-    `*${proofLine} Not sponsored.*`,
+    `*${proofLine}*`,
   ].filter((line, i, arr) => !(line === "" && arr[i - 1] === "")).join("\n");
 
   return {
