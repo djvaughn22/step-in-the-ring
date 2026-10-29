@@ -63,8 +63,10 @@ export default function GameStudio({ onBack, card, initialAnswers, isOwner }: Ga
     // A re-theme already in progress wins (don't interrupt it). Otherwise a
     // fresh idea just handed over IS the "I want to make a new game" signal —
     // no need to ask. Cold, seedless opens get the real choice.
-    setPath(hasDraft ? "existing" : initialAnswers?.seed ? "new" : "choose");
-  }, [initialAnswers]);
+    // Only the owner can preview or publish, so only the owner is dropped back
+    // into a draft re-theme; everyone else gets the choice again.
+    setPath(hasDraft && isOwner ? "existing" : initialAnswers?.seed ? "new" : "choose");
+  }, [initialAnswers, isOwner]);
 
   const saveWorld = (w: DokuWorld) => {
     setWorld(w);
@@ -91,6 +93,11 @@ export default function GameStudio({ onBack, card, initialAnswers, isOwner }: Ga
         body: JSON.stringify({ action, modeId: mode?.id, templateId: template?.id, world, overwrite }),
       });
       const data = await res.json();
+      if (res.status === 401) {
+        throw new Error(isOwner
+          ? "Your owner sign-in is not valid. Sign in again, then retry. Nothing was built or published."
+          : "Preview and publish only work on the owner's machine. Nothing was built or published.");
+      }
       if (!res.ok) {
         if (res.status === 409 && action === "publish" && confirm(data.error + "\n\nUpdate the live game?")) {
           setBusy("");
@@ -172,7 +179,7 @@ export default function GameStudio({ onBack, card, initialAnswers, isOwner }: Ga
         {/* ---------- STEP: MODE ---------- */}
         {step === "mode" && (
           <>
-            <button onClick={onBack} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Engines</button>
+            <button onClick={() => setPath("choose")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back</button>
             <span className="kicker">1 · Choose a platform</span>
             {GAME_MODES.map((m) => (
               <button
@@ -187,7 +194,7 @@ export default function GameStudio({ onBack, card, initialAnswers, isOwner }: Ga
                     {m.status === "live" ? "Live" : "Planned"}
                   </span>
                 </div>
-                <p style={{ ...dim, margin: "6px 0 0" }}>{m.blurb}</p>
+                <p style={{ ...dim, margin: "6px 0 0" }}>{m.blurb}{!isOwner && m.id === "opendoku" ? " Previewing and publishing are owner-only for now." : ""}</p>
                 <p style={{ ...dim, margin: "4px 0 0", fontWeight: 800, color: "var(--gold)", fontSize: 12 }}>→ {m.platform}</p>
               </button>
             ))}
@@ -284,7 +291,7 @@ export default function GameStudio({ onBack, card, initialAnswers, isOwner }: Ga
             <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
               <button onClick={() => { saveWorld(MINEDOKU_WORLD); setSlugTouched(false); }} className="btn btn-ghost btn-small">Reset to MineDoku</button>
               <button
-                disabled={errors.length > 0}
+                disabled={errors.length > 0 || !isOwner}
                 onClick={() => { setPreviewHtml(""); setPublishResult(null); setStep("launchpad"); api("preview"); }}
                 className="btn btn-gold"
                 style={{ flex: 1 }}
@@ -292,6 +299,7 @@ export default function GameStudio({ onBack, card, initialAnswers, isOwner }: Ga
                 Play it → launchpad
               </button>
             </div>
+            {!isOwner && <p style={{ ...dim, margin: "8px 0 0" }}>Building the preview only works on the owner&apos;s machine, so this button is off here. You can still edit the fields to see what the template takes. For a new game idea, go back and use &ldquo;I want to make a NEW game&rdquo;.</p>}
           </>
         )}
 

@@ -184,20 +184,14 @@ export default function SongStudio({ project, onChange, onBack }: {
           </div>
 
           <div style={{ ...card, marginBottom: 14 }}>
-            <h3 style={{ fontSize: 14.5, fontWeight: 900, margin: "0 0 4px" }}>Your boundaries</h3>
+            <h3 style={{ fontSize: 14.5, fontWeight: 900, margin: "0 0 4px" }}>Guidance to show</h3>
             <p style={{ ...sub, margin: "0 0 10px" }}>
-              These change what the engine offers — they are rules, not decoration. Authorship stays with you either way.
+              These three turn the tip panels on or off. Nothing else here changes with them.
             </p>
             {([
-              ["preserveOriginalWords", "Preserve my original words"],
-              ["allowLyricWriting", "The engine may write lyrics for me"],
-              ["allowMelodyReplacement", "The engine may replace my melody"],
-              ["preserveMeaning", "Do not change testimony or theological meaning"],
-              ["askBeforeWordingSuggestions", "Ask before suggesting wording"],
-              ["allowProductionGuidance", "Production guidance is welcome"],
-              ["allowArrangementGuidance", "Arrangement guidance is welcome"],
-              ["allowTheoryTeaching", "Music-theory teaching is welcome"],
-              ["allowChordExperiments", "Chord experiments are welcome"],
+              ["allowProductionGuidance", "Production tips"],
+              ["allowArrangementGuidance", "Arrangement tips"],
+              ["allowTheoryTeaching", "Music-theory tips"],
             ] as const).map(([k, text]) => (
               <label key={k} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "7px 0", borderBottom: "1px solid var(--line2)", cursor: "pointer" }}>
                 <input type="checkbox" checked={p.boundaries[k]} style={{ marginTop: 3, width: 18, height: 18 }}
@@ -205,7 +199,7 @@ export default function SongStudio({ project, onChange, onBack }: {
                 <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>{text}</span>
               </label>
             ))}
-            <p style={{ ...sub, margin: "10px 0 0" }}>Keep authorship with me — always on. The engine never claims it created your song.</p>
+            <p style={{ ...sub, margin: "10px 0 0" }}>This tool never writes lyrics, changes your words or replaces your melody. It has no way to. The song stays yours.</p>
           </div>
 
           <div style={card}>

@@ -16,6 +16,7 @@ import {
 } from "./game-idea.engine";
 import { clearGameIdeaSession, loadGameIdeaSession, saveGameIdeaSession } from "./game-idea.store";
 import { useFlash } from "../shared/useFlash";
+import { downloadText } from "../artifacts/ArtifactView";
 
 export default function GameIdeaSession({ idea, card }: { idea: string; card: React.CSSProperties }) {
   const [ready, setReady] = useState(false);
@@ -26,12 +27,14 @@ export default function GameIdeaSession({ idea, card }: { idea: string; card: Re
   useEffect(() => {
     const existing = loadGameIdeaSession();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSession(existing && existing.idea === idea ? existing : startGameIdea(idea));
+    const next = existing && (!idea || existing.idea === idea) ? existing : startGameIdea(idea);
+    setSession(next);
+    setDraft(next.idea);
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-    const copy = async (text: string) => {
+  const copy = async (text: string) => {
     try { await navigator.clipboard.writeText(text); say("Copied"); }
     catch { say("Couldn't reach your clipboard — select the text and copy it by hand."); }
   };
@@ -41,24 +44,19 @@ export default function GameIdeaSession({ idea, card }: { idea: string; card: Re
 
   if (!ready || !session) return <div style={{ height: 160 }} />;
 
-  const set = (next: GameIdeaSessionV1) => { setSession(saveGameIdeaSession(next)); setDraft(""); };
+  const set = (next: GameIdeaSessionV1) => { setSession(saveGameIdeaSession(next)); setDraft(next.genre ? "" : next.idea); };
 
   // ---------------- Genre pick ----------------
   if (!session.genre) {
     return (
       <div style={card}>
-        {session.idea ? (
-          <p style={{ fontSize: 14, color: "var(--text)", margin: "0 0 14px", lineHeight: 1.5 }}>Your idea: {session.idea}</p>
-        ) : (
-          <>
-            <label htmlFor="game-idea-text" style={{ display: "block", fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>What&apos;s the game? (one line, optional)</label>
-            <textarea id="game-idea-text" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="e.g. a game where kids race to finish chores before the timer runs out" style={{ ...input, minHeight: 70, resize: "vertical", marginBottom: 14 }} />
-          </>
-        )}
+        <label htmlFor="game-idea-text" style={{ display: "block", fontSize: 15, fontWeight: 800, color: "var(--text)", marginBottom: 6 }}>What&apos;s the game? (one line, optional)</label>
+        <textarea id="game-idea-text" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="e.g. a game where kids race to finish chores before the timer runs out" style={{ ...input, minHeight: 70, resize: "vertical", marginBottom: 14 }} />
+        <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "0 0 12px", lineHeight: 1.5 }}>Describe it with &ldquo;where…&rdquo; (a game where you…) and that part becomes the core action. Then pick a type. The rest of the shape is a standard setup for that type.</p>
         <span style={kicker}>What sounds fun?</span>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
           {GENRES.map((g) => (
-            <button key={g} onClick={() => set(pickGenre(session, g, undefined, session.idea ? undefined : draft))} className="btn btn-gold btn-small">{GENRE_LABELS[g]}</button>
+            <button key={g} onClick={() => set(pickGenre(session, g, undefined, draft))} className="btn btn-gold btn-small">{GENRE_LABELS[g]}</button>
           ))}
         </div>
       </div>
@@ -74,10 +72,11 @@ export default function GameIdeaSession({ idea, card }: { idea: string; card: Re
         <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 14, color: "var(--text)", lineHeight: 1.6, margin: 0 }}>{shape}</pre>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
           {prompt && (
-            <button onClick={() => set(keepShape(session))} className="btn btn-gold btn-small">Keep this</button>
+            <button onClick={() => set(keepShape(session))} className="btn btn-gold btn-small">Keep this, no more questions</button>
           )}
-          <button onClick={() => set(changeGenre(session))} className="btn btn-ghost btn-small">Change it</button>
+          <button onClick={() => set(changeGenre(session))} className="btn btn-ghost btn-small">Change the type</button>
           <button onClick={() => copy(buildBrief(session))} className="btn btn-ghost btn-small">Copy</button>
+          <button onClick={() => downloadText("game-idea.md", `${buildShape(session)}\n`)} className="btn btn-ghost btn-small">Download .md</button>
           {flash && <span style={{ fontSize: 12.5, color: "var(--gold)", fontWeight: 800 }}>{flash}</span>}
         </div>
       </div>
@@ -99,9 +98,8 @@ export default function GameIdeaSession({ idea, card }: { idea: string; card: Re
       {!prompt && (
         <div style={{ ...card, marginTop: 14 }}>
           <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.55, margin: 0 }}>
-            This is a shape, not a finished game — make the smallest playable version of it first. Want to
-            build it toward a real doku world instead?{" "}
-            <button onClick={() => { clearGameIdeaSession(); set(changeGenre(session)); }} className="btn btn-ghost btn-small" style={{ marginLeft: 6 }}>
+            This is a starting point, not a game. Nothing has been built or tested. Make the smallest playable version first.{" "}
+            <button onClick={() => { clearGameIdeaSession(); set(startGameIdea("")); }} className="btn btn-ghost btn-small" style={{ marginLeft: 6 }}>
               Start a new idea
             </button>
           </p>

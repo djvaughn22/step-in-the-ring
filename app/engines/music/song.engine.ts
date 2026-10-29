@@ -601,6 +601,14 @@ export function nextAction(p: SongProjectV1): NextAction {
       detail: "Version One is yours. When you want to improve it, start the next pass — better takes, more instruments, or a real mix.",
     };
   }
+  // A project with nothing filled in yet starts at the first panel: say what you have.
+  if (p.startingState.length === 0 && !p.originalSource && p.melodyState === "unknown" && p.voiceMemo.status === "none" && p.notesWork.entries.length === 0) {
+    return {
+      stage: "spark",
+      title: "Say what you already have",
+      detail: "Tick what you have so far below: words, a melody in your head, a recording, a beat. Then paste any words exactly as they are. This page only keeps what you tell it.",
+    };
+  }
   const hasLyrics = p.startingState.includes("lyrics") || p.startingState.includes("hook") || p.startingState.includes("song-idea");
   if (!p.originalSource && hasLyrics) {
     return {

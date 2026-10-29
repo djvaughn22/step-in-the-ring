@@ -151,9 +151,7 @@ with an empty workspace.
 1. `/engines` → Music Engine card → Start.
 2. Front door shows "What do you want to make?" + tool picker + Start making —
    no nine-row checklist, no "in your tool" repetition.
-3. Bring your song to life is now resume-only from the UI: an existing
-   project under "Song projects in progress" → Resume → workspace opens with
-   its preserved state (lyrics, melody, equipment, software all intact).
+3. Bring your song to life starts from the "Already started a song?" card on the Music front door ("Open the song notebook"). It creates a new project each time (never overwrites one), and backing out of a project you did not fill in removes it. Saved projects appear under "Song projects in progress" → Resume with their preserved state intact.
 4. Paste source → "Preserve exactly" → text is byte-identical, dashed-border
    permanent block; working copy is separate.
 5. Boundaries default correctly; no lyric-generation action exists anywhere.

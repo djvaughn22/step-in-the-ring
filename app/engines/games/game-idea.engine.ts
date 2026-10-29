@@ -176,15 +176,16 @@ export function buildShape(s: GameIdeaSessionV1): string {
     "",
     `Players: ${t.players}`,
     `Round: ${t.round}`,
-    `Core action: ${core || t.action}`,
+    `Core action: ${core || `${t.action} (standard for this type)`}`,
     `Score: ${t.score}`,
     `Restart: ${t.restart}`,
     `Challenge: ${s.obstacle || `${sug.obstacle} (suggested — change it)`}`,
     `Why another round: ${s.funHook || `${sug.fun} (suggested — change it)`}`,
     "",
     "PLAY IT TODAY, NO BUILDING",
-    `Set a timer for ${/60|90/.test(t.round) ? t.round.match(/\d+/)![0] : "60"} seconds. ${core ? `${core.charAt(0).toUpperCase()}${core.slice(1)}.` : `Do the core action: ${t.action}.`} Score it on paper. Play three rounds and change one rule each time.`,
+    `${/\d/.test(t.round) ? `Set a timer for ${t.round.match(/\d+/)![0]} seconds.` : "Play one short round."} ${core ? `${core.charAt(0).toUpperCase()}${core.slice(1)}.` : `Do the core action: ${t.action}.`} Score it on paper. Play three rounds and change one rule each time.`,
   ];
+  lines.push("", `Players, round, score and restart are the standard setup for this type. Only the idea${s.obstacle || s.funHook ? " and the lines you wrote" : ""} come from you.`);
   lines.push("", "This is a shape to build from, not a finished game — the smallest playable version is worth making before adding anything else.");
   return lines.filter((l) => l !== "" || lines.indexOf(l) !== 0).join("\n").replace(/\n{3,}/g, "\n\n");
 }

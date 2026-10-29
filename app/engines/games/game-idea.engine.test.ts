@@ -63,3 +63,19 @@ describe("the shape uses the creator's idea and is never missing a piece", () =>
     expect(shape).toMatch(/PLAY IT TODAY/);
   });
 });
+
+describe("2026-10-28: the shape says which lines are standard", () => {
+  it("labels a template core action, uses the idea's own when it has one", async () => {
+    const { buildShape, pickGenre, startGameIdea } = await import("./game-idea.engine");
+    const plain = buildShape(pickGenre(startGameIdea("pirate treasure"), "arcade"));
+    expect(plain).toContain("(standard for this type)");
+    expect(plain).toMatch(/standard setup for this type/);
+    const own = buildShape(pickGenre(startGameIdea("a game where pirates dig up treasure"), "arcade"));
+    expect(own).toContain("Core action: pirates dig up treasure");
+    expect(own).not.toContain("Core action: one repeated action");
+  });
+  it("a puzzle shape does not invent a 60 second timer", async () => {
+    const { buildShape, pickGenre, startGameIdea } = await import("./game-idea.engine");
+    expect(buildShape(pickGenre(startGameIdea("a word puzzle"), "puzzle"))).not.toMatch(/timer for 60/);
+  });
+});

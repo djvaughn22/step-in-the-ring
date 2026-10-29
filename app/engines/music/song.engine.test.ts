@@ -341,3 +341,12 @@ describe("arrangement", () => {
     expect(moveSection(p, p.sections[0].id, -1).sections).toEqual(p.sections);
   });
 });
+
+describe("a brand-new song project", () => {
+  it("starts at the first panel and does not jump ahead to recording", async () => {
+    const { createSongProject, nextAction } = await import("./song.engine");
+    const a = nextAction(createSongProject({ now: "2026-10-28T12:00:00Z" }));
+    expect(a.stage).toBe("spark");
+    expect(a.title).toMatch(/what you already have/i);
+  });
+});
