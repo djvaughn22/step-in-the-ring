@@ -163,7 +163,10 @@ export function readProduct(purpose: string, core = ""): ProductRead {
   const firstObject = stories.find((s) => s.object && s.kind !== "view")?.object ?? stories.find((s) => s.object)?.object ?? "";
   // Fall back to the last noun of the product name ("chore board" → "chore").
   const productNoun = product.split(" ").filter((w) => !/^(weekly|daily|monthly|simple|little|small|shared|family|online|digital|app|board|site|website|tracker|list|chart|tool|page|dashboard|planner|calendar|log|sheet|journal|hub|portal|system)$/i.test(w)).pop() ?? "";
-  const entity = firstObject || singular(productNoun || "item");
+  // "Record minutes practiced" logs practice, not minutes: a unit of measure is
+  // the amount on a record, never the record itself.
+  const UNIT = /^(minute|hour|second|mile|kilometer|km|step|page|point|dollar|rep|lap|cup|glass|pound|calorie)$/;
+  const entity = firstObject && !(UNIT.test(firstObject) && productNoun) ? firstObject : singular(productNoun || "item");
   const text = `${purpose} ${core}`;
   const cadence: ProductRead["cadence"] = has(text, /\bweekly|each week|every week|this week|per week/) ? "weekly"
     : has(text, /\bdaily|each day|every day|today/) ? "daily" : has(text, /\bmonthly|each month|every month/) ? "monthly" : "";

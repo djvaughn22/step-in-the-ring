@@ -141,9 +141,12 @@ export function planArtifact(a: Answers, now: Date = new Date()): EngineArtifact
   const total = deadline ? Math.max(7, deadline.days) : 42;
   const end = addDays(today, total);
   if (!deadline) assumptions.push(`No deadline given, so this plan runs six weeks, to ${fmtDate(end)}. Give a date and regenerate to re-time it.`);
-  const o = owners(people);
-  if (people && o.assumed && o.count > 1) assumptions.push(`Owners are you plus two helpers ("${o.a}", "${o.b}"). Swap in real names when you share it.`);
-  if (!people) assumptions.push(`It's you plus two helpers ("${o.a}", "${o.b}"). If it's just you, every owner is you — the order still holds.`);
+  // "Me and 3 volunteers" typed into the outcome counts too, when the people
+  // question was left blank.
+  const peopleText = people || (parseHeadcount(`${outcome} ${situation}`) !== null ? `${outcome} ${situation}` : "");
+  const o = owners(peopleText);
+  if (peopleText && o.assumed && o.count > 1) assumptions.push(`Owners are you plus two helpers ("${o.a}", "${o.b}"). Swap in real names when you share it.`);
+  if (!peopleText) assumptions.push(`It's you plus two helpers ("${o.a}", "${o.b}"). If it's just you, every owner is you — the order still holds.`);
   const goal = parseMoney(all);
 
   let format = "";

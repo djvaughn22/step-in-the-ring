@@ -115,3 +115,21 @@ describe("I don't know is a valid answer everywhere", () => {
     }
   });
 });
+
+describe("plan reads a headcount typed into the outcome", () => {
+  it("names volunteers instead of assuming two helpers when the people question is blank", async () => {
+    const { planArtifact } = await import("./plan");
+    const art = planArtifact({ outcome: "Neighborhood yard sale on Nov 14 with me and 3 volunteers" }, new Date("2026-10-28T12:00:00Z"));
+    const all = art.sections.map((s) => s.body).join("\n");
+    expect(all).toContain("Volunteer 1");
+    expect(all).not.toMatch(/It's you plus two helpers/);
+  });
+});
+
+describe("a unit of measure is never the thing being logged", () => {
+  it("a practice log tracks practice, not minutes", async () => {
+    const { readProduct } = await import("./product");
+    expect(readProduct("A practice log where players record minutes practiced each day and coaches see the totals").entity).toBe("practice");
+    expect(readProduct("A weekly chore board where parents assign chores, kids check them off").entity).toBe("chore");
+  });
+});
