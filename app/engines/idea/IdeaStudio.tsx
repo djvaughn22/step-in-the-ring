@@ -32,6 +32,8 @@ function deriveIdeaName(seed: string): string {
   return shortName(seed) || "Untitled idea";
 }
 
+const stripEndDot = (t: string) => `${t.replace(/[.!\s]+$/, "")}.`;
+
 interface IdeaContent {
   /** Pre-2026-10 saves: the old compare-and-score list. Read, never written. */
   candidates?: IdeaCandidate[];
@@ -97,7 +99,12 @@ export default function IdeaStudio({
     setAnswers(p.answers);
     const c = (p.buildContent as IdeaContent) ?? {};
     setSelectedId(c.selectedId ?? "");
-    setDecision(c.decision ?? null);
+    // Saves from before 2026-10-28 kept the chosen version's sentence as "The
+    // idea"; put the typed idea back and keep that sentence as "What to do".
+    const seedText = p.answers.seed?.trim();
+    setDecision(c.decision && !c.decision.approach && seedText
+      ? { ...c.decision, description: stripEndDot(seedText), approach: c.decision.description }
+      : c.decision ?? null);
     setEditing(false);
     setStage(c.decision ? "done" : p.answers.seed ? "versions" : "start");
   };
@@ -153,7 +160,7 @@ export default function IdeaStudio({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <button onClick={onBack} className="btn btn-ghost btn-small">← Engine Room</button>
           <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
-            Idea Engine {stage !== "projects" ? `· ${stage}` : ""}
+            Idea Engine {stage === "start" ? "· Your idea" : stage === "versions" ? "· Pick a version" : stage === "done" ? "· Your decision" : ""}
           </span>
         </div>
         {flash && <p style={{ color: "var(--gold)", fontWeight: 800, marginBottom: 12 }}>{flash}</p>}
@@ -198,7 +205,7 @@ export default function IdeaStudio({
             )}
             <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>What are you thinking about?</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              Say it however it comes out. You&apos;ll get three ways to try it, one recommended, and leave with a decision, a dated first action, and how to tell if it worked.
+              Say it however it comes out. You get three ways to try it, with one marked as the suggestion, then a first action with a date and a way to check if it worked. The wording is built from what you type; nothing here reads or judges the idea.
             </p>
             <div style={{ marginBottom: 14 }}>
               <label style={{ display: "block", fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>The idea, however it comes out</label>
@@ -218,6 +225,7 @@ export default function IdeaStudio({
             <button onClick={submitStart} disabled={!answers.seed?.trim()} style={{ width: "100%", marginTop: 8, opacity: !answers.seed?.trim() ? 0.5 : 1 }} className="btn btn-gold">
               Show me ways to try it →
             </button>
+            {!answers.seed?.trim() && <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "8px 0 0", textAlign: "center" }}>Type your idea above and this turns on.</p>}
           </div>
         )}
 
@@ -256,6 +264,7 @@ export default function IdeaStudio({
           const target = HANDOFF_TARGETS.find((t) => t.engineId === decision.nextEngineId);
           const rows: [keyof IdeaDecision, string, boolean][] = [
             ["description", "The idea", true],
+            ["approach", "What to do", true],
             ["intendedUser", "For", false],
             ["problem", "Why it matters", false],
             ["simplestFirstVersion", "First version", true],
@@ -287,7 +296,7 @@ export default function IdeaStudio({
               {editing ? (
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <button onClick={saveEdit} className="btn btn-gold btn-small">Save edits</button>
-                  <button onClick={() => setEditing(false)} className="btn btn-ghost btn-small">Cancel</button>
+                  <button onClick={() => { const kept = project ? (getProject(project.id)?.buildContent as IdeaContent | undefined)?.decision : undefined; if (kept) setDecision(kept); setEditing(false); }} className="btn btn-ghost btn-small">Cancel</button>
                 </div>
               ) : (
                 <>
@@ -306,6 +315,7 @@ export default function IdeaStudio({
                     <button onClick={() => downloadText(`${slug(project?.name ?? "idea")}.md`, md)} className="btn btn-ghost btn-small">Download .md</button>
                     <button onClick={() => setEditing(true)} className="btn btn-ghost btn-small">Edit</button>
                     <button onClick={() => setStage("versions")} className="btn btn-ghost btn-small">Pick a different version</button>
+                    <button onClick={startNew} className="btn btn-ghost btn-small">New idea</button>
                   </div>
                 </>
               )}

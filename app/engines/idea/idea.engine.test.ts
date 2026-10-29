@@ -111,3 +111,22 @@ describe("handoff", () => {
     expect(answers.customer).toBe(decision.intendedUser);
   });
 });
+
+describe("2026-10-28 pass: the idea stays the idea", () => {
+  const IDEA = "I want to make cat stickers of a grumpy cat in a tiny crown";
+  it("reads as a noun phrase in the version text", () => {
+    const [test] = ideaVersions("A card game where kids invent silly animals and trade them", "");
+    expect(test.what).toContain("one sample of a card game");
+    expect(ideaVersions(IDEA, "")[0].what).toContain("one sample of cat stickers");
+    expect(ideaVersions(IDEA, "").map((v) => v.what).join(" ")).not.toMatch(/i want to/i);
+  });
+  it("hands Sell the original idea, not the approach sentence, and claims nothing exists", () => {
+    const v = ideaVersions(IDEA, "")[0];
+    const d = decisionFor(v, IDEA, "cat lovers", "", recommendVersion(IDEA, ""), NOW);
+    expect(d.description).toBe(`${IDEA}.`);
+    expect(d.approach).toBe(v.what);
+    const sell = handoffAnswers({ ...d, nextEngineId: "sell" }, "Stickers");
+    expect(sell.product).toBe(`${IDEA}.`);
+    expect(sell.exists).toBeUndefined();
+  });
+});

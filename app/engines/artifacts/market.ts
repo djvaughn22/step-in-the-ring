@@ -4,7 +4,7 @@
 
 import type { EngineArtifact } from "./types";
 import {
-  addDays, bullets, fmtDate, has, known, lowerFirst, money, numbered, parseMoney, shortName, stripEnd, upperFirst,
+  addDays, bullets, fmtDate, has, known, lowerFirst, money, numbered, parseMoney, shortName, stripEnd, upperFirst, asThing,
   type Answers,
 } from "./text";
 
@@ -40,6 +40,7 @@ export function sellArtifact(a: Answers): EngineArtifact {
   const format = formatOf(all);
   const price = priceFor(format, all, parseMoney(known(a, "price") || product));
   const name = known(a, "name") || shortName(product || "Your offer");
+  const thing = asThing(product || name);
   const buyer = customer || (format === "service" ? "busy neighbors" : "people who already buy things like this");
   const assumptions: string[] = [];
   const unknowns: string[] = [];
@@ -51,7 +52,7 @@ export function sellArtifact(a: Answers): EngineArtifact {
 
   const headline = `${upperFirst(stripEnd(name))} — for ${lowerFirst(buyer)}`;
   const gets = [
-    upperFirst(stripEnd(product || name)) + ".",
+    upperFirst(thing) + ".",
     format === "digital" ? "Instant download after purchase — print or use it as many times as you need at home." : format === "service" ? "Booked at a time that works for you; nothing to set up." : format === "software" ? "Works in your browser; nothing to install." : "Made to order and ready in about a week.",
     problem ? `Solves: ${lowerFirst(stripEnd(problem))}.` : "",
   ].filter(Boolean);
@@ -65,7 +66,7 @@ export function sellArtifact(a: Answers): EngineArtifact {
     `${money(price.test)}${format === "software" ? "/month" : format === "service" ? " per session" : ""}.`,
     format === "service" ? "→ Book your first session" : "→ Get it now",
   ].join("\n");
-  const message = `Hi! I'm starting to sell ${lowerFirst(stripEnd(product || name))}${customer && !/\bfor\b/i.test(product) ? ` for ${lowerFirst(stripEnd(customer))}` : ""}.${product.includes(money(price.test)) || product.includes(`$${price.test}`) ? "" : ` It would be ${money(price.test)}.`} Would you buy one at that price — yes, no, or "only if…"? Honest answers help more than nice ones.`;
+  const message = `Hi! I'm starting to sell ${thing}${customer && !/\bfor\b/i.test(product) ? ` for ${lowerFirst(stripEnd(customer))}` : ""}.${product.includes(money(price.test)) || product.includes(`$${price.test}`) ? "" : ` It would be ${money(price.test)}.`} Would you buy one at that price — yes, no, or "only if…"? Honest answers help more than nice ones.`;
 
   return {
     engineId: "sell",

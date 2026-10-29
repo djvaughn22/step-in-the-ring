@@ -163,3 +163,17 @@ export function plural(word: string): string {
 export function has(text: string, re: RegExp): boolean {
   return re.test(text.toLowerCase());
 }
+
+const THING_LEAD = /^(?:(?:i|we)(?:'d| would)? (?:want|like|plan|need|hope)s? to|(?:i|we) (?:am|are|'m|'re) (?:going to|trying to)|help me|let me)\s+(?:make|build|create|start|sell|run|offer|write|open|host|launch|do|set up)\s+/i;
+const NOT_A_NOUN = /^(teach|sell|make|build|offer|run|host|start|write|create|help|cook|walk|clean|tutor|coach|organi[sz]e|open|set|launch|do|share|trade)\b/i;
+
+/** The thing someone described, as a noun phrase that reads in a sentence:
+ *  "I want to make a card game" → "a card game"; "cat stickers" stays plural. */
+export function asThing(s: string): string {
+  let t = lowerFirst(stripEnd(s)).replace(THING_LEAD, "");
+  if (!t) return t;
+  if (/^(a|an|the|my|our|some|\d|one|two|three|\w+ing\b)/i.test(t) || NOT_A_NOUN.test(t)) return t;
+  const head = t.split(/\s+(?:for|of|that|which|where|with|to|in|on|about|so|where)\s+|,/i)[0].trim().split(" ").pop() ?? "";
+  if (/[^s]s$/i.test(head) || /ing$/i.test(head)) return t;
+  return `${/^[aeiou]/i.test(t) ? "an" : "a"} ${t}`;
+}
