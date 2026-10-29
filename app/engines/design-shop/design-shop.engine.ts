@@ -189,6 +189,7 @@ export async function generateProductDirections(
   customer: string,
   productType: string,
   theme: string,
+  occasion = "",
 ): Promise<CreationDirection[]> {
   // Deterministic seeding based on input.
   const seed = `${idea}|${customer}|${productType}`.length;
@@ -211,12 +212,14 @@ export async function generateProductDirections(
     },
     {
       label: "Seasonal / Timeliness",
-      description: `${idea}, tied to a season or holiday (New Year, summer, back-to-school). Only sells part of the year.`,
+      description: occasion.trim()
+        ? `${idea}, made for ${occasion.trim()}. Sells best in the weeks before it.`
+        : `${idea}, tied to a season or holiday (New Year, summer, back-to-school). Only sells part of the year.`,
       reasoning: "Timely things sell at the right moment. Plan early and list it before then.",
     },
     {
       label: "Bundle / Collection",
-      description: `Instead of one product, create a collection: ${idea} + a few related designs sold together.`,
+      description: `Instead of one product, create a collection: ${idea.replace(/^[A-Z](?=[a-z ])/, (c) => c.toLowerCase())} + a few related designs sold together.`,
       reasoning: "A set is a bigger sale than one item. Try this once the single version sells.",
     },
   ];
@@ -341,7 +344,7 @@ function copyLines(name: string, answers: Record<string, string>): string[] {
   }
   if (answers.spark?.trim()) lines.push(answers.spark.trim());
   if (answers.customer?.trim()) lines.push(`Made for ${answers.customer.trim().replace(/^[A-Z]/, (c) => c.toLowerCase())}`);
-  if (answers.occasion?.trim()) lines.push(`Perfect for ${answers.occasion.trim().toLowerCase()}`);
+  if (answers.occasion?.trim()) lines.push(`Perfect for ${answers.occasion.trim()}`);
   return lines;
 }
 
@@ -424,7 +427,7 @@ export function generateEtsyListingDraft(
   const titleParts = [name, name.toLowerCase().includes(typeWord.toLowerCase()) ? "" : typeWord, answers.occasion?.trim(), answers.customer?.trim() ? `for ${answers.customer.trim()}` : "", isDigital ? "Instant Download" : ""].filter(Boolean);
   return {
     title: titleParts.join(" | ").slice(0, 140),
-    description: `${design.concept}\n\nWhat you get:\n- ${design.files.join("\n- ")}\n\nMade for: ${design.customer}${isDigital ? "\n\nThis is a digital file — nothing is shipped. Print at home or at a print shop." : ""}`,
+    description: `${design.concept}\n\nWhat you get:\n- ${isDigital ? design.files.join("\n- ") : `${typeWord}${design.materials ? ` (${design.materials.toLowerCase()})` : ""}`}\n\nMade for: ${design.customer}${isDigital ? "\n\nThis is a digital file — nothing is shipped. Print at home or at a print shop." : ""}`,
     tags: generateEtsyTags(design, answers),
     category: guessEtsyCategory(productType),
     price: estimatePrice(productType),
@@ -436,11 +439,12 @@ export function generateEtsyListingDraft(
     socialCaption: `New: ${name}. Made for ${design.customer.replace(/^[A-Z]/, (c) => c.toLowerCase())}. Link in bio.`,
     videoOrReelConcept: isDigital ? `15 seconds: the printed ${name.toLowerCase().replace(/^printable\s+/, "")} on a fridge or desk, someone filling it in` : `15 seconds: ${name.toLowerCase()} in use, then a close-up of the detail`,
     ipChecklist: [
-      "✓ No celebrity references",
-      "✓ No copyrighted characters",
-      "✓ No brand logos (unless authorized)",
-      "✓ Original design / unique concept",
-      "✓ No song lyrics (unless licensed)",
+      // Unticked on purpose: these are for the maker to check. Nothing here checks them.
+      "[ ] No celebrity names or faces",
+      "[ ] No copyrighted characters",
+      "[ ] No brand logos (unless you have permission)",
+      "[ ] The design is your own",
+      "[ ] No song lyrics (unless licensed)",
     ],
   };
 }
@@ -473,14 +477,25 @@ function generateEtsyTags(design: DesignPackage, answers: Record<string, string>
   if (design.customer.toLowerCase().includes("coach")) tags.push("sports");
 
   // Words from the idea itself, so the tags describe THIS product.
-  const stop = new Set(["a", "an", "the", "for", "and", "with", "of", "to", "my", "our", "simple", "need", "want", "make"]);
-  for (const w of (answers.idea || "").toLowerCase().split(/[^a-z]+/)) {
-    if (w.length > 3 && !stop.has(w) && !tags.includes(w)) tags.push(w);
+  // Two-word phrases first ("grumpy cat", "tiny crown"): shoppers search phrases.
+  const stop = new Set(["a", "an", "the", "for", "and", "with", "of", "to", "my", "our", "simple", "need", "want", "make",
+    "wearing", "holding", "that", "this", "from", "your", "their", "about", "into", "on", "in", "is", "are", "who", "where",
+    "sticker", "stickers", "shirt", "mug", "print", "printable", "card", "cards", "tote", "design", "logo",
+    "says", "say", "then", "than", "but", "just", "like", "only", "very", "get", "got", "it's", "its"]);
+  const words = (answers.idea || "").toLowerCase().split(/[^a-z']+/).filter(Boolean);
+  const used = new Set<string>();
+  for (let i = 0; i < words.length - 1; i++) {
+    const [x, y] = [words[i], words[i + 1]];
+    if (!stop.has(x) && !stop.has(y) && x.length > 2 && y.length > 2) { tags.push(`${x} ${y}`); used.add(x); used.add(y); }
+  }
+  for (const w of words) {
+    if (w.length > 3 && !stop.has(w) && !used.has(w) && !tags.includes(w)) tags.push(w);
   }
   if (answers.occasion) tags.push(answers.occasion.toLowerCase().slice(0, 20));
   tags.push("unique gift");
 
-  return [...new Set(tags)].slice(0, 13);
+  // Etsy allows 13 tags of at most 20 characters each.
+  return [...new Set(tags)].filter((t) => t.length <= 20).slice(0, 13);
 }
 
 function guessEtsyCategory(productType: string): string {

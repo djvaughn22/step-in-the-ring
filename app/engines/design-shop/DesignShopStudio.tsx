@@ -70,8 +70,16 @@ function slugify(name: string): string {
 /** A project name nobody had to type: the first sentence of what they said
  *  they need to design, trimmed to a card-sized name. Still editable. */
 function deriveDesignName(idea: string): string {
-  const sentence = idea.split(/[.!?\n]/)[0].trim();
-  return sentence.length > 48 ? `${sentence.slice(0, 45)}…` : sentence || "Untitled design";
+  let t = idea.split(/[.!?\n](?=\s|$)/)[0].trim().replace(/^(a|an|the|my|our)\s+/i, "");
+  // "…for busy parents" names the buyer, not the design; drop it when enough is left.
+  const noAudience = t.replace(/\s+for\s+[^"“”]+$/i, "");
+  if (noAudience.split(/\s+/).length >= 3) t = noAudience;
+  if (t.length > 48) {
+    const words = t.slice(0, 47).split(" ");
+    if (words.length > 1) words.pop();
+    t = `${words.join(" ").replace(/[,;:\s]+$/, "")}…`;
+  }
+  return t ? t[0].toUpperCase() + t.slice(1) : "Untitled design";
 }
 
 export default function DesignShopStudio({
@@ -177,7 +185,7 @@ export default function DesignShopStudio({
       const customer = answers.customer?.trim() || "the person you have in mind";
       const productType = answers.productType?.trim() || "product";
       const filledAnswers = { ...answers, name };
-      const dirs = await generateProductDirections(answers.idea, customer, productType, answers.theme || "");
+      const dirs = await generateProductDirections(answers.idea, customer, productType, answers.theme || "", answers.occasion || "");
       setDirections(dirs);
       setAnswers(filledAnswers);
       // Create or update the saved project.
@@ -314,7 +322,7 @@ ${listing.socialCaption}
 ## Video concept
 ${listing.videoOrReelConcept}
 
-## IP checklist
+## Check before publishing (this page does not check these)
 ${listing.ipChecklist.join("\n")}
 `;
   };
@@ -409,7 +417,7 @@ ${listing.ipChecklist.join("\n")}
             )}
             <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>What do you need to design?</h2>
             <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
-              One idea is enough to start — you&apos;ll get 5 directions to explore. Everything below is optional detail that sharpens them.
+              One idea is enough to start. You get 5 directions built from fixed angles: plain, funny, useful, seasonal and a set.
             </p>
 
             <div style={{ marginBottom: 14 }}>
@@ -424,7 +432,7 @@ ${listing.ipChecklist.join("\n")}
 
             <details style={{ marginBottom: 14 }}>
               <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 800, color: "var(--gold)" }}>
-                Add detail (optional — sharpens the 5 directions)
+                Add detail (optional — used in the design package and Etsy draft: colors, wording, title, tags)
               </summary>
               <div style={{ marginTop: 12 }}>
                 {([
@@ -464,9 +472,9 @@ ${listing.ipChecklist.join("\n")}
           <div>
             <button onClick={() => setStage("spark")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to spark</button>
             <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>2. Explore 5 Directions</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>Pick a direction</h2>
               <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 20 }}>
-                Five distinct interpretations of &ldquo;{answers.idea}&rdquo;. Pick one — the design package and Etsy listing draft are made for you.
+                Five standard angles on &ldquo;{answers.idea}&rdquo;. Pick one — the design package and Etsy listing draft are made for you.
               </p>
 
               {directions.map((dir) => (
@@ -488,7 +496,7 @@ ${listing.ipChecklist.join("\n")}
           <div>
             <button onClick={() => setStage("explore")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to directions</button>
             <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>4. Create Design Package</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>Make the design package</h2>
               <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
                 Generates a complete design package for &ldquo;{selectedDir.label}&rdquo; — title, dimensions, print specs, mockup list, accessibility notes.
               </p>
@@ -531,7 +539,7 @@ ${listing.ipChecklist.join("\n")}
           <div>
             <button onClick={() => setStage("review")} className="btn btn-ghost btn-small" style={{ marginBottom: 12 }}>← Back to review</button>
             <div style={card}>
-              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>6. Export</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 16 }}>Export</h2>
               <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 20 }}>
                 Download the package as real files, or copy to clipboard. Etsy publishing from here is not connected yet — create the listing on Etsy using the draft.
               </p>
@@ -563,7 +571,7 @@ ${listing.ipChecklist.join("\n")}
                 <ul style={{ fontSize: 13, color: "var(--muted)", margin: 0, paddingLeft: 20 }}>
                   <li>Create the design file in your design tool (Canva, etc.)</li>
                   <li>Make the mockups on the list</li>
-                  <li>Run the IP checklist in the Etsy draft</li>
+                  <li>Go through &ldquo;Check before publishing&rdquo; in the Etsy draft</li>
                   <li>Create the listing on Etsy, then keep the listing URL with this project</li>
                 </ul>
               </div>

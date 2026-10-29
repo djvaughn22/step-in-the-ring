@@ -122,3 +122,26 @@ describe("zip writer", () => {
     expect(dv.getUint16(zip.length - 22 + 10, true)).toBe(2); // entry count
   });
 });
+
+describe("2026-10-29: the Etsy draft claims nothing it can't back", async () => {
+  const { createDesignPackageTemplate, generateEtsyListingDraft, generateProductDirections } = await import("./design-shop.engine");
+  const answers = { idea: "A sticker of a grumpy cat wearing a tiny crown", customer: "cat lovers", productType: "Sticker Sheet", occasion: "Valentine's Day" };
+  const [dir] = await generateProductDirections(answers.idea, answers.customer, answers.productType, "", answers.occasion);
+  const draft = generateEtsyListingDraft(createDesignPackageTemplate(dir, answers), answers);
+  it("leaves the IP checklist unticked", () => {
+    expect(draft.ipChecklist.every((l) => l.startsWith("[ ]"))).toBe(true);
+  });
+  it("tells buyers of a physical sticker they get a sticker, not the maker's PNG and SVG files", () => {
+    expect(draft.description).not.toMatch(/PNG|SVG/);
+    expect(draft.description).toMatch(/What you get:\n- Sticker Sheet/);
+  });
+  it("uses phrases from the idea as tags and keeps the occasion's capitals", () => {
+    expect(draft.tags).toContain("grumpy cat");
+    expect(draft.tags).toContain("tiny crown");
+    expect(draft.tags).not.toContain("wearing");
+  });
+  it("the seasonal direction names the occasion as typed", async () => {
+    const dirs = await generateProductDirections(answers.idea, answers.customer, answers.productType, "", answers.occasion);
+    expect(dirs[3].description).toContain("made for Valentine's Day");
+  });
+});
