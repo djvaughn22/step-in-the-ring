@@ -1,6 +1,6 @@
 # Engine status — what actually works
 
-**Latest pass: 2026-10-23 — usefulness rescue.** Every public engine was run
+**Latest pass: 2026-10-28/29 — honesty pass** (see "2026-10-28/29 honesty pass" at the end). Before that, **2026-10-23 — usefulness rescue.** Every public engine was run
 in the real UI with a first-time visitor scenario (a weekly chore board as the
 shared example) at 375px wide. The rule now: an engine ends with a usable
 artifact — never a template, echoed answers, or a form for the visitor to fill
@@ -128,3 +128,45 @@ Scenario run in the browser for each (375px, no horizontal overflow on any):
   production-package path was not re-run this pass.
 - **Game** — the re-theme/publish path is still owner-only (see below).
 - **Writing / Game** — shapes to build from, not finished pieces; they say so.
+
+## 2026-10-28/29 honesty pass
+
+Every public engine was driven in the browser (desktop and 375px) with real
+example input. Rule for this pass: each engine is a simple guided tool. It
+says what it does, never implies it reads or judges what you type, and never
+claims something was built, checked, filmed or published.
+
+- **Shared:** `useFlash` / `useTimedFlag` (`app/engines/shared/useFlash.ts`)
+  replace copy-pasted timers in 13 components; a newer message can no longer
+  be cleared by an older one's timer. Non-software results say "versions",
+  not "build cycles".
+- **Text readers (`artifacts/text.ts`, `product.ts`):** quantity, time and
+  unit words are never the tracked thing; `asThing()` turns "I want to make
+  cat stickers" into a noun phrase for Idea and Sell sentences.
+- **Idea:** decision keeps the typed idea plus a separate "What to do";
+  handoffs carry the idea, not the approach sentence. Sell no longer shows
+  "Already have: …" for something that doesn't exist.
+- **Sell / Launch / Plan / Grow:** no doubled price, link picked up from the
+  idea, headcount read from the idea, metric trimmed to its first clause.
+- **How To:** task session responds to a reported problem (or repeats a
+  known step) and says it doesn't read notes; Document flow is "Confirm",
+  not "Prove"; chapters other than 0:00 are `[m:ss]` blanks; no
+  "Not sponsored." added; real accuracy checkbox + link check before
+  "I published it".
+- **Music:** "That didn't work" + Previous step; finished screen no longer
+  says "exported". Song notebook is reachable again ("Open the song
+  notebook"), starts at "Say what you already have", has undo, a Markdown
+  export with the original words verbatim, and only the three guidance
+  toggles that actually do something.
+- **Design Shop:** Etsy draft's check-before-publishing list is unticked;
+  physical listings don't promise PNG/SVG files; phrase tags within Etsy's
+  20-char limit; seasonal direction uses the occasion.
+- **Game:** saved idea survives reload; standard template lines are labelled;
+  visitors see "Play it" disabled with the reason instead of a bare 401.
+
+### Not verified in this pass
+- Successful clipboard copy (the preview browser blocks it; only the
+  graceful failure message was seen).
+- Game owner path (preview + publish with an owner session).
+- Etsy Listing Builder (only reached from an iDontCry Dream Shop handoff).
+- How To capture-form validation and solution Delete.
