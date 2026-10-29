@@ -98,9 +98,17 @@ export function launchArtifact(a: Answers, now: Date = new Date()): EngineArtifa
   const exists = known(a, "exists");
   const worried = known(a, "worried");
   const measure = known(a, "measure");
-  const url = (`${exists} ${what}`.match(/https?:\/\/\S+|\b[\w-]+\.(?:com|org|net|io|app|dev|co)\b\S*/) ?? [""])[0].replace(/[.,)]+$/, "");
+  const url = (`${exists} ${what}`.match(/https?:\/\/\S+|\b[\w-]+\.(?:com|org|net|io|app|dev|co|site|store|shop|xyz|me|us|info|example)\b\S*/) ?? [""])[0].replace(/[.,)]+$/, "");
   const link = url || "[your link]";
   const name = known(a, "name") || shortName(what || "Launch");
+  // The thing itself, without the link or "finished and live at …" status clause,
+  // with an article so it reads in a sentence ("a bakery ordering site").
+  const thing = (() => {
+    let t = stripEnd(what || name).replace(/https?:\/\/\S+|\b[\w-]+\.(?:com|org|net|io|app|dev|co|site|store|shop|xyz|me|us|info|example)\b\S*/gi, "");
+    t = t.replace(/[,;]?\s*\b(?:which is |it'?s |it is )?(?:finished|done|ready|live|online|up)\b(?:\s+and\s+\w+)?(?:\s+(?:at|on|here))?\s*$/i, "").replace(/[,;\s]+$/, "");
+    t = lowerFirst(t || name);
+    return /^(a|an|the|my|our|some)\s/i.test(t) ? t : `${/^[aeiou]/i.test(t) ? "an" : "a"} ${t}`;
+  })();
   const crowd = audience || "the first 20 people who'd care";
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   const d = (n: number) => fmtDate(addDays(today, n));
@@ -119,9 +127,9 @@ export function launchArtifact(a: Answers, now: Date = new Date()): EngineArtifa
     "There's a way to reach you: an email or a reply address on the page.",
     `You can count the result: ${lowerFirst(stripEnd(target))}. If you can't see it yet, add simple page-view counting or a simple sign-up form before the launch.`,
   ].filter(Boolean);
-  const personal = `Hey — I just finished ${lowerFirst(stripEnd(what || name))}${audience && !/\bfor\b/i.test(what) ? ` for ${lowerFirst(stripEnd(audience))}` : ""}. Would you try it and tell me the first thing that confused you? ${link}`;
-  const post = `I made ${lowerFirst(stripEnd(what || name))}${audience && !/\bfor\b/i.test(what) ? ` for ${lowerFirst(stripEnd(audience))}` : ""}. It's live today: ${link}\nIf you try it, I'd love to hear what you'd change.`;
-  const email = `Subject: ${upperFirst(stripEnd(name))} is live\n\nHi,\n\nI've been working on ${lowerFirst(stripEnd(what || name))}, and it's ready for its first real users. Here it is: ${link}\n\nIt takes about two minutes to try. Reply with anything that didn't make sense — that's the most useful thing you can send me.\n\nThanks!`;
+  const personal = `Hey — I just finished ${thing}${audience && !/\bfor\b/i.test(what) ? ` for ${lowerFirst(stripEnd(audience))}` : ""}. Would you try it and tell me the first thing that confused you? ${link}`;
+  const post = `I made ${thing}${audience && !/\bfor\b/i.test(what) ? ` for ${lowerFirst(stripEnd(audience))}` : ""}. It's live today: ${link}\nIf you try it, I'd love to hear what you'd change.`;
+  const email = `Subject: ${upperFirst(stripEnd(name))} is live\n\nHi,\n\nI've been working on ${thing}, and it's ready for its first real users. Here it is: ${link}\n\nIt takes about two minutes to try. Reply with anything that didn't make sense — that's the most useful thing you can send me.\n\nThanks!`;
 
   return {
     engineId: "launch",

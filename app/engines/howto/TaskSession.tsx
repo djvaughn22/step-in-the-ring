@@ -64,6 +64,7 @@ export default function TaskSession({
         <button onClick={start} disabled={!goalDraft.trim()} className="btn btn-gold" style={{ width: "100%", opacity: goalDraft.trim() ? 1 : 0.5 }}>
           Start →
         </button>
+        {!goalDraft.trim() && <p style={{ ...sub, margin: "8px 0 0", textAlign: "center" }}>Type what you want to do and Start turns on.</p>}
         <p style={{ ...sub, margin: "14px 0 0" }}>
           Already solved something like this and want to turn it into a video?{" "}
           <button onClick={onDocumentInstead} className="btn btn-ghost btn-small" style={{ marginLeft: 4 }}>Document it instead</button>

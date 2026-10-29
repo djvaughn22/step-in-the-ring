@@ -201,23 +201,23 @@ export async function generateProductDirections(
     },
     {
       label: "Humorous Take",
-      description: `${idea}, but funny. Play the idea for laughs — self-deprecating or absurd angle.`,
-      reasoning: "Humor sells and shares; if the core is funny, lean in.",
+      description: `${idea}, played for laughs: give it a joke, a caption or an absurd twist.`,
+      reasoning: "Funny things get shared. Try this if the plain version feels flat.",
     },
     {
       label: "Educational Angle",
-      description: `${idea}, but it teaches something useful (skills, facts, strategy). Make learning fun.`,
-      reasoning: "Educational + fun bridges parental buy-in and kid engagement.",
+      description: `${idea}, with something useful built in: a tip, a fact or a how-to.`,
+      reasoning: "Gives a buyer a second reason to want it. Try this if the plain version is only decoration.",
     },
     {
       label: "Seasonal / Timeliness",
-      description: `${idea}, but tied to a season, holiday, or moment (back-to-school, New Year, summer). Limited but timely.`,
-      reasoning: "Seasonal products spike at the right time; plan now, launch then.",
+      description: `${idea}, tied to a season or holiday (New Year, summer, back-to-school). Only sells part of the year.`,
+      reasoning: "Timely things sell at the right moment. Plan early and list it before then.",
     },
     {
       label: "Bundle / Collection",
-      description: `Instead of one product, create a collection: ${idea} + complementary ideas in one package.`,
-      reasoning: "Bundles increase average order value and create upsell momentum.",
+      description: `Instead of one product, create a collection: ${idea} + a few related designs sold together.`,
+      reasoning: "A set is a bigger sale than one item. Try this once the single version sells.",
     },
   ];
 
