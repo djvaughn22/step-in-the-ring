@@ -15,6 +15,9 @@
 // page, not just Home, so it moved here instead of being Home's problem to
 // repeat.
 //
+// 2026-11-03 (owner brief, footer cleanup): About and Contact left this row —
+// the family footer directly below carries both, so they showed twice.
+//
 // Deliberately NOT added to app/OpenMirrorFooter.tsx: that file is the
 // canonical, family-wide shared footer (synced from the Open Mirror hub
 // repo to every satellite site) and carries the owner's locked exact-three-
@@ -29,7 +32,7 @@ export default function QuietFooterLink() {
   return (
     <div className="site-quiet-footer">
       <Link href="/" className="footer-brand"><RingMark />Step In The Ring</Link>
-      <nav aria-label="Step In The Ring footer"><Link href="/create">Create</Link><Link href="/tools">Tools</Link><Link href="/library">Your work</Link><Link href="/builds">Owner&apos;s Builds</Link><Link href="/products/ready-to-build">Ready to Build</Link><Link href="/whats-built">What&apos;s built</Link><Link href="/about">About</Link><Link href="/about#contact">Contact</Link></nav>
+      <nav aria-label="Step In The Ring footer"><Link href="/create">Create</Link><Link href="/tools">Tools</Link><Link href="/library">Your work</Link><Link href="/builds">Owner&apos;s Builds</Link><Link href="/products/ready-to-build">Ready to Build</Link><Link href="/whats-built">What&apos;s built</Link></nav>
       <p>
         <Link href="/everything">Everything on this site</Link> · <Link href="/members/login">Tester sign-in</Link>
       </p>

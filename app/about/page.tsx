@@ -70,10 +70,11 @@ export default function AboutPage() {
 
       <Section title="Disclaimer">
         <p id="disclaimer" style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: 0, scrollMarginTop: 96 }}>
-          Open Mirror LLC is independently owned and operated. Nothing
-          published by Open Mirror LLC is sponsored by, affiliated with,
-          endorsed by, or representative of the owner&rsquo;s full-time
-          employer. Read the{" "}
+          Plans, prompts, and next steps here are suggestions. You decide what to build,
+          and you&rsquo;re responsible for checking it before you rely on it or share
+          it. Open Mirror LLC and its projects are independently owned and operated.
+          They are not affiliated with, sponsored by, or endorsed by the owner&rsquo;s
+          current or former employers or their affiliates. Read the{" "}
           <a href="https://openmirrorllc.com/disclaimer" style={{ color: "var(--gold)" }}>
             full Open Mirror disclaimer
           </a>
