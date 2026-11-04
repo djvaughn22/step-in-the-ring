@@ -10,7 +10,10 @@
 //   - members/stripeCore.ts: server-only comment, the dormant Stripe amount.
 // Usefulness-first (Oct 2026): nothing on the public site shows a price.
 // The Sprint service page that once held the only approved public prices
-// was retired, so no page belongs on this list.
+// was retired, so no page belongs on this list. The one price the site can
+// show is the Ready to Build Kit's, and only while the owner has sales open:
+// it is computed by kitPrice() from KIT_PRICE_CENTS in kit/kit.ts, so no
+// literal dollar figure appears in source.
 // Anything added to this list must be re-verified as non-customer-visible.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
@@ -24,6 +27,7 @@ const ALLOWLIST = new Set(
     "planner/signals.ts", // regex replacement backreferences: $1
     "planner/normalize.ts", // regex replacement backreferences: $1
     "members/stripeCore.ts", // server-only comment, real dormant Stripe price
+    "kit/kitFile.ts", // SQL positional placeholder: $1
   ].map((p) => path.join(APP_DIR, p)),
 );
 

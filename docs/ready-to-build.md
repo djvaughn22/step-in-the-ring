@@ -6,28 +6,72 @@ creation flows and shared family chrome stay intact.
 
 ## Release state
 
-This is the founding-release landing experience, not the downloadable kit.
-Planned contents and the one-day goal are labeled explicitly. Repairs, setup,
-and more complex apps can take longer.
+The page is the open guide, plus the Ready to Build Kit offer once the owner
+opens sales. While `SITR_KIT_SALES` is anything but `open`, the page shows no
+price, no buy button and no kit questions — exactly the guide.
 
-The existing Stripe checkout is a membership flow; there is no configured
-one-time Ready to Build product. The existing signup requires a private tester
-password. Neither is presented as a public product purchase or waitlist.
+## The Ready to Build Kit (one-time purchase)
 
-“Join the first build” opens a prefilled email to the existing public contact,
-`ask@openmirrorllc.com`. The visitor must send it; the page does not submit,
-store, or claim successful enrollment. The contact remains visible for users
-without a configured mail application. The free Build Machine is also linked.
+**What the buyer gets**
 
-Before selling the kit:
+1. The workbook: a 20-page printable PDF (`KIT_CONTENTS` in `app/kit/kit.ts`
+   lists every section and must match the file).
+2. Their kit page, `/kit`: download the newest version any time, the six steps
+   with links to the matching pages here, ticks saved in the browser, and
+   their personal kit link.
+3. Updates to the kit, at no extra cost.
 
-- Finish and review the kit and its Windows, Mac, and Linux instructions.
-- Confirm the release date and one-time price.
-- Configure a separate product checkout and verified payment/delivery flow.
-- Replace the email request with public signup only when that flow exists.
+"Access to the site" means that kit page. Every tool and guide on the site
+stays open to everyone; buying the kit locks or unlocks nothing else.
 
-No subscription is attached to this product. Additional tools and hosting may
-have separate costs. Future challenges, templates, and community are optional.
+**How it works** (no account, nothing stored by the site)
+
+- Buy button = plain form POST to `/api/kit/checkout` → Stripe Checkout in
+  `payment` mode, card only, one line item, no promotion codes. Checkout
+  refuses to start if the Stripe price is recurring, inactive, not USD, or not
+  exactly `KIT_PRICE_CENTS`, or if no kit file is uploaded.
+- Stripe returns the buyer to `/kit/open?session_id=…`. That route asks Stripe
+  whether the session was paid for this product (metadata `product`) and not
+  refunded or disputed, then sets the `sitr-kit` cookie (HttpOnly, path `/kit`,
+  one year) and lands on `/kit`. The same URL is the buyer's kit link for any
+  device.
+- `/kit` and `/kit/download` re-check with Stripe on every visit, so a refund
+  closes access immediately. The PDF streams from Postgres (`sitr_kit_files`,
+  `migrations/005_kit_files.sql`), never from Git or `/public`.
+- Lost link: the buyer emails ask@openmirrorllc.com from the address they paid
+  with. Find the payment in the Stripe Dashboard, copy its Checkout Session id
+  (`cs_live_…`), and send `https://stepinthering.com/kit/open?session_id=<id>`.
+- No webhook is needed: nothing is stored, so there is nothing to fulfil
+  later. An emailed kit link (receipt with link, self-serve "find my kit")
+  would need a webhook plus a sender on a Step In The Ring domain; it is the
+  natural next step, not built.
+
+**Owner setup before opening sales** (in this order)
+
+1. Read the workbook (`private/ready-to-build-kit/`, git-ignored) and approve
+   it, the price (`KIT_PRICE_CENTS`) and the refund window
+   (`KIT_REFUND_DAYS`).
+2. Upload the PDF: `vercel env pull .env.production.local --environment=production`,
+   then `node --env-file=.env.production.local scripts/upload-kit-file.mjs
+   private/ready-to-build-kit/Ready-to-Build-Kit-v1.0.pdf 1.0`. Delete
+   `.env.production.local` afterwards.
+3. Stripe: a Product "Ready to Build Kit" with a one-time USD Price equal to
+   `KIT_PRICE_CENTS`. Turn on email receipts for successful payments. Decide
+   how sales tax and VAT will be handled (Stripe Tax, or limit where you sell).
+4. Vercel env (Production): `STRIPE_SECRET_KEY`, `STRIPE_KIT_PRICE_ID`
+   (`MEMBER_APP_URL` already exists). Test with test-mode keys on a Preview
+   deployment first: buy with card 4242 4242 4242 4242, download, open the kit
+   link in another browser, refund in the Dashboard, confirm `/kit` closes.
+5. Switch to live keys, set `SITR_KIT_SALES=open`, redeploy, and buy once for
+   real (then refund it) before telling anyone.
+
+To close sales again, remove `SITR_KIT_SALES` and redeploy. Existing buyers
+keep their kit as long as `STRIPE_SECRET_KEY` stays set.
+
+**Updating the kit**: edit `private/ready-to-build-kit/kit.html`, run its
+`build-pdf.sh <version>`, upload with the script above, and update
+`KIT_PAGE_COUNT`/`KIT_CONTENTS` if they changed. The newest upload is what
+every buyer downloads.
 
 ## Verification
 

@@ -39,6 +39,9 @@ export type Access =
   | "preview"
   /** A signed-in member. Enforced in middleware.ts and/or the page. */
   | "member"
+  /** Someone who bought the Ready to Build Kit. No account: the page asks
+   *  Stripe about the purchase itself (app/kit/kitStripe.ts). */
+  | "buyer"
   /** The owner only. Enforced server-side in the page. Never downgraded. */
   | "owner";
 
@@ -272,6 +275,14 @@ export const SITE_PAGES: SitePage[] = [
     group: "account",
   },
   {
+    path: "/kit",
+    name: "Your kit",
+    what: "For people who bought the Ready to Build Kit: download it, follow the six steps, and open it on another device.",
+    access: "buyer",
+    group: "account",
+    noindex: true,
+  },
+  {
     path: "/preview",
     name: "Preview access",
     what: "Enter the passcode you were given to open a shared preview.",
@@ -385,6 +396,7 @@ export const ACCESS_LABEL: Record<Access, string> = {
   public: "Open to anyone",
   preview: "Needs a preview passcode",
   member: "Needs an account",
+  buyer: "Kit owners",
   owner: "Owner only",
 };
 

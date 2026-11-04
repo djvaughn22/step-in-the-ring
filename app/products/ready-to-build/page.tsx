@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import RingMark from "../../site/RingMark";
+import { KIT_CONTACT_EMAIL, KIT_NAME, KIT_PAGE_COUNT, KIT_REFUND_DAYS, kitPrice } from "../../kit/kit";
+import { kitSalesOpen, readKitConfig } from "../../kit/kitStripe";
 import ComputerCheck from "./ComputerCheck";
+import KitOffer from "./KitOffer";
 import RealProjects from "./RealProjects";
 import styles from "./ready.module.css";
 
@@ -58,7 +61,23 @@ const faqs = [
   ["Do I need to buy anything?", "No. Start with the computer you already have; the guide and the tools on this site need no account. Outside services you might choose, such as a coding tool, hosting, or a domain name, can have separate costs of their own. Check each provider's terms before you sign up."],
 ];
 
+// Shown only while the kit is on sale, before the general questions.
+function kitFaqs(): string[][] {
+  return [
+    ["What do I get with the kit?", `A printable workbook (a ${KIT_PAGE_COUNT}-page PDF) with every step as a checklist or worksheet, including setup checklists for Windows, Mac and Linux. Your own kit page on this site, where you can download it again any time and tick off the six steps. And updates to the kit, at no extra cost.`],
+    ["Is it a subscription?", `No. You pay ${kitPrice()} once. There is nothing to renew and nothing that charges you again.`],
+    ["How do I get back to my kit later?", `Right after you pay, your kit page gives you your kit link. Open it on any phone or computer to get back in; the browser you bought on remembers you for a year. Lost it? Email ${KIT_CONTACT_EMAIL} from the address you paid with and we'll send it again.`],
+    ["What if it isn't for me?", `Email ${KIT_CONTACT_EMAIL} within ${KIT_REFUND_DAYS} days of buying and you'll get your money back.`],
+  ];
+}
+
 export default function ReadyToBuildPage() {
+  // Read on the server when the page is built. Until the owner opens sales,
+  // the page is the open guide and says nothing about a price.
+  const onSale = kitSalesOpen(readKitConfig());
+  const questions = onSale
+    ? [...kitFaqs(), ...faqs.map(([q, a]) => (q === "Do I need to buy anything?" ? [q, `${a} The ${KIT_NAME} is optional: it puts the same path in one printable workbook.`] : [q, a]))]
+    : faqs;
   return (
     <main className={styles.page}>
       <Link className="breadcrumb" href="/tools">← Tools</Link>
@@ -69,7 +88,8 @@ export default function ReadyToBuildPage() {
           <h1>Before you buy a new one, <span>find out what yours can become.</span></h1>
           <p className={styles.subtitle}>That computer sitting in a closet—or running slowly on your desk—may be enough to become your personal build machine. Ready to Build walks you through the decision safely: check the computer, protect or remove the old setup, rebuild it if needed, install the right tools, and create your first live project.</p>
           <p>A build machine is simply a computer set up to make websites and apps: a code editor, Git, Node.js, and a coding tool you choose (a separate service with its own sign-up). Back up first, then decide what to keep or remove.</p>
-          <div className={styles.actions}><a className="btn btn-gold" href="#computer-check">Check my computer <span aria-hidden="true">→</span></a><a className={styles.textLink} href="#process">See the whole process ↓</a></div>
+          {onSale ? <p className={styles.kitLine}><strong>The {KIT_NAME}</strong> puts the whole path in one printable workbook, with your own kit page on this site. {kitPrice()}, paid once.</p> : null}
+          <div className={styles.actions}><a className="btn btn-gold" href="#computer-check">Check my computer <span aria-hidden="true">→</span></a>{onSale ? <a className={styles.textLink} href="#kit">See what&apos;s in the kit ↓</a> : <a className={styles.textLink} href="#process">See the whole process ↓</a>}</div>
           <p className={styles.small}>A first simple live project in a day is a goal, not a guarantee. Repairs, setup, and larger ideas can take longer.</p>
         </div>
         <div className={styles.workbench} aria-label="Illustration of a first project, from computer to live website">
@@ -91,17 +111,19 @@ export default function ReadyToBuildPage() {
         </ol>
       </section>
 
+      {onSale ? <KitOffer /> : null}
+
       <ComputerCheck />
 
       <RealProjects />
 
-      <section id="included" className={styles.section} aria-labelledby="kit-heading"><div className={styles.sectionIntro}><span className="kicker">Step by step</span><h2 id="kit-heading">What you will get help with</h2><p>Everything below is a page on this site that works today. Do them in order, or jump to the one you need. No account, no download.</p></div><div className={styles.threeColumns}>{kit.map(group => <article className={styles.kitCard} key={group.title}><h3>{group.title}</h3><ul>{group.items.map(([label, href]) => <li key={label}>{href.startsWith("#") ? <a href={href}>{label}</a> : <Link href={href}>{label}</Link>}</li>)}</ul></article>)}</div><div className={styles.note}><strong>One prompt starts the work. You stay in charge.</strong><p>Review, test, and approve what goes live. Then improve what you made, one small rep at a time.</p></div></section>
+      <section id="included" className={styles.section} aria-labelledby="kit-heading"><div className={styles.sectionIntro}><span className="kicker">Step by step</span><h2 id="kit-heading">What you will get help with</h2><p>Everything below is a page on this site that works today. Do them in order, or jump to the one you need. No account, no download{onSale ? ", with or without the kit" : ""}.</p></div><div className={styles.threeColumns}>{kit.map(group => <article className={styles.kitCard} key={group.title}><h3>{group.title}</h3><ul>{group.items.map(([label, href]) => <li key={label}>{href.startsWith("#") ? <a href={href}>{label}</a> : <Link href={href}>{label}</Link>}</li>)}</ul></article>)}</div><div className={styles.note}><strong>One prompt starts the work. You stay in charge.</strong><p>Review, test, and approve what goes live. Then improve what you made, one small rep at a time.</p></div></section>
 
       <section className={styles.section} aria-labelledby="examples-heading"><div className={styles.sectionIntro}><span className="kicker">What you can build</span><h2 id="examples-heading">Start with something that matters to you.</h2><p>Learn a process you can repeat, not just instructions for copying one project. Keep the first version small enough to finish.</p></div><div className={styles.examples}>{examples.map(([title, copy], i) => <article key={title}><span className={styles.number}>0{i + 1}</span><h3>{title}</h3><p>{copy}</p></article>)}</div></section>
 
-      <section className={styles.section} aria-labelledby="faq-heading"><div className={styles.sectionIntro}><span className="kicker">A few fair questions</span><h2 id="faq-heading">Before you start.</h2></div><div className={styles.faq}>{faqs.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
+      <section className={styles.section} aria-labelledby="faq-heading"><div className={styles.sectionIntro}><span className="kicker">A few fair questions</span><h2 id="faq-heading">Before you start.</h2></div><div className={styles.faq}>{questions.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
 
-      <section className={styles.closing}><RingMark /><span className="kicker">Ready when you are</span><h2>Take the computer you already have.<br />Bring the idea you keep putting off.<br /><span>Start building it.</span></h2><a className="btn btn-gold btn-big" href="#computer-check">Check my computer →</a></section>
+      <section className={styles.closing}><RingMark /><span className="kicker">Ready when you are</span><h2>Take the computer you already have.<br />Bring the idea you keep putting off.<br /><span>Start building it.</span></h2><a className="btn btn-gold btn-big" href="#computer-check">Check my computer →</a>{onSale ? <a className={styles.textLink} href="#kit">Or get the kit ↑</a> : null}</section>
     </main>
   );
 }

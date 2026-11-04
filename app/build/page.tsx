@@ -313,7 +313,8 @@ export default function FirstAppCoach() {
           <section className="card" style={{ padding: 20 }}>
             <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>Create the app on your computer</h2>
             <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 16px" }}>Open your terminal and run these, one at a time. Copy buttons do the typing.</p>
-            <Command cmd="cd ~/OpenMirror" why="Go to the folder where your projects live." />
+            <Command cmd="mkdir -p ~/projects" why="Make a folder for your projects. If it's already there, nothing changes." />
+            <Command cmd="cd ~/projects" why="Go into that folder." />
             <Command cmd={`npx create-next-app@latest ${folder}`} why="Create a brand-new Next.js app. Say yes to the defaults." />
             <Command cmd={`cd ${folder}`} why="Step inside your new app's folder." />
             <Command cmd="npm run dev" why="Start it. Open http://localhost:3000 in your browser — that's your app." />

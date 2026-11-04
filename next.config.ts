@@ -28,6 +28,10 @@ export const PRIVATE_ROUTES = [
   "/account/:path*",
   "/api/members/:path*",
   "/api/owner/:path*",
+  // The kit buyer's page, link and download: personal to one purchase.
+  "/kit",
+  "/kit/:path*",
+  "/api/kit/:path*",
 ];
 
 // Digital Front Desk moved to iDontCry Dream Labs on Sep 30 2026. This repo

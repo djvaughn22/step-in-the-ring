@@ -101,3 +101,30 @@
 .projectEvidenceCard > a { margin-top: auto; min-height: 44px; }
 .sourceNote { margin-top: 24px; font-size: 13px; line-height: 1.65; max-width: 850px; }
 @media (max-width: 650px) { .projectEvidenceGrid { grid-template-columns: 1fr; } .projectEvidenceCard { padding: 22px; } .trustFlow { grid-template-columns: 1fr; gap: 20px; } .trustFlow li { grid-template-columns: 24px 1fr auto; align-items: center; } .trustFlow .number { grid-column: auto; } .flowArrow { transform: rotate(90deg); } .truthCallout { padding: 22px; } }
+/* The kit offer (shown only while sales are open) */
+.kitLine { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; color: var(--text); }
+.kitOffer { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.kitOffer h3 { font-size: 22px; margin-bottom: 8px; }
+.contents { list-style: none; counter-reset: kit; margin-top: 18px; }
+.contents li { counter-increment: kit; display: grid; grid-template-columns: 34px 1fr; column-gap: 8px; padding: 14px 0; border-top: 1px solid var(--line); }
+.contents li::before { content: counter(kit, decimal-leading-zero); font: 12px var(--mono); color: var(--accent); padding-top: 4px; grid-row: span 2; }
+.contents strong { color: var(--text); font-size: 16px; }
+.contents span { color: var(--muted); font-size: 14.5px; margin-top: 2px; }
+.buyCard { position: sticky; top: 96px; padding: 28px; border: 1px solid var(--accent); border-radius: 20px; background: var(--panel); display: flex; flex-direction: column; gap: 16px; }
+.buyCard form { margin: 0; }
+.buyCard button { width: 100%; justify-content: center; }
+.price { display: flex; align-items: baseline; gap: 10px; margin: 0; }
+.price strong { font-size: 44px; line-height: 1; color: var(--text); letter-spacing: -.03em; }
+.price span { color: var(--muted); font-size: 15px; }
+.includes { list-style: none; display: grid; gap: 10px; }
+.includes li { position: relative; padding-left: 24px; color: var(--text); font-size: 15px; }
+.includes li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); font-weight: 800; }
+.buyCard p { margin: 0; }
+.after { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line2); max-width: 860px; }
+.after h3 { font-size: 22px; margin-bottom: 14px; }
+.afterSteps { list-style: none; counter-reset: after; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-bottom: 20px; }
+.afterSteps li { counter-increment: after; font-size: 15px; color: var(--muted); }
+.afterSteps li::before { content: counter(after, decimal-leading-zero); display: block; font: 12px var(--mono); color: var(--accent); margin-bottom: 8px; }
+.afterSteps strong { display: block; color: var(--text); margin-bottom: 4px; }
+@media (max-width: 850px) { .kitOffer { grid-template-columns: 1fr; gap: 28px; } .buyCard { position: static; } .afterSteps { grid-template-columns: 1fr; gap: 16px; } }
+@media (max-width: 650px) { .buyCard { padding: 22px; } .price strong { font-size: 38px; } }

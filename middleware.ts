@@ -39,6 +39,8 @@ const PUBLIC_ROUTES = [
   "/how",
   "/build",
   "/products",
+  // The kit page checks the purchase itself (Stripe), no account involved.
+  "/kit",
   "/live",
   "/membership",
   "/members/login",

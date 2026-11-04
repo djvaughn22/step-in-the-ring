@@ -15,6 +15,10 @@ Idea-to-first-build coach, secular. Accent: **#60A5FA**.
 - Accepts `?idea=` handoff from iDontCry's Dream Lab (prefills the build form) and links back.
 - Kids build with a parent — keep that note.
 
+## Ready to Build Kit (the one thing for sale)
+
+One-time purchase, no subscription, no account: Stripe Checkout `payment` mode → `/kit/open` checks the session with Stripe and sets the `sitr-kit` cookie → `/kit` (download, six steps, kit link). Code in `app/kit/`; product definition in `app/kit/kit.ts`; full flow and owner setup in `docs/ready-to-build.md`. Sales show only when `SITR_KIT_SALES=open`. **The paid PDF never goes in Git or `/public`** — its source lives in git-ignored `private/ready-to-build-kit/` and production serves it from Postgres (`sitr_kit_files`). Tools on the site stay open to everyone; never gate an existing page behind the kit.
+
 ## Personal data is not product test data (permanent, 2026-08-29)
 
 A real Build carrying the owner's own private personal story sat unscrubbed

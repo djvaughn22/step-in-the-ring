@@ -961,6 +961,7 @@ html[data-om-theme="light"] .status-planned {
 .access-preview { color: var(--gold); border-color: var(--gold-glow); background: var(--gold-soft); }
 .access-member { color: var(--green); border-color: rgba(126, 201, 168, 0.28); }
 .access-owner { color: var(--dim); }
+.access-buyer { color: var(--accent); border-color: var(--accent-glow); }
 
 /* ── The preview door ── */
 .gate { max-width: 380px; margin: 0 auto; padding: 64px 20px 90px; text-align: center; }
@@ -1006,6 +1007,7 @@ html[data-om-theme="light"] .access-preview { color: #1d4ed8; }
 html[data-om-theme="light"] .access-pill { color: #64748b; border-color: #cbd5e1; }
 html[data-om-theme="light"] .access-preview { background: #eff6ff; border-color: #bfdbfe; }
 html[data-om-theme="light"] .access-member { color: #047857; border-color: #a7f3d0; }
+html[data-om-theme="light"] .access-buyer { color: #1d4ed8; border-color: #bfdbfe; }
 html[data-om-theme="light"] .gate input { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
