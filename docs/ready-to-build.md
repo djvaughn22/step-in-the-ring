@@ -60,12 +60,20 @@ stays open to everyone; buying the kit locks or unlocks nothing else.
 3. Stripe: a Product "Ready to Build Kit" with a one-time USD Price equal to
    `KIT_PRICE_CENTS`. Turn on email receipts for successful payments. Decide
    how sales tax and VAT will be handled (Stripe Tax, or limit where you sell).
-4. Vercel env (Production): `STRIPE_SECRET_KEY`, `STRIPE_KIT_PRICE_ID`
-   (`MEMBER_APP_URL` already exists). Test with test-mode keys on a Preview
-   deployment first: buy with card 4242 4242 4242 4242, download, open the kit
-   link in another browser, refund in the Dashboard, confirm `/kit` closes.
-5. Switch to live keys, set `SITR_KIT_SALES=open`, redeploy, and buy once for
-   real (then refund it) before telling anyone.
+4. Test on this branch's Preview deployment first. In Vercel, set these for
+   the **Preview** environment only: the test-mode `STRIPE_SECRET_KEY`, the
+   test-mode `STRIPE_KIT_PRICE_ID`, `SITR_KIT_SALES=open`, and
+   `MEMBER_APP_URL` set to the branch's preview address (the existing
+   `MEMBER_APP_URL` is Production-only; without it the offer stays hidden).
+   Redeploy the preview. Previews sit behind Vercel login, so stay signed in
+   to Vercel: buy with card 4242 4242 4242 4242, download, open the kit link
+   in a second browser (also signed in), refund in the Dashboard, and confirm
+   `/kit` closes. `DATABASE_URL` is shared by every environment, so the PDF
+   from step 2 is already there.
+5. Merge to main (production deploys from main). For **Production**, set the
+   live-mode `STRIPE_SECRET_KEY` and `STRIPE_KIT_PRICE_ID` (test and live
+   prices have different ids) and `SITR_KIT_SALES=open`, redeploy, and buy
+   once for real (then refund it) before telling anyone.
 
 To close sales again, remove `SITR_KIT_SALES` and redeploy. Existing buyers
 keep their kit as long as `STRIPE_SECRET_KEY` stays set.
