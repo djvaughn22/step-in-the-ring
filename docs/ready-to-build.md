@@ -56,7 +56,8 @@ stays open to everyone; buying the kit locks or unlocks nothing else.
 2. Upload the PDF: `vercel env pull .env.production.local --environment=production`,
    then `node --env-file=.env.production.local scripts/upload-kit-file.mjs
    private/ready-to-build-kit/Ready-to-Build-Kit-v1.0.pdf 1.0`. Delete
-   `.env.production.local` afterwards.
+   `.env.production.local` afterwards. Done November 4, 2026: version 1.0
+   is stored (330,800 bytes) and read back identical.
 3. Stripe: a Product "Ready to Build Kit" with a one-time USD Price equal to
    `KIT_PRICE_CENTS`. Turn on email receipts for successful payments. Decide
    how sales tax and VAT will be handled (Stripe Tax, or limit where you sell).
