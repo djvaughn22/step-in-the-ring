@@ -50,7 +50,9 @@ stays open to everyone; buying the kit locks or unlocks nothing else.
 
 1. Read the workbook (`private/ready-to-build-kit/`, git-ignored) and approve
    it, the price (`KIT_PRICE_CENTS`) and the refund window
-   (`KIT_REFUND_DAYS`).
+   (`KIT_REFUND_DAYS`). Done November 3, 2026: the owner approved workbook
+   v1.0, $19 one-time and 30 days. Changing any of the three needs the
+   owner's approval again.
 2. Upload the PDF: `vercel env pull .env.production.local --environment=production`,
    then `node --env-file=.env.production.local scripts/upload-kit-file.mjs
    private/ready-to-build-kit/Ready-to-Build-Kit-v1.0.pdf 1.0`. Delete
