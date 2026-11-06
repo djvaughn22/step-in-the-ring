@@ -118,9 +118,12 @@ the router remember the query (a test checks this).
 
 ## Open follow-ups elsewhere
 
-- The hub (`open-mirror`, `src/lib/products.ts`) still lists this site with the old
-  labels ("Owner's Builds", "What's Built") and needs the new one-liner. iDontCry's
-  handoff in `src/app/make/MakeHub.tsx` is worth a read too.
+- The hub's listing was updated on 2026-11-06 (`open-mirror` 9f4dcf6). Its door and
+  card say AI; its About line deliberately doesn't, because that page never mentions
+  AI or build tooling. The door keeps the owner's subtitle, "Build an idea".
+- iDontCry still has a boxing glove on four buttons that lead here (`GameLab.tsx`
+  twice, `MakeHub.tsx`, `CreativeStudio.tsx`). Their wording is still true. iDontCry
+  keeps its own no-AI copy rule, so only the emoji would change.
 - The kit branch (`kit-one-time-purchase`) is untouched. A test merge onto this work
   was clean: no conflicts, 1,601 tests passing, typecheck clean. Sales stay closed.
 
