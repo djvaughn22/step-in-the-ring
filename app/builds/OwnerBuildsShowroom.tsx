@@ -25,12 +25,12 @@ export default function OwnerBuildsShowroom() {
   return (
     <section className="owner-showroom" aria-labelledby="owner-builds-heading">
       <div className="owner-showroom-hero">
-        <span className="kicker">Owner&apos;s Builds</span>
+        <span className="kicker">Made here</span>
         <h1 id="owner-builds-heading">See what we&apos;ve built.</h1>
         <p>Every one of these started as a rough idea. They are real websites, tools, games, and experiments you can open right now. Look around, then bring your own idea.</p>
         <div className="actions">
-          <Link className="btn btn-gold" href="/create">I want to build something like this →</Link>
-          <Link className="btn btn-ghost" href="/products/ready-to-build#computer-check">Check my computer first</Link>
+          <Link className="btn btn-gold" href="/create">Make something like this →</Link>
+          <Link className="btn btn-ghost" href="/how">How it works</Link>
         </div>
       </div>
 

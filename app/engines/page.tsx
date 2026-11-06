@@ -22,7 +22,7 @@ import { Sheet, Masthead, Band } from "../site/ui";
 export const metadata: Metadata = {
   title: "Engines",
   description:
-    "Focused tools for making one part of what you're building. Each one says what it does, when to use it, and what you leave with.",
+    "Guided help with one kind of work: writing, design, music, apps and plans. Each one says what it does, when to use it, and what you leave with.",
 };
 
 function EngineCard({ c }: { c: Capability }) {
@@ -76,8 +76,8 @@ export default function EnginesPage() {
     <Sheet wide>
       <Masthead
         kicker="Engines"
-        title="Focused tools"
-        lead="Each one makes a part of something. Pick the one that matches what you're doing right now — or say what you want to make and the right one gets suggested."
+        title="Guided tools"
+        lead="Each engine walks you through it and ends with something you can use or hand to an AI. They don't run an AI themselves. Pick the one that matches what you're doing, or say what you want to make and one gets suggested."
       >
         <nav className="jump" aria-label="Jump to a shelf">
           {shelves.map((g) => (
@@ -104,7 +104,7 @@ export default function EnginesPage() {
       >
         <div className="actions">
           <Link href="/create" className="btn btn-gold">Start with what you want to make</Link>
-          <Link href="/builds" className="btn btn-ghost">Open something you started</Link>
+          <Link href="/library" className="btn btn-ghost">Open something you started</Link>
         </div>
       </Band>
 

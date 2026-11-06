@@ -20,7 +20,7 @@ import { displayName, enginesByGroup, type Capability } from "../vnext/capabilit
 import TesterFeedback from "../site/TesterFeedback";
 
 export const metadata: Metadata = {
-  title: "What's built",
+  title: "What works today",
   description:
     "What works on Step In The Ring today, what is in beta, what is private, and what is still being built.",
 };
@@ -59,7 +59,7 @@ const engineItem = (c: Capability, status: Status): Item => ({
 const WORKS: Item[] = [
   {
     name: "The idea box",
-    what: "Say what you want to make in your own words. You get back what it is, the smallest version that would work, and a first move.",
+    what: "Say what you want to make in your own words. You get a first message to give an AI, and the next message each time you want something changed.",
     status: "works",
     href: "/create",
   },
@@ -101,8 +101,8 @@ const WORKS: Item[] = [
     href: "/library",
   },
   {
-    name: "Owner’s Builds",
-    what: "The live websites, tools and games made this way. Open any of them.",
+    name: "Made here",
+    what: "The live websites, tools and games made here. Open any of them.",
     status: "works",
     href: "/builds",
   },
@@ -175,7 +175,7 @@ export default function WhatsBuiltPage() {
     <Sheet>
       <Masthead
         kicker="Open beta"
-        title="What’s built, and what isn’t yet"
+        title="What works today, and what doesn’t yet"
         lead="This page says plainly what you can use today, what is still being made, and how to tell us what you find."
       />
 
@@ -183,11 +183,11 @@ export default function WhatsBuiltPage() {
         <ol className="test-runs">
           <li>
             <strong>Bring a real idea.</strong> Type something you actually want to make into{" "}
-            <Link href="/create">the idea box</Link>. Does the first move make sense?
+            <Link href="/create">the idea box</Link>, and paste the first message into an AI app. Did it get you started?
           </li>
           <li>
-            <strong>Cut it down.</strong> Run the same idea through the{" "}
-            <Link href="/tools/first-version">first version cutter</Link>. Is what’s left small enough to finish?
+            <strong>Change something.</strong> Tell it what’s off, using the next message we write for you. Did it get
+            closer to what you wanted?
           </li>
           <li>
             <strong>Try one beta engine.</strong> Open one from the list below that fits what you’re making. Is what

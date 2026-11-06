@@ -21,8 +21,8 @@ import BuildsClient from "./BuildsClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Owner’s Builds",
-  description: "Explore the live websites, tools, games, experiments, and products built through the Step In The Ring process.",
+  title: "Made here",
+  description: "Open the live websites, tools, games, experiments and products made here.",
   robots: { index: true, follow: true },
 };
 

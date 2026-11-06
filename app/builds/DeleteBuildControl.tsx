@@ -14,7 +14,13 @@ import { useState } from "react";
  * never receives a title or summary, so there is nothing sensitive it
  * could repeat even by mistake.
  */
-export function DeleteBuildControl({ onConfirm }: { onConfirm: () => Promise<boolean> }) {
+export function DeleteBuildControl({
+  onConfirm,
+  label = "Delete this build",
+}: {
+  onConfirm: () => Promise<boolean>;
+  label?: string;
+}) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(false);
@@ -26,7 +32,7 @@ export function DeleteBuildControl({ onConfirm }: { onConfirm: () => Promise<boo
         className="btn btn-ghost btn-small bc-delete-open"
         onClick={() => setConfirming(true)}
       >
-        Delete this build
+        {label}
       </button>
     );
   }

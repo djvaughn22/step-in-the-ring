@@ -15,7 +15,7 @@ import type { CreationType, SoftwareCall } from "./types";
 
 export type WritingForm =
   | "poem" | "short-story" | "novel" | "childrens-book" | "screenplay"
-  | "blog" | "newsletter" | "speech" | "journal" | "piece";
+  | "blog" | "newsletter" | "speech" | "journal" | "guide" | "piece";
 
 export type MusicForm =
   | "song" | "lyrics" | "album" | "playlist" | "music-video"
@@ -47,7 +47,7 @@ export const WRITING_FORM_LABEL: Record<WritingForm, string> = {
   poem: "a poem", "short-story": "a short story", novel: "a novel",
   "childrens-book": "a children's book", screenplay: "a screenplay",
   blog: "a blog", newsletter: "a newsletter", speech: "a speech",
-  journal: "a journal", piece: "a written piece",
+  journal: "a journal", guide: "a guide", piece: "a written piece",
 };
 
 export const MUSIC_FORM_LABEL: Record<MusicForm, string> = {
@@ -98,7 +98,17 @@ function sportsOutput(text: string): SportsOutput {
   return "practice-plan";
 }
 
+/**
+ * Things people make to read and use that aren't stories: a study guide, a
+ * family cookbook, a handbook, a slideshow. Without this they either stayed
+ * "still taking shape" and got told to use HTML, or got a fiction brief ("a
+ * character with a want") for a book of recipes.
+ */
+export const GUIDE_WORDS =
+  /\b(study guides?|cook ?books?|recipe (?:books?|collections?)|handbooks?|manuals?|family (?:histor(?:y|ies)|trees?)|slide ?shows?|slide decks?|presentations?|lesson plans?|checklists?)\b/i;
+
 function writingForm(text: string): WritingForm {
+  if (GUIDE_WORDS.test(text)) return "guide";
   if (/\bpoem|poetry|haiku|sonnet\b/i.test(text)) return "poem";
   if (/\bscreenplay|movie script|film script|tv (?:pilot|script)|teleplay\b/i.test(text)) return "screenplay";
   if (/\bchildren'?s book|picture book|bedtime (?:story|book)|kids'? book\b/i.test(text)) return "childrens-book";
@@ -331,7 +341,7 @@ export function deriveTools(
     };
   }
 
-  if (type === "game" || type === "app" || type === "site" || type === "tool" || type === "list" || type === "unknown") {
+  if (type === "game" || type === "app" || type === "site" || type === "tool" || type === "list") {
     if (web === "html-file" || type === "game") {
       return {
         stack: "One file: HTML + CSS + JavaScript.",
@@ -376,22 +386,23 @@ export function deriveTools(
     };
   }
 
-  // Fallback for anything unclassified.
+  // Fallback for anything unclassified. "Something to help my church" could
+  // turn into a poster, a phone tree or a website, so it gets no stack yet.
   return {
-    stack: "Paper first.",
-    why: software.reason,
+    stack: "Whichever AI chat app you like, or paper.",
+    why: "The right tools depend on what this turns into.",
     setup: ["None yet — the idea needs one more decision before tools matter."],
-    noSetup: ["Sharpening what this actually is."],
+    noSetup: ["Working out what this actually is."],
     automatic: [],
     optional: [],
-    wait: ["All tooling until the creation has a definite form."],
+    wait: ["Everything else, until this has a definite form."],
   };
 }
 
 /** A real-world effort — a trip, a wedding, a fundraiser — not software.
  *  Shared so classify.ts's CreationType and interpret.ts's follow-up
  *  question can't quietly disagree about the same word list. */
-export const EVENT_WORDS = /\b(event|party|wedding|reunion|fundraiser|trip|vacation|holiday|camp|tournament|campaign)\b/i;
+export const EVENT_WORDS = /\b(event|party|wedding|reunion|fundraiser|trip|vacation|holiday|camp|tournament|campaign|work plan|project plan|office move)\b/i;
 
 /* ── GENERAL HELP — not "which form," but "is this a creation at all" ────
    Shared by both layers (interpret.ts's buildType and classify.ts's
@@ -406,6 +417,9 @@ export const EVENT_WORDS = /\b(event|party|wedding|reunion|fundraiser|trip|vacat
 const COMPREHENSION_WORDS = /\b(understand|explain|explains|explaining|explained|break(s|ing)? down|make sense of)\b/i;
 const LEARNING_WORDS = /\b(teach me|learn (how|about|to)|how (does|do) .+ work)\b/i;
 const DECISION_WORDS = /\b(help me (decide|choose)|which (one|option) (should|do)|choose between|weigh(ing)? (the|my|these) options)\b/i;
+/* The plainest way anyone asks. It is the home page's own starter, and a person
+   typing it about their taxes should not be asked what version one does. */
+const ASKING_WORDS = /\b(i need help with|help me with|can you help me)\b/i;
 const PHYSICAL_OBJECT_WORDS = /\b(faucet|sink|toilet|drain|pipe|plumbing|toaster|fridge|refrigerator|dishwasher|washer|dryer|washing machine|oven|stove|furnace|water heater|air conditioner|\bac\b|heater|garage door|lawn ?mower|car|engine|tire)\b/i;
 const MALFUNCTION_WORDS = /\b(leak(ing|s|ed)?|clogged|jammed|stuck|broken|broke|won'?t (start|turn on|open|close|drain)|stopped working|making a (weird |strange |loud )?noise)\b/i;
 const DIGITAL_CONTEXT_WORDS = /\b(app|site|website|web ?page|button|login|log[- ]?in|account|database|code|software|server|api|script)\b/i;
@@ -421,6 +435,7 @@ export function looksLikeGeneralHelp(text: string): boolean {
     COMPREHENSION_WORDS.test(text) ||
     LEARNING_WORDS.test(text) ||
     DECISION_WORDS.test(text) ||
+    ASKING_WORDS.test(text) ||
     looksLikeRealWorldTrouble(text)
   );
 }
@@ -439,5 +454,6 @@ export function generalHelpKind(text: string): GeneralHelpKind | null {
   if (DECISION_WORDS.test(text)) return "decide";
   if (COMPREHENSION_WORDS.test(text)) return "understand";
   if (looksLikeRealWorldTrouble(text)) return "trouble";
+  if (ASKING_WORDS.test(text)) return "understand";
   return null;
 }

@@ -34,7 +34,7 @@ const SUGGEST: Record<IdeaType, { first: string; pages: string[] }> = {
 };
 
 const TOOLS: { name: string; emoji: string; what: string }[] = [
-  { name: "A chat assistant", emoji: "💬", what: "Any chat assistant you already use, for planning pages and explaining errors. It is a separate service with its own account; this page does not include one." },
+  { name: "An AI chat app", emoji: "💬", what: "Any AI chat app you like, for planning pages and explaining errors. It is a separate service with its own account; this page does not include one." },
   { name: "Linux Terminal", emoji: "⌨️", what: "The command box. You type a command, the computer does it." },
   { name: "VS Code", emoji: "📝", what: "The editor where your app's files live and get changed." },
   { name: "Git", emoji: "💾", what: "The save system. Every commit is a snapshot you can go back to." },
@@ -224,9 +224,11 @@ export default function FirstAppCoach() {
           <h1 style={{ fontSize: "clamp(1.7rem, 6vw, 2.6rem)", fontWeight: 900, margin: "0 0 10px", lineHeight: 1.1 }}>
             Build your first web app
           </h1>
-          <p style={{ fontSize: 15, color: "var(--muted)", margin: "0 0 14px" }}>without knowing where to start</p>
+          <p style={{ fontSize: 15, color: "var(--muted)", margin: "0 0 14px" }}>
+            without knowing where to start. You don&apos;t write the code: you copy and paste, and an AI chat app explains anything that goes wrong.
+          </p>
           <p className="card" style={{ fontSize: 14, lineHeight: 1.7, padding: "14px 16px", margin: 0, textAlign: "left" }}>
-            <strong style={{ color: "var(--gold)" }}>A chat assistant</strong> helps you plan.{" "}
+            <strong style={{ color: "var(--gold)" }}>An AI chat app</strong> helps you plan.{" "}
             <strong style={{ color: "var(--gold)" }}>Linux terminal</strong> runs the commands.{" "}
             <strong style={{ color: "var(--gold)" }}>GitHub</strong> saves your code.{" "}
             <strong style={{ color: "var(--gold)" }}>Vercel</strong> hosts it.{" "}
@@ -390,11 +392,11 @@ export default function FirstAppCoach() {
               </div>
               <pre style={{ fontSize: 12.5, color: "var(--muted)", whiteSpace: "pre-wrap", margin: 0, lineHeight: 1.7, fontFamily: "inherit" }}>{kit}</pre>
             </div>
-            <PromptBlock title="💬 Paste into your chat assistant (plan your pages)" text={chatgptPrompt} />
+            <PromptBlock title="💬 Paste into your AI chat app (plan your pages)" text={chatgptPrompt} />
             <PromptBlock title="🛠️ Paste into your coding tool (build it) · needs a tool that can edit the files in your project folder" text={claudePrompt} />
             <div className="card" style={{ padding: 20, marginBottom: 14 }}>
               <h3 style={{ fontSize: 16, fontWeight: 900, margin: "0 0 6px" }}>🆘 I'm stuck</h3>
-              <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px" }}>Fill these in, copy the text, and paste it into your chat assistant, or send it to someone who can help. Saying what you ran, what you expected, and the exact error is how most bugs get solved.</p>
+              <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 12px" }}>Fill these in, copy the text, and paste it into your AI chat app, or send it to someone who can help. Saying what you ran, what you expected, and the exact error is how most bugs get solved.</p>
               {(["ran", "expected", "got"] as const).map((k) => (
                 <textarea
                   key={k}

@@ -76,7 +76,7 @@ export default async function EverythingPage() {
           items={[
             { label: "Create", href: "#create" },
             { label: "Tools & engines", href: "#engines" },
-            { label: "Builds", href: "#builds" },
+            { label: "Made here", href: "#builds" },
             { label: "Library", href: "#library" },
             { label: "Learn", href: "#learn" },
             { label: "Proof", href: "#proof" },
@@ -103,7 +103,7 @@ export default async function EverythingPage() {
         <PageRows pages={pagesInGroup("engines")} />
       </Band>
 
-      <Band id="builds" title="Builds" note="The things you're actually making.">
+      <Band id="builds" title="Made here" note="Real things you can open right now.">
         <PageRows pages={pagesInGroup("builds")} />
       </Band>
 
@@ -178,7 +178,7 @@ export default async function EverythingPage() {
           ))}
         </Tiles>
         <p style={{ marginTop: 20, fontSize: 14 }}>
-          More of them on <Link href="/builds" className="more">Owner&apos;s Builds</Link>, and the
+          More of them on <Link href="/builds" className="more">Made here</Link>, and the
           whole company&apos;s work at{" "}
           <a
             className="more"

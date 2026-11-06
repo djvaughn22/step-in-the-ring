@@ -144,20 +144,20 @@ describe("the menu", () => {
     expect(navPages()[0].path).toBe("/create");
     expect(navPages().map((p) => p.path)).toEqual([
       "/create",
+      "/how",
       "/tools",
-      "/engines",
       "/library",
       "/builds",
     ]);
   });
 
-  it("says the same four words the product is organised around", () => {
+  it("uses words a first-time visitor can read without knowing the product", () => {
     expect(navPages().map((p) => p.name)).toEqual([
       "Create",
+      "How it works",
       "Tools",
-      "Engines",
       "Your work",
-      "Owner’s Builds",
+      "Made here",
     ]);
   });
 });

@@ -197,8 +197,8 @@ describe("free tool pages", () => {
     expect(doc.body.textContent).not.toMatch(/\$\d|price|purchase|checkout|subscribe/i);
   });
 
-  it("is in the main menu, second, right after Create", () => {
-    expect(navPages().map((p) => p.path).slice(0, 2)).toEqual(["/create", "/tools"]);
+  it("is in the main menu, right after Create and How it works", () => {
+    expect(navPages().map((p) => p.path).slice(0, 3)).toEqual(["/create", "/how", "/tools"]);
   });
 
   it("never sends anything: no fetch, no forms posting anywhere, no analytics", () => {

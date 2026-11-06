@@ -44,9 +44,9 @@ describe("Owner’s Builds showroom", () => {
 
   it("renders the primary message, featured builds, all-builds CTA, and build-next CTAs", () => {
     const html = renderToStaticMarkup(createElement(OwnerBuildsShowroom));
-    expect(html).toContain("Owner&#x27;s Builds");
+    expect(html).toContain("Made here");
     expect(html).toContain("See what we&#x27;ve built.");
-    expect(html).toContain("I want to build something like this");
+    expect(html).toContain("Make something like this");
     expect(html).toContain('href="/products/ready-to-build"');
     expect(html).toContain('href="/create"');
     expect(html).toContain("Featured builds");
@@ -67,7 +67,7 @@ describe("Owner’s Builds showroom", () => {
   it("keeps the page to one h1 and leads with the free next step", () => {
     const html = renderToStaticMarkup(createElement(OwnerBuildsShowroom));
     expect(html.match(/<h1/g)).toHaveLength(1);
-    expect(html).toMatch(/<a class="btn btn-gold" href="\/create">I want to build something like this/);
+    expect(html).toMatch(/<a class="btn btn-gold" href="\/create">Make something like this/);
   });
 
   it("a category filter includes its featured builds", async () => {

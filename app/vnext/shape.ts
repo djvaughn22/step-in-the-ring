@@ -214,7 +214,7 @@ function softwareNoteFrom(view: CreationView): string | null {
  */
 const ALWAYS_HELPFUL = ["five-hour-sprint", "first-app"];
 
-function helpsFor(intent: string, creationType: CreationType): ShapedHelp[] {
+function helpsFor(intent: string, creationType: CreationType, softwareCentral: boolean): ShapedHelp[] {
   // Every real capability here is a tool for MAKING something — none of
   // them fit a question, a decision, or real-world trouble, matched
   // keyword or not. Confirmed live: "Teach me how compound interest
@@ -225,10 +225,32 @@ function helpsFor(intent: string, creationType: CreationType): ShapedHelp[] {
   if (creationType === "general-help") return [];
   const matched = capabilitiesForIntent(intent, 4);
   if (matched.length > 0) return matched.map(trimHelp);
+  // The two fallbacks are about building software. Confirmed: a birthday poem
+  // and a slideshow were being offered "Your first build, step by step".
+  if (!softwareCentral) return [];
   return ALWAYS_HELPFUL.flatMap((id) => {
     const c = capabilityById(id);
     return c ? [trimHelp(c)] : [];
   });
+}
+
+/**
+ * The one question, in words that fit. "What should it do the very first time
+ * someone uses it?" is a good question about software and a strange one about a
+ * slideshow or a study guide, so anything that isn't clearly software gets the
+ * same slot (and the same answer key) with a question that fits anything.
+ */
+function questionFrom(view: CreationView): OpenQuestion | null {
+  const q = view.interpretation.openQuestions[0] ?? null;
+  if (q?.key === "versionOne" && view.software.verdict !== "central") {
+    return {
+      ...q,
+      question: "What should it include?",
+      help: "One or two things is plenty.",
+      placeholder: 'e.g. "Just the main points, with a short quiz at the end"',
+    };
+  }
+  return q;
 }
 
 /** Turn a finished reading into the shaping a Build is started from. */
@@ -249,8 +271,8 @@ export function shapingFromView(view: CreationView): BuildShaping {
     realMeans: realMeansFrom(view),
     versionOne,
     firstMove: firstMoveFrom(view, versionOne),
-    helps: helpsFor(i.raw, view.creationType),
-    question: i.openQuestions[0] ?? null,
+    helps: helpsFor(i.raw, view.creationType, view.software.verdict === "central"),
+    question: questionFrom(view),
     softwareNote: softwareNoteFrom(view),
   };
 }

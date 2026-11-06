@@ -22,6 +22,8 @@ export const USAGE_EVENTS = [
   "engine-start",
   "engine-output",
   "first-build-round",
+  "first-message-copied",
+  "next-message-copied",
   "feedback-sent",
 ] as const;
 export type UsageEvent = (typeof USAGE_EVENTS)[number];

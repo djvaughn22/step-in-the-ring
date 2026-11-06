@@ -1,10 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
-import { deleteCurrentCreationIfMatches, viewOf } from "../creation/record";
+import { deleteCurrentCreationIfMatches } from "../creation/record";
 import type { CreationRecordV1 } from "../creation/types";
-import { shapingFromView } from "../vnext/shape";
 import { DeleteBuildControl } from "./DeleteBuildControl";
 
 /**
@@ -20,18 +18,21 @@ export default function LocalBuildCard({
   record: CreationRecordV1;
   onDeleted: () => void;
 }) {
-  const shaping = useMemo(() => shapingFromView(viewOf(record)), [record]);
-  const resumeHref = `/create?idea=${encodeURIComponent(record.originalIdea.slice(0, 600))}`;
+  // Opens the workspace from this browser's copy. Never the idea in the URL:
+  // a query string reaches analytics, and we say we don't count what you type.
+  const resumeHref = "/create?open=workspace";
+  const said = record.originalIdea.replace(/\s+/g, " ").trim();
   return (
     <article className="buildcard">
       <span className="bc-stage">Only in this browser</span>
-      <h2 className="bc-name">{shaping.title}</h2>
-      <p className="bc-read">{shaping.reading}</p>
+      {/* Their words, not a title the rules made up ("Church Something"). */}
+      <h2 className="bc-name">{said.length > 140 ? `${said.slice(0, 137).trimEnd()}…` : said}</h2>
       <div className="bc-foot">
         <Link className="btn btn-gold" href={resumeHref}>
           Continue
         </Link>
         <DeleteBuildControl
+          label="Delete this"
           onConfirm={async () => {
             const ok = deleteCurrentCreationIfMatches(record.creationId);
             if (ok) onDeleted();

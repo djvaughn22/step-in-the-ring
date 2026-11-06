@@ -3,6 +3,7 @@ import { LOOP_TOOLS } from "../tools/loop";
 import Link from "next/link";
 import Playbook from "./Playbook";
 import liveProducts from "../live/live-products.json";
+import { WHY_THE_NAME } from "../site/brand";
 
 // The whole road, idea → real thing, on one linkable page.
 //
@@ -11,15 +12,15 @@ import liveProducts from "../live/live-products.json";
 // technical playbook underneath — three descriptions of one product, each
 // a little different, and the middle one still described sending work to
 // Open Mirror to push live as if that were the normal finish line. It
-// isn't: Create → Engines → Builds → Library is the whole loop for anyone,
-// software or not. The technical playbook stays, because a real deploy
+// isn't: say it, hand it to an AI, say what to change — that is the whole loop
+// for anyone, software or not. The technical playbook stays, because a real deploy
 // workflow is genuinely useful to people building software — but it is
 // clearly labeled as that, not as the definition of Step In The Ring.
 
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "Say what you need help with, get it shaped into something clear, then act on it. No account needed: your work is kept in your browser.",
+    "Say what you want to make, paste the message we write into an AI app, and keep telling it what to change until it's right. No coding, and no account needed here.",
 };
 
 const LOOP = [
@@ -31,45 +32,47 @@ const LOOP = [
   {
     n: "02",
     title: "Shape it",
-    body: "See what it really is before any plan shows up. You only get asked something if it would actually change what gets built.",
+    body: "We turn it into a clear first message for an AI. You can add a detail, or cut the idea down first.",
   },
   {
     n: "03",
     title: "Make it",
-    body: "Turn it into something real — open an Engine if a focused tool helps, or take the brief to whatever tool or person you already work with.",
+    body: "Paste the message into the AI app you like. It takes a first try, and you don't write any code.",
   },
   {
     n: "04",
     title: "Try it",
-    body: "Use the real thing yourself. If it doesn't work for you, it isn't done.",
+    body: "Read it, play it, open it, show someone. If it doesn't work for you, it isn't done.",
   },
   {
     n: "05",
     title: "Go again",
-    body: "Pick it up again from Your work, keep what helped, or start the next one.",
+    body: "Tell the AI what to change, and we help with the words. Keep going until it's right.",
   },
 ];
 
 // What a visitor actually gets, in plain terms (owner direction 2026-10-07:
 // goal, included steps, real output, time and limits, live vs beta, account).
-// Keep every line true of the planner as it ships. No money talk here
-// (owner, 2026-10-17): say what you get, not what it costs.
+// Keep every line true of the product as it ships: this site writes messages,
+// it does not run an AI. No money talk about this site here (owner, 2026-10-17):
+// say what you get, not what it costs. That the AI apps are separate services
+// with their own terms is a fact a first-timer needs, so it stays.
 const WHAT_YOU_GET = [
-  { label: "Your goal", body: "One idea you want to turn into a real first version: an app, a song, a game, a plan, a page." },
+  { label: "Your goal", body: "Something you want to make: a website, a game, a story, a study guide, a work plan, a family cookbook." },
   { label: "Steps included", body: "Say it, shape it, make it, try it, go again. Tools and Engines help with single steps." },
-  { label: "What you leave with", body: "A written plan: what version one does, what it leaves out, what “done” looks like, the tools it needs, the next step, and a brief you can copy." },
-  { label: "Time", body: "The plan appears as soon as you describe the idea. How long building version one takes depends on the idea and is up to you." },
-  { label: "Limits", body: "It plans and guides; it does not build the thing for you. Work is kept in this browser only, so clearing site data clears it. Kids should build with a parent." },
-  { label: "Live or beta", body: "The planner and tools work today. Some Engines are still in beta: see What’s built for the current list." },
+  { label: "What you leave with", body: "A first message to give an AI, the next message each time you say what to change, and if you want it, a written plan and a longer brief." },
+  { label: "Time", body: "Your first message appears as soon as you describe the idea. The rest depends on the idea and on how many changes you want." },
+  { label: "Limits", body: "This site doesn't run an AI and can't see what yours makes, so you decide when it's right. AI apps are separate services with their own accounts and age rules, and most let you start without paying. Kids should do this with a parent or another adult they trust. AI can sound sure and still be wrong, so check anything that matters. Your work is kept in this browser only, so clearing site data clears it." },
+  { label: "Live or beta", body: "The idea box and tools work today. Some Engines are still in beta. Here's the current list:" },
   { label: "Account", body: "None needed. Your work stays in this browser." },
 ];
 
 const NAV_CONCEPTS = [
-  { name: "Create", body: "Where ideas begin. Say what you want to make." },
+  { name: "Create", body: "Where it starts. Say what you want to make and get your first message." },
   { name: "Tools", body: "Small tools that each do one job, like cutting an idea down or checking it before you share." },
-  { name: "Engines", body: "Focused tools for when one part of the work needs real help." },
+  { name: "Engines", body: "Guided help for when one kind of work needs more than a message." },
   { name: "Your work", body: "Everything you started, kept in this browser. Come back and continue." },
-  { name: "Owner’s Builds", body: "The showroom: real sites and games made this way, to open and borrow ideas from." },
+  { name: "Made here", body: "The showroom: real sites and games made here, to open and borrow ideas from." },
 ];
 
 type LiveProduct = {
@@ -93,10 +96,11 @@ export default function HowPage() {
       <div className="page">
         <header className="mast">
           <span className="kicker">How it works</span>
-          <h1 className="mast-title">One loop, five steps</h1>
+          <h1 className="mast-title">Work with AI until it&apos;s right</h1>
           <p className="mast-lead">
-            The same five steps whether you&apos;re making an app, a song, a
-            game or a plan. No account needed: your work is kept in this
+            You don&apos;t need to code or know the right words. We write the
+            messages, and the AI app you pick does the making. You decide when
+            it&apos;s right. No account needed here: your work is kept in this
             browser, under Your work.
           </p>
           <hr className="rule mast-rule" />
@@ -113,7 +117,7 @@ export default function HowPage() {
                 <dt className="plan-label" style={{ marginBottom: 2 }}>{w.label}</dt>
                 <dd style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: "var(--text)" }}>
                   {w.body}
-                  {w.label === "Live or beta" && <> <Link href="/whats-built" className="more">What’s built →</Link></>}
+                  {w.label === "Live or beta" && <> <Link href="/whats-built" className="more">What works today →</Link></>}
                 </dd>
               </div>
             ))}
@@ -131,12 +135,13 @@ export default function HowPage() {
               </div>
             ))}
           </div>
+          <p className="home-name">{WHY_THE_NAME}</p>
         </section>
 
         <section className="band">
           <div className="band-head">
-            <h2 className="band-title">Where each step happens</h2>
-            <p className="band-note">The same five places, in the same order as the menu.</p>
+            <h2 className="band-title">Where everything lives</h2>
+            <p className="band-note">The main places on this site.</p>
           </div>
           <div className="bench-cols">
             {NAV_CONCEPTS.map((c) => (
@@ -181,13 +186,13 @@ export default function HowPage() {
 
         <section className="home-section" style={{ textAlign: "center" }}>
           <div className="actions center">
-            <Link href="/create" className="btn btn-gold btn-big">Start something</Link>
+            <Link href="/create" className="btn btn-gold btn-big">Start</Link>
           </div>
         </section>
 
         <div className="divider" />
         <p className="tiny" style={{ textAlign: "center" }}>
-          Part of Open Mirror LLC. Kids should build with a parent or trusted adult.
+          Part of Open Mirror LLC. Kids should do this with a parent or another adult they trust.
         </p>
       </div>
     </main>

@@ -102,3 +102,26 @@ export function recordToIntake(
   });
   return fromRecord;
 }
+
+/* ── Same-site handoff ─────────────────────────────────────────────────────
+   A tool on this site handing words to the idea box. Never through the URL: a
+   query string reaches analytics, and we tell people we don't count what they
+   type. sessionStorage, this tab only, read once. */
+
+const LOCAL_HANDOFF_KEY = "sitr-idea-handoff";
+
+export function putLocalHandoff(words: string): void {
+  try {
+    window.sessionStorage.setItem(LOCAL_HANDOFF_KEY, words);
+  } catch {}
+}
+
+export function takeLocalHandoff(): string | null {
+  try {
+    const words = window.sessionStorage.getItem(LOCAL_HANDOFF_KEY);
+    window.sessionStorage.removeItem(LOCAL_HANDOFF_KEY);
+    return words;
+  } catch {
+    return null;
+  }
+}

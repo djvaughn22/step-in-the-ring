@@ -14,6 +14,8 @@ export interface UsageTotals {
   engineStarts: number;
   engineOutputs: number;
   firstBuildRounds: number;
+  firstMessages: number;
+  nextMessages: number;
   feedback: number;
 }
 
@@ -26,7 +28,7 @@ export interface UsageReport {
   engines: { id: string; starts: number; outputs: number }[];
 }
 
-const EMPTY: UsageTotals = { visitors: 0, returning: 0, pageViews: 0, ideas: 0, engineStarts: 0, engineOutputs: 0, firstBuildRounds: 0, feedback: 0 };
+const EMPTY: UsageTotals = { visitors: 0, returning: 0, pageViews: 0, ideas: 0, engineStarts: 0, engineOutputs: 0, firstBuildRounds: 0, firstMessages: 0, nextMessages: 0, feedback: 0 };
 
 const FIELD: Record<string, keyof UsageTotals> = {
   "daily-visitor": "visitors",
@@ -36,6 +38,8 @@ const FIELD: Record<string, keyof UsageTotals> = {
   "engine-start": "engineStarts",
   "engine-output": "engineOutputs",
   "first-build-round": "firstBuildRounds",
+  "first-message-copied": "firstMessages",
+  "next-message-copied": "nextMessages",
   "feedback-sent": "feedback",
 };
 

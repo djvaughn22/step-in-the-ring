@@ -76,23 +76,23 @@ const ENGINE_META: Record<string, { group: EngineGroup; useWhen: string; example
   idea: {
     group: "start",
     useWhen: "You have three versions of the same idea and keep going in circles.",
-    example: "\u201cA card game for my kids\u201d comes out as four versions, scored, and you leave with one.",
+    example: "\u201cA card game for my kids\u201d comes out as three versions, and you leave with one.",
   },
   build: {
     group: "make",
-    useWhen: "You know what you want to make and need the actual first build.",
-    example: "A site that tracks your kids' chores becomes an MVP scope and a prompt you paste into your coding tool.",
+    useWhen: "You know what you want to make and want more detail than a first message.",
+    example: "A site that tracks your kids' chores becomes a first-version plan and a prompt you paste into an AI app.",
   },
   fix: {
     group: "make",
     useWhen: "Something you already made broke, and you do not want to break the rest of it.",
-    example: "\u201cThe login stopped working\u201d becomes a repair plan that inspects before it edits.",
+    example: "\u201cThe login stopped working\u201d becomes a repair plan that looks before it changes anything.",
   },
   "design-shop": {
     group: "make",
     title: "Design Shop",
     useWhen: "You want to make something people can buy \u2014 a print, a shirt, a sticker, a mug.",
-    example: "One product idea becomes five directions, scored, and an Etsy listing you can paste in.",
+    example: "One product idea becomes five directions and an Etsy listing you can paste in.",
   },
   music: {
     group: "make",
@@ -129,12 +129,12 @@ const ENGINE_META: Record<string, { group: EngineGroup; useWhen: string; example
   launch: {
     group: "finish",
     useWhen: "It works on your screen and now real people have to see it.",
-    example: "A finished site becomes a readiness check, a blocker list and one number to watch.",
+    example: "A finished site becomes a list of what isn't ready yet, the checks to run and one number to watch.",
   },
   grow: {
     group: "finish",
     useWhen: "It is live and quiet, and you want to move one real number.",
-    example: "Forty visitors a week becomes one hypothesis and the smallest test that proves it.",
+    example: "Forty visitors a week becomes one idea to try and the smallest test that proves it.",
   },
   etsy: {
     group: "finish",
@@ -155,7 +155,7 @@ const ENGINE_NEEDS: Record<string, string[]> = {
   etsy: ["etsy", "listing", "shop", "product listing"],
   "design-shop": ["design", "artwork", "print", "shirt", "sticker", "mug", "merch", "logo"],
   game: ["game", "puzzle", "play", "arcade", "level"],
-  howto: ["how to", "tutorial", "teach", "guide", "video", "explain", "bandlab", "garageband", "my first"],
+  howto: ["how to", "tutorial", "teach", "video", "bandlab", "garageband", "my first"],
   story: ["story", "book", "novel", "write", "memoir", "characters", "chapter"],
   // "story" above maps to the owner-only Story Partner (app/author) and is
   // filtered out by usableNow() regardless of score. "writing" is the
@@ -164,7 +164,7 @@ const ENGINE_NEEDS: Record<string, string[]> = {
   // here, even though recommend.ts (the creationType-based router) already
   // sends it to "writing" correctly.
   writing: ["write", "story", "poem", "essay", "article", "blog", "bedtime story", "chapter", "book"],
-  music: ["music", "song", "lyrics", "album", "melody", "record", "beat", "track", "instrumental", "producer", "mix", "bandlab", "garageband"],
+  music: ["music", "song", "lyrics", "album", "melody", "backing track", "instrumental", "producer", "bandlab", "garageband"],
 };
 
 /** Non-engine surfaces that are real capabilities in their own right. */
@@ -217,7 +217,7 @@ const SURFACES: Capability[] = [
     needs: ["focus", "finish", "deadline", "sprint", "today", "procrastinating"],
     group: "plan",
     useWhen: "You have one free evening and want to finish something instead of opening tabs.",
-    example: "Five hours becomes a packet: what you are making, in what order, and when to stop.",
+    example: "Five hours becomes a plan: what you are making, in what order, and when to stop.",
   },
   {
     id: "live",

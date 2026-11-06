@@ -9,7 +9,7 @@
 // come out of the same paths.
 
 import type { Interpretation, Shape } from "../planner/types";
-import { EVENT_WORDS, findSportKind, looksFashion, looksLikeGeneralHelp, SPORTS_PLAN_WORDS } from "./profile";
+import { EVENT_WORDS, findSportKind, GUIDE_WORDS, looksFashion, looksLikeGeneralHelp, SPORTS_PLAN_WORDS } from "./profile";
 import type { CreationType, SoftwareCall } from "./types";
 
 /* ── CREATION TYPE ─────────────────────────────────────────────────────── */
@@ -57,12 +57,14 @@ export function classifyCreationType(text: string, shape: Shape): { type: Creati
   }
   // Media words only mean media when the shape isn't already software.
   const mediaShape = shape === "content" || shape === "unknown";
+  if (mediaShape && GUIDE_WORDS.test(text)) return { type: "story", reason: "you described something to read and use" };
   if (mediaShape && MUSIC.test(text)) return { type: "music", reason: "you described music" };
   if (mediaShape && STORY.test(text)) return { type: "story", reason: "you described a written piece" };
   // A blog or podcast is a publication even when it lives on a site.
   if (CONTENT_STRONG.test(text)) return { type: "content", reason: "you described something you publish, piece by piece" };
   // Most specific first: a "sticker design" is a design, not a generic product.
-  if (PRINTABLE.test(text)) return { type: "printable", reason: "you described a printable file" };
+  // "A flashcard app" asked for an app. Bare "flashcards" are a printable.
+  if (PRINTABLE.test(text) && !/\bflash ?cards? (?:app|website|site)\b/i.test(text)) return { type: "printable", reason: "you described a printable file" };
   if (PHYSICAL.test(text)) return { type: "physical-product", reason: "you described a physical item" };
   if (DIGITAL_PRODUCT.test(text)) return { type: "digital-product", reason: "you described a digital product" };
   if (shape === "product" && DESIGN.test(text)) return { type: "design", reason: "you described a design to sell" };
@@ -308,10 +310,10 @@ export function deriveSmallestOutcome(
     case "fashion": return "One finished design on a realistic mockup, and an honest reaction from someone who'd wear it.";
     case "music": return "One finished piece you can play for someone, start to end.";
     case "story": return "One finished draft a real reader gets through.";
-    case "content": return "One finished piece published where its audience actually is.";
+    case "content": return "One finished piece that reaches the people it's for.";
     case "service": return "One real delivery, done start to finish, for one real customer.";
     case "sports-plan": return "One real practice runs on this plan, start to finish, and the team was better for it.";
-    case "event-plan": return "The thing happens, people show up, and nobody's scrambling that morning.";
+    case "event-plan": return "The thing happens, and nobody's scrambling that morning.";
     case "general-help": return "A clear, honest answer or next step — not a version of anything.";
     default: return statedOutcome(i) ?? "One version of this exists in the world and someone real has used it.";
   }

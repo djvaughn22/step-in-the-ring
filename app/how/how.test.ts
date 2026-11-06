@@ -28,9 +28,9 @@ describe("How It Works — one coherent loop", () => {
     }
   });
 
-  it("connects the loop to the menu: Create, Tools, Engines, Your work, Owner's Builds", () => {
+  it("says where everything lives: Create, Tools, Engines, Your work, Made here", () => {
     expect(src).toMatch(/const NAV_CONCEPTS = \[/);
-    for (const name of ["Create", "Tools", "Engines", "Your work", "Owner’s Builds"]) {
+    for (const name of ["Create", "Tools", "Engines", "Your work", "Made here"]) {
       expect(src).toContain(name);
     }
   });
@@ -93,8 +93,10 @@ describe("How It Works — real proof near the end, not a portfolio", () => {
 });
 
 // 2026-10-07 owner direction: the execution steps are spelled out plainly
-// (goal, steps, output, time, limits, live vs beta, account), with no AI
-// positioning and no money talk (owner, 2026-10-17: no free/price framing).
+// (goal, steps, output, time, limits, live vs beta, account), with no money
+// talk (owner, 2026-10-17: no free/price framing). The 2026-11-05 brand brief
+// reverses the old "no AI positioning" rule: AI is named plainly now, and this
+// page has to be straight about the fact that the site itself doesn't run one.
 describe("How It Works — what you get, stated plainly", () => {
   it("covers goal, steps, output, time, limits, live/beta and account", () => {
     for (const label of ["Your goal", "Steps included", "What you leave with", "Time", "Limits", "Live or beta", "Account"]) {
@@ -103,14 +105,16 @@ describe("How It Works — what you get, stated plainly", () => {
     expect(src).toContain('href="/whats-built"');
   });
 
-  it("talks about neither price nor free, and names no AI", () => {
+  it("talks about neither price nor free, and is straight about where the AI lives", () => {
     expect(src).toContain('{ label: "Account", body: "None needed. Your work stays in this browser." }');
     expect(src).not.toMatch(/\bfree\b|\bpaid\b|\bprice/i);
-    expect(src).not.toMatch(/\bAI\b|ChatGPT|Claude/);
+    expect(src).toContain("This site doesn't run an AI");
+    expect(src).toContain("their own accounts and age rules");
+    expect(src).toContain("Kids should do this with a parent");
   });
 
-  it("the software playbook it renders (and exports as Markdown) names no AI either", () => {
-    expect(playbookMarkdown()).not.toMatch(/\bAI\b|ChatGPT|Claude/);
+  it("the software playbook it renders (and exports as Markdown) promotes no assistant by name", () => {
+    expect(playbookMarkdown()).not.toMatch(/ChatGPT|Claude/);
     expect(playbookMarkdown()).toContain("A coding tool you choose");
   });
 });

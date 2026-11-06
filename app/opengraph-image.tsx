@@ -3,7 +3,7 @@
 
 import { ImageResponse } from "next/og";
 
-export const alt = "Step In The Ring: bring your idea to life";
+export const alt = "Step In The Ring: make it with AI. Keep going until it's right.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -33,11 +33,11 @@ export default function OpengraphImage() {
           STEPINTHERING.COM
         </div>
         <div style={{ marginTop: 20, fontSize: 84, lineHeight: 1.08, display: "flex", flexWrap: "wrap" }}>
-          <span>Bring your idea&nbsp;</span>
-          <span style={{ color: ACCENT }}>to life.</span>
+          <span>Make it with AI.&nbsp;</span>
+          <span style={{ color: ACCENT }}>Keep going until it&apos;s right.</span>
         </div>
         <div style={{ marginTop: 28, fontSize: 36, color: MUTED, lineHeight: 1.35, display: "flex" }}>
-          Plan, write, and build your next digital product or creative project, one clear step at a time.
+          Say what you want in your own words, no coding needed.
         </div>
       </div>
     ),

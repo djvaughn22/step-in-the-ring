@@ -1,0 +1,130 @@
+# Handoff: brand and first-use pass (2026-11-05)
+
+Read this first if you are picking up this work. It replaces the 2026-10-22
+"workshop, no AI mentions" direction. `CLAUDE.md` carries the rules; this file
+carries the state.
+
+## The brief, in one paragraph
+
+People step into a creative space, work with AI, and keep refining until they
+get what they want, with no coding. Useful to kids, students, professionals and
+grandparents. Plain, low-key, human. No "vibe coding" in public copy, no hype, no
+fight, not a manifesto. Keep working features and the visual identity.
+
+## The promise as shipped
+
+- Under the wordmark: "A workspace for making things with AI"
+- Hero: "Make it with AI. Keep going until it's right."
+- Box: "What do you want to make?" Button: "Start"
+- The name: getting in and doing it yourself instead of watching from the seats.
+  You and the AI are on the same side.
+- The honest mechanism: **the site does not run an AI.** It writes the first
+  message, the person pastes it into ChatGPT, Claude, Copilot or Gemini
+  (alphabetical, none recommended), and when it answers the site writes the next
+  message from what they say is off.
+
+## What changed
+
+**The screen after the box is now a workspace.** Before, it showed what the rules
+guessed ("A piece of content", "Real means: published where its audience actually
+is", "Keep this build") and never mentioned an AI. Now it shows the person's own
+words, a first message to copy, links to the apps, and "When it answers": five
+moves (Change something, It didn't work, I don't understand, Try another way,
+It's right) that turn what they type into the next message. The plan and brief
+are one click away under "See the whole plan". Nothing was removed.
+
+**Everyday ideas read correctly.** Study guides, cookbooks, handbooks, slideshows,
+checklists and family trees are now a "guide" form (they used to get HTML as a
+tool, or a fiction brief for a book of recipes). "I need help with..." is help, a
+work plan is a plan, a flashcard app is an app. "Track" no longer suggests the
+Music Engine, "guide" no longer suggests How To, and "Your first build" no longer
+appears on a birthday poem.
+
+**Leaving and coming back works.** Saved the moment the workspace opens. The URL
+says `?open=workspace` or `?open=plan` (never the words), so a phone reloading the
+tab, Back and Forward, and links on the same page all land correctly.
+
+**Typed text stays out of URLs.** "Continue" in Your work and the first version
+cutter used to put the person's words in `/create?idea=...`, which Google
+Analytics reads, despite "we never count what you type". Fixed, and words arriving
+from another site by `?idea=` or `?cr=` are scrubbed from the address bar on
+arrival. Checked in a production build with a marker word: no request contained it.
+
+**Navigation:** Create, How it works, Tools, Your work, Made here, plus What works
+today. Engines left the bar (still a full door on the home page and /tools, and in
+the footer). "Owner's Builds" became "Made here", "What's built" became "What works
+today". Routes are unchanged.
+
+**Copy:** /, /create, /how, /about, /tools, /engines, /whats-built, /builds, /build,
+/everything, engine descriptions (and two stale "scored" claims), page metadata,
+the share image, the app manifest and the README. Boxing glove emoji removed.
+
+**Owner usage view:** "Ideas started", "First messages copied", "Next messages
+copied". The last one is the real test of the promise.
+
+## Key files
+
+- `app/site/brand.ts`: the few lines that say what this is. One copy of each.
+- `app/create/ai-messages.ts`: first and next messages. Pure and deterministic.
+- `app/create/WorkWithAI.tsx`, `app/vnext/SteppedIn.tsx`: the workspace.
+- `app/create/RingApp.tsx`: home page, stage and URL handling.
+- `app/create/starting-points.ts`: `HOME_STARTERS`, `HOME_EXAMPLES`.
+- `app/creation/classify.ts`, `profile.ts` (`GUIDE_WORDS`), `adapters.ts`.
+- `app/site/brand.test.ts`, `app/create/workspace.test.ts`,
+  `app/create/ai-messages.test.ts`: what holds all this in place.
+  `app/creation/quality.test.ts` has a fixture for everything the home page promotes.
+
+## Needs a product decision
+
+1. **Built-in AI?** People leave the site to work with the AI. A chat inside the
+   workspace would feel more like one room, but it means API cost, moderation, and
+   minors on a paid service. Recommendation: wait and watch "Next messages copied".
+   If people aren't coming back after the first message, that is the argument.
+2. **"Built with Step In The Ring" on CrossHeartPray.** The home page now says
+   "make it with AI" just above that card, so a reader may infer CrossHeartPray's
+   content came from AI. No new claim was added about any site, and CrossHeartPray
+   keeps its own rules about Scripture. Worth the owner's eye.
+3. **Third-party wording.** Four AI apps are named and linked, and "most let you
+   start without paying" appears. That is a fact about other companies, allowed
+   under the 2026-10-17 copy rule, not a claim about this site. Plans change, so
+   it needs an occasional check.
+4. **Nav renames.** Engines out of the bar, "Made here", "What works today". Each
+   is one line in `app/site/registry.ts` to reverse.
+5. **"Vibe coding" as a search term.** Left out of public copy as the brief asked.
+   If people search for it, one line on /how would catch them, for example "Some
+   people call this vibe coding. Here it just means you describe it and keep
+   steering." Not shipped.
+6. **Getting it online.** `/build` is the only path from "the AI made me a file" to
+   a web address, and it uses a terminal, GitHub, Vercel and a paid domain. It says
+   so plainly, but it is the least no-coding thing linked from the home page. A
+   simpler publish path would be a project of its own.
+
+## Not verified
+
+- A real paste into each AI app. The messages were checked by reading them and by
+  tests, not by a live conversation with those products.
+- The real clipboard (the browser pane blocks it). The copied text was checked with
+  a stubbed clipboard, and the "couldn't copy" path for real.
+- A real phone dropping the tab. A reload at phone size was tested.
+
+## Open follow-ups elsewhere
+
+- The hub (`open-mirror`, `src/lib/products.ts`) still lists this site with the old
+  labels ("Owner's Builds", "What's Built") and needs the new one-liner. iDontCry's
+  handoff in `src/app/make/MakeHub.tsx` is worth a read too.
+- The kit branch (`kit-one-time-purchase`) is untouched. A test merge onto this work
+  was clean: no conflicts, 1,592 tests passing, typecheck clean. Sales stay closed.
+
+## Exact next steps, if continuing
+
+1. Watch `/owner/usage` for a week: ideas started, first messages copied, next
+   messages copied.
+2. Paste the first message for each `HOME_EXAMPLES` entry into each AI app and
+   adjust `app/create/ai-messages.ts` if any of them stumbles.
+3. Take the decisions above to the owner.
+
+## Ship rule
+
+Owner's standing rule: commit and push verified work to `main` (= production) with
+a rollback tag first. `npx eslint app` must report 0 errors before a push. Rollback
+for this pass: local tag `live-before-brand-first-use-20261105`.

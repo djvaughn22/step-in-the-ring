@@ -38,6 +38,107 @@ interface Fixture {
 }
 
 const F: Fixture[] = [
+  /* ── Everything the home page promotes has to come out right. If Step In The
+        Ring can't carry it, it doesn't go on that page (starting-points.ts). ── */
+  {
+    name: "home example: a game about dragons",
+    idea: "A game where a dragon collects gold and dodges arrows.",
+    type: "game",
+    bans: [/chorus|screenplay|manuscript/i],
+  },
+  {
+    name: "home example: a study guide",
+    idea: "A one-page study guide for my biology final.",
+    type: "story",
+    engine: "writing",
+    contains: [/The guide/, /should be able to do or remember/i],
+    bans: [/HTML|premise|central character|storefront/i],
+  },
+  {
+    name: "home example: a dental office website",
+    idea: "A simple website for my dental office.",
+    type: "site",
+    contains: [/phone|visitor/i],
+    bans: [/chorus|manuscript/i],
+  },
+  {
+    name: "home example: a birthday poem",
+    idea: "A birthday poem for my granddaughter who loves horses.",
+    type: "story",
+    contains: [/The poem/],
+    bans: [/HTML|database/i],
+  },
+  {
+    name: "home starter: a family cookbook",
+    idea: "A family cookbook with my mother's recipes",
+    type: "story",
+    contains: [/The guide/, /stays a clear blank/i],
+    bans: [/premise|central character|a character with a want|HTML/i],
+  },
+  {
+    name: "a cookbook with stories in it is still not fiction",
+    idea: "A cookbook of my family recipes for my grandkids, with the stories behind each dish",
+    type: "story",
+    contains: [/The guide/],
+    bans: [/premise|central character|a character with a want/i],
+  },
+  {
+    name: "home starter: a work plan",
+    idea: "A work plan for our office move",
+    type: "event-plan",
+    engine: "plan",
+    bans: [/HTML|chorus/i],
+  },
+  {
+    name: "home starter: help with a problem",
+    idea: "I need help with my taxes",
+    type: "general-help",
+    bans: [/version one does|HTML/i],
+  },
+  {
+    name: "a school slideshow",
+    idea: "A slideshow about the water cycle for science class",
+    type: "story",
+    contains: [/The guide/],
+    bans: [/HTML|storefront/i],
+  },
+  {
+    name: "a family tree is not an event because a reunion is mentioned",
+    idea: "A family tree for our reunion",
+    type: "story",
+    bans: [/people show up/i],
+  },
+  {
+    name: "a training checklist at work",
+    idea: "A training checklist for new hires",
+    type: "story",
+    bans: [/HTML|premise/i],
+  },
+  {
+    name: "a flashcard app is an app, and bare flashcards are a printable",
+    idea: "A flashcard app for my Spanish vocab",
+    type: ["tool", "app"],
+    bans: [/real buyer/i],
+  },
+  {
+    name: "bare flashcards stay printable",
+    idea: "Printable flash cards for my Spanish vocab",
+    type: "printable",
+  },
+  {
+    name: "a spreadsheet is what it says",
+    idea: "A spreadsheet to track my client invoices",
+    type: "list",
+    contains: [/spreadsheet/i],
+    bans: [/chorus|song/i],
+  },
+  {
+    name: "something vague gets no code tools yet",
+    idea: "Something to help my small church",
+    type: "unknown",
+    bans: [/HTML/],
+  },
+
   /* ── The canonical caretaker case ── */
   {
     name: "dog boredom",

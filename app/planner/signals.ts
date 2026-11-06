@@ -450,7 +450,9 @@ function salientModifier(text: string, exclude: Set<string>): string {
  * only a generic word ("game", "website"), pull in the concrete noun the
  * sentence is really about.
  */
-export function buildTitle(text: string, destination: string | null): string {
+export function buildTitle(rawText: string, destination: string | null): string {
+  // "I need help with my taxes" is about the taxes, not about needing.
+  const text = rawText.replace(/^\s*(?:i need help with|help me with|can you help me with)\s+/i, "");
   const np = leadingNounPhrase(text);
   const specific = np.filter((w) => !GENERIC_HEADS.has(w.toLowerCase()));
   const generic = np.filter((w) => GENERIC_HEADS.has(w.toLowerCase()));

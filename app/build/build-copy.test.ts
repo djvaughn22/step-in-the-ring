@@ -1,6 +1,7 @@
-// First Build Coach copy (owner, 2026-10-08): no assistant-name promotion or
-// AI marketing; third-party requirements are stated plainly where they are
-// used; old saved progress with the renamed idea type still loads.
+// First Build Coach copy (owner, 2026-10-08): no assistant-name promotion;
+// third-party requirements are stated plainly where they are used; old saved
+// progress with the renamed idea type still loads. Since the 2026-11-05 brand
+// brief the coach says "AI chat app" plainly, but it still promotes none of them.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -9,7 +10,7 @@ const src = readFileSync(join(__dirname, "page.tsx"), "utf8");
 const visible = src.replace(/\/\/.*$/gm, "").replace(/s\.ideaType === "AI tool"/, "");
 
 describe("First Build Coach wording", () => {
-  it("names no AI assistant and uses no AI label", () => {
+  it("names no particular assistant, and has no AI-tool idea type", () => {
     expect(visible).not.toMatch(/ChatGPT|Claude|\bAI tool\b|"AI/);
   });
 

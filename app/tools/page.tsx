@@ -11,7 +11,7 @@ import { pageAt } from "../site/registry";
 export const metadata: Metadata = {
   title: "Tools",
   description:
-    "Small tools for turning an idea into something useful: cut it to a first version, plan a build session, test it with a real person, and check it before you share. No account.",
+    "Small tools for what comes before and after working with an AI: cut an idea down, plan a session, test it with a real person, and check it before you share. No account.",
 };
 
 type ToolRow = { href: string; registryPath?: string; name?: string; what?: string };
@@ -59,7 +59,7 @@ export default function ToolsPage() {
         <Masthead
           kicker="Tools"
           title="Small tools that each do one job."
-          lead="Nothing here needs an account, and your work stays in this browser. Pick the one that matches where you are."
+          lead="For what comes before and after working with an AI. Nothing here needs an account, and your work stays in this browser. Pick the one that matches where you are."
         />
         {STAGES.map((stage) => (
           <Band key={stage.title} title={stage.title} note={stage.note}>
@@ -71,9 +71,17 @@ export default function ToolsPage() {
             </Rows>
           </Band>
         ))}
+        <Band title="Go deeper" note="When one kind of work needs more than a small tool.">
+          <Rows>
+            <Row
+              name="Engines"
+              what="Guided help with writing, design, music, apps and plans. Each one ends with something you can use or hand to an AI."
+              href="/engines"
+            />
+          </Rows>
+        </Band>
         <p className="tiny" style={{ marginTop: 34 }}>
-          Need more than a small tool? <Link href="/engines">The engines</Link> go deeper on one kind of
-          work. Have a question? <Link href="/about#contact">Email us</Link>.
+          Have a question? <Link href="/about#contact">Email us</Link>.
         </p>
       </div>
     </main>

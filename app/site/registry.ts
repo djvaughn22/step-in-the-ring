@@ -98,14 +98,14 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/",
     name: "Home",
-    what: "The front door: say what you want to make, or pick up something you already started.",
+    what: "The front door: say what you want to make with AI, or pick up something you already started.",
     access: "public",
     group: "create",
   },
   {
     path: "/create",
     name: "Create",
-    what: "Say what you want to make in your own words, or pick a starting point if you do not know yet.",
+    what: "Say what you want to make in your own words. You get a first message to give an AI, and help with what to say next.",
     access: "public",
     group: "create",
     inNav: true,
@@ -155,10 +155,9 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/engines",
     name: "Engines",
-    what: "Every focused tool here, grouped by what it helps you do, with what it gives you back.",
+    what: "Guided help with one kind of work, grouped by what it helps you do. Each one ends with something you can use or hand to an AI.",
     access: "public",
     group: "engines",
-    inNav: true,
   },
   {
     path: "/engines/room",
@@ -171,7 +170,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/five-hour-sprint-tool",
     name: "Five Hour Sprint planner",
-    what: "Plan a single five-hour build window and walk out with the packet to run it. No account needed.",
+    what: "Plan one five-hour work session and leave with what you need to run it. No account needed.",
     access: "public",
     group: "engines",
   },
@@ -193,8 +192,8 @@ export const SITE_PAGES: SitePage[] = [
   // ── Builds ─────────────────────────────────────────────────────────────
   {
     path: "/builds",
-    name: "Owner’s Builds",
-    what: "The showroom: live websites, tools and games built this way. Open any of them.",
+    name: "Made here",
+    what: "The showroom: live websites, tools and games made here. Open any of them.",
     access: "public",
     group: "builds",
     inNav: true,
@@ -214,13 +213,14 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/how",
     name: "How it works",
-    what: "The one loop, in five steps — start without an account, and where Create, Engines, Builds and Library fit in.",
+    what: "How working with an AI goes here, what you get, and where everything lives. No coding, and no account needed here.",
     access: "public",
     group: "learn",
+    inNav: true,
   },
   {
     path: "/whats-built",
-    name: "What’s built",
+    name: "What works today",
     what: "What works today, what is in beta, what is private, and what is still being built.",
     access: "public",
     group: "learn",
@@ -354,16 +354,19 @@ export function pagesWithAccess(access: Access): SitePage[] {
 }
 
 /**
- * The primary menu: start something, grab a small free tool, use an engine on
- * it, see what got built and keep working, come back to what you saved. Free
- * tools sit second so a visitor who just wants something useful finds it fast. Home is the wordmark, not a menu item —
- * every site puts home there and a fifth link buys nothing.
+ * The primary menu: start something, find out how this works, grab a small
+ * tool, come back to what you started, see what got made. Home is the wordmark,
+ * not a menu item — every site puts home there and another link buys nothing.
+ *
+ * Engines is not in the bar: a word a first-time visitor can't decode is a poor
+ * thing to spend a door on. It stays a full, explained door on the home page and
+ * on /tools, and the route is untouched.
  *
  * Derived from the registry, never hand-kept twice.
  */
-// Making first (Create, tools, engines), then what YOU made,
-// then the owner's showroom — two different things, kept apart.
-const NAV_ORDER = ["/create", "/tools", "/engines", "/library", "/builds"];
+// Making first, then what a first-time visitor asks next, then what YOU made,
+// then the showroom — two different things, kept apart.
+const NAV_ORDER = ["/create", "/how", "/tools", "/library", "/builds"];
 
 export function navPages(): SitePage[] {
   return SITE_PAGES.filter((p) => p.inNav).sort(
@@ -529,9 +532,9 @@ export const ECOSYSTEM: EcosystemProject[] = [
   {
     name: "Step In The Ring",
     emoji: "🟦",
-    what: "This site: say what you want to make, and leave with a real first build.",
-    who: "Someone with something in their head and no idea what step one is.",
-    real: "The idea reading, saved Builds, the Engine Room and the Build Machine all run today.",
+    what: "This site: say what you want to make, and work with AI until it's right.",
+    who: "Anyone with something in mind and no idea how to code it.",
+    real: "The first and next messages, saved work, the tools and the engines all run today.",
     liveUrl: "https://stepinthering.com",
     repoPublic: false,
     status: "live",

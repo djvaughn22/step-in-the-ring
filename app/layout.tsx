@@ -4,22 +4,22 @@ import OpenMirrorFooter from "./OpenMirrorFooter";
 import RingHeader from "./site/RingHeader";
 import QuietFooterLink from "./site/QuietFooterLink";
 import UsageCounter from "./site/UsageCounter";
+import { BRAND_ONE_LINE } from "./site/brand";
 import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://stepinthering.com"),
   title: {
-    default: "Step In The Ring: bring your idea to life",
+    default: "Step In The Ring: make it with AI, no coding needed",
     template: "%s | Step In The Ring",
   },
-  description:
-    "A workshop to turn an idea into a first version. Plan, write, and build your next digital product or creative project, one clear step at a time.",
+  description: BRAND_ONE_LINE,
   applicationName: "Step In The Ring",
   appleWebApp: { capable: true, title: "Step In The Ring", statusBarStyle: "black-translucent" },
   openGraph: {
     title: "Step In The Ring",
     description:
-      "Make the first version real. A workshop for web apps, websites, books, music, digital art, games and more. Part of Open Mirror LLC.",
+      "A workspace for making things with AI: websites, games, stories, study guides, family cookbooks and more. No coding. Part of Open Mirror LLC.",
     url: "https://stepinthering.com",
     siteName: "Step In The Ring",
     type: "website",

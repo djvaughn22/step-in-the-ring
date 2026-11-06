@@ -1,6 +1,6 @@
 # step-in-the-ring
 
-Turn any idea into a real first plan — with AI as your corner. Free to start.
+A workspace for making things with AI. Say what you want in your own words, no coding needed, then keep telling the AI what to change until it's right.
 
 **Live:** https://stepinthering.com
 **Part of:** [Open Mirror LLC](https://openmirrorllc.com)
@@ -30,6 +30,6 @@ Push to `main` — Vercel auto-deploys production.
 - **Persistence (localStorage):** `sitr-v2`, `sitr-build-seed`, `sitr-engine-access-v1`, `sitr-game-world-v1`, `creation-engine-projects-v1`
 - **Env vars (names only):** `ETSY_SHOP_ID`, `OPENDOKU_REPO_PATH`
 - **External services:** Game Engine publishes to the opendoku repo (`OPENDOKU_REPO_PATH`)
-- **Protected:** creation/momentum identity ("AI in your corner"), the three haikus on the result page (verbatim, locked), Engine Room lives here — not on the hub.
+- **Protected:** the promise and its wording in `app/site/brand.ts` (see `docs/HANDOFF-brand-first-use.md`), Engine Room lives here — not on the hub.
 - **Portfolio map (all repos, domains, owner tools):** `/home/dj/OpenMirror/open-mirror/docs/PORTFOLIO_INDEX.md`.
 - **Make changes in:** `app/page.tsx` (steps/examples), `app/engines/` (engine registry).

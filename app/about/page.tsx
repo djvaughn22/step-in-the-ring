@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Sheet, PageHead, Section } from "../site/ui";
+import { BRAND_ONE_LINE, WHY_THE_NAME } from "../site/brand";
 
 export const metadata: Metadata = {
   title: "About StepInTheRing",
   description:
-    "Say what you need help with, however it comes out — a thing to make, fix, understand, or plan. Get back a clear next step. Start without an account.",
+    "A workspace for making things with AI. Say what you want in your own words, no coding needed, and keep telling the AI what to change until it's right.",
 };
 
 export default function AboutPage() {
@@ -18,24 +19,37 @@ export default function AboutPage() {
             Step In The Ring<span style={{ color: "var(--gold)" }}>.com</span>
           </>
         }
-        lead="A place to bring something you want to make, fix, understand, or plan. Say it however it comes out, answer at most one question, and leave with a clear next step."
+        lead={`A workspace for making things with AI. ${BRAND_ONE_LINE}`}
       />
 
       <Section title="What you can do here">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
-          <li>Say what you need help with and get back a clear next step — a plan and a ready-to-use builder prompt when it&apos;s something to build.</li>
-          <li>Open a focused engine when you already know what kind of thing you&rsquo;re making.</li>
+          <li>Say what you want to make and get a first message to give an AI, then the next message each time you want something changed.</li>
+          <li>Bring something that isn&rsquo;t a thing to make: a bill you don&rsquo;t understand, a decision, a question.</li>
+          <li>Open a guided engine when you already know what kind of thing you&rsquo;re making.</li>
           <li>Come back to everything you started in Your work, kept in this browser.</li>
-          <li>Follow the first-build coach in six short steps if you&rsquo;ve never built before.</li>
+          <li>Follow six short steps to put your first website or app online.</li>
           <li>See finished things that started here, and <Link href="/whats-built">what works today versus what is still being built</Link>.</li>
         </ul>
       </Section>
 
+      <Section title="How AI fits in">
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: 0 }}>
+          This site doesn&rsquo;t run an AI. It writes the messages, and you paste them into the AI
+          app you choose. ChatGPT, Claude, Copilot and Gemini are separate services with their own
+          accounts and rules, and none of them is connected with this site. Kids should do this with
+          a parent or another adult they trust.
+        </p>
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: "12px 0 0" }}>
+          {WHY_THE_NAME}
+        </p>
+      </Section>
+
       <Section title="Your work">
         <p style={{ border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, color: "var(--text)", margin: 0 }}>
-          Nothing here needs an account, and there is no sign-up. What you
-          make stays on this device unless you download it, and you&apos;ll find
-          it under <Link href="/library">Your work</Link>.
+          Nothing here needs an account, and there is no sign-up. What you type
+          stays on this device unless you download it or paste it into an AI app
+          yourself, and you&apos;ll find it under <Link href="/library">Your work</Link>.
         </p>
         <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--muted)", margin: "12px 0 0" }}>
           While it&apos;s in testing, we count visits and which pages and tools
@@ -70,9 +84,9 @@ export default function AboutPage() {
 
       <Section title="Disclaimer">
         <p id="disclaimer" style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: 0, scrollMarginTop: 96 }}>
-          Plans, prompts, and next steps here are suggestions. You decide what to build,
-          and you&rsquo;re responsible for checking it before you rely on it or share
-          it. Open Mirror LLC and its projects are independently owned and operated.
+          Plans, messages, and next steps here are suggestions, and what an AI app gives you
+          back can be wrong. You decide what to make, and you&rsquo;re responsible for checking
+          it before you rely on it or share it. Open Mirror LLC and its projects are independently owned and operated.
           They are not affiliated with, sponsored by, or endorsed by the owner&rsquo;s
           current or former employers or their affiliates. Read the{" "}
           <a href="https://openmirrorllc.com/disclaimer" style={{ color: "var(--gold)" }}>

@@ -39,14 +39,14 @@ export const OWNER_BUILD_CATEGORIES: Array<{ id: "all" | OwnerBuildCategory; lab
 export const OWNER_BUILDS: OwnerBuild[] = [
   {
     name: "Step In The Ring",
-    description: "Turn a rough idea into a clear plan, a first build, and a next move.",
+    description: "Say what you want to make, work with AI, and keep going until it's right.",
     category: "products",
     categoryLabel: "Products & systems",
     lesson: "What it shows: a creation tool can make the next step feel concrete without taking the idea away from its owner.",
     href: "/",
     external: false,
     status: "Product",
-    emoji: "🥊",
+    emoji: "🟦",
     accent: "#2BA6FF",
     featured: true,
   },

@@ -56,18 +56,21 @@ describe("official homepage identity", () => {
   });
   // Oct 2026 simplification: each thing appears once. The idea box is the
   // hero, so no path card repeats it; engines are one path card, not a
-  // second section; Ready to Build lives in "Want a hand?".
-  it("keeps three distinct ways in, five ordered rounds, and no repeated sections", () => {
+  // second section; Ready to Build lives in "Want a hand?". Nov 2026: four real
+  // examples of the back and forth replace the five abstract steps, which now
+  // live on /how with their tools.
+  it("keeps three distinct ways in, four examples, and no repeated sections", () => {
     const doc = home();
     expect([...doc.querySelectorAll(".path-card")].map(a => a.getAttribute("href"))).toEqual(["/build", "/tools", "/engines"]);
-    expect(doc.querySelectorAll("ol.how-steps > li")).toHaveLength(5);
+    expect(doc.querySelectorAll(".how-example")).toHaveLength(4);
+    expect(doc.querySelectorAll("ol.how-steps > li")).toHaveLength(0);
     expect(doc.querySelectorAll(".tool-row")).toHaveLength(0);
     expect(doc.querySelector(".ready-build-promo")).toBeNull();
     expect(doc.querySelectorAll('a[href^="/products/ready-to-build"]')).toHaveLength(1);
     expect(doc.querySelector('a[href="/whats-built#tell-us"]')).not.toBeNull();
     expect(doc.querySelectorAll(".home-page > section").length).toBeLessThanOrEqual(6);
     for (const href of ["/everything", "/how", "/engines", "/whats-built"]) expect(doc.querySelector(`a[href="${href}"]`)).not.toBeNull();
-    expect(doc.querySelector(".startbox button[type=submit]")?.textContent).toBe("Start a project");
+    expect(doc.querySelector(".startbox button[type=submit]")?.textContent).toBe("Start");
   });
   it("lets a starter seed the form, the final invitation focus it, and submit enter shaping", async () => {
     Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
@@ -79,6 +82,13 @@ describe("official homepage identity", () => {
     await act(async () => el.querySelector<HTMLButtonElement>(".home-final button")!.click());
     expect(document.activeElement).toBe(input);
     expect(el.querySelector<HTMLButtonElement>('button[type="submit"]')!.disabled).toBe(false);
+    // A starter alone isn't an idea yet. Finishing the sentence is.
+    await act(async () => el.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
+    expect(el.querySelector(".home-hero")).not.toBeNull();
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!.call(input, `${input.value}a dragon collects gold`);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
     await act(async () => el.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
     expect(el.querySelector(".home-hero")).toBeNull();
   });

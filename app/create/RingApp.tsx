@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { interpret, type PlannerInput } from "../planner/interpret";
 import { buildBuilderPrompt } from "../planner/builder-prompt";
 import { BUILD_SEED_KEY } from "../planner/handoff";
@@ -8,6 +9,8 @@ import Link from "next/link";
 import RingMark from "../site/RingMark";
 import WorkshopIcon, { iconKindFor } from "../site/WorkshopIcon";
 import BriefView from "./BriefView";
+import CopyButton from "./CopyButton";
+import { firstMessage, purposeOf } from "./ai-messages";
 import CreationEntry from "../vnext/CreationEntry";
 import SteppedIn from "../vnext/SteppedIn";
 import ContinueStrip from "../vnext/ContinueStrip";
@@ -21,75 +24,48 @@ import {
   loadBuilderDefaults, saveBuilderDefaults, type BuilderDefaults,
 } from "../creation/builder-defaults";
 import { downloadBuildPack, downloadCreationJson } from "../creation/build-pack";
-import { readHandoffFromSearch } from "../creation/handoff";
+import { readHandoffFromSearch, takeLocalHandoff } from "../creation/handoff";
 import {
-  newRecord, saveCurrentCreation, viewOf, type CreationView,
+  loadCurrentCreation, newRecord, saveCurrentCreation, viewOf, type CreationView,
 } from "../creation/record";
 import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
+import { BRAND_SIGNATURE, WHY_THE_NAME } from "../site/brand";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
-import { LOOP_TOOLS } from "../tools/loop";
-import { QUICK_START, QUICK_STARTERS, STARTING_POINT_GROUPS, STARTING_POINTS } from "./starting-points";
+import { HOME_EXAMPLES, HOME_STARTERS, QUICK_START, STARTING_POINT_GROUPS, STARTING_POINTS, isUnfinishedStarter } from "./starting-points";
 import { displayName, featuredCapabilities } from "../vnext/capabilities";
 import {
-  CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type HandoffPayloadV1,
+  CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type CreationRecordV1, type HandoffPayloadV1,
 } from "../creation/types";
-import { useTimedFlag, useFlash } from "../engines/shared/useFlash";
+import { useFlash } from "../engines/shared/useFlash";
 
 type Stage = "landing" | "stepped" | "result" | "saved";
 
-/* The ways in. One list, shared with the Create page and the starting-point
-   column, so the site can never offer two different sets of first moves. */
-const STARTERS = QUICK_STARTERS;
 const FEATURED_ENGINES = featuredCapabilities();
 /* CrossHeartPray, TheDJCares, iDontCry first, then every other real, live
    product — the homepage proof panel's fixed order. See app/site/registry.ts. */
 const { primary: HOME_PROOF_PRIMARY, more: HOME_PROOF_MORE } = homepageProof(ECOSYSTEM);
 
-function CopyButton({ text, label, big }: { text: string; label: string; big?: boolean }) {
-  const [copied, raiseCopied] = useTimedFlag(2200);
-  return (
-    <>
-      <button
-        type="button"
-        className={`btn ${big ? "btn-gold" : "btn-ghost btn-small"}`}
-        onClick={() => {
-          const done = raiseCopied;
-          navigator.clipboard?.writeText(text).then(done).catch(() => {
-            // Older phone webviews: fall back to a hidden textarea.
-            const ta = document.createElement("textarea");
-            ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.opacity = "0";
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-              document.execCommand("copy");
-              done();
-            } finally {
-              document.body.removeChild(ta);
-            }
-          });
-        }}
-      >
-        {copied ? "Copied" : label}
-      </button>
-      {/* Confirmation reaches a screen reader, not just the eye. Derived
-          from the same label the button shows — a screen reader user
-          copying "brief" should never be told "builder prompt." */}
-      <span role="status" aria-live="polite" className="sr-only">
-        {copied ? `${label.replace(/^Copy /, "")} copied to your clipboard` : ""}
-      </span>
-    </>
-  );
+/* Where the person is, kept in the URL (never their words). A phone can drop
+   this tab while they are off in an AI app; the reload has to land them back in
+   the workspace, and Back has to mean the screen before, not the site before. */
+const OPEN_STAGE: Record<string, Stage> = { workspace: "stepped", plan: "result" };
+
+function stageFromUrl(): Stage {
+  return OPEN_STAGE[new URLSearchParams(window.location.search).get("open") ?? ""] ?? "landing";
+}
+
+function sameAnswers(a: Record<string, string>, b: Record<string, string>): boolean {
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((k) => a[k] === b[k]);
 }
 
 /** What we understood — shown before the plan, and before any question. */
 function UnderstoodCard({ i, view }: { i: Interpretation; view?: CreationView | null }) {
   return (
     <div className="card card-gold">
-      <div className="plan-label">What I think you&apos;re making</div>
+      <div className="plan-label">What this looks like</div>
       <h2 style={{ marginBottom: 10 }}>{i.title.value}</h2>
       <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.6 }}>{i.summary}</p>
       <div className="pill-row">
@@ -148,10 +124,11 @@ function BuilderDefaultsPanel({ value, onChange }: { value: BuilderDefaults; onC
   return (
     <details className="card">
       <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-        Builder defaults — how your prompts run
+        Settings for coding tools
       </summary>
       <p className="field-help" style={{ margin: "10px 0 12px" }}>
-        Baked into every generated prompt. Saved on this device only — no account, no names.
+        Only for people using a coding tool, and only the longer brief uses them. Saved on this
+        device only, with no account and no names.
       </p>
       <div className="row2">
         <div>
@@ -190,22 +167,50 @@ function BuilderDefaultsPanel({ value, onChange }: { value: BuilderDefaults; onC
 /**
  * The creation flow, mounted twice.
  *
- *   mode="home"    the front door: the question, the four ways in, the loop,
- *                  and a short row of real things that got made
+ *   mode="home"    the front door: the promise, the question, what the back and
+ *                  forth looks like, and a short row of real things that got made
  *   mode="create"  the workbench: the same question given the whole screen,
  *                  with starting points beside it for somebody who has none
  *
- * Everything after the first sentence — reading it, shaping it, the plan, the
- * builder prompt — is identical, because it is literally the same component.
+ * Everything after the first sentence — the workspace, the messages, the plan,
+ * the brief — is identical, because it is literally the same component.
  * Two front doors into one flow, not two flows.
  */
 export default function RingApp({ mode = "home" }: { mode?: "home" | "create" }) {
+  const [open, setOpen] = useState<string | null | undefined>(undefined);
+  return (
+    <>
+      <Suspense fallback={null}>
+        <OpenParam onChange={setOpen} />
+      </Suspense>
+      <RingScreens mode={mode} urlOpen={open} />
+    </>
+  );
+}
+
+/* A link to this same page (the wordmark, "Create", a welcome-back offer) changes
+   the URL without remounting anything. This reports it. It sits in its own
+   Suspense so reading the query string can't turn the whole page client-only. */
+function OpenParam({ onChange }: { onChange: (open: string | null) => void }) {
+  const open = useSearchParams().get("open");
+  useEffect(() => onChange(open), [open, onChange]);
+  return null;
+}
+
+function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: string | null | undefined }) {
   const [stage, setStage] = useState<Stage>("landing");
   const [description, setDescription] = useState("");
+  /* Somebody who taps "a game" and then Start would hand an AI "A game where". */
+  const [nudge, setNudge] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState<SavedPlan[]>([]);
   const [flash, say] = useFlash(2500);
   const [incoming, setIncoming] = useState<HandoffPayloadV1 | null>(null);
+  /* The saved creation they came back to. Same words, same record, so coming
+     back never changes its id or forgets where it came from. */
+  const [restored, setRestored] = useState<CreationRecordV1 | null>(null);
+  /* The owner's "ideas shaped" counts ideas, not trips back to the same one. */
+  const countedIdea = useRef<string | null>(null);
   const [defaults, setDefaults] = useState<BuilderDefaults>(loadBuilderDefaults);
   const shapeRef = useRef<HTMLTextAreaElement>(null);
 
@@ -214,6 +219,27 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
     setSaved(loadPlans());
     setDefaults(loadBuilderDefaults());
     try {
+      // Back from an AI app, or from Your work: ?open= names the screen and the
+      // words come from this browser. They never travel in this URL.
+      const opening = stageFromUrl();
+      if (opening !== "landing") {
+        if (comeBackTo(opening)) return;
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+      // A tool on this site handing over its words: never through the URL.
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("handoff")) {
+        const words = takeLocalHandoff();
+        window.history.replaceState(null, "", window.location.pathname);
+        if (words && words.trim()) {
+          setDescription(words.trim().slice(0, 2000));
+          setTimeout(() => shapeRef.current?.focus(), 0);
+          return;
+        }
+      }
+      // Words that arrived in the URL from another site leave it at once. They
+      // were typed by a person, and analytics reads the address bar.
+      const scrubUrl = () => window.history.replaceState(null, "", window.location.pathname);
       // Versioned handoff (?cr=) first — it carries the whole creation.
       // The idea box lives on the landing page now, so a handoff simply
       // prefills it and puts the cursor there — one screen fewer to cross.
@@ -221,14 +247,15 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
       if (payload) {
         setIncoming(payload);
         setDescription(payload.idea.slice(0, 2000));
+        scrubUrl();
         setTimeout(() => shapeRef.current?.focus(), 0);
         return;
       }
-      const params = new URLSearchParams(window.location.search);
       // Legacy handoff from iDontCry's Dream Lab: ?idea=... still works.
       const idea = params.get("idea");
       if (idea && idea.trim()) {
         setDescription(idea.trim().slice(0, 600));
+        scrubUrl();
         setTimeout(() => shapeRef.current?.focus(), 0);
         return;
       }
@@ -249,6 +276,39 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
     } catch {}
   }, []);
 
+  // Pick the saved creation back up and open it. False if there isn't one.
+  function comeBackTo(wanted: Stage): boolean {
+    const kept = loadCurrentCreation();
+    if (!kept) return false;
+    countedIdea.current = kept.creationId;
+    setRestored(kept);
+    setDescription(kept.originalIdea);
+    setAnswers(kept.answers ?? {});
+    setStage(wanted);
+    return true;
+  }
+
+  // A same-page link changed the URL. Leaving ?open= goes back to the box with
+  // their words still in it; arriving at it opens that screen.
+  useEffect(() => {
+    if (urlOpen === undefined) return;
+    const wanted = OPEN_STAGE[urlOpen ?? ""];
+    /* eslint-disable react-hooks/set-state-in-effect -- the URL is the outside system this follows */
+    if (!wanted) setStage((s) => (s === "stepped" || s === "result" ? "landing" : s));
+    else if (description.trim()) setStage(wanted);
+    else comeBackTo(wanted);
+    /* eslint-enable react-hooks/set-state-in-effect */
+    // Only when the URL moves. Keystrokes in the box must not re-run this.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlOpen]);
+
+  // Back and Forward walk between the box, the workspace and the plan.
+  useEffect(() => {
+    const onPop = () => setStage(stageFromUrl());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   const input: PlannerInput = useMemo(() => ({ description, answers }), [description, answers]);
   const plan = useMemo(
     () => (description.trim() ? interpret(input) : null),
@@ -259,6 +319,9 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
      handoff's structured facts and origin ride along untouched. */
   const record = useMemo(() => {
     if (!description.trim()) return null;
+    if (restored && restored.originalIdea === description.trim() && sameAnswers(restored.answers ?? {}, answers)) {
+      return restored;
+    }
     return newRecord(description, {
       answers,
       ...(incoming
@@ -271,13 +334,14 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
           }
         : {}),
     });
-  }, [description, answers, incoming]);
+  }, [description, answers, incoming, restored]);
   // `plan` already interpreted these exact words — reuse it, don't recompute.
   const view = useMemo(() => (record ? viewOf(record, plan ?? undefined) : null), [record, plan]);
   /* The shaping IS the step-in moment. It reuses the view this page already
      computed — one reading of their words, shown two ways. */
   const shaping = useMemo(() => (view ? shapingFromView(view) : null), [view]);
   const engineRec = useMemo(() => (view ? recommendEngines(view) : null), [view]);
+  const message = useMemo(() => (view ? firstMessage(view) : ""), [view]);
   /* Repo-touching work keeps the permission-aware brief (never claims access
      or authority the person didn't give). Standalone creations get their
      creation-type prompt — a game brief for a game, a design brief for a
@@ -289,24 +353,39 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
     return buildBuilderPrompt(plan);
   }, [plan, view, defaults]);
 
-  // The current creation survives a refresh — resume is one tap.
+  // The current creation survives a refresh and a trip to an AI app, so it is
+  // saved the moment the workspace opens, not when somebody thinks to ask.
   useEffect(() => {
-    if (stage === "result" && view) saveCurrentCreation(view.record);
+    if ((stage === "stepped" || stage === "result") && view) saveCurrentCreation(view.record);
   }, [stage, view]);
   useEffect(() => {
-    if (stage === "result" && view) track("plan_result_viewed", { type: view.creationType });
-    // Once per arrival at the result, not per keystroke of a correction.
+    // The workspace is where an idea now lands, so "ideas shaped" counts here.
+    if (stage === "stepped" && view && countedIdea.current !== view.record.creationId) {
+      countedIdea.current = view.record.creationId;
+      track("plan_result_viewed", { type: view.creationType });
+    }
+    if (stage === "result" && view) track("whole_plan_viewed", { type: view.creationType });
+    // Once per arrival, not per keystroke of a correction.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
   function go(next: Stage) {
     setStage(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    const open = Object.keys(OPEN_STAGE).find((k) => OPEN_STAGE[k] === next);
+    const url = open ? `${window.location.pathname}?open=${open}` : window.location.pathname;
+    if (url !== window.location.pathname + window.location.search) window.history.pushState(null, "", url);
   }
 
   function handleShape(e: FormEvent) {
     e.preventDefault();
     if (!description.trim()) return;
+    if (isUnfinishedStarter(description)) {
+      setNudge(true);
+      shapeRef.current?.focus();
+      return;
+    }
+    setNudge(false);
     go("stepped");
   }
 
@@ -314,7 +393,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
      the link navigate normally. sessionStorage, this tab — never described to
      anyone as saved work. */
   function keepThisBuild() {
-    // Kept in this browser first (2026-10-04: no sign-up — Your work shows
+    // Already kept in this browser (2026-10-04: no sign-up — Your work shows
     // it). The draft still rides along for an invited tester who wants it on
     // their account from /builds.
     if (view) saveCurrentCreation(view.record);
@@ -337,6 +416,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
     setDescription("");
     setAnswers({});
     setIncoming(null);
+    setRestored(null);
     go("landing");
   }
 
@@ -393,16 +473,19 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
   const theBox = (
     <CreationEntry
       id="idea-description"
-      heading="What are you creating?"
-      help="Start with a rough idea. Shape it as you go."
-      placeholder="A web app, a book, a song, a game, a digital artwork—or something else…"
-      submitLabel={mode === "home" ? "Start a project" : "Start"}
+      heading="What do you want to make?"
+      help="Rough is fine."
+      placeholder="A birthday poem for my granddaughter. A game about dragons. A website for my shop…"
+      submitLabel="Start"
       rows={5}
       value={description}
-      onValueChange={setDescription}
+      onValueChange={(next) => {
+        setDescription(next);
+        setNudge(false);
+      }}
       onSubmit={handleShape}
       inputRef={shapeRef}
-      starters={mode === "home" ? [STARTERS[0], STARTERS[4]] : STARTERS}
+      starters={HOME_STARTERS}
       actions={
         <>
           {saved.length > 0 && (
@@ -412,7 +495,11 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
           )}
         </>
       }
-    />
+    >
+      <p className={nudge ? "box-nudge" : "sr-only"} role="status" aria-live="polite">
+        {nudge ? "Finish the sentence first. Rough is fine." : ""}
+      </p>
+    </CreationEntry>
   );
 
   /* A starting point is a stem, not a category. It lands in the box and the
@@ -439,10 +526,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               below the fold on a laptop. */}
           <header className="mast mast-tight">
             <span className="kicker">Create</span>
-            <h1 className="mast-title">Start a project</h1>
+            <h1 className="mast-title">Make something with AI</h1>
             <p className="mast-lead">
-              Describe what you are creating. You get back what it really is, the
-              smallest first version that would work, and the next step.
+              Say it in your own words, with no coding. You get a first message to
+              give an AI, and help telling it what to change until it&apos;s right.
             </p>
           </header>
 
@@ -481,7 +568,8 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               ))}
               <p className="side-foot">
                 Looking for a specific tool instead?{" "}
-                <Link href="/engines">Open the engines</Link>.
+                <Link href="/tools">See the tools</Link> or the{" "}
+                <Link href="/engines">guided engines</Link>.
               </p>
             </aside>
           </div>
@@ -497,23 +585,45 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
         <div className="page home-page">
           <section className="home-hero">
             <div className="hero-copy">
-              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>Make the first version real.</span></span></div>
-              <h1>Bring your idea<br /><span>to life.</span></h1>
-              <p>Plan, write, and build your next digital product or creative project—one clear step at a time.</p>
-              <p className="hero-status">No account needed. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
+              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>{BRAND_SIGNATURE}</span></span></div>
+              <h1>Make it with AI.<br /><span>Keep going until it&apos;s right.</span></h1>
+              <p>Say what you want in your own words, no coding needed. When it comes back, tell the AI what to change.</p>
+              <p className="hero-status">No account needed here. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
             </div>
             <div className="home-entry">{theBox}</div>
           </section>
           {/* A returning visitor gets one quiet offer to continue — never the
               work's own title on the front door. */}
           <ContinueStrip />
+          {/* What the back and forth looks like, for four very different people.
+              Concrete on purpose: nobody is told who this is for, they see
+              something like their own idea and what they would say next. */}
+          <section className="home-how" aria-labelledby="how-heading">
+            <div className="section-intro">
+              <span className="kicker">How it works</span>
+              <h2 id="how-heading">You say what to change.</h2>
+              <p>We write your first message. You paste it into an AI app like ChatGPT, Claude, Copilot or Gemini. When it answers, you say what&apos;s off and we help with the words. Stop whenever it&apos;s right.</p>
+            </div>
+            <div className="how-examples">
+              {HOME_EXAMPLES.map((ex) => (
+                <article className="how-example" key={ex.title}>
+                  <h3>{ex.title}</h3>
+                  <p className="how-said"><span>You start with</span>&ldquo;{ex.first}&rdquo;</p>
+                  <p className="how-said"><span>Then you say</span>&ldquo;{ex.then}&rdquo;</p>
+                  <button type="button" className="how-try" onClick={() => takeStartingPoint(ex.first)}>Try this one&nbsp;↑</button>
+                </article>
+              ))}
+            </div>
+            <p className="home-name">{WHY_THE_NAME}</p>
+            <Link className="text-link" href="/how">Read how it works&nbsp; →</Link>
+          </section>
           <section className="home-paths" aria-labelledby="paths-heading">
-            <div className="section-intro"><span className="kicker">Or pick a way in</span><h2 id="paths-heading">Other ways to start</h2><p>The idea box above works for anything. These are for when you already know the kind of help you want.</p></div>
+            <div className="section-intro"><span className="kicker">Or pick a way in</span><h2 id="paths-heading">Other ways to start</h2><p>The box above works for anything. These are for when you already know the kind of help you want.</p></div>
             <div className="path-grid">
               {[
-                ["build", "Build your first website or app", "Six short steps, from an idea to your own link on the internet.", "/build", "build", "Start the six steps"],
-                ["tools", "Use a focused tool", "Small tools that each do one job: narrow an idea, test it, check it before you share.", "/tools", "create", "See the tools"],
-                ["solve", "Go deeper with an engine", "Guided workspaces for writing, design, music, apps, plans and more.", "/engines", "solve", "See the engines"],
+                ["build", "Put a website or app online", "Six short steps, from an idea to your own web address. You copy and paste the commands, and an AI app explains anything that goes wrong.", "/build", "build", "Start the six steps"],
+                ["tools", "Use a small tool", "Each one does one job: narrow an idea, test it, check it before you share.", "/tools", "create", "See the tools"],
+                ["solve", "Go deeper with an engine", "Guided help with writing, design, music, apps and plans. Each one ends with something you can use or hand to an AI.", "/engines", "solve", "See the engines"],
               ].map(([id, title, text, href, icon, cta]) => (
                 <Link className="path-card" href={href} key={id}>
                   <span className={`path-icon path-icon-${id}`} aria-hidden="true"><WorkshopIcon kind={icon} /></span>
@@ -523,21 +633,21 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             </div>
           </section>
           <section className="home-proof" aria-labelledby="proof-heading">
-            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Step In The Ring</span><h2 id="proof-heading">Built here.</h2></div></div><p>Real projects that started as a rough idea and are live today.</p></div>
+            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Step In The Ring</span><h2 id="proof-heading">Made here.</h2></div></div><p>Real projects that started as a rough idea and are live today.</p></div>
             <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true">{p.emoji}</span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit {p.name} ↗</span><span className="project-endorsement"><RingMark />Built with Step In The Ring</span></a>)}</div>
-            <div className="home-proof-links"><Link className="text-link" href="/builds">See everything we&apos;ve built&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
+            <div className="home-proof-links"><Link className="text-link" href="/builds">See everything made here&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
-          <section className="home-how" aria-labelledby="how-heading"><div className="section-intro"><span className="kicker">Five steps</span><h2 id="how-heading">How it works.</h2></div><ol className="how-steps">{[["01","Say it","Start in your own words."],["02","Shape it","Find the clearest version."],["03","Make it","Build the smallest useful thing."],["04","Try it","Put it in front of a real person."],["05","Go again","Keep what works, or start the next one."]].map(([n,t,d],i)=><li className="how-step" key={n}><span><span className="round-label">Step </span>{n}</span><h3>{t}</h3><p>{d}</p><Link className="how-tool" href={LOOP_TOOLS[i].href}>{LOOP_TOOLS[i].label}&nbsp;→</Link></li>)}</ol><Link className="text-link" href="/how">Read the full playbook&nbsp; →</Link></section>
-          {/* Help for someone who is unsure: the computer check and a way to
-              tell us what happened. Nothing here is for sale. */}
+          {/* Help for someone who is unsure, and the plain facts about AI that
+              a first-timer deserves to hear from us. Nothing here is for sale. */}
           <section className="home-help" aria-labelledby="help-heading">
-            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">Help and feedback</h2><p>Nothing here needs an account.</p></div>
+            <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">Help and feedback</h2></div>
             <ul className="help-list">
-              <li><strong>Is your computer up to it?</strong><span>Ready to Build: a one-question-at-a-time check, then a guide to turning the computer you already have into one that builds.</span><Link className="text-link" href="/products/ready-to-build">Meet Ready to Build&nbsp; →</Link></li>
+              <li><strong>Good to know</strong><span>This site doesn&apos;t run an AI. The apps are separate, with their own accounts and age rules, so kids should do this with a parent or another adult they trust. AI can sound sure and still be wrong, so check anything that matters.</span></li>
+              <li><strong>Want to build on your own computer?</strong><span>You don&apos;t need this to start. Ready to Build checks the computer you have, one question at a time, then shows you how to set it up.</span><Link className="text-link" href="/products/ready-to-build">Meet Ready to Build&nbsp; →</Link></li>
               <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>
-          <section className="home-final"><RingMark /><h2>Ready to make something?</h2><p>Start with a rough idea in the box at the top of this page.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start a project&nbsp; ↑</button></section>
+          <section className="home-final"><RingMark /><h2>Ready to step in?</h2><p>Start with a rough idea in the box at the top of this page.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start&nbsp; ↑</button></section>
         </div>
       </main>
     );
@@ -764,6 +874,9 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
           <SteppedIn
             intent={description.trim()}
             shaping={shaping}
+            firstMessage={message}
+            creationType={view?.creationType ?? "unknown"}
+            purpose={view ? purposeOf(view) : "make"}
             onAnswer={answerQuestion}
             onSkip={skipQuestion}
             onChangeWords={() => go("landing")}
@@ -789,7 +902,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
           {saved.length === 0 ? (
             <div className="card" style={{ textAlign: "center", padding: 40 }}>
               <p style={{ marginBottom: 20 }}>Nothing saved yet.</p>
-              <button className="btn btn-gold" onClick={() => go("landing")}>Start a creation</button>
+              <button className="btn btn-gold" onClick={() => go("landing")}>Start</button>
             </div>
           ) : (
             <div className="stack">
@@ -824,7 +937,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
         <div className="page">
           <div className="topbar">
             <span className="topbar-title">Your plan</span>
-            <button className="btn btn-ghost btn-small" onClick={startOver}>Start over</button>
+            <div className="actions">
+              <button className="btn btn-gold btn-small" onClick={() => go("stepped")}>Back to your message</button>
+              <button className="btn btn-ghost btn-small" onClick={startOver}>Start over</button>
+            </div>
           </div>
 
           <div className="stack">
@@ -835,8 +951,8 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="card">
               <div className="plan-label">Keep going with this</div>
               <p style={{ fontSize: 14.5, color: "var(--text)", margin: "0 0 12px" }}>
-                It&apos;s kept in this browser, under Your work, with the next move on
-                it. Come back any time on this device.
+                It&apos;s kept in this browser, under Your work. Come back any time on
+                this device.
               </p>
               <div className="actions">
                 <Link className="btn btn-gold" href="/library#your-idea">
@@ -852,7 +968,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
                   {plan.versionOne.map((c, n) => (
                     <li key={n}>
                       {c.value}
-                      {c.confidence !== "stated" && <span className="tag">my call</span>}
+                      {c.confidence !== "stated" && <span className="tag">a guess</span>}
                     </li>
                   ))}
                 </ul>
@@ -948,10 +1064,10 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             {decided.length > 0 && (
               <details className="card">
                 <summary className="plan-label" style={{ marginBottom: 0 }}>
-                  Calls I made for you ({decided.length}) — open to check them
+                  Guesses to check ({decided.length})
                 </summary>
                 <p className="field-help" style={{ margin: "8px 0 10px" }}>
-                  Safe assumptions so you could keep moving. Wrong ones are worth fixing.
+                  Made so you could keep moving. Wrong ones are worth fixing.
                 </p>
                 <ul className="plan-list">
                   {decided.map((a, n) => <li key={n}>{a}</li>)}
@@ -1013,7 +1129,7 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
             <div className="card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
                 <div className="plan-label" style={{ margin: 0 }}>
-                  {view?.software.verdict === "central" ? "Your builder prompt" : "Your brief"}
+                  {view?.software.verdict === "central" ? "A longer builder prompt" : "A longer brief"}
                 </div>
                 <CopyButton
                   text={builderPrompt}
@@ -1023,7 +1139,8 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               </div>
               <BriefView text={builderPrompt} />
               <p className="field-help" style={{ marginTop: 12, marginBottom: 0 }}>
-                Use it with any tool you like, hand it to a person, or just start on it yourself.
+                Your first message is usually enough. Use this when you want every detail in one
+                place: paste it into an AI app, hand it to a person, or just start on it yourself.
               </p>
               {view && (
                 <div style={{ borderTop: "1px solid var(--line)", marginTop: 14, paddingTop: 14 }}>
@@ -1052,10 +1169,13 @@ export default function RingApp({ mode = "home" }: { mode?: "home" | "create" })
               )}
             </div>
 
-            <BuilderDefaultsPanel value={defaults} onChange={setDefaults} />
+            {/* Git settings mean nothing to somebody writing a poem. */}
+            {view?.software.verdict === "central" && (
+              <BuilderDefaultsPanel value={defaults} onChange={setDefaults} />
+            )}
 
             <div className="actions">
-              <button className="btn btn-primary" onClick={() => go("landing")}>Fix this plan</button>
+              <button className="btn btn-primary" onClick={() => go("landing")}>Change what I said</button>
               <button className="btn btn-ghost btn-small" onClick={handleSave}>Save it</button>
               {saved.length > 0 && (
                 <button className="btn btn-ghost btn-small" onClick={() => go("saved")}>Saved work</button>

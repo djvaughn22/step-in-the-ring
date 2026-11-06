@@ -2,12 +2,14 @@ import { countUsage, type UsageEvent } from "./usage";
 
 // The few GA events the owner also sees in the site's own usage view
 // (/owner/usage). Only the structural label travels: an engine id, a
-// creation type, a round number.
+// creation type, a round number, a move. Never a message or anything in one.
 const OWN_COUNTS: Record<string, { event: UsageEvent; label?: string }> = {
   engine_start: { event: "engine-start", label: "engine" },
   engine_output: { event: "engine-output", label: "engine" },
   plan_result_viewed: { event: "idea-shaped", label: "type" },
   build_round: { event: "first-build-round", label: "round" },
+  first_message_copied: { event: "first-message-copied", label: "type" },
+  next_message_copied: { event: "next-message-copied", label: "move" },
 };
 
 // Thin wrapper over the GA4 gtag queue. Safe everywhere: no-ops during SSR,

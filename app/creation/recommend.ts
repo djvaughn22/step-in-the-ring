@@ -140,7 +140,10 @@ export function recommendEngines(v: CreationView): Recommendation {
     case "story":
     case "content":
       push(alternates, choice("idea", "Weigh a few versions of the piece and pick the one to finish."));
-      push(alternates, choice("sell", "If the piece is meant to earn, shape the offer around it."));
+      // A poem for a granddaughter or a study guide isn't headed for a sales page.
+      if (!["poem", "guide", "journal", "speech"].includes(v.profile.writingForm ?? "")) {
+        push(alternates, choice("sell", "If the piece is meant to earn, shape the offer around it."));
+      }
       return {
         primary: choice("writing", "It gives you real material to write from immediately, then helps shape it piece by piece."),
         alternates,

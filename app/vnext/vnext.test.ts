@@ -282,7 +282,7 @@ describe("The new shell", () => {
 
   it("asks the one question through the shared creation entry", () => {
     expect(home).toContain("CreationEntry");
-    expect(read("app/vnext/CreationEntry.tsx")).toContain("What are you creating?");
+    expect(read("app/vnext/CreationEntry.tsx")).toContain("What do you want to make?");
   });
 
   it("does not paste an engine catalog onto the hero", () => {
@@ -306,7 +306,7 @@ describe("The new shell", () => {
     expect(nav.length).toBeLessThanOrEqual(5);
     const paths = nav.map((p) => p.path);
     expect(paths).toContain("/create");
-    expect(paths).toContain("/engines");
+    expect(paths).toContain("/how");
     expect(paths).toContain("/builds");
     expect(paths).toContain("/library");
     // Account moved out of the menu and into the directory: it is a member

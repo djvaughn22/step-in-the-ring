@@ -46,7 +46,7 @@ export const CREATION_TYPE_LABEL: Record<CreationType, string> = {
   fashion: "A wearable design",
   music: "Music",
   story: "A written piece",
-  content: "A piece of content",
+  content: "Something to share",
   service: "A service",
   "sports-plan": "A coaching plan",
   "event-plan": "A real-world plan",

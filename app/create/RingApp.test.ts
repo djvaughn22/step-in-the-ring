@@ -13,7 +13,7 @@ const css = readFileSync(join(__dirname, "..", "globals.css"), "utf8");
 
 describe("RingApp — one creation CTA, one quiet return path", () => {
   it("Start remains the dominant, only submit action on the creation box", () => {
-    expect(src).toContain('submitLabel={mode === "home" ? "Start a project" : "Start"}');
+    expect(src).toContain('submitLabel="Start"');
   });
 
   it("the duplicate 'Pick up the last one' return path is gone", () => {
@@ -74,11 +74,10 @@ describe("RingApp result screen — the takeaway prompt isn't software-only lang
     expect(src).not.toMatch(/building tool you already use/);
   });
 
-  // 2026-10-07 owner direction: no AI positioning in public copy. The
-  // range stays (a tool, a person, yourself); the tool is never named as AI.
-  it("names the real range of where this goes: any tool, a person, or yourself", () => {
-    expect(src).toMatch(/Use it with any tool you like, hand it to a person, or just start on it yourself\./);
-    expect(src).not.toMatch(/Bring it to an AI/);
+  // The 2026-11-05 brand brief reverses the 2026-10-07 "no AI positioning" rule:
+  // the promise is working with AI, so this says so. The range stays.
+  it("names the real range of where this goes: an AI app, a person, or yourself", () => {
+    expect(src).toMatch(/paste it into an AI app, hand it to a person, or just start on it yourself\./);
   });
 });
 
@@ -259,13 +258,13 @@ describe("the takeaway prompt renders as typography, not raw markdown source", (
 // third name for the same thing.
 describe("the takeaway card is titled 'builder prompt' only for real software", () => {
   it("branches the card title and copy label on software.verdict === \"central\"", () => {
-    const card = src.slice(src.indexOf('{/* The handoff.'), src.indexOf("Use it with any tool you like"));
-    expect(card).toMatch(/view\?\.software\.verdict === "central" \? "Your builder prompt" : "Your brief"/);
+    const card = src.slice(src.indexOf('{/* The handoff.'), src.indexOf("Your first message is usually enough"));
+    expect(card).toMatch(/view\?\.software\.verdict === "central" \? "A longer builder prompt" : "A longer brief"/);
     expect(card).toMatch(/view\?\.software\.verdict === "central" \? "Copy builder prompt" : "Copy brief"/);
   });
 
   it("the copied-to-clipboard screen-reader announcement matches whichever label was actually shown", () => {
     expect(src).not.toMatch(/"Builder prompt copied to your clipboard"/);
-    expect(src).toMatch(/label\.replace\(\/\^Copy \/, ""\)/);
+    expect(readFileSync(join(__dirname, "CopyButton.tsx"), "utf8")).toMatch(/label\.replace\(\/\^Copy \/, ""\)/);
   });
 });

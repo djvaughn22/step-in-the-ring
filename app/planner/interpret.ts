@@ -312,7 +312,9 @@ const DEFAULT_EXCLUSIONS: Record<Shape, [string, RegExp][]> = {
     ["A backend or database", /\b(backend|server|database)\b/i],
     ["Payments", /\b(payment|checkout|stripe)\b/i],
   ],
-  content: [["A storefront", /\b(store|shop|sell)\b/i]],
+  // Nothing implied here. "Not in version one: a storefront" on a birthday poem
+  // or a family cookbook answers a question nobody asked.
+  content: [],
   unknown: [],
 };
 

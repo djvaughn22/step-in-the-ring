@@ -49,12 +49,12 @@ export function KeepGoingCard({ latest }: { latest: BuildRecordV1 }) {
 
 /** A visitor with no account but with work in this browser (Oct 2026: no
  *  sign-up). Same rule as above: nothing about the work itself is printed. */
-export function WelcomeBackCard() {
+export function WelcomeBackCard({ href = "/library" }: { href?: string }) {
   return (
     <div className="continue-strip">
       <p className="continue-strip-text">Welcome back. Your work is where you left it.</p>
       <div className="continue-strip-actions">
-        <Link className="btn btn-gold btn-small" href="/library">
+        <Link className="btn btn-gold btn-small" href={href}>
           Pick up where you left off →
         </Link>
       </div>
@@ -75,10 +75,13 @@ export function hasLocalWork(): boolean {
 export default function ContinueStrip() {
   const [builds, setBuilds] = useState<BuildRecordV1[] | null>(null);
   const [local, setLocal] = useState(false);
+  // Somebody mid-conversation with an AI goes straight back to their messages.
+  const [mid, setMid] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after mount
     setLocal(hasLocalWork());
+    setMid(loadCurrentCreation() !== null);
   }, []);
 
   useEffect(() => {
@@ -105,7 +108,7 @@ export default function ContinueStrip() {
     if (!local) return null;
     return (
       <section className="band band-tight continue-strip-section" aria-label="Welcome back">
-        <WelcomeBackCard />
+        <WelcomeBackCard href={mid ? "/create?open=workspace" : "/library"} />
       </section>
     );
   }

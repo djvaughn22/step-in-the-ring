@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // THE CREATION ENTRY — the one question Step In The Ring asks.
 //
-//   "What do you want to create?"
+//   "What do you want to make?"
 //
 // It takes a person's own words. It never asks them to pick an engine, a
 // category, or a plan first — the starters below the box only drop an
@@ -40,7 +40,7 @@ export interface CreationEntryProps {
   value: string;
   onValueChange: (next: string) => void;
   onSubmit: (e: FormEvent) => void;
-  /** Default: "What are you creating?" */
+  /** Default: "What do you want to make?" */
   heading?: string;
   help?: string;
   submitLabel?: string;
@@ -60,10 +60,10 @@ export default function CreationEntry({
   value,
   onValueChange,
   onSubmit,
-  heading = "What are you creating?",
-  help = "Start with a rough idea. Shape it as you go. If it belongs on something you already have, say which one.",
-  submitLabel = "Start a project",
-  placeholder = "A web app, a book, a song, a game, a digital artwork—or something else…",
+  heading = "What do you want to make?",
+  help = "Rough is fine. If it belongs on something you already have, say which one.",
+  submitLabel = "Start",
+  placeholder = "A birthday poem for my granddaughter. A game about dragons. A website for my shop…",
   rows = 5,
   starters = DEFAULT_STARTERS,
   actions,
@@ -87,7 +87,7 @@ export default function CreationEntry({
   }
 
   return (
-    <section aria-label="Start a project" className="startbox">
+    <section aria-label="Say what you want to make" className="startbox">
       <form onSubmit={onSubmit}>
         <label htmlFor={id}>{heading}</label>
 

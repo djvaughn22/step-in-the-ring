@@ -137,10 +137,26 @@ describe("shapeIntent", () => {
     expect(s.firstMove).toBeTruthy();
   });
 
-  it("always offers somewhere to go, even when nothing matched the words", () => {
-    const s = shapeIntent(VAGUE)!;
-    expect(s.helps.length).toBeGreaterThan(0);
-    expect(s.helps.map((h) => h.id)).toContain("five-hour-sprint");
+  // The workspace always has somewhere to go now: the first message. So the
+  // software fallbacks only appear for software, and something that matched
+  // nothing gets no suggestions rather than "Your first build" on a poem.
+  it("offers the software fallbacks only when it is software", () => {
+    const tool = shapeIntent("a tool that turns my meeting notes into a follow-up email")!;
+    expect(tool.helps.map((h) => h.id)).toContain("five-hour-sprint");
+    expect(shapeIntent(VAGUE)!.helps).toEqual([]);
+    expect(shapeIntent("a birthday poem for my granddaughter")!.helps.map((h) => h.id)).not.toContain("first-app");
+  });
+
+  it("does not hear music in an invoice tracker, or a how-to video in a study guide", () => {
+    expect(shapeIntent("a spreadsheet to track my client invoices")!.helps.map((h) => h.id)).not.toContain("music");
+    expect(shapeIntent("a study guide for my biology final")!.helps.map((h) => h.id)).not.toContain("howto");
+  });
+
+  it("asks what something does on first use only when it is software", () => {
+    expect(shapeIntent("a game about dragons")!.question?.question).toBe("What should it do the very first time someone uses it?");
+    const slideshow = shapeIntent("a slideshow about the water cycle for science class")!.question;
+    expect(slideshow?.question).toBe("What should it include?");
+    expect(slideshow?.key).toBe("versionOne");
   });
 
   it("only ever offers capabilities a person can actually open", () => {

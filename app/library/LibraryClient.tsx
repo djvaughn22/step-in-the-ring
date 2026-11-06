@@ -87,7 +87,7 @@ export default function LibraryClient({
           <section className="band" id="your-idea">
             <div className="band-head">
               <h2 className="band-title">Your idea</h2>
-              <p className="band-note">The last idea you kept from the idea box. Continue it, or delete it.</p>
+              <p className="band-note">The last idea from the idea box. Continue it to get back to your messages, or delete it.</p>
             </div>
             <div className="buildlist">
               <LocalBuildCard record={idea} onDeleted={() => setIdea(null)} />

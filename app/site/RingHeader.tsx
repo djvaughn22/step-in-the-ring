@@ -11,8 +11,8 @@
 // The links come from app/site/registry.ts, so this bar can never drift from
 // the Everything directory.
 //
-// Four doors on the left are the product: Create, Engines, Builds, Library.
-// The quieter set on the right is everything a person needs occasionally.
+// The doors on the left are the product and what a first-time visitor asks
+// about it. The quieter link on the right is for checking what's real.
 //
 // 2026-08-30 nav simplification: "Everything" used to ride along here in
 // every page's bar and mobile sheet — a fifth, unrelated idea (a full site
@@ -27,15 +27,13 @@ import RingMark from "./RingMark";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { navPages } from "./registry";
+import { BRAND_SHORT } from "./brand";
 import OpenMirrorThemeToggle, { AppearanceMenu } from "../OpenMirrorTheme";
 
-// The doors in .ring-nav are the product. These two are what a first-time
-// visitor asks next: how does this work, and what actually works today?
 // No Account link (owner, Oct 4 2026: no sign-up); invited testers sign in
 // from the footer.
 const SECONDARY = [
-  { name: "How it works", href: "/how" },
-  { name: "What's built", href: "/whats-built" },
+  { name: "What works today", href: "/whats-built" },
 ];
 
 export default function RingHeader() {
@@ -49,7 +47,12 @@ export default function RingHeader() {
       <div className="ring-bar-in">
         <Link href="/" className="ring-brand">
           <RingMark />
-          <span>Step In The Ring</span>
+          <span>
+            Step In The Ring
+            {/* Somebody who followed a link straight to a tool still learns what
+                this place is. Home says it in the hero, a few inches below. */}
+            {pathname !== "/" && <small className="ring-brand-sub">{BRAND_SHORT}</small>}
+          </span>
         </Link>
 
         <nav className="ring-nav" aria-label="Main">

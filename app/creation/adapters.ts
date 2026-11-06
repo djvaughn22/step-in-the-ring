@@ -622,6 +622,23 @@ function writingCore(v: CreationView): SpecSection[] {
       },
     ];
   }
+  if (form === "guide") {
+    return [
+      {
+        title: "The guide",
+        lines: bullets([
+          reader,
+          "What they should be able to do or remember after using it. That decides what goes in and what stays out.",
+          "Order it the way it gets used, in short sections someone can find their place in.",
+          "Real details only: anything only the creator knows (names, dates, family stories, amounts) stays a clear blank until they fill it in. Never invent it.",
+        ]),
+      },
+      {
+        title: "First deliverable",
+        lines: bullets(["One complete section, start to end, that someone could use today. Then the rest in the same shape.", noApp]),
+      },
+    ];
+  }
   if (form === "screenplay") {
     return [
       {

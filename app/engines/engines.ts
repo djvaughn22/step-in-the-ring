@@ -169,7 +169,7 @@ export const ENGINES: Engine[] = [
     blurb: "You know roughly what it is. We define the MVP, the architecture, and a detailed build prompt ready for your coding tool.",
     technical: true,
     activation: "beta",
-    output: "A step-by-step prompt to paste into your coding assistant, plus what the first version includes and how it fits together.",
+    output: "A step-by-step prompt to paste into an AI app, plus what the first version includes and how it fits together.",
     beginWith: "An idea you're ready to build, and who it's for.",
     statusNote: "Generates a real package. It writes the brief — it does not write the code. Not the same thing as /build, the beginner walkthrough.",
     suggestedStage: "Building",
