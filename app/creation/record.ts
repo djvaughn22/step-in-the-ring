@@ -160,7 +160,7 @@ export function viewOf(record: CreationRecordV1, pre?: Interpretation): Creation
   const caretaker = ["tool", "app", "site", "list", "unknown"].includes(creationType) ? caretakerRaw : null;
   const software = assessSoftware(creationType, i, fullText, caretaker);
   const profile = deriveProfile(fullText, creationType);
-  const tools = deriveTools(creationType, profile, software);
+  const tools = deriveTools(creationType, profile);
 
   const primaryUser = caretaker
     ? `The person looking after the ${caretaker.dependent} — often busy, short on attention, needing a fast answer`

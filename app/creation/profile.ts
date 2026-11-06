@@ -9,7 +9,7 @@
 // Everything here is deterministic pattern reading, same as classify.ts.
 // No creation-specific output is hard-coded; these are general form rules.
 
-import type { CreationType, SoftwareCall } from "./types";
+import type { CreationType } from "./types";
 
 /* ── FORMS ─────────────────────────────────────────────────────────────── */
 
@@ -206,7 +206,6 @@ export interface ToolsGuidance {
 export function deriveTools(
   type: CreationType,
   profile: CreationProfile,
-  software: SoftwareCall,
 ): ToolsGuidance {
   const web = profile.webForm;
 

@@ -62,6 +62,15 @@ the share image, the app manifest and the README. Boxing glove emoji removed.
 **Owner usage view:** "Ideas started", "First messages copied", "Next messages
 copied". The last one is the real test of the promise.
 
+**A router quirk to know about.** Next (16.2.9) seeds its route cache with the URL
+of the first load, so a later link to that same page gets that query string back.
+That made the wordmark a dead click after a reload and could have put typed words
+back in the URL. `app/site/arrival.ts` moves these parameters out of the address
+bar in a head script, before the router or analytics read it. Don't add a new
+query parameter to `/` or `/create` without adding it there. A link to those pages
+that carries one must be a plain `<a>`, because even a prefetch of a `<Link>` makes
+the router remember the query (a test checks this).
+
 ## Key files
 
 - `app/site/brand.ts`: the few lines that say what this is. One copy of each.
@@ -113,7 +122,7 @@ copied". The last one is the real test of the promise.
   labels ("Owner's Builds", "What's Built") and needs the new one-liner. iDontCry's
   handoff in `src/app/make/MakeHub.tsx` is worth a read too.
 - The kit branch (`kit-one-time-purchase`) is untouched. A test merge onto this work
-  was clean: no conflicts, 1,592 tests passing, typecheck clean. Sales stay closed.
+  was clean: no conflicts, 1,601 tests passing, typecheck clean. Sales stay closed.
 
 ## Exact next steps, if continuing
 

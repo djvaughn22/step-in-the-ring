@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { deleteCurrentCreationIfMatches } from "../creation/record";
 import type { CreationRecordV1 } from "../creation/types";
 import { DeleteBuildControl } from "./DeleteBuildControl";
@@ -28,9 +27,10 @@ export default function LocalBuildCard({
       {/* Their words, not a title the rules made up ("Church Something"). */}
       <h2 className="bc-name">{said.length > 140 ? `${said.slice(0, 137).trimEnd()}…` : said}</h2>
       <div className="bc-foot">
-        <Link className="btn btn-gold" href={resumeHref}>
+        {/* A plain link on purpose: see app/site/arrival.ts. */}
+        <a className="btn btn-gold" href={resumeHref}>
           Continue
-        </Link>
+        </a>
         <DeleteBuildControl
           label="Delete this"
           onConfirm={async () => {

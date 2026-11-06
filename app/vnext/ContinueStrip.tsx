@@ -54,9 +54,10 @@ export function WelcomeBackCard({ href = "/library" }: { href?: string }) {
     <div className="continue-strip">
       <p className="continue-strip-text">Welcome back. Your work is where you left it.</p>
       <div className="continue-strip-actions">
-        <Link className="btn btn-gold btn-small" href={href}>
+        {/* A plain link on purpose: see app/site/arrival.ts. */}
+        <a className="btn btn-gold btn-small" href={href}>
           Pick up where you left off →
-        </Link>
+        </a>
       </div>
     </div>
   );

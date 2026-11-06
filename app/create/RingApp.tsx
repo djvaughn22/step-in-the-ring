@@ -32,6 +32,7 @@ import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
 import { BRAND_SIGNATURE, WHY_THE_NAME } from "../site/brand";
+import { takeArrival, withoutArrivalParams } from "../site/arrival";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
 import { HOME_EXAMPLES, HOME_STARTERS, QUICK_START, STARTING_POINT_GROUPS, STARTING_POINTS, isUnfinishedStarter } from "./starting-points";
 import { displayName, featuredCapabilities } from "../vnext/capabilities";
@@ -52,8 +53,8 @@ const { primary: HOME_PROOF_PRIMARY, more: HOME_PROOF_MORE } = homepageProof(ECO
    the workspace, and Back has to mean the screen before, not the site before. */
 const OPEN_STAGE: Record<string, Stage> = { workspace: "stepped", plan: "result" };
 
-function stageFromUrl(): Stage {
-  return OPEN_STAGE[new URLSearchParams(window.location.search).get("open") ?? ""] ?? "landing";
+function stageFromSearch(search: string): Stage {
+  return OPEN_STAGE[new URLSearchParams(search).get("open") ?? ""] ?? "landing";
 }
 
 function sameAnswers(a: Record<string, string>, b: Record<string, string>): boolean {
@@ -211,6 +212,7 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
   const [restored, setRestored] = useState<CreationRecordV1 | null>(null);
   /* The owner's "ideas shaped" counts ideas, not trips back to the same one. */
   const countedIdea = useRef<string | null>(null);
+  const lastUrlOpen = useRef<string | null | undefined>(undefined);
   const [defaults, setDefaults] = useState<BuilderDefaults>(loadBuilderDefaults);
   const shapeRef = useRef<HTMLTextAreaElement>(null);
 
@@ -219,31 +221,43 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
     setSaved(loadPlans());
     setDefaults(loadBuilderDefaults());
     try {
+      // A full page load had its query moved out of the address bar before the
+      // router could read it (app/site/arrival.ts). A link from another page on
+      // this site still has it in the URL.
+      const search = takeArrival() ?? window.location.search;
+      const params = new URLSearchParams(search);
       // Back from an AI app, or from Your work: ?open= names the screen and the
       // words come from this browser. They never travel in this URL.
-      const opening = stageFromUrl();
+      const opening = stageFromSearch(search);
       if (opening !== "landing") {
-        if (comeBackTo(opening)) return;
-        window.history.replaceState(null, "", window.location.pathname);
+        if (comeBackTo(opening)) {
+          // Back in the address bar, so another reload lands here too. It waits a
+          // tick: the router's history listeners are installed by an effect that
+          // runs after this one, and if it doesn't hear this, the wordmark can't
+          // leave the screen.
+          const open = params.get("open");
+          setTimeout(() => window.history.replaceState(null, "", `${window.location.pathname}?open=${open}`), 0);
+          return;
+        }
+        window.history.replaceState(null, "", withoutArrivalParams());
       }
       // A tool on this site handing over its words: never through the URL.
-      const params = new URLSearchParams(window.location.search);
       if (params.get("handoff")) {
         const words = takeLocalHandoff();
-        window.history.replaceState(null, "", window.location.pathname);
+        window.history.replaceState(null, "", withoutArrivalParams());
         if (words && words.trim()) {
           setDescription(words.trim().slice(0, 2000));
           setTimeout(() => shapeRef.current?.focus(), 0);
           return;
         }
       }
-      // Words that arrived in the URL from another site leave it at once. They
-      // were typed by a person, and analytics reads the address bar.
-      const scrubUrl = () => window.history.replaceState(null, "", window.location.pathname);
+      // If the head script couldn't move them (blocked storage), words that came
+      // in the URL still leave it here. A person typed them.
+      const scrubUrl = () => window.history.replaceState(null, "", withoutArrivalParams());
       // Versioned handoff (?cr=) first — it carries the whole creation.
       // The idea box lives on the landing page now, so a handoff simply
       // prefills it and puts the cursor there — one screen fewer to cross.
-      const payload = readHandoffFromSearch(window.location.search);
+      const payload = readHandoffFromSearch(search);
       if (payload) {
         setIncoming(payload);
         setDescription(payload.idea.slice(0, 2000));
@@ -288,26 +302,34 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
     return true;
   }
 
+  // Open the screen the URL names. Those screens need words, so with none in the
+  // box (Back after "Start over") they come from this browser, and with nothing
+  // saved either it's the box. Never a blank page.
+  function followUrlTo(wanted: Stage | undefined) {
+    if (!wanted || wanted === "landing") setStage((s) => (s === "stepped" || s === "result" ? "landing" : s));
+    else if (description.trim()) setStage(wanted);
+    else if (!comeBackTo(wanted)) setStage("landing");
+  }
+
   // A same-page link changed the URL. Leaving ?open= goes back to the box with
   // their words still in it; arriving at it opens that screen.
   useEffect(() => {
-    if (urlOpen === undefined) return;
-    const wanted = OPEN_STAGE[urlOpen ?? ""];
-    /* eslint-disable react-hooks/set-state-in-effect -- the URL is the outside system this follows */
-    if (!wanted) setStage((s) => (s === "stepped" || s === "result" ? "landing" : s));
-    else if (description.trim()) setStage(wanted);
-    else comeBackTo(wanted);
-    /* eslint-enable react-hooks/set-state-in-effect */
+    const was = lastUrlOpen.current;
+    lastUrlOpen.current = urlOpen;
+    // The first report is where the page started, which the load above handled.
+    if (urlOpen === undefined || was === undefined || was === urlOpen) return;
+    followUrlTo(OPEN_STAGE[urlOpen ?? ""]);
     // Only when the URL moves. Keystrokes in the box must not re-run this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlOpen]);
 
   // Back and Forward walk between the box, the workspace and the plan.
   useEffect(() => {
-    const onPop = () => setStage(stageFromUrl());
+    const onPop = () => followUrlTo(stageFromSearch(window.location.search));
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [description]);
 
   const input: PlannerInput = useMemo(() => ({ description, answers }), [description, answers]);
   const plan = useMemo(
@@ -373,8 +395,8 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
     setStage(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
     const open = Object.keys(OPEN_STAGE).find((k) => OPEN_STAGE[k] === next);
-    const url = open ? `${window.location.pathname}?open=${open}` : window.location.pathname;
-    if (url !== window.location.pathname + window.location.search) window.history.pushState(null, "", url);
+    const url = open ? `${window.location.pathname}?open=${open}` : withoutArrivalParams();
+    if (url !== window.location.pathname + window.location.search + window.location.hash) window.history.pushState(null, "", url);
   }
 
   function handleShape(e: FormEvent) {

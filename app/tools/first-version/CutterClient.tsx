@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { putLocalHandoff } from "../../creation/handoff";
 import { useState } from "react";
 import { copyText, useSavedState } from "../useSavedState";
@@ -178,9 +177,10 @@ export default function CutterClient() {
           <div className="ft-actions">
             <button type="button" className="btn btn-gold" onClick={copy}>Copy it</button>
             {inBucket(state.items, "now").length > 0 && (
-              <Link className="btn btn-ghost" href="/create?handoff=1" onClick={() => putLocalHandoff(handoff)}>
+              // A plain link on purpose: see app/site/arrival.ts.
+              <a className="btn btn-ghost" href="/create?handoff=1" onClick={() => putLocalHandoff(handoff)}>
                 Make just this version →
-              </Link>
+              </a>
             )}
             <button type="button" className="ft-link" onClick={clearAll}>Start over</button>
           </div>

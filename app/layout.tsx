@@ -5,6 +5,7 @@ import RingHeader from "./site/RingHeader";
 import QuietFooterLink from "./site/QuietFooterLink";
 import UsageCounter from "./site/UsageCounter";
 import { BRAND_ONE_LINE } from "./site/brand";
+import { HEAD_ARRIVAL_JS } from "./site/arrival";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -82,6 +83,8 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <head>
         <script dangerouslySetInnerHTML={{ __html: HEAD_THEME_INIT_JS }} />
+        {/* Before the router and analytics can read the address bar. Why: app/site/arrival.ts */}
+        <script dangerouslySetInnerHTML={{ __html: HEAD_ARRIVAL_JS }} />
       </head>
       <body>
         {/* Step In The Ring carries its own bar so the doors are visible on a

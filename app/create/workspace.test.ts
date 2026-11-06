@@ -6,11 +6,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import RingApp from "./RingApp";
 import { putLocalHandoff, takeLocalHandoff } from "../creation/handoff";
 import LocalBuildCard from "../builds/LocalBuildCard";
 import { WelcomeBackCard } from "../vnext/ContinueStrip";
+import { HEAD_ARRIVAL_JS, takeArrival } from "../site/arrival";
 import { loadCurrentCreation, newRecord, saveCurrentCreation } from "../creation/record";
 
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(window.location.search), usePathname: () => "/" }));
@@ -58,6 +60,7 @@ afterEach(async () => {
   root = undefined;
   document.body.innerHTML = "";
   localStorage.clear();
+  sessionStorage.clear();
 });
 
 describe("the box", () => {
@@ -204,6 +207,26 @@ describe("leaving for an AI app and coming back", () => {
     expect(loadCurrentCreation()!.creationId).toBe(before);
   });
 
+  it("never leaves a blank page when Back reaches a screen with no words", async () => {
+    await mount();
+    await say(POEM);
+    await act(async () => button("See the whole plan").click());
+    await act(async () => button("Start over").click());
+    expect(el.querySelector("textarea")!.value).toBe("");
+    await act(async () => {
+      window.history.replaceState(null, "", "/?open=plan");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+    expect(el.textContent).toContain("What version one does");
+    localStorage.clear();
+    await act(async () => button("Start over").click());
+    await act(async () => {
+      window.history.replaceState(null, "", "/?open=workspace");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+    expect(el.querySelector("textarea")).not.toBeNull();
+  });
+
   it("keeps a saved answer when it comes back", async () => {
     saveCurrentCreation(newRecord("a game about dragons", { answers: { versionOne: "You tap to fly." } }));
     window.history.replaceState(null, "", "/create?open=workspace");
@@ -240,6 +263,84 @@ describe("leaving for an AI app and coming back", () => {
   it("a returning visitor can go straight back to their messages", () => {
     expect(renderToStaticMarkup(createElement(WelcomeBackCard, { href: "/create?open=workspace" }))).toContain('href="/create?open=workspace"');
     expect(renderToStaticMarkup(createElement(WelcomeBackCard))).toContain('href="/library"');
+  });
+});
+
+describe("the script that runs before everything else", () => {
+  const run = (url: string) => {
+    window.history.replaceState(null, "", url);
+    sessionStorage.clear();
+    new Function(HEAD_ARRIVAL_JS)();
+    return { url: window.location.pathname + window.location.search, kept: sessionStorage.getItem("sitr-arrival") };
+  };
+
+  it("takes typed words out of the address bar, on the two pages that read them", () => {
+    expect(run(`/create?idea=${encodeURIComponent(POEM)}`)).toEqual({ url: "/create", kept: `?idea=${encodeURIComponent(POEM)}` });
+    expect(run("/?cr=abc").url).toBe("/");
+    expect(run("/?open=workspace").url).toBe("/");
+    expect(run("/create?stem=A%20game").url).toBe("/create");
+    expect(run("/create?handoff=1").url).toBe("/create");
+  });
+
+  it("leaves a campaign tag alone, and every other page and parameter alone", () => {
+    expect(run("/create?idea=hello&utm_source=mail").url).toBe("/create?utm_source=mail");
+    expect(run("/?utm_source=mail")).toEqual({ url: "/?utm_source=mail", kept: null });
+    expect(run("/engines?engine=game")).toEqual({ url: "/engines?engine=game", kept: null });
+    expect(run("/tools?idea=hello")).toEqual({ url: "/tools?idea=hello", kept: null });
+  });
+
+  it("is in the page before anything that could read the URL", () => {
+    const layout = readFileSync("app/layout.tsx", "utf8");
+    expect(layout).toContain("__html: HEAD_ARRIVAL_JS");
+    expect(layout.indexOf("__html: HEAD_ARRIVAL_JS")).toBeLessThan(layout.indexOf("googletagmanager"));
+  });
+
+  it("gives what it moved to the page, once", () => {
+    run("/create?idea=hello");
+    expect(takeArrival()).toBe("?idea=hello");
+    expect(takeArrival()).toBeNull();
+  });
+});
+
+describe("a full page load, the way a real browser does it", () => {
+  const hardLoad = async (url: string, mode: "home" | "create" = "home") => {
+    window.history.replaceState(null, "", url);
+    new Function(HEAD_ARRIVAL_JS)();
+    await mount(mode);
+  };
+
+  it("opens the workspace, and puts the screen back in the URL for the next reload", async () => {
+    saveCurrentCreation(newRecord(POEM));
+    await hardLoad("/?open=workspace");
+    expect(el.querySelector("h1")?.textContent).toBe(POEM);
+    expect(el.querySelector(".ai-message")).not.toBeNull();
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 5)));
+    expect(window.location.search).toBe("?open=workspace");
+  });
+
+  it("fills the box from another site with the words gone from the URL", async () => {
+    await hardLoad(`/create?idea=${encodeURIComponent(POEM)}`, "create");
+    expect(el.querySelector("textarea")!.value).toBe(POEM);
+    expect(window.location.search).toBe("");
+  });
+
+  it("keeps a campaign tag through the whole arrival", async () => {
+    await hardLoad(`/create?idea=${encodeURIComponent(POEM)}&utm_source=mail`, "create");
+    expect(el.querySelector("textarea")!.value).toBe(POEM);
+    expect(window.location.search).toBe("?utm_source=mail");
+  });
+
+  it("no <Link> carries these parameters, because a prefetch alone makes the router keep them", () => {
+    const walk = (dir: string): string[] =>
+      readdirSync(dir).flatMap((f) => {
+        const p = join(dir, f);
+        return statSync(p).isDirectory() ? walk(p) : /\.tsx$/.test(f) ? [p] : [];
+      });
+    for (const file of walk("app")) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/<Link[^>]*href=(?:"|\{`)\/(?:create)?\?(?:open|idea|stem|cr|handoff)=/);
+    }
+    expect(readFileSync("app/builds/LocalBuildCard.tsx", "utf8")).toContain("<a className");
+    expect(readFileSync("app/vnext/ContinueStrip.tsx", "utf8")).toMatch(/<a className="btn btn-gold btn-small" href=\{href\}>/);
   });
 });
 
