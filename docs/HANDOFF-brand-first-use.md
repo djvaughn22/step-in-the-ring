@@ -108,10 +108,27 @@ the router remember the query (a test checks this).
    so plainly, but it is the least no-coding thing linked from the home page. A
    simpler publish path would be a project of its own.
 
+## Tested in real AI apps (2026-11-08, no sign-in)
+
+- **ChatGPT:** all four `HOME_EXAMPLES` first messages. Each time it made a first
+  version at once, left clear blanks (names, phone, address), gave plain steps
+  to save and open the code, and asked what to change. A change message
+  ("Shorter, and keep the part about riding through the fields") kept the rest
+  and showed the whole poem again.
+- **Gemini (free Flash-Lite):** the dragon game and the poem, with the same
+  result. Its first game worked only with arrow keys, so it couldn't be played
+  on a phone. The code line now asks for "one file that works in a web browser
+  and on a phone", and the rerun came back with touch controls.
+- **Copilot and Claude:** both sent a visitor to sign in, so neither was tested.
+  The site's wording ("separate from this site, with their own accounts", "most
+  let you start without paying") is still true.
+- Logged-out ChatGPT now shows ads under answers. That is the app's own doing,
+  but worth knowing before recommending any one app.
+
 ## Not verified
 
-- A real paste into each AI app. The messages were checked by reading them and by
-  tests, not by a live conversation with those products.
+- Copilot and Claude. On 2026-11-08 both needed a sign-in, so the first messages
+  were tested only where no account was needed (see "Tested in real AI apps").
 - The real clipboard (the browser pane blocks it). The copied text was checked with
   a stubbed clipboard, and the "couldn't copy" path for real.
 - A real phone dropping the tab. A reload at phone size was tested.
@@ -132,8 +149,8 @@ the router remember the query (a test checks this).
 
 1. Watch `/owner/usage` for a week: ideas started, first messages copied, next
    messages copied.
-2. Paste the first message for each `HOME_EXAMPLES` entry into each AI app and
-   adjust `app/create/ai-messages.ts` if any of them stumbles.
+2. Try the first messages in Copilot and Claude from a signed-in account. A
+   first message must stay under 140 words (`ai-messages.test.ts`).
 3. Take the decisions above to the owner.
 
 ## Ship rule

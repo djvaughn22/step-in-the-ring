@@ -35,7 +35,7 @@ const MAKE_IT_NOW =
   "Please make a first version now, even if it's rough, so I have something to react to. Don't ask me a lot of questions first. Where you need something only I would know, like a name or a date, leave a clear blank and tell me what goes there.";
 
 const NO_CODE =
-  "I don't know how to code. If this takes any code, write all of it for me, in one file I can open in a web browser if you can, and tell me what to do with it, one step at a time.";
+  "I don't know how to code. If this takes code, write all of it for me, in one file that works in a web browser and on a phone, if you can. Tell me what to do with it, one step at a time.";
 
 const PICTURE =
   "If you can make a picture of it, show me one. If you can't, describe it clearly enough that I can picture it, and tell me the easiest way to get it made.";
