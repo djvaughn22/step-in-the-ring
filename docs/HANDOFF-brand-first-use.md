@@ -121,9 +121,10 @@ the router remember the query (a test checks this).
 - The hub's listing was updated on 2026-11-06 (`open-mirror` 9f4dcf6). Its door and
   card say AI; its About line deliberately doesn't, because that page never mentions
   AI or build tooling. The door keeps the owner's subtitle, "Build an idea".
-- iDontCry still has a boxing glove on four buttons that lead here (`GameLab.tsx`
-  twice, `MakeHub.tsx`, `CreativeStudio.tsx`). Their wording is still true. iDontCry
-  keeps its own no-AI copy rule, so only the emoji would change.
+- iDontCry's four buttons that lead here lost the boxing glove on 2026-11-07
+  (`idontcry` 8dcf8402: `GameLab.tsx` twice, `MakeHub.tsx`, `CreativeStudio.tsx`). Their words stayed,
+  because iDontCry keeps its own no-AI copy rule. Its `src/lib/sisterHandoffs.test.ts`
+  fails if any file that links here carries the glove.
 - The kit branch (`kit-one-time-purchase`) is untouched. A test merge onto this work
   was clean: no conflicts, 1,601 tests passing, typecheck clean. Sales stay closed.
 
