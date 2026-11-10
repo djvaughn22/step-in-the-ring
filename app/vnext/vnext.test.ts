@@ -303,7 +303,9 @@ describe("The new shell", () => {
     // Everything directory. The shape rules live in app/site/registry.test.ts.
     expect(read("app/site/RingHeader.tsx")).toContain("navPages()");
     const nav = navPages();
-    expect(nav.length).toBeLessThanOrEqual(5);
+    // Six since 2026-11-10, when Services joined (owner brief); the limit
+    // itself lives in app/site/registry.test.ts.
+    expect(nav.length).toBeLessThanOrEqual(6);
     const paths = nav.map((p) => p.path);
     expect(paths).toContain("/create");
     expect(paths).toContain("/how");

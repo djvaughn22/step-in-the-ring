@@ -11,6 +11,9 @@
 // Usefulness-first (Oct 2026): nothing on the public site shows a price.
 // The Sprint service page that once held the only approved public prices
 // was retired, so no page belongs on this list.
+// 2026-11-10 (owner brief, Build it with us): services/offers.ts is the ONE
+// file allowed to hold public prices. They are introductory, shown with "a
+// written quote before any work", and every page imports them from there.
 // Anything added to this list must be re-verified as non-customer-visible.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
@@ -24,6 +27,7 @@ const ALLOWLIST = new Set(
     "planner/signals.ts", // regex replacement backreferences: $1
     "planner/normalize.ts", // regex replacement backreferences: $1
     "members/stripeCore.ts", // server-only comment, real dormant Stripe price
+    "services/offers.ts", // the one public price list (owner brief, 2026-11-10)
   ].map((p) => path.join(APP_DIR, p)),
 );
 

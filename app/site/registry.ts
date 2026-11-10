@@ -49,6 +49,7 @@ export type Access =
  * group is there to expose.
  *
  *   create  — where you say what you want to make
+ *   hire    — Build it with us: services, our work, request a project
  *   engines — focused tools that make one part of a thing
  *   builds  — the things you are actually making
  *   library — work you saved and can use again
@@ -59,6 +60,7 @@ export type Access =
  */
 export type PageGroup =
   | "create"
+  | "hire"
   | "engines"
   | "builds"
   | "library"
@@ -109,6 +111,30 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "create",
     inNav: true,
+  },
+
+  // ── Build it with us (paid services) ────────────────────────────────────
+  {
+    path: "/services",
+    name: "Services",
+    what: "Hire us to plan, build and launch a website or web app. What each service includes, introductory prices, and how it works.",
+    access: "public",
+    group: "hire",
+    inNav: true,
+  },
+  {
+    path: "/work",
+    name: "Our work",
+    what: "Live sites we planned, built and run ourselves, and what each one shows we can build for you.",
+    access: "public",
+    group: "hire",
+  },
+  {
+    path: "/request",
+    name: "Request a project",
+    what: "Tell us what you have in mind. We reply by email with questions or a written quote.",
+    access: "public",
+    group: "hire",
   },
 
   // ── Free tools ─────────────────────────────────────────────────────────
@@ -319,6 +345,13 @@ export const SITE_PAGES: SitePage[] = [
     group: "owner",
   },
   {
+    path: "/owner/inquiries",
+    name: "Project requests",
+    what: "Owner view of every project request, newest first.",
+    access: "owner",
+    group: "owner",
+  },
+  {
     path: "/owner/sprint-applications",
     name: "Sprint applications",
     what: "Owner view of applications received before the Sprint service was retired.",
@@ -364,9 +397,9 @@ export function pagesWithAccess(access: Access): SitePage[] {
  *
  * Derived from the registry, never hand-kept twice.
  */
-// Making first, then what a first-time visitor asks next, then what YOU made,
-// then the showroom — two different things, kept apart.
-const NAV_ORDER = ["/create", "/how", "/tools", "/library", "/builds"];
+// Making first, then hiring us to make it, then what a first-time visitor asks
+// next, then what YOU made, then the showroom. Six doors is the limit.
+const NAV_ORDER = ["/create", "/services", "/how", "/tools", "/library", "/builds"];
 
 export function navPages(): SitePage[] {
   return SITE_PAGES.filter((p) => p.inNav).sort(

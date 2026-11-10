@@ -136,7 +136,10 @@ describe("the promise travels", () => {
     for (const path of walk("app")) {
       // The unreachable legacy landing markup in RingApp is comment-free source
       // that can never render; everything else must have moved on.
-      expect(visibleSource(path), path).not.toMatch(/Bring your idea|Make the first version real/);
+      // 2026-11-10: the owner brought "Bring your idea to life" back as the
+      // lead line (app/site/brand.ts BRAND_PROMISE). Only the older wording
+      // stays retired.
+      expect(visibleSource(path), path).not.toMatch(/Make the first version real/);
     }
   });
 });

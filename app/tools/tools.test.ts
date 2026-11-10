@@ -197,8 +197,9 @@ describe("free tool pages", () => {
     expect(doc.body.textContent).not.toMatch(/\$\d|price|purchase|checkout|subscribe/i);
   });
 
-  it("is in the main menu, right after Create and How it works", () => {
-    expect(navPages().map((p) => p.path).slice(0, 3)).toEqual(["/create", "/how", "/tools"]);
+  // 2026-11-10: Services joined the bar right after Create (owner brief).
+  it("is in the main menu, right after Create, Services and How it works", () => {
+    expect(navPages().map((p) => p.path).slice(0, 4)).toEqual(["/create", "/services", "/how", "/tools"]);
   });
 
   it("never sends anything: no fetch, no forms posting anywhere, no analytics", () => {

@@ -31,7 +31,8 @@ import {
 import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
-import { BRAND_SIGNATURE, WHY_THE_NAME } from "../site/brand";
+import { BRAND_INVITE, BRAND_PROMISE, BRAND_SIGNATURE, WHY_THE_NAME } from "../site/brand";
+import { OFFERS } from "../services/offers";
 import { takeArrival, withoutArrivalParams } from "../site/arrival";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
 import { HOME_EXAMPLES, HOME_STARTERS, QUICK_START, STARTING_POINT_GROUPS, STARTING_POINTS, isUnfinishedStarter } from "./starting-points";
@@ -608,21 +609,60 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
           <section className="home-hero">
             <div className="hero-copy">
               <div className="hero-signature"><RingMark /><span>Step In The Ring<span>{BRAND_SIGNATURE}</span></span></div>
-              <h1>Make it with AI.<br /><span>Keep going until it&apos;s right.</span></h1>
-              <p>Say what you want in your own words, no coding needed. When it comes back, tell the AI what to change.</p>
-              <p className="hero-status">No account needed here. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
+              <h1>{BRAND_PROMISE}<br /><span>{BRAND_INVITE}</span></h1>
+              <p>Make it yourself with the free tools here, or hire us to plan, build and launch it with you.</p>
+              {/* The two ways in (owner brief, 2026-11-10). Hiring us is a door
+                  to /services; building it yourself is the box beside this. */}
+              <div className="hero-paths">
+                <Link className="hero-path hero-path-hire" href="/services">
+                  <span className="hero-path-kicker">Build it with us</span>
+                  <strong>Professional websites and custom development</strong>
+                  <span className="hero-path-sub">A written quote before any work starts.</span>
+                  <em>See services&nbsp;→</em>
+                </Link>
+                <button type="button" className="hero-path" onClick={() => shapeRef.current?.focus()}>
+                  <span className="hero-path-kicker">Build it yourself</span>
+                  <strong>Make it with AI. Keep going until it&apos;s right.</strong>
+                  <span className="hero-path-sub">Free, no account, no coding needed. You tell the AI what to change.</span>
+                  <em>Start with your idea&nbsp;<span className="hero-path-arrow" aria-hidden="true">→</span></em>
+                </button>
+              </div>
+              <p className="hero-status">No account needed to build it yourself. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
             </div>
-            <div className="home-entry">{theBox}</div>
+            <div className="home-entry" id="start">{theBox}</div>
           </section>
           {/* A returning visitor gets one quiet offer to continue — never the
               work's own title on the front door. */}
           <ContinueStrip />
+          {/* Build it with us: the four services in one line each. The detail
+              lives on /services, and prices live only in app/services/offers.ts. */}
+          <section className="home-hire" aria-labelledby="hire-heading">
+            <div className="section-intro">
+              <span className="kicker">Build it with us</span>
+              <h2 id="hire-heading">Websites and web apps, built with you.</h2>
+              <p>Planned with you, built carefully, tested on real phones, and handed over so you own it. You get a written quote before any work starts.</p>
+            </div>
+            <div className="hire-grid">
+              {OFFERS.map((o) => (
+                <Link key={o.id} className={o.flagship ? "hire-card hire-flagship" : "hire-card"} href={`/services#${o.id}`}>
+                  <strong>{o.name}</strong>
+                  <span className="hire-price">{o.price}</span>
+                  <span className="hire-for">{o.forWho}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="hire-go">
+              <Link className="btn btn-gold" href="/request">Request a project</Link>
+              <Link className="text-link" href="/services">What&apos;s included&nbsp; →</Link>
+              <Link className="text-link" href="/work">See our work&nbsp; →</Link>
+            </div>
+          </section>
           {/* What the back and forth looks like, for four very different people.
               Concrete on purpose: nobody is told who this is for, they see
               something like their own idea and what they would say next. */}
           <section className="home-how" aria-labelledby="how-heading">
             <div className="section-intro">
-              <span className="kicker">How it works</span>
+              <span className="kicker">Build it yourself</span>
               <h2 id="how-heading">You say what to change.</h2>
               <p>We write your first message. You paste it into an AI app like ChatGPT, Claude, Copilot or Gemini. When it answers, you say what&apos;s off and we help with the words. Stop whenever it&apos;s right.</p>
             </div>
@@ -638,9 +678,7 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
             </div>
             <p className="home-name">{WHY_THE_NAME}</p>
             <Link className="text-link" href="/how">Read how it works&nbsp; →</Link>
-          </section>
-          <section className="home-paths" aria-labelledby="paths-heading">
-            <div className="section-intro"><span className="kicker">Or pick a way in</span><h2 id="paths-heading">Other ways to start</h2><p>The box above works for anything. These are for when you already know the kind of help you want.</p></div>
+            <h3 className="home-paths-title" id="paths-heading">Other ways to start on your own</h3>
             <div className="path-grid">
               {[
                 ["build", "Put a website or app online", "Six short steps, from an idea to your own web address. You copy and paste the commands, and an AI app explains anything that goes wrong.", "/build", "build", "Start the six steps"],
@@ -655,12 +693,12 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
             </div>
           </section>
           <section className="home-proof" aria-labelledby="proof-heading">
-            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Step In The Ring</span><h2 id="proof-heading">Made here.</h2></div></div><p>Real projects that started as a rough idea and are live today.</p></div>
+            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Our work</span><h2 id="proof-heading">Made here.</h2></div></div><p>Real projects we planned, built and still run ourselves. They&apos;re live today.</p></div>
             <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true">{p.emoji}</span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit {p.name} ↗</span><span className="project-endorsement"><RingMark />Built with Step In The Ring</span></a>)}</div>
-            <div className="home-proof-links"><Link className="text-link" href="/builds">See everything made here&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
+            <div className="home-proof-links"><Link className="text-link" href="/work">See our work and what each one shows&nbsp; →</Link><Link className="text-link" href="/builds">See everything made here&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
           {/* Help for someone who is unsure, and the plain facts about AI that
-              a first-timer deserves to hear from us. Nothing here is for sale. */}
+              a first-timer deserves to hear from us. */}
           <section className="home-help" aria-labelledby="help-heading">
             <div className="section-intro"><span className="kicker">Want a hand?</span><h2 id="help-heading">Help and feedback</h2></div>
             <ul className="help-list">
@@ -669,7 +707,7 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
               <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>
-          <section className="home-final"><RingMark /><h2>Ready to step in?</h2><p>Start with a rough idea in the box at the top of this page.</p><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start&nbsp; ↑</button></section>
+          <section className="home-final"><RingMark /><h2>{BRAND_INVITE}</h2><p>Start on your own in the box at the top of this page, or tell us what you have in mind.</p><div className="home-final-go"><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start on your own&nbsp; ↑</button><Link className="btn btn-ghost btn-big" href="/request">Request a project</Link></div></section>
         </div>
       </main>
     );

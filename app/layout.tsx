@@ -11,7 +11,7 @@ import Script from "next/script";
 export const metadata: Metadata = {
   metadataBase: new URL("https://stepinthering.com"),
   title: {
-    default: "Step In The Ring: make it with AI, no coding needed",
+    default: "Step In The Ring: bring your idea to life",
     template: "%s | Step In The Ring",
   },
   description: BRAND_ONE_LINE,
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Step In The Ring",
     description:
-      "A workspace for making things with AI: websites, games, stories, study guides, family cookbooks and more. No coding. Part of Open Mirror LLC.",
+      "Bring your idea to life. Make it yourself with AI and no coding, or hire us to build your website or web app. Part of Open Mirror LLC.",
     url: "https://stepinthering.com",
     siteName: "Step In The Ring",
     type: "website",

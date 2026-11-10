@@ -43,6 +43,10 @@ const PUBLIC_ROUTES = [
   "/membership",
   "/members/login",
   "/owner",
+  // Build it with us (2026-11-10): the services, the portfolio, the request form.
+  "/services",
+  "/work",
+  "/request",
 ];
 
 function isProtectedRoute(pathname: string): boolean {

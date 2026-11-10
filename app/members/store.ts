@@ -147,6 +147,25 @@ export interface SprintApplicationRecord {
   createdAt: string;
 }
 
+// A request for paid work (Build it with us, 2026-11-10). Not tied to an
+// account. Contact details are typed by the person themselves and are read
+// only by the owner. Never logged, never sent to analytics.
+export type ProjectInquiryStatus = "new" | "replied" | "closed";
+export interface ProjectInquiryRecord {
+  id: string;
+  name: string;
+  email: string;
+  organization: string;
+  siteUrl: string;
+  projectType: string;
+  service: string;
+  description: string;
+  timeline: string;
+  budget: string;
+  status: ProjectInquiryStatus;
+  createdAt: string;
+}
+
 export interface MemberStore {
   // users
   createUser(u: UserRecord): Promise<void>;
@@ -193,6 +212,9 @@ export interface MemberStore {
   createSprintApplication(a: SprintApplicationRecord): Promise<void>;
   listSprintApplications(): Promise<SprintApplicationRecord[]>;
   updateSprintApplicationStatus(id: string, status: SprintApplicationStatus): Promise<void>;
+  // Build it with us: project requests
+  createProjectInquiry(i: ProjectInquiryRecord): Promise<void>;
+  listProjectInquiries(): Promise<ProjectInquiryRecord[]>;
 }
 
 // ── In-memory implementation (tests / no-database dev) ──────────────────────
@@ -208,6 +230,7 @@ export class MemoryMemberStore implements MemberStore {
   feedback = new Map<string, FeedbackRecord>();
   visitorFeedback = new Map<string, VisitorFeedbackRecord>();
   sprintApplications = new Map<string, SprintApplicationRecord>();
+  projectInquiries = new Map<string, ProjectInquiryRecord>();
 
   async createUser(u: UserRecord) {
     if ([...this.users.values()].some((x) => x.email === u.email)) {
@@ -332,6 +355,12 @@ export class MemoryMemberStore implements MemberStore {
     const existing = this.sprintApplications.get(id);
     if (existing) this.sprintApplications.set(id, { ...existing, status });
   }
+  async createProjectInquiry(i: ProjectInquiryRecord) {
+    this.projectInquiries.set(i.id, { ...i });
+  }
+  async listProjectInquiries() {
+    return [...this.projectInquiries.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
 }
 
 // ── Postgres implementation ─────────────────────────────────────────────────
@@ -348,6 +377,23 @@ export const VISITOR_FEEDBACK_DDL = `CREATE TABLE IF NOT EXISTS visitor_feedback
 );
 CREATE INDEX IF NOT EXISTS visitor_feedback_created_idx ON visitor_feedback(created_at);
 CREATE INDEX IF NOT EXISTS member_events_created_idx ON member_events(created_at);`;
+
+/** Same statement as migrations/006_project_inquiries.sql (a test keeps them equal). */
+export const PROJECT_INQUIRIES_DDL = `CREATE TABLE IF NOT EXISTS project_inquiries (
+  id            text PRIMARY KEY,
+  name          text NOT NULL,
+  email         text NOT NULL,
+  organization  text NOT NULL DEFAULT '',
+  site_url      text NOT NULL DEFAULT '',
+  project_type  text NOT NULL,
+  service       text NOT NULL,
+  description   text NOT NULL,
+  timeline      text NOT NULL,
+  budget        text NOT NULL DEFAULT '',
+  status        text NOT NULL DEFAULT 'new',
+  created_at    timestamptz NOT NULL
+);
+CREATE INDEX IF NOT EXISTS project_inquiries_created_idx ON project_inquiries(created_at);`;
 // Schema in migrations/001_membership.sql. Uses the pg Pool lazily so builds
 // and tests never open a connection.
 
@@ -665,6 +711,42 @@ export class PgMemberStore implements MemberStore {
   }
   async updateSprintApplicationStatus(id: string, status: SprintApplicationStatus) {
     await this.pool.query(`UPDATE sprint_applications SET status=$2 WHERE id=$1`, [id, status]);
+  }
+
+  // migrations/006_project_inquiries.sql, applied on first use. Additive only.
+  private inquiryTable: Promise<unknown> | null = null;
+  private ensureInquiryTable() {
+    this.inquiryTable ??= this.pool.query(PROJECT_INQUIRIES_DDL).catch((err) => {
+      this.inquiryTable = null;
+      throw err;
+    });
+    return this.inquiryTable;
+  }
+  async createProjectInquiry(i: ProjectInquiryRecord) {
+    await this.ensureInquiryTable();
+    await this.pool.query(
+      `INSERT INTO project_inquiries (id, name, email, organization, site_url, project_type, service, description, timeline, budget, status, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+      [i.id, i.name, i.email, i.organization, i.siteUrl, i.projectType, i.service, i.description, i.timeline, i.budget, i.status, i.createdAt],
+    );
+  }
+  async listProjectInquiries() {
+    await this.ensureInquiryTable();
+    const { rows } = await this.pool.query(`SELECT * FROM project_inquiries ORDER BY created_at DESC LIMIT 500`);
+    return rows.map((r) => ({
+      id: String(r.id),
+      name: String(r.name),
+      email: String(r.email),
+      organization: String(r.organization ?? ""),
+      siteUrl: String(r.site_url ?? ""),
+      projectType: String(r.project_type),
+      service: String(r.service),
+      description: String(r.description),
+      timeline: String(r.timeline),
+      budget: String(r.budget ?? ""),
+      status: (r.status === "replied" || r.status === "closed" ? r.status : "new") as ProjectInquiryStatus,
+      createdAt: String(r.created_at),
+    }));
   }
 }
 

@@ -75,6 +75,7 @@ export default async function EverythingPage() {
         <Jump
           items={[
             { label: "Create", href: "#create" },
+            { label: "Build it with us", href: "#hire" },
             { label: "Tools & engines", href: "#engines" },
             { label: "Made here", href: "#builds" },
             { label: "Library", href: "#library" },
@@ -93,6 +94,10 @@ export default async function EverythingPage() {
         note="Where you say what you want to make. Both of these are the same flow."
       >
         <PageRows pages={pagesInGroup("create")} />
+      </Band>
+
+      <Band id="hire" title="Build it with us" note="Hire us to plan, build and launch a website or web app. A written quote comes before any work.">
+        <PageRows pages={pagesInGroup("hire")} />
       </Band>
 
       <Band

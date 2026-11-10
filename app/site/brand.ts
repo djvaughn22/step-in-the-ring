@@ -24,3 +24,9 @@ export const BRAND_ONE_LINE =
 
 export const WHY_THE_NAME =
   "Why the name? Stepping in the ring means getting in and doing the thing yourself instead of watching from the seats. You and the AI are on the same side.";
+
+// Owner brief, 2026-11-10: Step In The Ring is also where you hire us to build
+// it. These two lines lead the home page; the workspace lines above still
+// describe the build-it-yourself side, unchanged.
+export const BRAND_PROMISE = "Bring your idea to life.";
+export const BRAND_INVITE = "Have an idea? Let's build it.";

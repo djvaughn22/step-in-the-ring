@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Sheet, PageHead, Section } from "../site/ui";
 import { BRAND_ONE_LINE, WHY_THE_NAME } from "../site/brand";
+import { INDEPENDENCE_NOTICE } from "../services/offers";
 
 export const metadata: Metadata = {
   title: "About StepInTheRing",
   description:
-    "A workspace for making things with AI. Say what you want in your own words, no coding needed, and keep telling the AI what to change until it's right.",
+    "Bring your idea to life: make it yourself with AI and no coding, or hire Open Mirror LLC to build your website or web app with you.",
 };
 
 export default function AboutPage() {
@@ -19,8 +20,25 @@ export default function AboutPage() {
             Step In The Ring<span style={{ color: "var(--gold)" }}>.com</span>
           </>
         }
-        lead={`A workspace for making things with AI. ${BRAND_ONE_LINE}`}
+        lead={`Bring your idea to life. Make it yourself here, or hire us to build it with you. ${BRAND_ONE_LINE}`}
       />
+
+      <Section title="Two ways to build">
+        <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
+          <li><strong style={{ color: "var(--text)" }}>Build it yourself.</strong> The workspace, tools and engines on this site, with no account and no coding.</li>
+          <li><strong style={{ color: "var(--text)" }}>Build it with us.</strong> We plan, design, build and launch websites and web apps for people, small businesses and organizations. <Link href="/services">See services</Link> or <Link href="/request">request a project</Link>.</li>
+        </ul>
+      </Section>
+
+      <Section title="Who builds it">
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: 0 }}>
+          Step In The Ring is run by Open Mirror LLC, a small independent company. The person
+          behind it has spent decades in operations, technology and digital product management,
+          including leading the teams that build and ship software. Modern development tools help
+          us work quickly; every project is still planned, checked and tested by a person. You can
+          see <Link href="/work">sites we&rsquo;ve built and run ourselves</Link>.
+        </p>
+      </Section>
 
       <Section title="What you can do here">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
@@ -95,6 +113,8 @@ export default function AboutPage() {
           .
         </p>
       </Section>
+
+      <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--muted)", margin: "14px 0 0" }}>{INDEPENDENCE_NOTICE}</p>
 
       <p style={{ marginTop: 34 }}>
         <Link href="/everything" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>

@@ -16,6 +16,7 @@ const ROOMS = [
   { href: "/owner/members", emoji: "👥", name: "Manage Members", what: "Approve or revoke member accounts." },
   { href: "/owner/tester-codes", emoji: "🎟️", name: "Tester codes", what: "Create, view and revoke private-beta membership codes." },
   { href: "/owner/usage", emoji: "📈", name: "Usage", what: "Visitors, return visits, ideas shaped and engine runs, by day. Counts only." },
+  { href: "/owner/inquiries", emoji: "📨", name: "Project requests", what: "Every request to build something with us, newest first." },
   { href: "/owner/feedback", emoji: "🗣️", name: "Tester feedback", what: "Every note from testers, with or without an account, newest first." },
   { href: "/owner/sprint-applications", emoji: "🥊", name: "Sprint applications", what: "Every application to the paid Five Hour Sprint service, newest first." },
 ];
