@@ -123,13 +123,6 @@ export const SITE_PAGES: SitePage[] = [
     inNav: true,
   },
   {
-    path: "/work",
-    name: "Our work",
-    what: "Live sites we planned, built and run ourselves, and what each one shows we can build for you.",
-    access: "public",
-    group: "hire",
-  },
-  {
     path: "/request",
     name: "Request a project",
     what: "Tell us what you have in mind. We reply by email with questions or a written quote.",
@@ -219,7 +212,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/builds",
     name: "Made here",
-    what: "The showroom: live websites, tools and games made here. Open any of them.",
+    what: "Our work: live websites, tools and games Open Mirror built and runs, grouped, with what each one shows.",
     access: "public",
     group: "builds",
     inNav: true,

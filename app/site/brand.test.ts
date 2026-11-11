@@ -10,7 +10,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import RingApp from "../create/RingApp";
 import { BRAND_ONE_LINE, BRAND_SIGNATURE, WHY_THE_NAME } from "./brand";
-import { OWNER_BUILDS } from "../builds/owner-builds";
+import { WORK } from "../work/work";
 import { metadata } from "../layout";
 
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(), usePathname: () => "/" }));
@@ -98,7 +98,7 @@ describe("the name is a place you step into, never a fight", () => {
   });
 
   it("the showroom card for this site lost its boxing glove", () => {
-    const self = OWNER_BUILDS.find((b) => b.name === "Step In The Ring");
+    const self = WORK.find((b) => b.name === "Step In The Ring");
     expect(self?.emoji).not.toBe("🥊");
   });
 });

@@ -27,7 +27,7 @@ export default function ServicesPage() {
       >
         <div className="svc-mast-go">
           <Link className="btn btn-gold" href="/request">Request a project</Link>
-          <Link className="text-link" href="/work">See our work&nbsp; →</Link>
+          <Link className="text-link" href="/builds">See our work&nbsp; →</Link>
         </div>
       </Masthead>
 

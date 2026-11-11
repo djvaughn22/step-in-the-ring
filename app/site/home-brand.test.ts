@@ -8,7 +8,7 @@ import RingMark from "./RingMark";
 import RingHeader from "./RingHeader";
 import QuietFooterLink from "./QuietFooterLink";
 import RingApp from "../create/RingApp";
-import { ECOSYSTEM, homepageProof } from "./registry";
+import { FEATURED_WORK } from "../work/work";
 
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(), usePathname: () => "/" }));
 let root: Root | undefined;
@@ -42,17 +42,26 @@ describe("official homepage identity", () => {
       expect(html).toContain(component === RingHeader ? 'href="/whats-built"' : 'href="/members/login"');
     }
   });
-  it("gives every project its registry identity and a separate maker endorsement", () => {
+  // Nov 10: the home cards come from the one Our work list (app/work/work.ts):
+  // the featured few, with the iDontCry sports desk and arcade among them, and
+  // one link to all of it on Made here. The "Built with Step In The Ring"
+  // badge is gone; these are Open Mirror's own projects, not things this
+  // site's tools made.
+  it("shows the featured projects and one way to see them all", () => {
     const doc = home();
-    const cards = [...doc.querySelectorAll<HTMLAnchorElement>(".project-card")];
-    expect(cards).toHaveLength(3);
-    homepageProof(ECOSYSTEM).primary.forEach((project, i) => {
-      expect(cards[i].href).toBe(`${project.liveUrl}/`);
-      expect(cards[i].querySelector(".project-icon")?.textContent).toBe(project.emoji);
-      expect(cards[i].querySelector(".project-icon img")).toBeNull();
-      expect(cards[i].querySelector(".project-endorsement img")?.getAttribute("src")).toBe("/icons/ring-mark.svg");
-      expect(cards[i].textContent).toContain(`Visit ${project.name}`);
+    const cards = [...doc.querySelectorAll(".home-proof .pf-card")];
+    expect(cards).toHaveLength(FEATURED_WORK.length);
+    FEATURED_WORK.forEach((w, i) => {
+      expect(cards[i].querySelector("h3")?.textContent).toBe(w.name);
+      expect(cards[i].querySelector(".pf-icon")?.textContent).toBe(w.emoji);
+      const visit = cards[i].querySelector<HTMLAnchorElement>(".pf-visit")!;
+      expect(visit.getAttribute("href")).toBe(w.href);
+      expect(visit.getAttribute("target")).toBe("_blank");
     });
+    expect(doc.querySelector(".project-endorsement")).toBeNull();
+    expect(doc.querySelectorAll('.home-proof a[href="/builds"]')).toHaveLength(1);
+    expect(doc.querySelector('a[href="/work"]')).toBeNull();
+    expect(doc.querySelector(".home-proof")?.textContent).toContain("not client work");
   });
   // Oct 2026 simplification: each thing appears once. The idea box is the
   // hero, so no path card repeats it; engines are one path card, not a

@@ -1,6 +1,6 @@
 # Build it with us: services launch (2026-11-10)
 
-Read this before changing `/services`, `/work`, `/request` or the inquiry flow.
+Read this before changing `/services`, Made here (`/builds`), `/request` or the inquiry flow.
 Business planning material (economics, scenarios, conflict screening, Stripe
 setup, templates) is private and lives in the git-ignored `private/business/`
 folder on the owner's machine, because this repository is public.
@@ -14,9 +14,13 @@ folder on the owner's machine, because this repository is public.
 - **`/services`:** four introductory services, how it works, what's not
   included, optional care plans (described, not sold), a Build it yourself
   door, and the independence notice.
-- **`/work`:** six of Open Mirror's own live projects and what each shows. The
-  page says they are not client work. Entries must be live in the registry's
-  `ECOSYSTEM` (a test enforces it).
+- **Made here (`/builds`):** the portfolio. Every live, presentable Open
+  Mirror project in four groups, from one list in `app/work/work.ts`, with the
+  real games and sports pages inside iDontCry named and linked. The page says
+  they are Open Mirror's own projects, not client work. `/work` redirects here
+  (Nov 10: the old Our work and Made here lists disagreed). Outside addresses
+  must belong to a live `ECOSYSTEM` project (a test enforces it). The home page
+  shows the entries marked `featured`.
 - **`/request`:** the project request form.
 - **`/owner/inquiries`:** owner-only list of requests (also a tile in the owner hub).
 - **Nav:** Create · Services · How it works · Tools · Your work · Made here.
@@ -29,7 +33,7 @@ folder on the owner's machine, because this repository is public.
 | Thing | File |
 |---|---|
 | Every service price, the care plans, form choices, the notice | `app/services/offers.ts` (the only file the price guard allows) |
-| Portfolio entries | `app/work/work.ts` |
+| Portfolio entries (Made here and the home page) | `app/work/work.ts`, cards in `app/work/Portfolio.tsx` |
 | Validation and the owner email | `app/members/projectInquiry.ts` |
 | API | `app/api/inquiry/route.ts` |
 | Storage | `project_inquiries` table; `PROJECT_INQUIRIES_DDL` in `app/members/store.ts`, created on first use; `migrations/006_project_inquiries.sql` |

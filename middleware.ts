@@ -43,9 +43,9 @@ const PUBLIC_ROUTES = [
   "/membership",
   "/members/login",
   "/owner",
-  // Build it with us (2026-11-10): the services, the portfolio, the request form.
+  // Build it with us (2026-11-10): the services and the request form. The
+  // portfolio is Made here (/builds); /work redirects there.
   "/services",
-  "/work",
   "/request",
 ];
 

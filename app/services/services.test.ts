@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { BUDGETS, CARE_PLANS, CARE_TERMS, INDEPENDENCE_NOTICE, NOT_INCLUDED, OFFERS, SERVICE_CHOICES } from "./offers";
-import { WORK, workWithIdentity } from "../work/work";
+import { WORK, WORK_GROUPS, FEATURED_WORK, ecosystemFor, isExternal } from "../work/work";
 
 const visible = (path: string) => readFileSync(path, "utf8").replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
 
@@ -41,7 +41,7 @@ describe("Build it with us: honest offers", () => {
   });
 
   it("no page sells, subscribes or checks out", () => {
-    for (const path of ["app/services/page.tsx", "app/work/page.tsx", "app/request/page.tsx", "app/request/RequestForm.tsx"]) {
+    for (const path of ["app/services/page.tsx", "app/builds/OwnerBuildsShowroom.tsx", "app/work/Portfolio.tsx", "app/request/page.tsx", "app/request/RequestForm.tsx"]) {
       const src = visible(path);
       expect(src, path).not.toMatch(/stripe|checkout|subscribe|buy now|add to cart/i);
       expect(src, path).not.toMatch(/revolutionary|game.?chang|AI[- ]powered|10x|magic/i);
@@ -50,14 +50,42 @@ describe("Build it with us: honest offers", () => {
 });
 
 describe("Our work: real projects, labelled as our own", () => {
-  it("every entry is a live project in the registry", () => {
-    expect(workWithIdentity()).toHaveLength(WORK.length);
+  // Nov 10: Our work and Made here were two lists that disagreed. One list now
+  // (app/work/work.ts), shown on Made here; /work redirects there.
+  it("every outside address belongs to a live project in the registry", () => {
+    for (const w of WORK) {
+      for (const href of [w.href, ...(w.links ?? []).map((l) => l.href)]) {
+        expect(href, w.name).toMatch(/^(https:\/\/|\/)/);
+        if (isExternal(href)) expect(ecosystemFor(href)?.status, `${w.name} ${href}`).toBe("live");
+      }
+    }
   });
 
-  it("says plainly that these are not client projects, and invents no numbers", () => {
-    const page = visible("app/work/page.tsx");
-    expect(page).toContain("not client work");
-    const shown = JSON.stringify(WORK);
-    expect(shown).not.toMatch(/\d{2,}|client|customer|testimonial|users|visitors/i);
+  it("lists every live, presentable sister site, and nothing unfinished", () => {
+    const names = WORK.map((w) => w.name);
+    for (const n of ["WatchedNotWatched", "OpenDoku", "PleaseBeReady", "CrossHeartPray", "TheDJCares", "DontCloneMeTom.com", "Open Mirror"]) expect(names).toContain(n);
+    expect(names).not.toContain("WhatAmIAI");
+    expect(new Set(names).size).toBe(names.length);
+    expect(new Set(WORK.map((w) => w.group))).toEqual(new Set(WORK_GROUPS.map((g) => g.id)));
+  });
+
+  it("names the iDontCry sports pages and games instead of hiding them", () => {
+    const sports = WORK.find((w) => w.name === "iDontCry Sports Desk")!;
+    const arcade = WORK.find((w) => w.name === "iDontCry Family Arcade")!;
+    expect(sports.links?.map((l) => l.label)).toEqual(expect.arrayContaining(["Sports Desk", "Add a team"]));
+    expect(arcade.links?.map((l) => l.label)).toEqual(expect.arrayContaining(["Football", "Baseball", "Skiing", "Track & Field", "Circuit"]));
+    expect(FEATURED_WORK.map((w) => w.name)).toEqual(expect.arrayContaining(["iDontCry Sports Desk", "iDontCry Family Arcade"]));
+    expect(FEATURED_WORK.length).toBeLessThanOrEqual(4);
+  });
+
+  it("keeps CrossHeartPray as the one Outreach card (owner, Oct 8)", () => {
+    expect(WORK.filter((w) => w.tag === "Outreach").map((w) => w.name)).toEqual(["CrossHeartPray"]);
+  });
+
+  it("says plainly that these are not client work, and invents no numbers", () => {
+    expect(visible("app/builds/OwnerBuildsShowroom.tsx")).toContain("not client work");
+    expect(visible("app/create/RingApp.tsx")).toContain("not client work");
+    const words = JSON.stringify(WORK.map((w) => [w.name, w.what, w.shows, w.links]));
+    expect(words).not.toMatch(/\d{2,}|client|customer|testimonial|users|visitors/i);
   });
 });

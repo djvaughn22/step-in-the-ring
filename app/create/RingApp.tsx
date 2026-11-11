@@ -35,6 +35,8 @@ import { BRAND_INVITE, BRAND_PROMISE, BRAND_SIGNATURE, WHY_THE_NAME } from "../s
 import { OFFERS } from "../services/offers";
 import { takeArrival, withoutArrivalParams } from "../site/arrival";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
+import { WorkGrid } from "../work/Portfolio";
+import { FEATURED_WORK, WORK } from "../work/work";
 import { HOME_EXAMPLES, HOME_STARTERS, QUICK_START, STARTING_POINT_GROUPS, STARTING_POINTS, isUnfinishedStarter } from "./starting-points";
 import { displayName, featuredCapabilities } from "../vnext/capabilities";
 import {
@@ -627,7 +629,7 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
                   <em>Start with your idea&nbsp;<span className="hero-path-arrow" aria-hidden="true">→</span></em>
                 </button>
               </div>
-              <p className="hero-status">No account needed to build it yourself. <Link href="/whats-built">See what works today&nbsp;→</Link></p>
+              <p className="hero-status">Not sure yet? <Link href="/whats-built">See what works today&nbsp;→</Link></p>
             </div>
             <div className="home-entry" id="start">{theBox}</div>
           </section>
@@ -654,8 +656,14 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
             <div className="hire-go">
               <Link className="btn btn-gold" href="/request">Request a project</Link>
               <Link className="text-link" href="/services">What&apos;s included&nbsp; →</Link>
-              <Link className="text-link" href="/work">See our work&nbsp; →</Link>
             </div>
+          </section>
+          {/* Our work, right after the services: a few featured projects from
+              the one list in app/work/work.ts, and one way to see them all. */}
+          <section className="home-proof" aria-labelledby="proof-heading">
+            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Our work</span><h2 id="proof-heading">Made here.</h2></div></div><p>Live sites and games we planned, built and still run ourselves. They&apos;re Open Mirror&apos;s own projects, not client work.</p></div>
+            <WorkGrid items={FEATURED_WORK} compact />
+            <div className="home-proof-links"><Link className="text-link" href="/builds">See all {WORK.length} projects and what each one shows&nbsp; →</Link><Link className="text-link" href="/everything">Every page on this site&nbsp; →</Link></div>
           </section>
           {/* What the back and forth looks like, for four very different people.
               Concrete on purpose: nobody is told who this is for, they see
@@ -691,11 +699,6 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
                 </Link>
               ))}
             </div>
-          </section>
-          <section className="home-proof" aria-labelledby="proof-heading">
-            <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Our work</span><h2 id="proof-heading">Made here.</h2></div></div><p>Real projects we planned, built and still run ourselves. They&apos;re live today.</p></div>
-            <div className="featured-projects">{HOME_PROOF_PRIMARY.map((p) => <a key={p.name} className="project-card" href={p.liveUrl} target="_blank" rel="noopener noreferrer" style={{ "--tile-accent": p.accent } as React.CSSProperties}><span className="project-icon" aria-hidden="true">{p.emoji}</span><span className="project-name">{p.name}</span><span className="project-what">{p.what}</span><span className="project-link">Visit {p.name} ↗</span><span className="project-endorsement"><RingMark />Built with Step In The Ring</span></a>)}</div>
-            <div className="home-proof-links"><Link className="text-link" href="/work">See our work and what each one shows&nbsp; →</Link><Link className="text-link" href="/builds">See everything made here&nbsp; →</Link><Link className="text-link" href="/everything">See the site directory&nbsp; →</Link></div>
           </section>
           {/* Help for someone who is unsure, and the plain facts about AI that
               a first-timer deserves to hear from us. */}

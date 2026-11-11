@@ -36,7 +36,7 @@ export default function AboutPage() {
           behind it has spent decades in operations, technology and digital product management,
           including leading the teams that build and ship software. Modern development tools help
           us work quickly; every project is still planned, checked and tested by a person. You can
-          see <Link href="/work">sites we&rsquo;ve built and run ourselves</Link>.
+          see <Link href="/builds">sites we&rsquo;ve built and run ourselves</Link>.
         </p>
       </Section>
 
