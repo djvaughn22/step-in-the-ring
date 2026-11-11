@@ -18,8 +18,13 @@
 // 2026-11-03 (owner brief, footer cleanup): About and Contact left this row —
 // the family footer directly below carries both, so they showed twice.
 //
-// 2026-11-10 (Build it with us): Services, Our work and Request a project
-// joined the row, and the independence notice sits at the bottom of it.
+// 2026-11-10 (Build it with us): Services and Request a project joined.
+//
+// 2026-11-10 later (owner: "fix wonky disclaimer and footer"): the full
+// independence notice moved to About's Disclaimer section. This footer keeps
+// a one-line independent-project note and a link to it. Links sit in three
+// labelled groups, and the block lines up with the page instead of floating
+// as a centred stack.
 //
 // Deliberately NOT added to app/OpenMirrorFooter.tsx: that file is the
 // canonical, family-wide shared footer (synced from the Open Mirror hub
@@ -30,22 +35,44 @@
 import Link from "next/link";
 import RingMark from "./RingMark";
 import TesterFeedback from "./TesterFeedback";
-import { INDEPENDENCE_NOTICE } from "../services/offers";
+
+const GROUPS: { label: string; links: [string, string][] }[] = [
+  { label: "Build it with us", links: [["/services", "Services"], ["/request", "Request a project"], ["/builds", "Made here"]] },
+  { label: "Build it yourself", links: [["/create", "Create"], ["/how", "How it works"], ["/tools", "Tools"], ["/engines", "Engines"], ["/products/ready-to-build", "Ready to Build"]] },
+  { label: "This site", links: [["/library", "Your work"], ["/whats-built", "What works today"], ["/everything", "Everything on this site"], ["/members/login", "Tester sign-in"]] },
+];
 
 export default function QuietFooterLink() {
   return (
     <div className="site-quiet-footer">
-      <Link href="/" className="footer-brand"><RingMark />Step In The Ring</Link>
-      <nav aria-label="Step In The Ring footer"><Link href="/create">Create</Link><Link href="/services">Services</Link><Link href="/request">Request a project</Link><Link href="/how">How it works</Link><Link href="/tools">Tools</Link><Link href="/engines">Engines</Link><Link href="/library">Your work</Link><Link href="/builds">Made here</Link><Link href="/products/ready-to-build">Ready to Build</Link><Link href="/whats-built">What works today</Link></nav>
-      <p>
-        <Link href="/everything">Everything on this site</Link> · <Link href="/members/login">Tester sign-in</Link>
-      </p>
-      <p className="site-quiet-footer-beta">
-        Open beta. Keep a copy of anything important. Something off, or something you loved?
-      </p>
-      <TesterFeedback title="Send feedback, no account needed" />
-      {/* Owner brief, 2026-11-10: word for word, on every page. */}
-      <p className="site-quiet-footer-independence">{INDEPENDENCE_NOTICE}</p>
+      <div className="sqf-in">
+        <div className="sqf-about">
+          <Link href="/" className="footer-brand"><RingMark />Step In The Ring</Link>
+          <p className="sqf-note">
+            An independent Open Mirror LLC project, run separately from the owner&apos;s employment and not
+            affiliated with or endorsed by any employer.{" "}
+            <Link href="/about#disclaimer" className="sqf-note-link">Read the disclaimer</Link>
+          </p>
+        </div>
+        <nav className="sqf-groups" aria-label="Step In The Ring footer">
+          {GROUPS.map((g) => (
+            <div className="sqf-group" key={g.label}>
+              <p className="sqf-label">{g.label}</p>
+              <ul>
+                {g.links.map(([href, label]) => (
+                  <li key={href}><Link href={href}>{label}</Link></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+        <div className="sqf-beta">
+          <p className="site-quiet-footer-beta">
+            Open beta. Keep a copy of anything important. Something off, or something you loved?
+          </p>
+          <TesterFeedback title="Send feedback, no account needed" />
+        </div>
+      </div>
     </div>
   );
 }

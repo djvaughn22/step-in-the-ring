@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Band, Masthead, Sheet } from "../site/ui";
-import { CARE_PLANS, CARE_TERMS, INDEPENDENCE_NOTICE, NOT_INCLUDED, OFFERS } from "./offers";
+import { CARE_PLANS, CARE_TERMS, NOT_INCLUDED, OFFERS } from "./offers";
 
 export const metadata: Metadata = {
   title: "Services: websites and web apps, built with you",
@@ -118,7 +118,6 @@ export default function ServicesPage() {
         <Link className="btn btn-gold btn-big" href="/request">Request a project</Link>
       </section>
 
-      <p className="svc-independence">{INDEPENDENCE_NOTICE}</p>
     </Sheet>
   );
 }

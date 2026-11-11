@@ -30,8 +30,21 @@ describe("Build it with us: honest offers", () => {
     expect(INDEPENDENCE_NOTICE).toBe(
       "Step In The Ring is independently owned and operated by Open Mirror LLC. All services are provided outside other employment, using independent resources, and are not affiliated with or endorsed by any employer. We do not undertake projects that conflict with existing employment obligations.",
     );
-    for (const path of ["app/site/QuietFooterLink.tsx", "app/about/page.tsx", "app/services/page.tsx"]) {
-      expect(readFileSync(path, "utf8"), path).toContain("INDEPENDENCE_NOTICE");
+    // Owner, 2026-11-10 later: the full notice lives once, in About's
+    // Disclaimer. The footer carries a short note that links there, and no
+    // other page repeats it.
+    const about = readFileSync("app/about/page.tsx", "utf8");
+    expect(about).toContain("{INDEPENDENCE_NOTICE}");
+    expect(about).toMatch(/id="disclaimer"/);
+    const footer = readFileSync("app/site/QuietFooterLink.tsx", "utf8");
+    expect(footer).not.toContain("INDEPENDENCE_NOTICE");
+    expect(footer).toContain('href="/about#disclaimer"');
+    expect(footer).toMatch(/independent Open Mirror LLC project/);
+    expect(footer).toMatch(/not\s+affiliated with or endorsed by any employer/);
+    for (const path of ["app/services/page.tsx", "app/request/page.tsx", "app/builds/OwnerBuildsShowroom.tsx", "app/create/RingApp.tsx"]) {
+      const src = readFileSync(path, "utf8");
+      expect(src, path).not.toContain("INDEPENDENCE_NOTICE");
+      expect(src, path).not.toMatch(/independently owned and operated/);
     }
   });
 

@@ -1018,8 +1018,8 @@ html[data-om-theme="light"] .gate input { background: #ffffff; border-color: #cb
 body { font-synthesis-weight: none; }
 
 /* ── Stage: use the actual screen ── */
-.page { width: min(var(--stage), 100%); max-width: none; margin: 0 auto; padding: 0 28px 96px; }
-@media (max-width: 700px) { .page { padding: 0 18px 72px; } }
+.page { width: min(var(--stage), 100%); max-width: none; margin: 0 auto; padding: 0 28px 64px; }
+@media (max-width: 700px) { .page { padding: 0 18px 48px; } }
 
 .rule { height: 1px; background: var(--line); border: 0; margin: 0; }
 
@@ -2689,30 +2689,31 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
    the 2026-08-30 nav simplification. Sitewide, below the fold, easy to
    miss on purpose: it exists for transparency and compatibility, not to
    compete with the primary nav it was removed from. ── */
-.site-quiet-footer {
-  text-align: center;
-  padding: 22px 16px 0;
+.site-quiet-footer { border-top: 1px solid var(--line2); }
+.sqf-in { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 36px 0 12px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 2fr); gap: 28px 48px; text-align: left; }
+.site-quiet-footer a { color: var(--muted); text-decoration: none; }
+.site-quiet-footer a:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+.site-quiet-footer a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+.site-quiet-footer .footer-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--text); font-size: 16px; font-weight: 800; }
+.footer-brand .ring-mark-icon { width: 36px; height: 36px; }
+.sqf-note { margin: 10px 0 0; max-width: 380px; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+.site-quiet-footer .sqf-note-link { display: inline; color: var(--accent); font-weight: 700; white-space: nowrap; }
+.sqf-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 28px; }
+.sqf-label { margin: 0 0 6px; color: var(--text); font: 700 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.sqf-group ul { margin: 0; padding: 0; list-style: none; }
+.sqf-group a { display: inline-flex; align-items: center; min-height: 36px; font-size: 14px; }
+.sqf-beta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; padding-top: 18px; border-top: 1px solid var(--line); }
+.site-quiet-footer-beta { margin: 0; color: var(--muted); font-size: 13.5px; }
+.sqf-beta .tfb { margin: 0; max-width: none; flex: 1 1 520px; }
+.sqf-beta .tfb-summary { text-align: left; }
+@media (max-width: 860px) { .sqf-in { grid-template-columns: 1fr; gap: 24px; } .sqf-note { max-width: 560px; } }
+@media (max-width: 560px) {
+  .sqf-in { width: calc(100% - 32px); padding: 28px 0 8px; }
+  .sqf-groups { grid-template-columns: 1fr 1fr; }
+  .sqf-group:last-child { grid-column: 1 / -1; }
+  .sqf-group:last-child ul { display: flex; flex-wrap: wrap; gap: 0 18px; }
+  .sqf-group a { min-height: 40px; }
 }
-.site-quiet-footer p { margin: 0 0 8px; }
-.site-quiet-footer p:last-child { margin-bottom: 0; }
-.site-quiet-footer a {
-  color: var(--dim);
-  text-decoration: none;
-}
-.site-quiet-footer a:hover { color: var(--muted); text-decoration: underline; }
-.site-quiet-footer a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.site-quiet-footer > p:first-child a {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.site-quiet-footer-beta {
-  font-size: 12px;
-  color: var(--dim);
-}
-.site-quiet-footer-beta a { font-weight: 800; color: var(--muted); }
 
 /* ── PUBLIC HOME ─────────────────────────────────────────────────────── */
 .home-page { width: min(1120px, calc(100% - 40px)); max-width: none; padding: 0; }
@@ -2773,11 +2774,6 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .how-step > span { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid var(--line2); border-radius: 4px; background: var(--panel); }
 .home-final > .ring-mark-icon { display: block; width: 56px; height: 56px; margin: 0 auto 12px; }
 .home-final .kicker { color: #70c5ff; }
-.site-quiet-footer .footer-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; color: var(--text); letter-spacing: 0; text-transform: none; }
-.footer-brand .ring-mark-icon { width: 36px; height: 36px; }
-.site-quiet-footer nav { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; }
-.site-quiet-footer a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
-.site-quiet-footer-beta { font-size: 14px; }
 /* Local accessibility treatment; the shared family footer source stays canonical. */
 .om-footer .om-footer-row a { min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; }
 .om-footer .om-footer-legal { font-size: 13px; color: var(--muted); }
@@ -2808,7 +2804,6 @@ html[data-om-theme="light"] .btn-primary:hover { background: #0E46A0; }
 .ring-bar .om-theme-btn { min-width: 44px; min-height: 44px !important; }
 .home-entry .startbox-eg, .home-entry .startbox-eg button { font-size: 14px; }
 .home-entry .startbox-eg button { display: inline-flex; align-items: center; min-height: 44px; }
-.site-quiet-footer a { min-width: 44px; justify-content: center; }
 .project-icon { background: color-mix(in srgb, var(--tile-accent) 24%, #eaf1f8); }
 html[data-om-theme="light"] .home-final h2 { color: #fff !important; }
 
@@ -3116,7 +3111,6 @@ textarea.tfb-input { resize: vertical; min-height: 84px; }
 .svc-final h2 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -.03em; }
 .svc-final p { margin: 10px auto 22px; color: var(--muted); font-size: 16px; }
 .svc-final-go { justify-content: center; margin-top: 0; }
-.svc-independence { max-width: 760px; margin: 28px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 
 
 .rq-steps { list-style: none; margin: 0 0 24px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; counter-reset: rq; }
@@ -3146,7 +3140,6 @@ html[data-om-theme="light"] .rq-field [aria-invalid="true"] { border-color: #8A5
 .rq-done .rq-fine { font-size: 13.5px; }
 .rq-after { margin-top: 22px; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
 .rq-after a { color: var(--gold); font-weight: 700; }
-.site-quiet-footer-independence { max-width: 640px; margin: 14px auto 0; color: var(--dim, var(--muted)); font-size: 12px; line-height: 1.6; }
 
 @media (max-width: 1000px) { .svc-grid, .hire-grid { grid-template-columns: 1fr 1fr; } .svc-steps { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 860px) { .svc-split { grid-template-columns: 1fr; } }

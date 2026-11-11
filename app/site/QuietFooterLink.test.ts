@@ -15,7 +15,7 @@ const omFooter = readFileSync(join(__dirname, "..", "OpenMirrorFooter.tsx"), "ut
 
 describe("QuietFooterLink", () => {
   it("links to the real /everything route", () => {
-    expect(src).toMatch(/href="\/everything"/);
+    expect(src).toMatch(/\["\/everything", "Everything on this site"\]/);
   });
 
   it("is mounted sitewide in the root layout, between the page content and the shared Open Mirror footer", () => {

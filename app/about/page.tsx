@@ -100,21 +100,29 @@ export default function AboutPage() {
         </p>
       </Section>
 
+      {/* The full disclaimer lives here, once. The site footer carries a
+          one-line note that links to it (owner, 2026-11-10). */}
       <Section title="Disclaimer">
-        <p id="disclaimer" style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: 0, scrollMarginTop: 96 }}>
-          Plans, messages, and next steps here are suggestions, and what an AI app gives you
-          back can be wrong. You decide what to make, and you&rsquo;re responsible for checking
-          it before you rely on it or share it. Open Mirror LLC and its projects are independently owned and operated.
-          They are not affiliated with, sponsored by, or endorsed by the owner&rsquo;s
-          current or former employers or their affiliates. Read the{" "}
-          <a href="https://openmirrorllc.com/disclaimer" style={{ color: "var(--gold)" }}>
-            full Open Mirror disclaimer
-          </a>
-          .
-        </p>
+        <div id="disclaimer" style={{ display: "grid", gap: 12, fontSize: 15, lineHeight: 1.65, color: "var(--muted)", scrollMarginTop: 96 }}>
+          <p style={{ margin: 0 }}>{INDEPENDENCE_NOTICE}</p>
+          <p style={{ margin: 0 }}>
+            Open Mirror LLC and its projects are not affiliated with, sponsored by, or endorsed by the
+            owner&rsquo;s current or former employers or their affiliates.
+          </p>
+          <p style={{ margin: 0 }}>
+            Plans, messages, and next steps here are suggestions, and what an AI app gives you back can
+            be wrong. You decide what to make, and you&rsquo;re responsible for checking it before you
+            rely on it or share it.
+          </p>
+          <p style={{ margin: 0 }}>
+            Read the{" "}
+            <a href="https://openmirrorllc.com/disclaimer" style={{ color: "var(--gold)" }}>
+              full Open Mirror disclaimer
+            </a>
+            .
+          </p>
+        </div>
       </Section>
-
-      <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--muted)", margin: "14px 0 0" }}>{INDEPENDENCE_NOTICE}</p>
 
       <p style={{ marginTop: 34 }}>
         <Link href="/everything" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>
