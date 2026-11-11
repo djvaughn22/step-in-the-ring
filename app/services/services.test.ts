@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { BUDGETS, CARE_PLANS, CARE_TERMS, INDEPENDENCE_NOTICE, NOT_INCLUDED, OFFERS, SERVICE_CHOICES } from "./offers";
-import { WORK, WORK_GROUPS, FEATURED_WORK, ecosystemFor, isExternal } from "../work/work";
+import { WORK, SPOTLIGHT_WORK, TILE_WORK, FEATURED_WORK, ecosystemFor, isExternal } from "../work/work";
 
 const visible = (path: string) => readFileSync(path, "utf8").replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
 
@@ -51,7 +51,7 @@ describe("Build it with us: honest offers", () => {
 
 describe("Our work: real projects, labelled as our own", () => {
   // Nov 10: Our work and Made here were two lists that disagreed. One list now
-  // (app/work/work.ts), shown on Made here; /work redirects there.
+  // (app/work/work.ts), shown on Made here as showcase tiles; /work redirects there.
   it("every outside address belongs to a live project in the registry", () => {
     for (const w of WORK) {
       for (const href of [w.href, ...(w.links ?? []).map((l) => l.href)]) {
@@ -66,13 +66,17 @@ describe("Our work: real projects, labelled as our own", () => {
     for (const n of ["WatchedNotWatched", "OpenDoku", "PleaseBeReady", "CrossHeartPray", "TheDJCares", "DontCloneMeTom.com", "Open Mirror"]) expect(names).toContain(n);
     expect(names).not.toContain("WhatAmIAI");
     expect(new Set(names).size).toBe(names.length);
-    expect(new Set(WORK.map((w) => w.group))).toEqual(new Set(WORK_GROUPS.map((g) => g.id)));
+    // Showcase tiles (owner, Nov 10): two spotlights, then two full rows of four.
+    expect(SPOTLIGHT_WORK.map((w) => w.name)).toEqual(["iDontCry Sports Desk", "iDontCry Family Arcade"]);
+    expect(TILE_WORK.length % 4).toBe(0);
+    expect(names).not.toContain("Step In The Ring");
   });
 
   it("names the iDontCry sports pages and games instead of hiding them", () => {
     const sports = WORK.find((w) => w.name === "iDontCry Sports Desk")!;
     const arcade = WORK.find((w) => w.name === "iDontCry Family Arcade")!;
-    expect(sports.links?.map((l) => l.label)).toEqual(expect.arrayContaining(["Sports Desk", "Add a team"]));
+    expect(sports.href).toBe("https://idontcry.com/sports");
+    expect(sports.links?.map((l) => l.label)).toEqual(expect.arrayContaining(["Add a team", "Explore sports"]));
     expect(arcade.links?.map((l) => l.label)).toEqual(expect.arrayContaining(["Football", "Baseball", "Skiing", "Track & Field", "Circuit"]));
     expect(FEATURED_WORK.map((w) => w.name)).toEqual(expect.arrayContaining(["iDontCry Sports Desk", "iDontCry Family Arcade"]));
     expect(FEATURED_WORK.length).toBeLessThanOrEqual(4);
@@ -85,7 +89,7 @@ describe("Our work: real projects, labelled as our own", () => {
   it("says plainly that these are not client work, and invents no numbers", () => {
     expect(visible("app/builds/OwnerBuildsShowroom.tsx")).toContain("not client work");
     expect(visible("app/create/RingApp.tsx")).toContain("not client work");
-    const words = JSON.stringify(WORK.map((w) => [w.name, w.what, w.shows, w.links]));
+    const words = JSON.stringify(WORK.map((w) => [w.name, w.line, w.links]));
     expect(words).not.toMatch(/\d{2,}|client|customer|testimonial|users|visitors/i);
   });
 });

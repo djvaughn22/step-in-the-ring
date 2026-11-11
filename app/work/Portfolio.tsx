@@ -1,39 +1,41 @@
-// The project cards, used by Made here (every group) and the home page (the
-// featured few). Every card has the same parts in the same order, and the
-// Visit link sits at the bottom of every card in a row.
+// Our work as big showcase tiles (owner, Nov 10). Made here shows all of it;
+// the home page shows the featured few with <WorkTiles>.
+//
+// Spotlight tiles carry their own small links (games, sports pages), so the
+// main link is a button-like link inside them. Grid tiles have nothing inside,
+// so the whole tile is one link: a big, easy target on a phone.
 
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { isExternal, workByGroup, type WorkItem } from "./work";
+import { ONSITE_WORK, SPOTLIGHT_WORK, TILE_WORK, isExternal, type WorkItem } from "./work";
 
-function Go({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
+function Go({ href, className, children, label }: { href: string; className?: string; children: ReactNode; label?: string }) {
   return isExternal(href) ? (
-    <a className={className} href={href} target="_blank" rel="noopener noreferrer">
+    <a className={className} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
       {children}
     </a>
   ) : (
-    <Link className={className} href={href}>
+    <Link className={className} href={href} aria-label={label}>
       {children}
     </Link>
   );
 }
 
-function visitLabel(item: WorkItem): string {
-  return isExternal(item.href) ? `Visit ${item.name}` : `Open ${item.name}`;
-}
+const accent = (item: WorkItem) => ({ "--pf-accent": item.accent }) as CSSProperties;
+const arrow = (href: string) => (isExternal(href) ? "↗" : "→");
 
-export function WorkCard({ item, compact = false }: { item: WorkItem; compact?: boolean }) {
+function Spotlight({ item }: { item: WorkItem }) {
+  const verb = item.tag === "Games" ? "Play" : "Open";
   return (
-    <article className="pf-card" style={{ "--pf-accent": item.accent } as CSSProperties}>
-      <div className="pf-top">
-        <span className="pf-icon" aria-hidden="true">{item.emoji}</span>
+    <article className="pf-spot" style={accent(item)}>
+      <div className="pf-spot-head">
+        <span className="pf-emoji" aria-hidden="true">{item.emoji}</span>
         <span className="pf-tag">{item.tag}</span>
       </div>
-      <h3>{item.name}</h3>
-      <p className="pf-what">{item.what}</p>
-      {compact ? null : <p className="pf-shows"><span>What it shows:</span> {item.shows}</p>}
-      {!compact && item.links?.length ? (
-        <ul className="pf-links" aria-label={`Inside ${item.name}`}>
+      <h2>{item.name}</h2>
+      <p>{item.line}</p>
+      {item.links?.length ? (
+        <ul className="pf-chips" aria-label={`Inside ${item.name}`}>
           {item.links.map((l) => (
             <li key={l.href}>
               <Go href={l.href}>{l.label}</Go>
@@ -41,18 +43,34 @@ export function WorkCard({ item, compact = false }: { item: WorkItem; compact?: 
           ))}
         </ul>
       ) : null}
-      <Go className="pf-visit" href={item.href}>
-        {visitLabel(item)} <span aria-hidden="true">{isExternal(item.href) ? "↗" : "→"}</span>
+      <Go className="pf-spot-go" href={item.href}>
+        {verb} {item.name.replace(/^iDontCry /, "the ")} <span aria-hidden="true">{arrow(item.href)}</span>
       </Go>
     </article>
   );
 }
 
-export function WorkGrid({ items, compact = false }: { items: WorkItem[]; compact?: boolean }) {
+export function WorkTile({ item }: { item: WorkItem }) {
   return (
-    <div className={compact || items.length === 4 ? "pf-grid pf-grid-4" : "pf-grid"}>
+    <Go className="pf-tile" href={item.href}>
+      <span className="pf-tile-band" style={accent(item)} aria-hidden="true">
+        <span className="pf-emoji">{item.emoji}</span>
+        <span className="pf-tag">{item.tag}</span>
+      </span>
+      <strong>{item.name}</strong>
+      <span className="pf-line">{item.line}</span>
+      <span className="pf-visit">
+        Visit <span aria-hidden="true">{arrow(item.href)}</span>
+      </span>
+    </Go>
+  );
+}
+
+export function WorkTiles({ items }: { items: WorkItem[] }) {
+  return (
+    <div className="pf-tiles">
       {items.map((item) => (
-        <WorkCard key={item.name} item={item} compact={compact} />
+        <WorkTile key={item.name} item={item} />
       ))}
     </div>
   );
@@ -61,15 +79,22 @@ export function WorkGrid({ items, compact = false }: { items: WorkItem[]; compac
 export default function Portfolio() {
   return (
     <div className="pf">
-      {workByGroup().map(({ group, items }) => (
-        <section key={group.id} className="pf-group" aria-labelledby={`pf-${group.id}`}>
-          <div className="pf-group-head">
-            <h2 id={`pf-${group.id}`}>{group.title}</h2>
-            <p>{group.note}</p>
-          </div>
-          <WorkGrid items={items} />
-        </section>
-      ))}
+      <div className="pf-spots">
+        {SPOTLIGHT_WORK.map((item) => (
+          <Spotlight key={item.name} item={item} />
+        ))}
+      </div>
+      <WorkTiles items={TILE_WORK} />
+      <p className="pf-onsite">
+        <span>Also on this site:</span>{" "}
+        {ONSITE_WORK.map((item, i) => (
+          <span key={item.name}>
+            {i > 0 ? " · " : null}
+            <Link href={item.href}>{item.name}</Link>, {item.line.charAt(0).toLowerCase() + item.line.slice(1, -1)}
+          </span>
+        ))}
+        .
+      </p>
     </div>
   );
 }

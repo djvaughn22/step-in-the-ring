@@ -35,8 +35,8 @@ import { BRAND_INVITE, BRAND_PROMISE, BRAND_SIGNATURE, WHY_THE_NAME } from "../s
 import { OFFERS } from "../services/offers";
 import { takeArrival, withoutArrivalParams } from "../site/arrival";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
-import { WorkGrid } from "../work/Portfolio";
-import { FEATURED_WORK, WORK } from "../work/work";
+import { WorkTiles } from "../work/Portfolio";
+import { FEATURED_WORK, SHOWCASE_COUNT } from "../work/work";
 import { HOME_EXAMPLES, HOME_STARTERS, QUICK_START, STARTING_POINT_GROUPS, STARTING_POINTS, isUnfinishedStarter } from "./starting-points";
 import { displayName, featuredCapabilities } from "../vnext/capabilities";
 import {
@@ -662,8 +662,8 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
               the one list in app/work/work.ts, and one way to see them all. */}
           <section className="home-proof" aria-labelledby="proof-heading">
             <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Our work</span><h2 id="proof-heading">Made here.</h2></div></div><p>Live sites and games we planned, built and still run ourselves. They&apos;re Open Mirror&apos;s own projects, not client work.</p></div>
-            <WorkGrid items={FEATURED_WORK} compact />
-            <div className="home-proof-links"><Link className="text-link" href="/builds">See all {WORK.length} projects and what each one shows&nbsp; →</Link><Link className="text-link" href="/everything">Every page on this site&nbsp; →</Link></div>
+            <WorkTiles items={FEATURED_WORK} />
+            <div className="home-proof-links"><Link className="text-link" href="/builds">{`See all ${SHOWCASE_COUNT} projects`}&nbsp; →</Link><Link className="text-link" href="/everything">Every page on this site&nbsp; →</Link></div>
           </section>
           {/* What the back and forth looks like, for four very different people.
               Concrete on purpose: nobody is told who this is for, they see

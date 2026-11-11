@@ -1,8 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // OUR WORK: the one list of what Open Mirror has built, shown on Made here
 // (/builds, which /work redirects to) and, for the featured few, on the home
-// page. There used to be two lists (Made here and Our work) that disagreed;
-// this replaced both.
+// page.
+//
+// Layout (owner, Nov 10, after the grouped version): big showcase tiles. Two
+// spotlight tiles for the iDontCry sports desk and arcade, then one grid of
+// tiles, then a quiet line for the tools that live on this site. Little text.
 //
 // Rules:
 //   - These are Open Mirror's own projects, planned, built and run by us.
@@ -10,22 +13,12 @@
 //   - No invented clients, testimonials, traffic, revenue or statistics.
 //   - Only live, presentable projects. Every outside address must belong to a
 //     project marked live in the registry's ECOSYSTEM, and every address was
-//     opened before it was listed. Unfinished projects stay off.
-//   - "shows" is what a customer could hire us for, plain and true today.
+//     opened before it was listed. Unfinished projects (WhatAmIAI) stay off.
 //   - `links` name the real things inside a project (the games, the sports
 //     pages) so they aren't hidden in a generic description.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { ECOSYSTEM } from "../site/registry";
-
-export type WorkGroupId = "sports-games" | "everyday" | "daily" | "here";
-
-export const WORK_GROUPS: { id: WorkGroupId; title: string; note: string }[] = [
-  { id: "sports-games", title: "Sports and games", note: "A live sports desk and games you can play in the browser." },
-  { id: "everyday", title: "Everyday tools and catalogs", note: "Search, lists and planners people come back to." },
-  { id: "daily", title: "Family, faith and music", note: "Sites with something new each day." },
-  { id: "here", title: "On this site, and the company", note: "Tools that run here, and the hub that ties every site together." },
-];
 
 export interface WorkLink {
   label: string;
@@ -34,16 +27,15 @@ export interface WorkLink {
 
 export interface WorkItem {
   name: string;
-  group: WorkGroupId;
-  /** A short tag on the card. CrossHeartPray is "Outreach" (owner, Oct 8). */
+  /** spotlight = the big tiles up top; tile = the grid; onsite = the quiet line. */
+  kind: "spotlight" | "tile" | "onsite";
+  /** A short tag on the tile. CrossHeartPray is "Outreach" (owner, Oct 8). */
   tag: "Live" | "Games" | "Tool" | "Outreach";
   emoji: string;
   accent: string;
   href: string;
-  /** What it is, one line. */
-  what: string;
-  /** What it shows a customer we can build, one line. */
-  shows: string;
+  /** One short line. */
+  line: string;
   /** Named things inside it, each a real page. */
   links?: WorkLink[];
   /** One of the few shown on the home page. */
@@ -55,15 +47,13 @@ const IDC = "https://idontcry.com";
 export const WORK: WorkItem[] = [
   {
     name: "iDontCry Sports Desk",
-    group: "sports-games",
+    kind: "spotlight",
     tag: "Live",
     emoji: "🏟️",
     accent: "#F5A524",
     href: `${IDC}/sports`,
-    what: "Scores, schedules, results and playoff brackets for the high school, college and pro teams a family follows.",
-    shows: "A site that updates itself from public sources, with saved teams and no sign-up.",
+    line: "Scores, schedules and playoff brackets for the high school, college and pro teams a family follows.",
     links: [
-      { label: "Sports Desk", href: `${IDC}/sports` },
       { label: "Add a team", href: `${IDC}/sports/follow` },
       { label: "Explore sports", href: `${IDC}/sports/explore` },
     ],
@@ -71,13 +61,12 @@ export const WORK: WorkItem[] = [
   },
   {
     name: "iDontCry Family Arcade",
-    group: "sports-games",
+    kind: "spotlight",
     tag: "Games",
     emoji: "🎮",
-    accent: "#F5A524",
+    accent: "#3B9EFF",
     href: `${IDC}/games`,
-    what: "Games you play right in the browser on a phone or computer. No download, and progress saves on your device.",
-    shows: "Touch controls, quick starts and games built to feel good on a phone.",
+    line: "Games you play right in the browser, on a phone or a computer. No download.",
     links: [
       { label: "Football", href: `${IDC}/games/football` },
       { label: "Baseball", href: `${IDC}/games/baseball` },
@@ -90,130 +79,95 @@ export const WORK: WorkItem[] = [
   },
   {
     name: "OpenDoku",
-    group: "sports-games",
+    kind: "tile",
     tag: "Games",
     emoji: "🧩",
     accent: "#6FBF9B",
     href: "https://opendoku.com",
-    what: "Sudoku with a twist in every board, plus picture puzzles made from your own photo.",
-    shows: "Puzzle rules and fresh boards that run in the browser.",
-    links: [
-      { label: "SurfDoku", href: "https://opendoku.com/surfdoku/" },
-      { label: "MineDoku", href: "https://opendoku.com/minedoku/" },
-      { label: "Picture Sudoku", href: "https://opendoku.com/picture-sudoku/" },
-      { label: "Face Slide", href: "https://opendoku.com/face-slide/" },
-    ],
+    line: "Sudoku with a twist, plus puzzles made from your own photo.",
   },
   {
     name: "PleaseBeReady",
-    group: "everyday",
+    kind: "tile",
     tag: "Live",
     emoji: "🧰",
-    accent: "#9CB380",
+    accent: "#E8833A",
     href: "https://pleasebeready.com",
-    what: "A readiness checklist, a stock-up planner and a store of hand-checked supplies.",
-    shows: "A large catalog with search that understands everyday words.",
+    line: "A readiness checklist, a stock-up planner and hand-checked supplies.",
     featured: true,
   },
   {
     name: "WatchedNotWatched",
-    group: "everyday",
+    kind: "tile",
     tag: "Live",
     emoji: "🎬",
     accent: "#8FA3B0",
     href: "https://watchednotwatched.com",
-    what: "Keep track of what you've watched and find the next thing worth your night. Books too.",
-    shows: "Fast search over a large catalog, with lists saved on your device.",
-    links: [
-      { label: "Movies and shows", href: "https://watchednotwatched.com/?mode=screen" },
-      { label: "Books (ReadNotRead)", href: "https://watchednotwatched.com/?mode=book" },
-    ],
+    line: "Track what you've watched and find what's next. Books too.",
   },
   {
     name: "DontCloneMeTom.com",
-    group: "everyday",
+    kind: "tile",
     tag: "Live",
     emoji: "🐶",
     accent: "#E0894A",
     href: "https://dontclonemetom.com",
-    what: "Rescue dogs near you, gathered from shelter listings, with a Dog of the Day.",
-    shows: "Listings gathered from other sites every day, with filters and location search.",
+    line: "Rescue dogs near you, with a Dog of the Day.",
   },
   {
     name: "iDontCry",
-    group: "daily",
+    kind: "tile",
     tag: "Live",
     emoji: "😂",
     accent: "#F5A524",
     href: IDC,
-    what: "The family site around the sports desk and games: jokes, piano lessons and kid-safe search.",
-    shows: "Many sections under one menu, easy to find on a phone.",
-    links: [
-      { label: "Jokes", href: `${IDC}/jokes` },
-      { label: "Piano Corner", href: `${IDC}/piano` },
-      { label: "Learn", href: `${IDC}/learn` },
-    ],
+    line: "The family site: jokes, piano lessons and kid-safe search.",
   },
   {
     name: "CrossHeartPray",
-    group: "daily",
+    kind: "tile",
     tag: "Outreach",
     emoji: "✝️",
     accent: "#C9A94A",
     href: "https://crossheartpray.com",
-    what: "A quiet daily place to read Scripture, follow a reading plan and pray.",
-    shows: "Daily content on a schedule, and reading plans that remember where you are.",
+    line: "A quiet daily place to read Scripture and pray.",
     featured: true,
   },
   {
     name: "TheDJCares",
-    group: "daily",
+    kind: "tile",
     tag: "Live",
     emoji: "🎵",
     accent: "#7FB3D5",
     href: "https://thedjcares.com",
-    what: "Music, videos and encouragement, picked on purpose rather than by an algorithm.",
-    shows: "A hand-picked library and a music player built around it.",
-  },
-  {
-    name: "Step In The Ring",
-    group: "here",
-    tag: "Tool",
-    emoji: "🟦",
-    accent: "#2BA6FF",
-    href: "/",
-    what: "This site: free tools for making things with AI, and the request form for hiring us.",
-    shows: "Step-by-step flows, and a secure form with an owner inbox.",
-  },
-  {
-    name: "Ready to Build",
-    group: "here",
-    tag: "Tool",
-    emoji: "🧰",
-    accent: "#60A5FA",
-    href: "/products/ready-to-build",
-    what: "A guide that checks the computer you have and helps you set it up for building.",
-    shows: "A question-at-a-time guide that explains each step before anything changes.",
-  },
-  {
-    name: "Five Hour Sprint",
-    group: "here",
-    tag: "Tool",
-    emoji: "⏱️",
-    accent: "#60A5FA",
-    href: "/five-hour-sprint-tool",
-    what: "A planner that turns one five-hour work session into a concrete plan.",
-    shows: "A focused planning tool with a clear end result.",
+    line: "Music and encouragement, picked by hand.",
   },
   {
     name: "Open Mirror",
-    group: "here",
+    kind: "tile",
     tag: "Live",
     emoji: "🪞",
     accent: "#D6CDBE",
     href: "https://openmirrorllc.com",
-    what: "The company site that lists every project and shares one header, footer and theme with them.",
-    shows: "A shared design kept in step across many sites.",
+    line: "The company site that ties every project together.",
+  },
+  {
+    name: "Ready to Build",
+    kind: "onsite",
+    tag: "Tool",
+    emoji: "🧰",
+    accent: "#60A5FA",
+    href: "/products/ready-to-build",
+    line: "Gets your computer ready for building.",
+  },
+  {
+    name: "Five Hour Sprint",
+    kind: "onsite",
+    tag: "Tool",
+    emoji: "⏱️",
+    accent: "#60A5FA",
+    href: "/five-hour-sprint-tool",
+    line: "Plans one five-hour work session.",
   },
 ];
 
@@ -228,8 +182,9 @@ export function ecosystemFor(href: string) {
   return ECOSYSTEM.find((p) => p.liveUrl && new URL(p.liveUrl).host === host);
 }
 
-export function workByGroup(): { group: (typeof WORK_GROUPS)[number]; items: WorkItem[] }[] {
-  return WORK_GROUPS.map((group) => ({ group, items: WORK.filter((w) => w.group === group.id) }));
-}
-
+export const SPOTLIGHT_WORK: WorkItem[] = WORK.filter((w) => w.kind === "spotlight");
+export const TILE_WORK: WorkItem[] = WORK.filter((w) => w.kind === "tile");
+export const ONSITE_WORK: WorkItem[] = WORK.filter((w) => w.kind === "onsite");
+/** Live sites and games, not counting the tools on this site. */
+export const SHOWCASE_COUNT = SPOTLIGHT_WORK.length + TILE_WORK.length;
 export const FEATURED_WORK: WorkItem[] = WORK.filter((w) => w.featured);

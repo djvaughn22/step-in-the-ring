@@ -1,10 +1,10 @@
 // Made here: everything Open Mirror has built, from the one list in
-// app/work/work.ts, grouped so it scans. /work redirects here, so this is the
+// app/work/work.ts, as big showcase tiles. /work redirects here, so this is the
 // portfolio for Build it with us and the showroom for building it yourself.
 
 import Link from "next/link";
 import Portfolio from "../work/Portfolio";
-import { WORK } from "../work/work";
+import { SHOWCASE_COUNT } from "../work/work";
 
 export default function OwnerBuildsShowroom() {
   return (
@@ -13,7 +13,7 @@ export default function OwnerBuildsShowroom() {
         <span className="kicker">Made here</span>
         <h1 id="owner-builds-heading">See what we&apos;ve built.</h1>
         <p>
-          {`${WORK.length} live sites, tools and games we planned, built and still run ourselves.`} They&apos;re
+          {`${SHOWCASE_COUNT} live sites and games we planned, built and still run ourselves. `}They&apos;re
           Open Mirror&apos;s own projects, not client work. Open any of them.
         </p>
         <div className="actions">

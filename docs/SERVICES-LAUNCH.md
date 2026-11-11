@@ -14,13 +14,15 @@ folder on the owner's machine, because this repository is public.
 - **`/services`:** four introductory services, how it works, what's not
   included, optional care plans (described, not sold), a Build it yourself
   door, and the independence notice.
-- **Made here (`/builds`):** the portfolio. Every live, presentable Open
-  Mirror project in four groups, from one list in `app/work/work.ts`, with the
-  real games and sports pages inside iDontCry named and linked. The page says
-  they are Open Mirror's own projects, not client work. `/work` redirects here
-  (Nov 10: the old Our work and Made here lists disagreed). Outside addresses
-  must belong to a live `ECOSYSTEM` project (a test enforces it). The home page
-  shows the entries marked `featured`.
+- **Made here (`/builds`):** the portfolio, as big showcase tiles (owner,
+  Nov 10, after a grouped layout he didn't like). Two spotlight tiles (iDontCry
+  Sports Desk and Family Arcade, with their sports pages and games named and
+  linked), then a grid of tiles (two rows of four), then one quiet line for
+  the tools on this site. All from one list in `app/work/work.ts`. The hero
+  says they are Open Mirror's own projects, not client work. `/work`
+  redirects here. Outside addresses must belong to a live `ECOSYSTEM`
+  project (a test enforces it). The home page shows the entries marked
+  `featured` as tiles.
 - **`/request`:** the project request form.
 - **`/owner/inquiries`:** owner-only list of requests (also a tile in the owner hub).
 - **Nav:** Create · Services · How it works · Tools · Your work · Made here.
@@ -33,7 +35,7 @@ folder on the owner's machine, because this repository is public.
 | Thing | File |
 |---|---|
 | Every service price, the care plans, form choices, the notice | `app/services/offers.ts` (the only file the price guard allows) |
-| Portfolio entries (Made here and the home page) | `app/work/work.ts`, cards in `app/work/Portfolio.tsx` |
+| Portfolio entries (Made here and the home page) | `app/work/work.ts`, tiles in `app/work/Portfolio.tsx` |
 | Validation and the owner email | `app/members/projectInquiry.ts` |
 | API | `app/api/inquiry/route.ts` |
 | Storage | `project_inquiries` table; `PROJECT_INQUIRIES_DDL` in `app/members/store.ts`, created on first use; `migrations/006_project_inquiries.sql` |

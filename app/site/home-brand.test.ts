@@ -49,14 +49,13 @@ describe("official homepage identity", () => {
   // site's tools made.
   it("shows the featured projects and one way to see them all", () => {
     const doc = home();
-    const cards = [...doc.querySelectorAll(".home-proof .pf-card")];
-    expect(cards).toHaveLength(FEATURED_WORK.length);
+    const tiles = [...doc.querySelectorAll<HTMLAnchorElement>(".home-proof a.pf-tile")];
+    expect(tiles).toHaveLength(FEATURED_WORK.length);
     FEATURED_WORK.forEach((w, i) => {
-      expect(cards[i].querySelector("h3")?.textContent).toBe(w.name);
-      expect(cards[i].querySelector(".pf-icon")?.textContent).toBe(w.emoji);
-      const visit = cards[i].querySelector<HTMLAnchorElement>(".pf-visit")!;
-      expect(visit.getAttribute("href")).toBe(w.href);
-      expect(visit.getAttribute("target")).toBe("_blank");
+      expect(tiles[i].querySelector("strong")?.textContent).toBe(w.name);
+      expect(tiles[i].querySelector(".pf-emoji")?.textContent).toBe(w.emoji);
+      expect(tiles[i].getAttribute("href")).toBe(w.href);
+      expect(tiles[i].getAttribute("target")).toBe("_blank");
     });
     expect(doc.querySelector(".project-endorsement")).toBeNull();
     expect(doc.querySelectorAll('.home-proof a[href="/builds"]')).toHaveLength(1);

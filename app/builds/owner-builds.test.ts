@@ -1,10 +1,11 @@
-// Made here (Nov 10): one grouped portfolio from app/work/work.ts. It replaced
-// the old filterable showroom list, which disagreed with Our work.
+// Made here (owner, Nov 10): big showcase tiles from app/work/work.ts. Two
+// spotlight tiles (the iDontCry sports desk and arcade), one grid of tiles,
+// and a quiet line for the tools on this site. It replaced a grouped layout.
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import OwnerBuildsShowroom from "./OwnerBuildsShowroom";
-import { WORK, WORK_GROUPS } from "../work/work";
+import { ONSITE_WORK, SHOWCASE_COUNT, SPOTLIGHT_WORK, TILE_WORK } from "../work/work";
 
 const html = () => renderToStaticMarkup(createElement(OwnerBuildsShowroom));
 
@@ -17,27 +18,31 @@ describe("Made here", () => {
     expect(h.match(/href="\/request"/g)?.length).toBe(2);
     expect(h).toContain('href="/services"');
     expect(h).toContain("not client work");
+    expect(h).toContain(`${SHOWCASE_COUNT} live sites and games`);
   });
 
-  it("shows every project once, under its group heading", () => {
+  it("shows the two spotlights, every tile once, and the on-site tools as a line", () => {
     const h = html();
-    for (const g of WORK_GROUPS) expect(h).toContain(`>${g.title}</h2>`);
-    const cards = h.match(/<article class="pf-card"/g) ?? [];
-    expect(cards).toHaveLength(WORK.length);
-    for (const w of WORK) expect(h).toContain(`>${w.name.replace(/&/g, "&amp;")}</h3>`);
+    expect(h.match(/<article class="pf-spot"/g)).toHaveLength(SPOTLIGHT_WORK.length);
+    expect(h.match(/class="pf-tile"/g)).toHaveLength(TILE_WORK.length);
+    for (const w of [...SPOTLIGHT_WORK, ...TILE_WORK]) expect(h).toContain(w.name.replace(/&/g, "&amp;"));
+    for (const w of ONSITE_WORK) expect(h).toContain(`href="${w.href}">${w.name}</a>`);
+    expect(h).not.toMatch(/pf-group|What it shows/);
+  });
+
+  it("names the games and sports pages inside the spotlights", () => {
+    const h = html();
+    for (const label of ["Football", "Baseball", "Skiing", "Track &amp; Field", "Circuit", "Add a team"]) expect(h).toContain(`>${label}</a>`);
+    expect(h).toContain("Play the Family Arcade");
+    expect(h).toContain("Open the Sports Desk");
   });
 
   it("opens outside sites in a new tab and keeps this site's pages in place", () => {
     const h = html();
-    expect(h).toContain('href="https://crossheartpray.com" target="_blank" rel="noopener noreferrer"');
+    expect(h).toContain('class="pf-tile" href="https://crossheartpray.com" target="_blank" rel="noopener noreferrer"');
     expect(h).toContain('href="https://idontcry.com/games/football" target="_blank" rel="noopener noreferrer"');
-    expect(h).toMatch(/<a class="pf-visit" href="\/products\/ready-to-build">/);
+    expect(h).toContain('href="/products/ready-to-build">Ready to Build</a>');
     expect(h).toContain('href="/five-hour-sprint-tool"');
     expect(h).not.toContain('href="/products/five-hour-sprint"');
-  });
-
-  it("every card ends with its Visit link", () => {
-    const cards = html().split('<article class="pf-card"').slice(1);
-    for (const c of cards) expect(c.replace(/<\/article>[\s\S]*$/, "")).toMatch(/class="pf-visit"[^>]*>[^<]*(<span[^>]*>[^<]*<\/span>)?<\/a>$/);
   });
 });
