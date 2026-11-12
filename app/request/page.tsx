@@ -6,21 +6,21 @@ import RequestForm from "./RequestForm";
 export const metadata: Metadata = {
   title: "Request a project",
   description:
-    "Tell us about the website or web app you have in mind. We reply by email with questions or a written quote. Nothing is booked or charged until you approve.",
+    "Ask for help publishing your draft, finishing it, or building a site. We reply by email with questions or a written quote. Nothing is booked or charged until you approve.",
 };
 
 export default function RequestPage() {
   return (
     <Sheet>
       <Masthead
-        kicker="Build it with us"
+        kicker="Optional help"
         title="Request a project"
-        lead="Tell us what you have in mind. We'll reply by email, usually within two business days, with questions or a written quote."
+        lead="Tell us what you need: help publishing a draft you made here, finishing it, or a site built with you. We'll reply by email, usually within two business days, with questions or a written quote."
       />
       <ol className="rq-steps" aria-label="What happens next">
         <li><strong>You send this.</strong> A few sentences is enough.</li>
         <li><strong>We reply.</strong> Questions, or a written scope and fixed price.</li>
-        <li><strong>You decide.</strong> Work starts only after you approve and pay the deposit.</li>
+        <li><strong>You decide.</strong> Work starts only after you approve the written quote.</li>
       </ol>
       <RequestForm />
       <p className="rq-after">

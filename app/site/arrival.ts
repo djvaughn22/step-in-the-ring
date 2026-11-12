@@ -33,7 +33,7 @@ export function withoutArrivalParams(): string {
 /** Runs first in <head>. Plain ES5, no imports: it ships as a string. */
 export const HEAD_ARRIVAL_JS = `(function(){try{
 var l=location,p=l.pathname;
-if(p!=="/"&&p!=="/create")return;
+if(p!=="/"&&p!=="/create"&&p!=="/make")return;
 var q=new URLSearchParams(l.search),k=["open","idea","stem","cr","handoff"],f=false,i;
 for(i=0;i<k.length;i++)if(q.has(k[i])){f=true;q.delete(k[i]);}
 if(!f)return;
@@ -41,6 +41,19 @@ sessionStorage.setItem(${JSON.stringify(ARRIVAL_KEY)},l.search);
 var s=q.toString();
 history.replaceState(history.state,"",p+(s?"?"+s:"")+l.hash);
 }catch(e){}})();`.replace(/\n/g, "");
+
+/**
+ * True when this tab arrived carrying a handoff that hasn't been read yet.
+ * The home page uses it to send the visitor on to /make, where RingApp reads
+ * it, since the AI front door moved off "/" on 2026-11-11.
+ */
+export function hasArrival(): boolean {
+  try {
+    return window.sessionStorage.getItem(ARRIVAL_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
 
 /** The query string this page really arrived with, once. Null if it was clean. */
 export function takeArrival(): string | null {

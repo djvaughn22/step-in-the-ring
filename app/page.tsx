@@ -1,12 +1,10 @@
-// THE FRONT DOOR.
+// THE FRONT DOOR: the website starter (owner brief, 2026-11-11).
 //
-// The creation flow lives in app/create/RingApp.tsx and is mounted twice: here
-// as the home page, and at /create as the full-screen workbench. Same
-// component, same flow after the first sentence — a person who starts on
-// either one ends up in exactly the same place.
+// The make-with-AI front door that used to live here moved, whole, to /make
+// (app/make/page.tsx). /create is still the full-screen workbench.
 
-import RingApp from "./create/RingApp";
+import StarterHome from "./starter/StarterHome";
 
 export default function HomePage() {
-  return <RingApp mode="home" />;
+  return <StarterHome />;
 }

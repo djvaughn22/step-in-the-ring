@@ -47,6 +47,11 @@ const PUBLIC_ROUTES = [
   // portfolio is Made here (/builds); /work redirects there.
   "/services",
   "/request",
+  // Website starter (2026-11-11): the chooser, the editor, the 22 examples,
+  // and the make-with-AI front door that moved off "/".
+  "/start",
+  "/examples",
+  "/make",
 ];
 
 function isProtectedRoute(pathname: string): boolean {

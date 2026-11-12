@@ -31,8 +31,7 @@ import {
 import { recommendEngines } from "../creation/recommend";
 import { projectFromCreation } from "../project/from-creation";
 import { saveProjectRecord } from "../project/store";
-import { BRAND_INVITE, BRAND_PROMISE, BRAND_SIGNATURE, WHY_THE_NAME } from "../site/brand";
-import { OFFERS } from "../services/offers";
+import { MAKE_SIGNATURE, WHY_THE_NAME } from "../site/brand";
 import { takeArrival, withoutArrivalParams } from "../site/arrival";
 import { ECOSYSTEM, homepageProof } from "../site/registry";
 import { WorkTiles } from "../work/Portfolio";
@@ -610,17 +609,18 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
         <div className="page home-page">
           <section className="home-hero">
             <div className="hero-copy">
-              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>{BRAND_SIGNATURE}</span></span></div>
-              <h1>{BRAND_PROMISE}<br /><span>{BRAND_INVITE}</span></h1>
-              <p>Make it yourself with the free tools here, or hire us to plan, build and launch it with you.</p>
-              {/* The two ways in (owner brief, 2026-11-10). Hiring us is a door
-                  to /services; building it yourself is the box beside this. */}
+              <div className="hero-signature"><RingMark /><span>Step In The Ring<span>{MAKE_SIGNATURE}</span></span></div>
+              <h1>Make it with AI.<br /><span>Keep going until it&apos;s right.</span></h1>
+              <p>Games, study guides, plans, songs and more. Say what you want in your own words, and we write the messages you give an AI app.</p>
+              {/* 2026-11-11: this front door moved to /make. A business that
+                  needs a website goes to the starter; everything else starts in
+                  the box beside this. */}
               <div className="hero-paths">
-                <Link className="hero-path hero-path-hire" href="/services">
-                  <span className="hero-path-kicker">Build it with us</span>
-                  <strong>Professional websites and custom development</strong>
-                  <span className="hero-path-sub">A written quote before any work starts.</span>
-                  <em>See services&nbsp;→</em>
+                <Link className="hero-path hero-path-hire" href="/start">
+                  <span className="hero-path-kicker">Need a business website?</span>
+                  <strong>Start from an example for your kind of business</strong>
+                  <span className="hero-path-sub">Make it yours, then download the files.</span>
+                  <em>Website starter&nbsp;→</em>
                 </Link>
                 <button type="button" className="hero-path" onClick={() => shapeRef.current?.focus()}>
                   <span className="hero-path-kicker">Build it yourself</span>
@@ -636,29 +636,7 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
           {/* A returning visitor gets one quiet offer to continue — never the
               work's own title on the front door. */}
           <ContinueStrip />
-          {/* Build it with us: the four services in one line each. The detail
-              lives on /services, and prices live only in app/services/offers.ts. */}
-          <section className="home-hire" aria-labelledby="hire-heading">
-            <div className="section-intro">
-              <span className="kicker">Build it with us</span>
-              <h2 id="hire-heading">Websites and web apps, built with you.</h2>
-              <p>Planned with you, built carefully, tested on real phones, and handed over so you own it. You get a written quote before any work starts.</p>
-            </div>
-            <div className="hire-grid">
-              {OFFERS.map((o) => (
-                <Link key={o.id} className={o.flagship ? "hire-card hire-flagship" : "hire-card"} href={`/services#${o.id}`}>
-                  <strong>{o.name}</strong>
-                  <span className="hire-price">{o.price}</span>
-                  <span className="hire-for">{o.forWho}</span>
-                </Link>
-              ))}
-            </div>
-            <div className="hire-go">
-              <Link className="btn btn-gold" href="/request">Request a project</Link>
-              <Link className="text-link" href="/services">What&apos;s included&nbsp; →</Link>
-            </div>
-          </section>
-          {/* Our work, right after the services: a few featured projects from
+          {/* Our work: a few featured projects from
               the one list in app/work/work.ts, and one way to see them all. */}
           <section className="home-proof" aria-labelledby="proof-heading">
             <div className="section-intro"><div className="maker-heading"><RingMark /><div><span className="kicker">Our work</span><h2 id="proof-heading">Made here.</h2></div></div><p>Live sites and games we planned, built and still run ourselves. They&apos;re Open Mirror&apos;s own projects, not client work.</p></div>
@@ -710,7 +688,7 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
               <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>
-          <section className="home-final"><RingMark /><h2>{BRAND_INVITE}</h2><p>Start on your own in the box at the top of this page, or tell us what you have in mind.</p><div className="home-final-go"><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start on your own&nbsp; ↑</button><Link className="btn btn-ghost btn-big" href="/request">Request a project</Link></div></section>
+          <section className="home-final"><RingMark /><h2>Start with one sentence.</h2><p>Say what you want to make in the box at the top of this page. Want help with a bigger project? Tell us about it.</p><div className="home-final-go"><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start on your own&nbsp; ↑</button><Link className="btn btn-ghost btn-big" href="/request">Request a project</Link></div></section>
         </div>
       </main>
     );

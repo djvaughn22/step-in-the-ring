@@ -80,6 +80,8 @@ export interface SitePage {
   group: PageGroup;
   /** True for the handful of doors in the primary menu. */
   inNav?: boolean;
+  /** True for the doors one level down, under "More". */
+  inMore?: boolean;
   /** Kept out of search on purpose (unfinished, or preview-only). */
   noindex?: boolean;
 }
@@ -100,9 +102,42 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/",
     name: "Home",
-    what: "The front door: say what you want to make with AI, or pick up something you already started.",
+    what: "The front door: a website starter for small service businesses, and help if you want it.",
     access: "public",
     group: "create",
+  },
+  // ── Website starter (owner brief, November) ───────────────────────────
+  {
+    path: "/start",
+    name: "Website starter",
+    what: "Choose the example closest to your business, add your details, make it yours and download the files.",
+    access: "public",
+    group: "create",
+    inNav: true,
+  },
+  {
+    path: "/start/edit",
+    name: "Website editor",
+    what: "Change the words, colors, fonts, photos and sections of your draft, preview it on a phone and a computer, and download it.",
+    access: "public",
+    group: "create",
+    noindex: true,
+  },
+  {
+    path: "/examples",
+    name: "Examples",
+    what: "22 example websites, one for each kind of small service business, each with a way to start from it.",
+    access: "public",
+    group: "create",
+    inNav: true,
+  },
+  {
+    path: "/make",
+    name: "Make with AI",
+    what: "Say what you want to make in your own words, see examples of the back and forth, and find the tools and engines.",
+    access: "public",
+    group: "create",
+    inMore: true,
   },
   {
     path: "/create",
@@ -110,14 +145,13 @@ export const SITE_PAGES: SitePage[] = [
     what: "Say what you want to make in your own words. You get a first message to give an AI, and help with what to say next.",
     access: "public",
     group: "create",
-    inNav: true,
   },
 
   // ── Build it with us (paid services) ────────────────────────────────────
   {
     path: "/services",
     name: "Services",
-    what: "Hire us to plan, build and launch a website or web app. What each service includes, introductory prices, and how it works.",
+    what: "Optional help: publish your draft, have it finished, or have a site built. What each includes, introductory prices, and how it works.",
     access: "public",
     group: "hire",
     inNav: true,
@@ -139,7 +173,7 @@ export const SITE_PAGES: SitePage[] = [
     what: "Every tool here in one place, each one a few minutes long. No account needed.",
     access: "public",
     group: "engines",
-    inNav: true,
+    inMore: true,
   },
   {
     path: "/tools/first-version",
@@ -225,7 +259,7 @@ export const SITE_PAGES: SitePage[] = [
     what: "Everything you started here, kept in this browser. No account needed.",
     access: "public",
     group: "library",
-    inNav: true,
+    inMore: true,
   },
 
   // ── Learn ──────────────────────────────────────────────────────────────
@@ -235,7 +269,7 @@ export const SITE_PAGES: SitePage[] = [
     what: "How working with an AI goes here, what you get, and where everything lives. No coding, and no account needed here.",
     access: "public",
     group: "learn",
-    inNav: true,
+    inMore: true,
   },
   {
     path: "/whats-built",
@@ -392,11 +426,19 @@ export function pagesWithAccess(access: Access): SitePage[] {
  */
 // Making first, then hiring us to make it, then what a first-time visitor asks
 // next, then what YOU made, then the showroom. Six doors is the limit.
-const NAV_ORDER = ["/create", "/services", "/how", "/tools", "/library", "/builds"];
+const NAV_ORDER = ["/start", "/examples", "/services", "/builds"];
+const MORE_ORDER = ["/make", "/how", "/tools", "/library"];
 
 export function navPages(): SitePage[] {
   return SITE_PAGES.filter((p) => p.inNav).sort(
     (a, b) => NAV_ORDER.indexOf(a.path) - NAV_ORDER.indexOf(b.path),
+  );
+}
+
+/** The doors one level down, under "More". */
+export function morePages(): SitePage[] {
+  return SITE_PAGES.filter((p) => p.inMore).sort(
+    (a, b) => MORE_ORDER.indexOf(a.path) - MORE_ORDER.indexOf(b.path),
   );
 }
 

@@ -3090,6 +3090,8 @@ textarea.tfb-input { resize: vertical; min-height: 84px; }
 .svc-price { margin-top: 6px; font-size: 26px; font-weight: 900; letter-spacing: -.03em; color: var(--accent); }
 .svc-for { margin-top: 8px; color: var(--text); font-size: 14.5px; line-height: 1.5; }
 .svc-card ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.svc-bound { margin: 14px 0 0; color: var(--text); font-size: 13.5px; line-height: 1.5; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); }
+.svc-bound strong { font-weight: 700; }
 .svc-time { margin: 14px 0 18px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 .svc-card .btn { margin-top: auto; width: 100%; }
 .svc-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
@@ -3150,3 +3152,36 @@ html[data-om-theme="light"] .rq-field [aria-invalid="true"] { border-color: #8A5
   .svc-diy .btn { width: 100%; }
 }
 .hero-path-sub { color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+
+/* ═══ "More" menu in the bar (2026-11-11) ═══════════════════════════════ */
+.ring-more { position: relative; }
+.ring-more > button {
+  font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72); background: none; border: 0; padding: 9px 12px; border-radius: 4px; min-height: 44px; cursor: pointer; white-space: nowrap;
+}
+.ring-more > button:hover, .ring-more > button[aria-expanded="true"] { color: #FFFFFF; background: rgba(255, 255, 255, 0.10); }
+.ring-more > button[aria-current="page"] { color: #FFFFFF; box-shadow: inset 0 -2px 0 var(--accent); }
+.ring-more > button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.ring-more-menu { display: none; position: absolute; top: calc(100% + 8px); left: 0; z-index: 60; width: 320px; padding: 8px; border-radius: 10px; background: var(--deep); border: 1px solid rgba(255, 255, 255, 0.18); }
+.ring-more-menu.open { display: block; }
+.ring-nav .ring-more-menu a { display: block; min-height: 0; padding: 10px 12px; border-radius: 6px; font-family: inherit; text-transform: none; letter-spacing: 0; white-space: normal; color: #FFFFFF; background: none; }
+.ring-nav .ring-more-menu a:hover { background: rgba(255, 255, 255, 0.10); }
+.ring-nav .ring-more-menu a[aria-current="page"] { background: rgba(255, 255, 255, 0.14); color: #FFFFFF; }
+.ring-more-menu strong { display: block; font-size: 14.5px; font-weight: 800; }
+.ring-more-menu span { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 500; line-height: 1.45; color: rgba(255, 255, 255, 0.72); }
+.ring-sheet-label { display: none; }
+@media (max-width: 860px) {
+  .ring-sheet.open .ring-sheet-label { display: block; margin: 18px 4px 0; font: 700 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+}
+
+/* Services: free vs paid, and the Finish / Small business comparison (2026-11-11). */
+.svc-freepaid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; max-width: 900px; }
+.svc-freepaid p { margin: 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--muted); font-size: 15px; line-height: 1.55; }
+.svc-freepaid strong { color: var(--text); }
+.svc-compare-wrap { overflow-x: auto; }
+.svc-compare { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 15px; }
+.svc-compare th, .svc-compare td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
+.svc-compare thead th { font-size: 16px; color: var(--text); }
+.svc-compare tbody th { color: var(--muted); font-weight: 700; width: 22%; }
+.svc-compare td { color: var(--text); }
+@media (max-width: 700px) { .svc-freepaid { grid-template-columns: 1fr; } }

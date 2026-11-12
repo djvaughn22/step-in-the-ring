@@ -31,9 +31,13 @@ describe("the theme toggle is reachable on mobile", () => {
 });
 
 describe("the primary nav still carries every door in the mobile sheet", () => {
-  it("the phone menu is built from primary + SECONDARY, nothing dropped", () => {
-    expect(header).toMatch(/\.\.\.primary\.map/);
-    expect(header).toMatch(/\.\.\.SECONDARY/);
+  // 2026-11-11: the sheet lists the primary doors, then a "More" group with
+  // the doors one level down and SECONDARY.
+  it("the phone menu is built from primary + More + SECONDARY, nothing dropped", () => {
+    const sheet = header.slice(header.indexOf('id="ring-sheet"'));
+    expect(sheet).toMatch(/primary\.map/);
+    expect(sheet).toMatch(/\.\.\.more\.map/);
+    expect(sheet).toMatch(/\.\.\.SECONDARY/);
   });
 
   it("SECONDARY names What works today, and no account door", () => {

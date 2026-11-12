@@ -9,11 +9,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import RingApp from "../create/RingApp";
-import { BRAND_ONE_LINE, BRAND_SIGNATURE, WHY_THE_NAME } from "./brand";
+import { BRAND_ONE_LINE, BRAND_OWNERSHIP, BRAND_SIGNATURE, MAKE_SIGNATURE, WHY_THE_NAME } from "./brand";
+import StarterHome from "../starter/StarterHome";
 import { WORK } from "../work/work";
 import { metadata } from "../layout";
 
-vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(), usePathname: () => "/" }));
+vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(), usePathname: () => "/", useRouter: () => ({ replace: () => {}, push: () => {} }) }));
 
 function homeText(): string {
   const div = document.createElement("div");
@@ -21,8 +22,23 @@ function homeText(): string {
   return div.textContent ?? "";
 }
 
+function starterHomeText(): string {
+  const div = document.createElement("div");
+  div.innerHTML = renderToStaticMarkup(createElement(StarterHome));
+  return div.textContent ?? "";
+}
+
 /** Every public page a first-time visitor is likely to read, as source. */
 const PUBLIC_SOURCES = [
+  "app/starter/StarterHome.tsx",
+  "app/starter/StarterEditor.tsx",
+  "app/starter/examples.ts",
+  "app/start/page.tsx",
+  "app/examples/page.tsx",
+  "app/examples/[slug]/page.tsx",
+  "app/services/page.tsx",
+  "app/services/offers.ts",
+  "app/site/brand.ts",
   "app/create/RingApp.tsx",
   "app/create/WorkWithAI.tsx",
   "app/create/starting-points.ts",
@@ -47,11 +63,48 @@ function visibleSource(path: string): string {
     .replace(/(^|\s)\/\/.*$/gm, "");
 }
 
-describe("the promise on the home page", () => {
+// 2026-11-11 (owner brief): the home page is the website starter. It leads
+// with the result and the ownership difference, in plain words.
+describe("the website starter on the home page", () => {
+  const text = starterHomeText();
+
+  it("says what this is, for whom, and what you get", () => {
+    expect(text).toContain(BRAND_SIGNATURE);
+    expect(text).toContain("Yours to keep.");
+    expect(text).toContain("Choose your example");
+  });
+
+  it("says plainly that we don't host the site", () => {
+    expect(text).toContain(BRAND_OWNERSHIP);
+    expect(BRAND_OWNERSHIP).toContain("doesn't host your website");
+  });
+
+  it("offers help as an option, never as the only way", () => {
+    expect(text).toContain("Rather have us do it?");
+    expect(text).toContain("written quote");
+  });
+
+  it("keeps the other capabilities one link away", () => {
+    expect(text).toContain("Make it with AI");
+  });
+
+  it("makes no claims it can't back up", () => {
+    expect(text).not.toMatch(/in an hour|in minutes|guarantee|testimonial|trusted by|\d+ (?:businesses|customers|owners)/i);
+  });
+});
+
+describe("the retired lines stay retired", () => {
+  it.each(PUBLIC_SOURCES)("%s has none of them", (path) => {
+    expect(visibleSource(path)).not.toMatch(/bring your idea to life|fight the AI|AI magic|let's build it/i);
+  });
+});
+
+// The make-with-AI front door, unchanged in substance, now on /make.
+describe("the promise on the make-with-AI front door", () => {
   const text = homeText();
 
   it("says what this is and that AI is how it gets made", () => {
-    expect(text).toContain(BRAND_SIGNATURE);
+    expect(text).toContain(MAKE_SIGNATURE);
     expect(text).toContain("Make it with AI.");
   });
 
@@ -117,14 +170,16 @@ describe("the language stays plain", () => {
 
 describe("the promise travels", () => {
   it("search results and the app manifest carry the same line", () => {
+    expect(BRAND_ONE_LINE).toMatch(/example/);
+    expect(BRAND_ONE_LINE).toMatch(/download/);
     expect(metadata.description).toBe(BRAND_ONE_LINE);
     expect(readFileSync("app/manifest.ts", "utf8")).toContain("BRAND_ONE_LINE");
   });
 
   it("the share card says it too", () => {
     const card = readFileSync("app/opengraph-image.tsx", "utf8");
-    expect(card).toContain("Make it with AI.");
-    expect(card).toContain("Keep going until it&apos;s right.");
+    expect(card).toContain("A website for your business.");
+    expect(card).toContain("Yours to keep.");
   });
 
   it("the old tagline is gone from every public surface", () => {

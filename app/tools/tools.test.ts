@@ -25,7 +25,7 @@ import ToolsPage from "./page";
 import FirstVersionPage from "./first-version/page";
 import TryItPage from "./try-it/page";
 import LaunchChecklistPage from "./launch-checklist/page";
-import { pageAt, navPages } from "../site/registry";
+import { pageAt, navPages, morePages } from "../site/registry";
 
 let n = 0;
 const id = () => `t${n++}`;
@@ -197,9 +197,11 @@ describe("free tool pages", () => {
     expect(doc.body.textContent).not.toMatch(/\$\d|price|purchase|checkout|subscribe/i);
   });
 
-  // 2026-11-10: Services joined the bar right after Create (owner brief).
-  it("is in the main menu, right after Create, Services and How it works", () => {
-    expect(navPages().map((p) => p.path).slice(0, 4)).toEqual(["/create", "/services", "/how", "/tools"]);
+  // 2026-11-11: the website starter leads the bar; Tools moved one level
+  // down, under More, right after Make with AI and How it works.
+  it("is in the More menu, after Make with AI and How it works", () => {
+    expect(morePages().map((p) => p.path).slice(0, 3)).toEqual(["/make", "/how", "/tools"]);
+    expect(navPages().map((p) => p.path)).not.toContain("/tools");
   });
 
   it("never sends anything: no fetch, no forms posting anywhere, no analytics", () => {

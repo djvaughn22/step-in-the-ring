@@ -76,8 +76,8 @@ export interface LegacyFinding extends LegacySource {
  * Keep in sync with docs/step-in-the-ring-vnext-preservation.md.
  */
 export const LEGACY_SOURCES: LegacySource[] = [
-  { key: "sitr-plans-v3", label: "Saved plans", emoji: "📋", href: "/", storage: "local" },
-  { key: "sitr-creation-current-v1", label: "Your last creation", emoji: "✨", href: "/", storage: "local" },
+  { key: "sitr-plans-v3", label: "Saved plans", emoji: "📋", href: "/make", storage: "local" },
+  { key: "sitr-creation-current-v1", label: "Your last creation", emoji: "✨", href: "/make", storage: "local" },
   { key: "sitr-engine-projects-v1", label: "Engine Room projects", emoji: "🧰", href: "/engines/room", storage: "local", titleOf: (p) => latestOf((p as { projects?: unknown } | null)?.projects, "name") },
   { key: "creation-engine-projects-v1", label: "Engine projects (earlier key)", emoji: "🧰", href: "/engines/room", storage: "local" },
   { key: "sitr-projects-v1", label: "Project OS records", emoji: "🗂️", href: "/projects", storage: "local" },
@@ -85,7 +85,9 @@ export const LEGACY_SOURCES: LegacySource[] = [
   { key: "sitr-build-machine-v1", label: "Build Machine progress", emoji: "💻", href: "/build-machine", storage: "local" },
   { key: "sitr-first-app-v1", label: "First build walkthrough", emoji: "🧱", href: "/build", storage: "local" },
   { key: "sitr-game-world-v1", label: "Game world", emoji: "🎮", href: "/engines/room?engine=game", storage: "local" },
-  { key: "sitr-builder-defaults-v1", label: "Builder defaults", emoji: "⚙️", href: "/", storage: "local" },
+  { key: "sitr-builder-defaults-v1", label: "Builder defaults", emoji: "⚙️", href: "/make", storage: "local" },
+  // 2026-11-11: the website starter's one saved draft (app/starter/draft.ts DRAFT_KEY).
+  { key: "sitr-site-draft-v1", label: "Website draft", emoji: "🌐", href: "/start/edit", storage: "local", titleOf: (p) => { const n = (p as { details?: { name?: unknown } } | null)?.details?.name; return typeof n === "string" && n.trim() ? n.trim() : null; } },
   { key: "sitr-story-partner", label: "Story Partner work", emoji: "📓", href: "/author", storage: "indexeddb" },
   // The free tools and the Sprint planner (2026-10-04): they always saved to
   // this browser, but nothing pointed back to them.

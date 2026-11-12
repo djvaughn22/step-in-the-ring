@@ -13,6 +13,7 @@ import {
   ECOSYSTEM,
   EXTERNAL_PREVIEWS,
   navPages,
+  morePages,
   previewPaths,
   pageAt,
   homepageProof,
@@ -137,30 +138,24 @@ describe("the menu", () => {
     }
   });
 
-  it("leads with Create — the thing the product is for", () => {
+  // 2026-11-11 (owner brief): the website starter is the first step. Make
+  // with AI, How it works, Tools and Your work sit one level down under More.
+  it("leads with the website starter, the thing the product is for", () => {
     // Home is the wordmark on the left of the bar, the way it is on every
-    // site. A fifth link pointing at the page you are already on buys nothing,
-    // and the first word in the menu should say what this place is for.
-    expect(navPages()[0].path).toBe("/create");
-    expect(navPages().map((p) => p.path)).toEqual([
-      "/create",
-      "/services",
-      "/how",
-      "/tools",
-      "/library",
-      "/builds",
-    ]);
+    // site. The first word in the menu should say what this place is for.
+    expect(navPages()[0].path).toBe("/start");
+    expect(navPages().map((p) => p.path)).toEqual(["/start", "/examples", "/services", "/builds"]);
   });
 
   it("uses words a first-time visitor can read without knowing the product", () => {
-    expect(navPages().map((p) => p.name)).toEqual([
-      "Create",
-      "Services",
-      "How it works",
-      "Tools",
-      "Your work",
-      "Made here",
-    ]);
+    expect(navPages().map((p) => p.name)).toEqual(["Website starter", "Examples", "Services", "Made here"]);
+  });
+
+  it("keeps every other door one level down, under More", () => {
+    expect(morePages().map((p) => p.path)).toEqual(["/make", "/how", "/tools", "/library"]);
+    expect(morePages().map((p) => p.name)).toEqual(["Make with AI", "How it works", "Tools", "Your work"]);
+    for (const p of morePages()) expect(p.access, p.path).toBe("public");
+    for (const p of navPages()) expect(p.inMore, p.path).toBeFalsy();
   });
 });
 

@@ -16,7 +16,7 @@ import {
 import { allCapabilities, capabilitiesForIntent, capabilityById, BUILD_ENGINE_ID } from "./capabilities";
 import { LEGACY_SOURCES, findLegacyWork } from "./legacy";
 import { ENGINES } from "../engines/engines";
-import { navPages, pageAt } from "../site/registry";
+import { morePages, navPages, pageAt } from "../site/registry";
 
 const ROOT = join(__dirname, "..", "..");
 const read = (p: string) => readFileSync(join(ROOT, p), "utf8");
@@ -294,7 +294,10 @@ describe("The new shell", () => {
   it("mounts one flow behind both front doors", () => {
     // Two entrances, one component. If these ever diverge into two files the
     // product has two different "start something" experiences again.
-    expect(read("app/page.tsx")).toContain('<RingApp mode="home" />');
+    // 2026-11-11: the make-with-AI front door moved from "/" to /make, whole;
+    // "/" is the website starter.
+    expect(read("app/make/page.tsx")).toContain('<RingApp mode="home" />');
+    expect(read("app/page.tsx")).toContain("<StarterHome />");
     expect(read("app/create/page.tsx")).toContain('<RingApp mode="create" />');
   });
 
@@ -306,8 +309,11 @@ describe("The new shell", () => {
     // Six since 2026-11-10, when Services joined (owner brief); the limit
     // itself lives in app/site/registry.test.ts.
     expect(nav.length).toBeLessThanOrEqual(6);
-    const paths = nav.map((p) => p.path);
-    expect(paths).toContain("/create");
+    // 2026-11-11: the starter leads; the workspace doors moved under More.
+    expect(read("app/site/RingHeader.tsx")).toContain("morePages()");
+    const paths = [...nav, ...morePages()].map((p) => p.path);
+    expect(paths).toContain("/start");
+    expect(paths).toContain("/make");
     expect(paths).toContain("/how");
     expect(paths).toContain("/builds");
     expect(paths).toContain("/library");

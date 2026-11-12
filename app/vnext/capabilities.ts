@@ -175,7 +175,7 @@ const SURFACES: Capability[] = [
     name: "Read my idea",
     emoji: "💡",
     what: "Say a rough idea in your own words and get back what it really is, the smartest first version, and the tools it needs.",
-    href: "/",
+    href: "/make",
     activation: "working",
     needs: ["idea", "start", "anything", "not sure", "rough"],
   },

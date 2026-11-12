@@ -1,17 +1,19 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { BUDGETS, CARE_PLANS, CARE_TERMS, INDEPENDENCE_NOTICE, NOT_INCLUDED, OFFERS, SERVICE_CHOICES } from "./offers";
+import { FINISH_VS_BUSINESS, BUDGETS, CARE_PLANS, CARE_TERMS, INDEPENDENCE_NOTICE, NOT_INCLUDED, OFFERS, SERVICE_CHOICES } from "./offers";
 import { WORK, SPOTLIGHT_WORK, TILE_WORK, FEATURED_WORK, ecosystemFor, isExternal } from "../work/work";
 
 const visible = (path: string) => readFileSync(path, "utf8").replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
 
-describe("Build it with us: honest offers", () => {
-  it("has the four introductory services, in order, with the owner's prices", () => {
+describe("Optional help: honest offers", () => {
+  // 2026-11-11 (owner brief): the help around the website starter, $250 to
+  // $2,500 and up by scope. Introductory; the written quote is the final word.
+  it("has the four introductory services, in order, within the owner's range", () => {
     expect(OFFERS.map((o) => [o.name, o.price])).toEqual([
-      ["Website Review", "$149"],
-      ["Starter Website", "$499"],
-      ["Business Website", "$999"],
-      ["Custom Website or Web App", "Starting at $2,499"],
+      ["Publish help", "$250"],
+      ["Finish my draft", "Starting at $600"],
+      ["Small business site", "Starting at $1,200"],
+      ["Custom site or web app", "$2,500 and up"],
     ]);
     expect(CARE_PLANS.map((c) => c.price)).toEqual(["$49 a month", "$99 a month", "$199 a month"]);
   });
@@ -24,6 +26,25 @@ describe("Build it with us: honest offers", () => {
 
   it("states timing as usual, never as a promise", () => {
     for (const o of OFFERS) expect(o.timing).toMatch(/^(Usually|Timing is set)/);
+  });
+
+  it("says where each package stops, and that we don't host", () => {
+    for (const o of OFFERS) expect(o.boundary.length, o.name).toBeGreaterThan(20);
+    expect(NOT_INCLUDED[0]).toMatch(/We don't host websites/);
+    expect(visible("app/services/page.tsx")).toContain("o.boundary");
+  });
+
+  it("tells Finish my draft and Small business site apart, and takes no deposits", () => {
+    const rows = FINISH_VS_BUSINESS.map((r) => r.label);
+    expect(rows).toEqual(expect.arrayContaining(["You start with", "Pages", "Wording"]));
+    for (const r of FINISH_VS_BUSINESS.filter((x) => x.label !== "Changes")) expect(r.finish, r.label).not.toBe(r.business);
+    for (const path of ["app/services/page.tsx", "app/request/page.tsx"]) expect(visible(path), path).not.toMatch(/deposit|50%/i);
+  });
+
+  it("keeps the brand faceless: no founder biography on the services or About pages", () => {
+    for (const path of ["app/services/page.tsx", "app/about/page.tsx"]) {
+      expect(visible(path), path).not.toMatch(/decades|the person behind|years of experience/i);
+    }
   });
 
   it("keeps the independence notice word for word, naming no employer", () => {
@@ -49,7 +70,7 @@ describe("Build it with us: honest offers", () => {
   });
 
   it("offers every service and a not-sure option on the form", () => {
-    expect(SERVICE_CHOICES.map((s) => s.id)).toEqual(["review", "starter", "business", "custom", "care", "not-sure"]);
+    expect(SERVICE_CHOICES.map((s) => s.id)).toEqual(["publish", "finish", "business", "custom", "care", "not-sure"]);
     expect(BUDGETS[0]).toEqual({ id: "", label: "Prefer not to say" });
   });
 
@@ -102,6 +123,7 @@ describe("Our work: real projects, labelled as our own", () => {
   it("says plainly that these are not client work, and invents no numbers", () => {
     expect(visible("app/builds/OwnerBuildsShowroom.tsx")).toContain("not client work");
     expect(visible("app/create/RingApp.tsx")).toContain("not client work");
+    expect(visible("app/builds/OwnerBuildsShowroom.tsx")).not.toMatch(/testimonial/i);
     const words = JSON.stringify(WORK.map((w) => [w.name, w.line, w.links]));
     expect(words).not.toMatch(/\d{2,}|client|customer|testimonial|users|visitors/i);
   });

@@ -25,8 +25,8 @@
 import Link from "next/link";
 import RingMark from "./RingMark";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { navPages } from "./registry";
+import { useEffect, useRef, useState } from "react";
+import { morePages, navPages } from "./registry";
 import { BRAND_SHORT } from "./brand";
 import OpenMirrorThemeToggle, { AppearanceMenu } from "../OpenMirrorTheme";
 
@@ -41,6 +41,21 @@ export default function RingHeader() {
   const [open, setOpen] = useState(false);
 
   const primary = navPages();
+  // 2026-11-11: the website starter leads; the make-with-AI workspace, how it
+  // works, tools and your saved work sit one level down under "More".
+  const more = morePages();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!moreOpen) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", close);
+    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", close); };
+  }, [moreOpen]);
+  const moreActive = more.some((p) => pathname === p.path);
 
   return (
     <header className="ring-bar">
@@ -65,6 +80,25 @@ export default function RingHeader() {
               {p.name}
             </Link>
           ))}
+          <div className="ring-more" ref={moreRef}>
+            <button
+              type="button"
+              aria-expanded={moreOpen}
+              aria-controls="ring-more-menu"
+              aria-current={moreActive ? "page" : undefined}
+              onClick={() => setMoreOpen((v) => !v)}
+            >
+              More <span aria-hidden="true">▾</span>
+            </button>
+            <div id="ring-more-menu" className={moreOpen ? "ring-more-menu open" : "ring-more-menu"}>
+              {more.map((p) => (
+                <Link key={p.path} href={p.path} aria-current={pathname === p.path ? "page" : undefined} onClick={() => setMoreOpen(false)}>
+                  <strong>{p.name}</strong>
+                  <span>{p.what}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </nav>
 
         <div className="ring-bar-end">
@@ -99,7 +133,13 @@ export default function RingHeader() {
       </div>
 
       <div id="ring-sheet" className={open ? "ring-sheet open" : "ring-sheet"}>
-        {[...primary.map((p) => ({ name: p.name, href: p.path })), ...SECONDARY].map((l) => (
+        {primary.map((p) => (
+          <Link key={p.path} href={p.path} aria-current={pathname === p.path ? "page" : undefined} onClick={() => setOpen(false)}>
+            {p.name}
+          </Link>
+        ))}
+        <span className="ring-sheet-label">More</span>
+        {[...more.map((p) => ({ name: p.name, href: p.path })), ...SECONDARY].map((l) => (
           <Link key={l.href} href={l.href} aria-current={pathname === l.href ? "page" : undefined} onClick={() => setOpen(false)}>
             {l.name}
           </Link>

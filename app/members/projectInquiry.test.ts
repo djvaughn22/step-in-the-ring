@@ -72,7 +72,7 @@ describe("project requests", () => {
     if (!v.ok || !v.record) throw new Error("expected a record");
     const mail = buildInquiryMail(v.record, {});
     expect(mail.to).toBe("ask@openmirrorllc.com");
-    expect(mail.subject).toContain("Business Website");
+    expect(mail.subject).toContain("Small business site");
     expect(mail.text).toContain("not accepted until you reply");
     expect(mail.text).toContain("pat@example.com");
   });

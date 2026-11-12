@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Sheet, PageHead, Section } from "../site/ui";
-import { BRAND_ONE_LINE, WHY_THE_NAME } from "../site/brand";
+import { BRAND_ONE_LINE, BRAND_OWNERSHIP, WHY_THE_NAME } from "../site/brand";
 import { INDEPENDENCE_NOTICE } from "../services/offers";
 
 export const metadata: Metadata = {
   title: "About StepInTheRing",
   description:
-    "Bring your idea to life: make it yourself with AI and no coding, or hire Open Mirror LLC to build your website or web app with you.",
+    "A website starter for small service businesses: start from an example, make it yours, download the files. Optional help publishing, from Open Mirror LLC.",
 };
 
 export default function AboutPage() {
@@ -20,28 +20,28 @@ export default function AboutPage() {
             Step In The Ring<span style={{ color: "var(--gold)" }}>.com</span>
           </>
         }
-        lead={`Bring your idea to life. Make it yourself here, or hire us to build it with you. ${BRAND_ONE_LINE}`}
+        lead={`${BRAND_ONE_LINE} ${BRAND_OWNERSHIP}`}
       />
 
-      <Section title="Two ways to build">
+      <Section title="Ways to use it">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
-          <li><strong style={{ color: "var(--text)" }}>Build it yourself.</strong> The workspace, tools and engines on this site, with no account and no coding.</li>
-          <li><strong style={{ color: "var(--text)" }}>Build it with us.</strong> We plan, design, build and launch websites and web apps for people, small businesses and organizations. <Link href="/services">See services</Link> or <Link href="/request">request a project</Link>.</li>
+          <li><strong style={{ color: "var(--text)" }}>The website starter.</strong> <Link href="/start">Choose an example</Link> for your kind of business, change the words, colors, fonts, photos and sections, and download the files. No account.</li>
+          <li><strong style={{ color: "var(--text)" }}>Help from us, if you want it.</strong> Publishing help, finishing your draft, or a site built for you, with a written quote first. <Link href="/services">See services</Link> or <Link href="/request">request a project</Link>.</li>
+          <li><strong style={{ color: "var(--text)" }}>Make other things with AI.</strong> <Link href="/make">The workspace</Link>, tools and engines on this site, with no account and no coding.</li>
         </ul>
       </Section>
 
       <Section title="Who builds it">
         <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: 0 }}>
-          Step In The Ring is run by Open Mirror LLC, a small independent company. The person
-          behind it has spent decades in operations, technology and digital product management,
-          including leading the teams that build and ship software. Modern development tools help
-          us work quickly; every project is still planned, checked and tested by a person. You can
-          see <Link href="/builds">sites we&rsquo;ve built and run ourselves</Link>.
+          Step In The Ring is run by Open Mirror LLC, a small independent company. Every project
+          is planned, checked and tested by a person before anything goes live. You can see{" "}
+          <Link href="/builds">sites we&rsquo;ve built and run ourselves</Link>.
         </p>
       </Section>
 
       <Section title="What you can do here">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
+          <li>Start a website for your business from one of 22 examples, preview it on a phone and a computer, and download the files.</li>
           <li>Say what you want to make and get a first message to give an AI, then the next message each time you want something changed.</li>
           <li>Bring something that isn&rsquo;t a thing to make: a bill you don&rsquo;t understand, a decision, a question.</li>
           <li>Open a guided engine when you already know what kind of thing you&rsquo;re making.</li>

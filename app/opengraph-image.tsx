@@ -3,7 +3,7 @@
 
 import { ImageResponse } from "next/og";
 
-export const alt = "Step In The Ring: make it with AI. Keep going until it's right.";
+export const alt = "Step In The Ring: a website for your business. Yours to keep.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -33,11 +33,11 @@ export default function OpengraphImage() {
           STEPINTHERING.COM
         </div>
         <div style={{ marginTop: 20, fontSize: 84, lineHeight: 1.08, display: "flex", flexWrap: "wrap" }}>
-          <span>Make it with AI.&nbsp;</span>
-          <span style={{ color: ACCENT }}>Keep going until it&apos;s right.</span>
+          <span>A website for your business.&nbsp;</span>
+          <span style={{ color: ACCENT }}>Yours to keep.</span>
         </div>
         <div style={{ marginTop: 28, fontSize: 36, color: MUTED, lineHeight: 1.35, display: "flex" }}>
-          Say what you want in your own words, no coding needed.
+          Start from an example, make it yours, download the files.
         </div>
       </div>
     ),

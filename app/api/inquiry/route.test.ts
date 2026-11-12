@@ -21,7 +21,7 @@ const body = {
   name: "Pat Example",
   email: "pat@example.com",
   projectType: "new-site",
-  service: "starter",
+  service: "publish",
   description: "A three page site for a small bakery, with hours and a menu.",
   timeline: "soon",
   budget: "",

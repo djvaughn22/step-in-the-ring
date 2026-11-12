@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// BUILD IT WITH US: the services, in one place.
+// OPTIONAL HELP: the services, in one place.
 //
 // Owner brief, 2026-11-10: Step In The Ring has two offers. Build it yourself
 // (the workspace, tools and engines, no charge, unchanged) and Build it with
@@ -16,7 +16,7 @@
 //   - No invented clients, testimonials or numbers.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type OfferId = "review" | "starter" | "business" | "custom";
+export type OfferId = "publish" | "finish" | "business" | "custom";
 
 export interface Offer {
   id: OfferId;
@@ -26,72 +26,94 @@ export interface Offer {
   /** One sentence: who it's for. */
   forWho: string;
   includes: string[];
+  /** Where the package stops, so nobody has to guess. */
+  boundary: string;
   /** The honest timing line. Never a guarantee. */
   timing: string;
   flagship?: boolean;
 }
 
+// 2026-11-11 (owner brief): the website starter leads, and these are the
+// optional help around it, $250 to $2,500 and up by scope. Introductory; the
+// written quote is the final word. Earlier ids (review, starter) can still
+// appear on old requests; labelFor() shows the raw id for those.
+/** The whole range, said once. */
+export const PRICE_RANGE = "from $250 to $2,500 and up by scope";
+
 export const OFFERS: Offer[] = [
   {
-    id: "review",
-    name: "Website Review",
-    price: "$149",
-    forWho: "You have a website and want to know what to fix first.",
+    id: "publish",
+    name: "Publish help",
+    price: "$250",
+    forWho: "You made a draft with the website starter and want it online.",
     includes: [
-      "Up to 10 pages, checked on a phone and a computer",
-      "Navigation, mobile layout, basic speed and accessibility notes",
-      "Whether your pages lead people to call, book or buy",
-      "A written, prioritized list of improvements",
-      "One round of follow-up questions by email",
+      "A check of your site on a phone and a computer",
+      "Set up with the hosting company you choose, in your name",
+      "Your domain connected, so your address shows your site",
+      "Call, text, email and booking buttons tested",
+      "A short note on how to update it later",
     ],
-    timing: "Usually within 5 business days.",
+    boundary: "Puts your site online as you made it. Changes to the wording or layout are Finish my draft.",
+    timing: "Usually within 5 business days after your domain and hosting accounts are ready.",
   },
   {
-    id: "starter",
-    name: "Starter Website",
-    price: "$499",
-    forWho: "A clean, simple site for one person or a small organization.",
+    id: "finish",
+    name: "Finish my draft",
+    price: "Starting at $600",
+    forWho: "You made a one-page draft in the website starter and want it polished before it goes live.",
     includes: [
-      "Up to 3 pages that work well on phones",
-      "A contact form or easy call and email links",
-      "Basic search setup: titles, descriptions, sitemap",
-      "One round of changes",
-      "Simple launch or handoff instructions",
+      "Your wording tidied and tightened, working from what you wrote",
+      "Your photos sized and placed",
+      "Colors, fonts and section order adjusted within the starter's layout",
+      "Two rounds of changes",
+      "Publish help included",
     ],
-    timing: "Usually 5 to 7 business days after we have your text and photos.",
+    boundary: "Works from the one page you made. Writing it from scratch, adding pages or a different structure is a Small business site.",
+    timing: "Usually 5 to 10 business days after we have your text and photos.",
   },
   {
     id: "business",
-    name: "Business Website",
-    price: "$999",
-    forWho: "A professional site for a business that wants to be found and contacted.",
+    name: "Small business site",
+    price: "Starting at $1,200",
+    forWho: "You don't have a draft, or you need more than one page.",
     includes: [
-      "Up to 6 pages, styled to your brand",
-      "Works well on phones and computers",
-      "Contact form and basic search setup",
-      "Two rounds of changes",
-      "Testing and help getting it live",
+      "Starts with a conversation, no draft needed",
+      "Up to 5 pages, planned and laid out for your business",
+      "Wording written with you, from your answers",
+      "Call, email or a contact form, and basic search setup",
+      "Two rounds of changes, and publish help included",
     ],
-    timing: "Usually 7 to 14 business days after we have your text and photos.",
-    flagship: true,
+    boundary: "Pages that show information and help people reach you. Online booking, payments or logins are custom work.",
+    timing: "Usually 10 to 15 business days after we have your text and photos.",
   },
   {
     id: "custom",
-    name: "Custom Website or Web App",
-    price: "Starting at $2,499",
-    forWho: "Something that needs more: a tool, a workflow, an integration.",
+    name: "Custom site or web app",
+    price: "$2,500 and up",
+    forWho: "It needs to do more: bookings, payments, a member area, or a tool.",
     includes: [
       "A conversation first, then a written estimate",
       "A plan in milestones, with a preview at each one",
       "Testing on real phones and computers",
       "Help launching, and a handoff you can keep",
     ],
+    boundary: "Scope, price and schedule are set in writing before any work starts.",
     timing: "Timing is set in the written estimate, after we understand the work.",
   },
 ];
 
+/** Finish my draft or Small business site? Said side by side, plainly. */
+export const FINISH_VS_BUSINESS: { label: string; finish: string; business: string }[] = [
+  { label: "You start with", finish: "A one-page draft you made in the website starter", business: "A conversation. No draft needed" },
+  { label: "Pages", finish: "The one page you made", business: "Up to 5 pages" },
+  { label: "Wording", finish: "Yours. We tidy and tighten it", business: "Written with you, from your answers" },
+  { label: "Design", finish: "The starter layout you chose, adjusted", business: "Laid out for your business" },
+  { label: "Changes", finish: "Two rounds", business: "Two rounds" },
+];
+
 /** What no package includes. Plain and complete. */
 export const NOT_INCLUDED = [
+  "Hosting. We don't host websites. Your site lives with the hosting company you choose.",
   "Domain, hosting, email and other paid services. You pay them directly, in your own name.",
   "Writing large amounts of new text, professional photos or a logo.",
   "Online payments, bookings, logins or member areas, unless quoted as custom work.",
@@ -130,6 +152,7 @@ export const CARE_TERMS =
 // ── The request form's choices. Values are stable ids; labels are words. ──
 
 export const PROJECT_TYPES = [
+  { id: "publish-draft", label: "Publish a draft I made here" },
   { id: "new-site", label: "A new website" },
   { id: "redo-site", label: "Redo or improve my website" },
   { id: "review", label: "A review of my website" },
