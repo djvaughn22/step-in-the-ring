@@ -86,6 +86,9 @@ export default function StarterEditor() {
       setDraft(draftFromExample(ex));
       track("starter_start", { example: ex.slug });
     }
+    // On a phone, a desktop frame shrinks to about a quarter size and can't be
+    // read. Start the preview in the phone frame there; the toggle still switches.
+    if (window.matchMedia?.("(max-width: 700px)").matches) setDevice("phone");
     setReady(true);
     /* eslint-enable react-hooks/set-state-in-effect */
     // The slug has done its job; a reload should open the draft, not ask again.
