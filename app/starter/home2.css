@@ -79,3 +79,8 @@ html[data-om-theme="light"] .h2 { --h2-act: #F2B01E; --h2-act-ink: #1A1300; --h2
   .h2-lead { font-size: 17px; }
 }
 @media (prefers-reduced-motion: reduce) { .h2-btn { transition: none; } }
+.h2-steps3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.h2-later { margin-top: 22px !important; font-size: 14.5px; }
+.h2-later a { color: var(--accent); font-weight: 700; }
+@media (max-width: 1000px) { .h2-steps3 { grid-template-columns: 1fr 1fr 1fr; } }
+@media (max-width: 760px) { .h2-steps3 { grid-template-columns: 1fr; } }

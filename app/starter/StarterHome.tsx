@@ -2,31 +2,30 @@ import Link from "next/link";
 import "./starter.css";
 import "./home2.css";
 import { BRAND_OWNERSHIP } from "../site/brand";
-import { OFFERS, NOT_INCLUDED, PRICE_RANGE } from "../services/offers";
 import ArrivalForward from "./ArrivalForward";
 import DevicePreview from "./DevicePreview";
 import { draftFromExample, paletteById } from "./draft";
 import { EXAMPLES, exampleBySlug } from "./examples";
 import { renderSite } from "./render";
 
-// THE FRONT DOOR (overnight brief, 2026-11-12): a website service for small
-// businesses first, the do-it-yourself starter second. Prices come only from
-// app/services/offers.ts. No invented clients, numbers or promises.
+// THE FRONT DOOR (owner, 2026-11-12): FREE FIRST. The website starter is the
+// product. Paid help and budgets come later, only as an option once someone
+// is using it, and only when it's a fit with no conflict. So: no prices and
+// no package list on this page. No invented clients, numbers or promises.
 
 const SHOWCASE = "mobile-dog-groomer";
 const FEATURED = ["handyman", "hair-stylist-barber", "house-cleaner", "personal-trainer", "photographer", "bookkeeper"];
 
 const PROMISES = [
-  ["A written quote first", "You see the scope, price and timing in writing before any work or payment."],
-  ["Yours, in your name", "Your domain and hosting are in your name. You keep the files."],
-  ["Checked on real screens", "Every page is tried on a phone and a computer before it goes live."],
+  ["Free to make and download", "No account, no coding, no card. Make it and take the files."],
+  ["Yours to keep", "A normal website: your page, your photos and a short guide. Keep it, copy it, change it."],
+  ["Made for phones too", "See it on a phone and a computer while you work on it."],
 ] as const;
 
 const PROCESS = [
-  ["Tell us about it", "A short form: your business, what you need, and when. No account."],
-  ["Get a written quote", "What's included, what isn't, the price and the timing."],
-  ["See it as it's built", "You review a preview and ask for changes."],
-  ["Go live", "We help connect your domain and hosting, then hand everything over."],
+  ["Choose an example", "Pick the business closest to yours. Each one is written for that kind of work."],
+  ["Make it yours", "Your name, area and contact details. Then change the words, colors, photos and sections."],
+  ["Download your files", "One download with your page, your photos and a short guide to putting it online."],
 ] as const;
 
 export default function StarterHome() {
@@ -40,19 +39,16 @@ export default function StarterHome() {
 
       <section className="h2-hero">
         <div className="h2-hero-copy">
-          <p className="h2-kicker">Websites for small businesses</p>
+          <p className="h2-kicker">A free website builder for small businesses</p>
           <h1>Get your business online. <span>Without the headache.</span></h1>
           <p className="h2-lead">
-            We build clear websites for solo owners and small businesses, from putting a page you made online to a
-            full site that does more. Projects run {PRICE_RANGE}, and you get a written quote before anything starts.
+            Start from an example written for your kind of work, add your details, and change it until it looks
+            right. Then download the files. It&apos;s free, with no coding and no account.
           </p>
           <div className="h2-go">
-            <Link className="h2-btn h2-btn-main" href="/request">Tell us about your project</Link>
-            <Link className="h2-btn h2-btn-alt" href="/services">See services and prices</Link>
+            <Link className="h2-btn h2-btn-main" href="/start">Choose your example</Link>
+            <Link className="h2-btn h2-btn-alt" href="/examples">See all {EXAMPLES.length} examples</Link>
           </div>
-          <p className="h2-diy">
-            Rather do it yourself? <Link href="/start">Make your own site with the website starter</Link>. It&apos;s free, with no account.
-          </p>
         </div>
         <div className="sh-show h2-show" aria-label={`Example: ${ex.name.toLowerCase()}`}>
           <div className="sh-show-desk"><DevicePreview html={html} title={`Example website for a ${ex.name.toLowerCase()}, desktop`} initial="desktop" hideToggle /></div>
@@ -61,34 +57,16 @@ export default function StarterHome() {
         </div>
       </section>
 
-      <ul className="h2-promises" aria-label="How we work">
+      <ul className="h2-promises" aria-label="What you get">
         {PROMISES.map(([t, d]) => (
           <li key={t}><strong>{t}</strong><span>{d}</span></li>
         ))}
       </ul>
 
-      <section className="h2-sec" aria-labelledby="offers-h">
-        <div className="h2-head">
-          <h2 id="offers-h">Pick how much help you want</h2>
-          <p>Introductory prices. The written quote is the final word, and nothing is charged on this site.</p>
-        </div>
-        <ul className="h2-offers">
-          {OFFERS.map((o) => (
-            <li key={o.id} className="h2-offer">
-              <span className="h2-price">{o.price}</span>
-              <h3>{o.name}</h3>
-              <p>{o.forWho}</p>
-              <ul>{o.includes.slice(0, 3).map((i) => <li key={i}>{i}</li>)}</ul>
-              <Link className="h2-more" href={`/services#${o.id}`} aria-label={`More about ${o.name}`}>What&apos;s included&nbsp;→</Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       <section className="h2-sec" aria-labelledby="ex-h">
         <div className="h2-head">
           <h2 id="ex-h">Example sites for {EXAMPLES.length} kinds of business</h2>
-          <p>Each one is written for that kind of work. Look around, or start your own from one.</p>
+          <p>Local, home-based, appointment-based and mobile work. Look around, or start yours from one.</p>
         </div>
         <ul className="h2-examples">
           {featured.map((e) => {
@@ -110,8 +88,8 @@ export default function StarterHome() {
       </section>
 
       <section className="h2-sec" aria-labelledby="how-h">
-        <div className="h2-head"><h2 id="how-h">How a project goes</h2></div>
-        <ol className="h2-steps">
+        <div className="h2-head"><h2 id="how-h">How it works</h2></div>
+        <ol className="h2-steps h2-steps3">
           {PROCESS.map(([t, d], i) => (
             <li key={t}><span className="h2-num">{i + 1}</span><strong>{t}</strong><p>{d}</p></li>
           ))}
@@ -124,18 +102,25 @@ export default function StarterHome() {
           <p className="h2-own">{BRAND_OWNERSHIP}</p>
         </div>
         <div>
-          <h3>Not part of any package</h3>
-          <ul>{NOT_INCLUDED.slice(0, 4).map((n) => <li key={n}>{n}</li>)}</ul>
+          <h3>Good to know</h3>
+          <ul>
+            <li>You choose where your site lives and pay that company directly, in your own name.</li>
+            <li>There&apos;s no account with us to keep up, and nothing to cancel.</li>
+            <li>Come back any time to change your draft and download it again.</li>
+          </ul>
         </div>
       </section>
 
       <section className="h2-cta" aria-labelledby="cta-h">
         <h2 id="cta-h">Ready when you are.</h2>
-        <p>Tell us what you need. You&apos;ll get a written quote, and there&apos;s no obligation to go ahead.</p>
+        <p>Pick the example closest to your business and make it yours. It&apos;s free.</p>
         <div className="h2-go">
-          <Link className="h2-btn h2-btn-main" href="/request">Tell us about your project</Link>
-          <Link className="h2-btn h2-btn-alt" href="/start">Choose your example</Link>
+          <Link className="h2-btn h2-btn-main" href="/start">Choose your example</Link>
         </div>
+        <p className="h2-later">
+          Rather have us do it? Once you have a draft, you can ask about optional help finishing or publishing it.
+          We&apos;ll tell you honestly if it&apos;s a fit. <Link href="/services">About optional help</Link>
+        </p>
       </section>
 
       <p className="sh-more">

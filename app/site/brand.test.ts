@@ -69,10 +69,11 @@ describe("the website starter on the home page", () => {
   const text = starterHomeText();
 
   it("says what this is, for whom, and what you get", () => {
-    // Overnight 2026-11-12: service-led home. The starter stays one click away.
+    // Owner, 2026-11-12: free first. No prices on the home page.
     expect(text).toContain("Get your business online. Without the headache.");
-    expect(text).toContain("Tell us about your project");
+    expect(text).toContain("It's free");
     expect(text).toContain("Choose your example");
+    expect(text).not.toMatch(/\$\d/);
   });
 
   it("says plainly that we don't host the site", () => {
@@ -81,8 +82,8 @@ describe("the website starter on the home page", () => {
   });
 
   it("offers help as an option, never as the only way", () => {
-    expect(text).toContain("Rather do it yourself?");
-    expect(text).toContain("written quote");
+    expect(text).toContain("Rather have us do it?");
+    expect(text).toContain("optional help");
   });
 
   it("keeps the other capabilities one link away", () => {
