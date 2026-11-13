@@ -180,8 +180,11 @@ describe("the promise travels", () => {
 
   it("the share card says it too", () => {
     const card = readFileSync("app/opengraph-image.tsx", "utf8");
-    expect(card).toContain("A website for your business.");
-    expect(card).toContain("Yours to keep.");
+    // 2026-11-12: the share card carries the home page's line, free first.
+    expect(card).toContain("Get your business online.");
+    expect(card).toContain("Without the headache.");
+    expect(card).toContain("A free website builder.");
+    expect(card).not.toMatch(/\$\d/);
   });
 
   it("the old tagline is gone from every public surface", () => {
