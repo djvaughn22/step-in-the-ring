@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "../starter/starter.css";
+import "../starter/home2.css";
 import ExampleCards from "../starter/ExampleCards";
 import { EXAMPLES } from "../starter/examples";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function ExamplesPage() {
   return (
-    <main className="xs">
+    <main className="xs h2">
       <header className="xs-head">
         <h1>{EXAMPLES.length} example websites</h1>
         <p>

@@ -84,3 +84,7 @@ html[data-om-theme="light"] .h2 { --h2-act: #F2B01E; --h2-act-ink: #1A1300; --h2
 .h2-later a { color: var(--accent); font-weight: 700; }
 @media (max-width: 1000px) { .h2-steps3 { grid-template-columns: 1fr 1fr 1fr; } }
 @media (max-width: 760px) { .h2-steps3 { grid-template-columns: 1fr; } }
+
+/* The free path (/start, /examples) shares the home page's action colour. */
+.h2 .btn-gold { background: var(--h2-act); border-color: var(--h2-act); color: var(--h2-act-ink); }
+.h2 .btn-gold:hover { background: #FFC94D; border-color: #FFC94D; }

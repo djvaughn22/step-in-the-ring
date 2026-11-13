@@ -89,8 +89,9 @@ export default async function ExamplePage({ params }: { params: Promise<{ slug: 
             <p className="xp-small">The example leaves out credentials, reviews, prices and promises on purpose. Add only what&apos;s true for your business.</p>
           </section>
           <section>
-            <h2>Free, with optional paid help</h2>
-            <p>Making and downloading your site is free, and you can publish it yourself. If you&apos;d like us to finish it or put it online, that&apos;s <Link href="/services">paid help</Link>, by written quote.</p>
+            {/* Owner, 2026-11-12: free first. Paid help is offered after a draft exists (in the editor). */}
+            <h2>Free to make</h2>
+            <p>Making and downloading your site is free, with no account. You keep the files and publish them with the hosting you choose.</p>
           </section>
         </aside>
       </div>

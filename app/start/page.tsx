@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "../starter/starter.css";
+import "../starter/home2.css";
 import ExampleCards from "../starter/ExampleCards";
 import ContinueDraft from "../starter/ContinueDraft";
 import { BRAND_OWNERSHIP } from "../site/brand";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function StartPage() {
   return (
-    <main className="xs">
+    <main className="xs h2">
       <header className="xs-head">
         <ol className="se-steps" aria-label="Steps">
           <li aria-current="step">1. Choose an example</li>
@@ -24,9 +24,9 @@ export default function StartPage() {
           Each example is a full one-page website with wording written for that kind of work. Pick one,
           then change the words, colors, fonts, photos and sections. Your draft saves in this browser.
         </p>
+        {/* Owner, 2026-11-12: free first. Paid help is offered later, once there's a draft. */}
         <div className="xs-freepaid">
-          <span><strong>Free:</strong> making and downloading your site, with no account.</span>
-          <span><strong>Optional paid help:</strong> we can finish or publish it for you, by written quote. <Link href="/services">See services</Link>.</span>
+          <span><strong>Free:</strong> making and downloading your site, with no account and no coding.</span>
         </div>
         <ContinueDraft />
       </header>
