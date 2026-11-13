@@ -27,6 +27,7 @@ export default function StartPage() {
         {/* Owner, 2026-11-12: free first. Paid help is offered later, once there's a draft. */}
         <div className="xs-freepaid">
           <span><strong>Free:</strong> making and downloading your site, with no account and no coding.</span>
+          <span>Never made a website? That&apos;s fine. You change words and pick colors; the layout is done for you.</span>
         </div>
         <ContinueDraft />
       </header>
@@ -35,6 +36,10 @@ export default function StartPage() {
         <p>{BRAND_OWNERSHIP}</p>
         <p>
           Don&apos;t see your business? Start from the closest one; every section can change.
+        </p>
+        <p>
+          Making a site for a hobby, a club, a church group or your own portfolio? Same idea: pick the
+          closest example and change every word.
         </p>
       </footer>
     </main>
