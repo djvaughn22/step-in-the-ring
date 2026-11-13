@@ -1,0 +1,81 @@
+/* Home page, overnight redesign 2026-11-12. Scoped to .h2 so no other page
+   changes. Warm amber is the action colour here; links keep the site blue.
+   No gradients, no glow (owner rule). */
+.h2 { --h2-act: #F5B82E; --h2-act-ink: #1A1300; --h2-act-text: #F5B82E; --h2-card: var(--panel); }
+html[data-om-theme="light"] .h2 { --h2-act: #F2B01E; --h2-act-ink: #1A1300; --h2-act-text: #8A5A00; }
+
+.h2 h1, .h2 h2, .h2 h3 { text-wrap: balance; }
+.h2-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 48px; align-items: center; padding: 28px 0 40px; }
+.h2-kicker { margin: 0 0 14px; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--h2-act-text); }
+.h2-hero h1 { font-size: clamp(36px, 5vw, 62px); line-height: 1.02; letter-spacing: -0.035em; }
+.h2-hero h1 span { display: block; color: var(--h2-act-text); }
+.h2-lead { margin-top: 20px; font-size: 18.5px; line-height: 1.55; color: var(--muted); max-width: 33em; }
+.h2-go { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.h2-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 12px 22px; border-radius: 10px; font-weight: 800; font-size: 16.5px; text-decoration: none; transition: transform .12s ease, background-color .12s ease; }
+.h2-btn-main { background: var(--h2-act); color: var(--h2-act-ink); }
+.h2-btn-main:hover { background: #FFC94D; }
+.h2-btn-alt { border: 1.5px solid var(--line2); color: var(--text); }
+.h2-btn-alt:hover { border-color: var(--text); }
+.h2-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.h2-diy { margin-top: 20px; font-size: 15px; color: var(--muted); line-height: 1.5; }
+.h2-diy a { color: var(--accent); font-weight: 700; }
+
+.h2-promises { list-style: none; margin: 8px 0 0; padding: 18px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 28px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.h2-promises strong { display: block; font-size: 16.5px; }
+.h2-promises span { display: block; margin-top: 4px; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+.h2-promises li { padding-left: 14px; border-left: 3px solid var(--h2-act); }
+
+.h2-sec { padding: 56px 0 8px; }
+.h2-head { max-width: 46em; }
+.h2-head p { margin-top: 8px; color: var(--muted); line-height: 1.55; }
+
+.h2-offers { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.h2-offer { display: flex; flex-direction: column; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--h2-card); }
+.h2-offer:last-child { border-color: var(--line2); }
+.h2-price { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; color: var(--h2-act-text); }
+.h2-offer h3 { margin-top: 6px; font-size: 18px; }
+.h2-offer > p { margin-top: 8px; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+.h2-offer ul { margin: 14px 0 0; padding: 0 0 0 18px; color: var(--text); font-size: 14.5px; line-height: 1.5; display: grid; gap: 6px; }
+.h2-more { margin-top: auto; padding-top: 16px; font-weight: 700; color: var(--accent); }
+
+.h2-examples { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.h2-examples a { display: grid; gap: 6px; height: 100%; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--h2-card); color: var(--text); text-decoration: none; }
+.h2-examples a:hover { border-color: var(--h2-act); }
+.h2-examples strong { font-size: 16.5px; }
+.h2-examples span:not(.h2-ex-swatch) { color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+.h2-ex-swatch { display: flex; gap: 6px; width: fit-content; padding: 6px; border-radius: 8px; border: 1px solid var(--line); }
+.h2-ex-swatch i { display: block; width: 18px; height: 18px; border-radius: 50%; }
+.h2-allex { margin-top: 16px; font-weight: 700; }
+
+.h2-steps { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: s; }
+.h2-steps li { padding: 20px; border-top: 3px solid var(--h2-act); background: var(--h2-card); border-radius: 0 0 12px 12px; }
+.h2-num { font-size: 13px; font-weight: 900; color: var(--h2-act-text); }
+.h2-steps strong { display: block; margin-top: 6px; font-size: 17px; }
+.h2-steps p { margin-top: 6px; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+
+.h2-honest { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 48px; }
+.h2-own { margin-top: 12px; font-size: 16.5px; line-height: 1.6; color: var(--text); }
+.h2-honest h3 { font-size: 17px; }
+.h2-honest ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 8px; color: var(--muted); font-size: 15px; line-height: 1.5; }
+
+.h2-cta { margin-top: 56px; padding: 36px 32px; border-radius: 18px; border: 1px solid var(--line2); background: var(--panel2); text-align: center; }
+.h2-cta p { margin: 10px auto 0; max-width: 34em; color: var(--muted); line-height: 1.55; }
+.h2-cta .h2-go { justify-content: center; }
+
+@media (max-width: 1000px) {
+  .h2-offers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .h2-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .h2-hero { grid-template-columns: 1fr; gap: 28px; padding-top: 8px; }
+  .h2-promises, .h2-honest { grid-template-columns: 1fr; }
+  .h2-examples { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .h2-offers, .h2-steps, .h2-examples { grid-template-columns: 1fr; }
+  .h2-go .h2-btn { flex: 1 1 100%; }
+  .h2-sec { padding-top: 44px; }
+  .h2-cta { padding: 28px 18px; }
+  .h2-lead { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) { .h2-btn { transition: none; } }

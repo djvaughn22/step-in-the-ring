@@ -9,7 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import RingApp from "../create/RingApp";
-import { BRAND_ONE_LINE, BRAND_OWNERSHIP, BRAND_SIGNATURE, MAKE_SIGNATURE, WHY_THE_NAME } from "./brand";
+import { BRAND_ONE_LINE, BRAND_OWNERSHIP, MAKE_SIGNATURE, WHY_THE_NAME } from "./brand";
 import StarterHome from "../starter/StarterHome";
 import { WORK } from "../work/work";
 import { metadata } from "../layout";
@@ -69,8 +69,9 @@ describe("the website starter on the home page", () => {
   const text = starterHomeText();
 
   it("says what this is, for whom, and what you get", () => {
-    expect(text).toContain(BRAND_SIGNATURE);
-    expect(text).toContain("Yours to keep.");
+    // Overnight 2026-11-12: service-led home. The starter stays one click away.
+    expect(text).toContain("Get your business online. Without the headache.");
+    expect(text).toContain("Tell us about your project");
     expect(text).toContain("Choose your example");
   });
 
@@ -80,7 +81,7 @@ describe("the website starter on the home page", () => {
   });
 
   it("offers help as an option, never as the only way", () => {
-    expect(text).toContain("Rather have us do it?");
+    expect(text).toContain("Rather do it yourself?");
     expect(text).toContain("written quote");
   });
 
