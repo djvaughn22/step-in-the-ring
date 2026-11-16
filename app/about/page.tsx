@@ -77,12 +77,16 @@ export default function AboutPage() {
         </p>
       </Section>
 
-      <p style={{ fontSize: 13, lineHeight: 1.7, color: "var(--muted)", margin: "28px 0 0" }}>
-        StepInTheRing is an{" "}
+      <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--muted)", margin: "28px 0 0" }}>
+        For people and small businesses who want a real website without learning to code.
+      </p>
+
+      <p style={{ fontSize: 13, lineHeight: 1.7, color: "var(--muted)", margin: "12px 0 0" }}>
+        StepInTheRing is an independent product of{" "}
         <a href="https://openmirrorllc.com" style={{ color: "var(--gold)", textDecoration: "none" }}>
           Open Mirror LLC
-        </a>{" "}
-        project.
+        </a>
+        .
       </p>
 
       {/* The footer's Contact and Disclaimer links land on these two
