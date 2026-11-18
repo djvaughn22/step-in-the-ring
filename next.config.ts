@@ -65,9 +65,23 @@ export const MERGED_PAGE_REDIRECTS = [
   { source: "/members/signup", destination: "/members/login", permanent: false },
 ];
 
+// Site-wide security headers (Nov 18 2026): the same set the hub,
+// PleaseBeReady, WatchedNotWatched, DontCloneMeTom and WhatAmIAI send.
+// Same-origin framing is safe: no Open Mirror site frames this one, and the
+// starter and Game Studio previews here are inline (srcDoc) frames.
+// Different keys from PRIVATE_HEADERS, so both sets apply on private routes.
+export const SECURITY_HEADERS = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+];
+
 const nextConfig: NextConfig = {
   async headers() {
-    return PRIVATE_ROUTES.map((source) => ({ source, headers: PRIVATE_HEADERS }));
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      ...PRIVATE_ROUTES.map((source) => ({ source, headers: PRIVATE_HEADERS })),
+    ];
   },
   async redirects() {
     return [...DIGITAL_FRONT_DESK_REDIRECTS, ...RETIRED_SALES_REDIRECTS, ...MERGED_PAGE_REDIRECTS];
