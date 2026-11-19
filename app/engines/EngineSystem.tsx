@@ -952,10 +952,13 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
   // The finished artifact — saved with the cycle, or rebuilt from the saved
   // answers for cycles made before artifacts existed.
   const art = p.artifact ?? engineArtifact(e.id, project.answers);
+  // A launch kit for a local business, group or event is a real-world plan,
+  // not software: no build cycles, no return-with-results, no push request.
+  const tech = e.technical && !art?.realWorld;
   const baseTabs: [string, string][] = [["overview", "Overview"], ["execution", "Execution"], ["verify", "Verify"], ["return", "Return"], ["next", "Next Cycle"]];
   const specialtyTabs = e.specialties.map((title) => [title.toLowerCase().replace(/\s+/g, "-"), title] as [string, string]);
   const tabs: [string, string][] = art
-    ? [["overview", art.kind], ...(e.technical ? [["return", "Return with results"], ["next", "Next cycle"]] as [string, string][] : [])]
+    ? [["overview", art.kind], ...(tech ? [["return", "Return with results"], ["next", "Next cycle"]] as [string, string][] : [])]
     : [...baseTabs, ...specialtyTabs];
   const bullets = (arr: string[]) => arr.map((x) => `- ${x}`).join("\n");
   return (
@@ -964,12 +967,12 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
 
       {/* build-cycle history */}
       <div style={{ ...card, marginBottom: 14 }}>
-        <span className="kicker" style={{ margin: 0 }}>{e.emoji} {project.name} — {e.technical ? "build cycles" : "versions"}</span>
+        <span className="kicker" style={{ margin: 0 }}>{e.emoji} {project.name} — {tech ? "build cycles" : "versions"}</span>
         <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
           {project.cycles.map((c) => (
             <div key={c.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 13, color: c.id === cycle.id ? "var(--text)" : "var(--muted)", fontWeight: c.id === cycle.id ? 800 : 400 }}>
-              <span>{e.technical ? "Cycle" : "Version"} {c.index + 1} — {c.objective.length > 46 ? `${c.objective.slice(0, 46).replace(/\s+\S*$/, "")}…` : c.objective}</span>
-              <span style={{ flexShrink: 0 }}>{!e.technical && c.status === "drafted" ? "saved" : c.status}{c.ret?.recommendation ? ` → ${PATH_LABELS[c.ret.recommendation]}` : ""}</span>
+              <span>{tech ? "Cycle" : "Version"} {c.index + 1} — {c.objective.length > 46 ? `${c.objective.slice(0, 46).replace(/\s+\S*$/, "")}…` : c.objective}</span>
+              <span style={{ flexShrink: 0 }}>{!tech && c.status === "drafted" ? "saved" : c.status}{c.ret?.recommendation ? ` → ${PATH_LABELS[c.ret.recommendation]}` : ""}</span>
             </div>
           ))}
         </div>
@@ -1066,8 +1069,8 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
             </button>
           </>
         )}
-        {(!art || e.technical) && cycle.status === "drafted" && <button onClick={onMarkSent} className="btn btn-ghost btn-small">Mark as sent</button>}
-        {(!art || e.technical) && (cycle.status === "sent" || cycle.status === "drafted") && <button onClick={onReturn} className="btn btn-ghost btn-small">Return with results</button>}
+        {(!art || tech) && cycle.status === "drafted" && <button onClick={onMarkSent} className="btn btn-ghost btn-small">Mark as sent</button>}
+        {(!art || tech) && (cycle.status === "sent" || cycle.status === "drafted") && <button onClick={onReturn} className="btn btn-ghost btn-small">Return with results</button>}
         {cycle.status === "reviewed" && <button onClick={onNewCycle} className="btn btn-ghost btn-small">Manual new cycle</button>}
       </div>
 
@@ -1081,7 +1084,7 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
         </div>
         <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
           This is saved right here in Your projects — come back anytime to
-          continue or start another cycle. Take it with you using the copy
+          continue or make another version. Take it with you using the copy
           and download buttons above. It also shows up in{" "}
           <a href="/library" style={{ color: "var(--gold)", fontWeight: 800, textDecoration: "none" }}>Your work</a>.
         </p>
@@ -1090,7 +1093,7 @@ function CycleView({ project, cycle, engine, tab, setTab, card, Section, copy, o
       {/* Software-specific and optional. Sell/Grow/Plan produce a plan a
           person carries out themselves — this only applies to engines that
           actually produce code someone might build or ship. */}
-      {e.technical && (
+      {e.technical && tech && (
         <div style={{ ...card, marginTop: 14 }}>
           <div style={{ fontSize: 13, fontWeight: 900, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
             Optional — shipping this yourself

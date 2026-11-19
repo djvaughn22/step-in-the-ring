@@ -23,6 +23,14 @@ const PROMISES = [
   ["Made for phones too", "See it on a phone and a computer while you work on it."],
 ] as const;
 
+// Doors into the engines, named by the job, not the engine (2026-11-18).
+const DOORS = [
+  ["Plan your launch", "Two weeks of checks and messages for when your site goes live, and one result to count.", "/engines/room?engine=launch"],
+  ["Price a service or product", "Who it's for, an offer, a price to test and a first test to run.", "/engines/room?engine=sell"],
+  ["Get more calls and bookings", "One change to try, how long to run it, and how to read the result.", "/engines/room?engine=grow"],
+  ["Plan an event or a season", "Steps, who does what, dates, risks and the next thing to do.", "/engines/room?engine=plan"],
+] as const;
+
 const PROCESS = [
   ["Choose an example", "Pick the business closest to yours. Each one is written for that kind of work."],
   ["Make it yours", "Your name, area and contact details. Then change the words, colors, photos and sections."],
@@ -119,9 +127,26 @@ export default function StarterHome() {
         </p>
       </section>
 
+      <section className="h2-sec" aria-labelledby="more-h">
+        <div className="h2-head">
+          <h2 id="more-h">More you can make here</h2>
+          <p>Guided engines that end with something you can use: a plan, a checklist, messages to send. No account.</p>
+        </div>
+        <ul className="h2-doors">
+          {DOORS.map(([title, text, href]) => (
+            <li key={href}>
+              <Link href={href}><strong>{title}</strong><span>{text}</span></Link>
+            </li>
+          ))}
+        </ul>
+        <p className="h2-allex">
+          <Link href="/engines">All engines&nbsp;→</Link>
+        </p>
+      </section>
+
       <p className="sh-more">
-        Making something other than a business website? <Link href="/make">Make it with AI</Link>, or try the{" "}
-        <Link href="/tools">tools</Link> and <Link href="/engines">engines</Link>. Step In The Ring is run by Open Mirror LLC.
+        Making something other than a website? <Link href="/make">Make it with AI</Link>, or try the{" "}
+        <Link href="/tools">tools</Link>. Step In The Ring is run by Open Mirror LLC.
       </p>
     </main>
   );

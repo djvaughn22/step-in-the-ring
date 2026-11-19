@@ -152,8 +152,8 @@ describe("the menu", () => {
   });
 
   it("keeps every other door one level down, under More", () => {
-    expect(morePages().map((p) => p.path)).toEqual(["/make", "/how", "/tools", "/library"]);
-    expect(morePages().map((p) => p.name)).toEqual(["Make with AI", "How it works", "Tools", "Your work"]);
+    expect(morePages().map((p) => p.path)).toEqual(["/make", "/how", "/tools", "/engines", "/library"]);
+    expect(morePages().map((p) => p.name)).toEqual(["Make with AI", "How it works", "Tools", "Engines", "Your work"]);
     for (const p of morePages()) expect(p.access, p.path).toBe("public");
     for (const p of navPages()) expect(p.inMore, p.path).toBeFalsy();
   });

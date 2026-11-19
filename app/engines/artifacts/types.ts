@@ -25,6 +25,12 @@ export interface EngineArtifact {
   prompt?: { label: string; text: string };
   /** Set when missing inputs keep this from being a real answer — shown, not hidden. */
   limitation?: string;
+  /**
+   * Set when this is about a real-world business, group or event rather than
+   * software (a groomer's new website, a club page): the result screen then
+   * leaves out build cycles and the push-it-live steps.
+   */
+  realWorld?: boolean;
 }
 
 export function artifactToMarkdown(a: EngineArtifact): string {

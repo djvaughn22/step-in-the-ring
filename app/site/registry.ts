@@ -211,6 +211,9 @@ export const SITE_PAGES: SitePage[] = [
     what: "Guided help with one kind of work, grouped by what it helps you do. Each one ends with something you can use or hand to an AI.",
     access: "public",
     group: "engines",
+    // One level down, under More (November pass). Before this the only way
+    // in was a line on the home page and the footer.
+    inMore: true,
   },
   {
     path: "/engines/room",
@@ -427,7 +430,7 @@ export function pagesWithAccess(access: Access): SitePage[] {
 // Making first, then hiring us to make it, then what a first-time visitor asks
 // next, then what YOU made, then the showroom. Six doors is the limit.
 const NAV_ORDER = ["/start", "/examples", "/services", "/builds"];
-const MORE_ORDER = ["/make", "/how", "/tools", "/library"];
+const MORE_ORDER = ["/make", "/how", "/tools", "/engines", "/library"];
 
 export function navPages(): SitePage[] {
   return SITE_PAGES.filter((p) => p.inNav).sort(

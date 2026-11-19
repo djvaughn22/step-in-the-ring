@@ -88,3 +88,12 @@ html[data-om-theme="light"] .h2 { --h2-act: #F2B01E; --h2-act-ink: #1A1300; --h2
 /* The free path (/start, /examples) shares the home page's action colour. */
 .h2 .btn-gold { background: var(--h2-act); border-color: var(--h2-act); color: var(--h2-act-ink); }
 .h2 .btn-gold:hover { background: #FFC94D; border-color: #FFC94D; }
+
+/* More you can make here: explained doors into the engines (2026-11-18). */
+.h2-doors { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.h2-doors a { display: grid; gap: 6px; height: 100%; padding: 16px; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 0 0 12px 12px; background: var(--h2-card); color: var(--text); text-decoration: none; }
+.h2-doors a:hover { border-color: var(--accent); }
+.h2-doors strong { font-size: 16.5px; }
+.h2-doors span { color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+@media (max-width: 1000px) { .h2-doors { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .h2-doors { grid-template-columns: 1fr; } }

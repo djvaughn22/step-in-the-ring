@@ -105,6 +105,47 @@ describe("Sell, Launch, Grow", () => {
   });
 });
 
+// 2026-11-18: a groomer's website launches to customers, not testers.
+describe("local businesses, groups and events", () => {
+  it("Launch: a business website gets calls and bookings, not app testers", () => {
+    const { art, text } = md("launch", { what: "A new one-page website for Wagon Wheel Grooming (mobile dog groomer), Eastside", exists: "wagonwheelgrooming.com" });
+    expect(art?.realWorld).toBe(true);
+    expect(text).toMatch(/Google Business Profile/);
+    expect(text).toMatch(/Tap Call, Text, Email/);
+    expect(text).toMatch(/Wagon Wheel Grooming has a new website: wagonwheelgrooming\.com/);
+    expect(text).toMatch(/3 new calls, texts, emails or booking requests/);
+    expect(text).not.toMatch(/try it|first real users|sign-up form|signups/i);
+  });
+  it("Launch: a described business reads naturally in the messages", () => {
+    const { text } = md("launch", { what: "A one-page website for my mobile dog grooming business" });
+    expect(text).toMatch(/Hi! My mobile dog grooming business finally has a website: \[your link\]/);
+  });
+  it("Launch: a club or reunion page counts RSVPs and joins", () => {
+    const { art, text } = md("launch", { what: "A website for the Calloway Family Reunion" });
+    expect(art?.realWorld).toBe(true);
+    expect(text).toMatch(/RSVP/);
+    expect(text).not.toMatch(/Google Business Profile|customer/i);
+  });
+  it("Launch: an app still gets the app launch", () => {
+    const { art, text } = md("launch", { what: "A weekly chore board web app" });
+    expect(art?.realWorld).toBeFalsy();
+    expect(text).toMatch(/try it/);
+  });
+  it("Grow: a business that wants calls gets local plays", () => {
+    const { art, text } = md("grow", { measure: "booking requests a week", bottleneck: "people visit the site but don't call" });
+    expect(art?.realWorld).toBe(true);
+    expect(text).toMatch(/phone number and booking button at the very top/);
+    expect(text).toMatch(/Google Business Profile/);
+    expect(text).not.toMatch(/sign-?up|\bemail to send one useful follow-up/i);
+  });
+  it("Sell: a local service gets a website and a look at nearby prices, not a made-up going rate", () => {
+    const { text } = md("sell", { product: "Weekly dog walking, 45 minutes", price: IDK });
+    expect(text).toMatch(/look up what three similar businesses near you charge/);
+    expect(text).toMatch(/one-page website with Call, Text and booking buttons/);
+    expect(text).not.toMatch(/usually lands between/);
+  });
+});
+
 describe("I don't know is a valid answer everywhere", () => {
   it("never echoes it back as if it were content", () => {
     for (const id of ["build", "fix", "plan", "sell", "launch", "grow"]) {
