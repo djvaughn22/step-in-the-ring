@@ -117,7 +117,7 @@ export default function StarterEditor() {
         s = next;
       }
     }
-    /* eslint-disable react-hooks/set-state-in-effect -- reading this browser's storage once, after mount */
+    // Reading this browser's storage once, after mount.
     setStore(s);
     setTooMany(full);
     setShowDrafts(full);
@@ -125,7 +125,6 @@ export default function StarterEditor() {
     // read. Start the preview in the phone frame there; the toggle still switches.
     if (window.matchMedia?.("(max-width: 700px)").matches) setDevice("phone");
     setReady(true);
-    /* eslint-enable react-hooks/set-state-in-effect */
     // The slug has done its job; a reload should open the draft, not add another.
     if (slug) window.history.replaceState(window.history.state, "", "/start/edit");
   }, [params]);

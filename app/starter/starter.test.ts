@@ -208,7 +208,7 @@ describe("the download", () => {
     expect(before).toContain("BEFORE YOU PUBLISH");
     expect(before).toContain("phone number is the example's");
     expect(before).toContain("AFTER IT'S ONLINE");
-    const mine = { ...d, details: { ...d.details, name: "Ridge Road Repairs", phone: "(314) 555-2000", email: "jo@ridgeroadrepairs.com", area: "Ridge Road", hours: "Weekdays" } };
+    const mine = { ...d, details: { ...d.details, name: "Ridge Road Repairs", phone: "(314) 555-2000", email: "jo@ridge-road.test", area: "Ridge Road", hours: "Weekdays" } };
     expect(readme(mine)).not.toContain("phone number is the example's");
   });
 });

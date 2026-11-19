@@ -22,6 +22,7 @@
 // goes straight into the message above it.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { starterFits } from "../starter/fit";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import type { CreationType } from "../creation/types";
 import { FirstMessage, WhenItAnswers } from "../create/WorkWithAI";
@@ -145,6 +146,21 @@ export default function SteppedIn({
               </button>
             </div>
           </form>
+        )}
+
+        {/* A one-page site for a business, club or event has a shorter road:
+            the website starter. Offered, never forced (2026-11-18). */}
+        {starterFits(intent) && (
+          <div className="card">
+            <h2 className="work-title">Making a one-page site for a business, club or event?</h2>
+            <p className="work-note">
+              The website starter has examples written for that. Pick the one closest to yours, add your
+              details, and download the files. No AI app needed.
+            </p>
+            <div className="actions">
+              <a className="btn btn-ghost btn-small" href="/start">Find an example close to yours</a>
+            </div>
+          </div>
         )}
 
         <WhenItAnswers type={creationType} purpose={purpose} />

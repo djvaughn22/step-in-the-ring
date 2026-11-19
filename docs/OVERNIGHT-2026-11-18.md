@@ -37,14 +37,15 @@ the branch is verified and merged. If this session stops early, resume from
 
 | # | Work | Status |
 |---|---|---|
-| 1 | `/start` finder (type your kind of work, group chips) + mini site previews on cards | in progress |
-| 2 | New examples: makers, creative freelancers, groups, one family event | pending |
-| 3 | Editor: "Check before you download" list, example-value flags, step 3 | pending |
-| 4 | Several drafts per browser, with migration from the single draft | pending |
-| 5 | After download: launch handoff, publish guide in README | pending |
-| 6 | Launch/Grow/Sell: local business paths; Launch not "technical" | pending |
-| 7 | Home: more-to-make doors; Engines in the More menu | pending |
-| 8 | Tests, lint, typecheck, build, browser checks, deploy | pending |
+| 1 | `/start` finder (type your kind of work, group chips) + site sketches on cards | done |
+| 2 | New examples: makers, creative freelancers, groups, one family event (29 total) | done |
+| 3 | Editor: Check tab, example values marked (tap selects), step 3 | done |
+| 4 | Several drafts per browser, with migration from the single draft | done |
+| 5 | After download: launch handoff; README before/after publishing | done |
+| 6 | Launch/Grow/Sell: local business paths; real-world kits hide build steps | done |
+| 7 | Home: more-to-make doors; Engines in the More menu | done |
+| 8 | Make with AI: business-site ideas are offered the starter | done |
+| 9 | Tests, lint, typecheck, build, browser checks, deploy | in progress |
 
 ## Assumptions
 
@@ -55,6 +56,32 @@ the branch is verified and merged. If this session stops early, resume from
   example.com, no credentials, reviews, prices or guarantees.
 - The site still runs no AI.
 
+## Key files
+
+- Finder: `app/starter/finder.ts`, `ExampleFinder.tsx`, `ExampleCards.tsx`, `MiniSite.tsx`
+- Drafts: `app/starter/drafts.ts` (key `sitr-site-drafts-v1`; moves the old
+  `sitr-site-draft-v1` in once), `ContinueDraft.tsx`
+- Check: `app/starter/check.ts` (fix vs look), README in `zip.ts`
+- Editor: `app/starter/StarterEditor.tsx` (Check tab, drafts panel, launch handoff
+  via `sitr-engine-seed`, never the URL)
+- Engines: `app/engines/artifacts/market.ts` (`isLocal`, `localLaunch`, local grow
+  plays, service pricing), `realWorld` on `EngineArtifact`, `tech` in
+  `EngineSystem.tsx` CycleView
+- Make with AI: `app/starter/fit.ts` + one card in `app/vnext/SteppedIn.tsx`
+- Tests: `app/starter/drafts.test.ts` (finder, drafts, check, fit),
+  `app/starter/starter.test.ts`, `app/engines/artifacts/artifacts.test.ts`
+
+## Rollback note
+
+Rolling back past this work hides drafts that were moved to the new storage key
+until it is deployed again (the old code only reads `sitr-site-draft-v1`). The
+drafts stay in the browser; nothing is deleted.
+
 ## Next steps
 
-(updated as work lands)
+1. Owner review on the live site: the finder, the Check tab, drafts, the new
+   examples (especially the family reunion and the club), the local launch kit.
+2. Real photos for the examples (licensed or the owner's own) remain the
+   biggest visual gap; the sketches and shaded photo spots are honest stand-ins.
+3. Multi-page sites only if publish-help requests ask for them.
+4. Measure time to a first useful draft before making any time claim.

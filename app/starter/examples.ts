@@ -1258,6 +1258,7 @@ export const EXAMPLES: StarterExample[] = [
     blurb: "Pottery, candles, woodwork or crafts, sold at markets and by order.",
     fits: "For a maker who sells at markets, pop-ups and by message, and wants one place to show the work, take custom orders and say where to find them next.",
     keywords: ["handmade", "maker", "crafts", "pottery", "ceramics", "candles", "soap", "woodworking", "jewelry", "knitting", "sewing", "quilting", "etsy shop", "craft fair", "artist", "printmaking"],
+    why: "Built for taking orders: what you make, photos of it, how to order, then pickup or shipping, in the order people need them.",
     layout: "orders",
     gallery: true,
     palette: "sage",

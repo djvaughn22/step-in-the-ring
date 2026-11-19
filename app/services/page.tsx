@@ -117,7 +117,7 @@ export default function ServicesPage() {
           <span className="kicker">Do it yourself</span>
           <h2 id="diy-heading">Rather make it on your own?</h2>
           <p>
-            The website starter is free. It has examples for {EXAMPLE_COUNT} kinds of business: add your
+            The website starter is free. It has examples for {EXAMPLE_COUNT} kinds of work: add your
             details, make it yours, and download the files. No account needed.
           </p>
         </div>

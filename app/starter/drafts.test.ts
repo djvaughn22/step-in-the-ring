@@ -9,6 +9,7 @@ import {
 } from "./drafts";
 import { EXAMPLES, exampleBySlug } from "./examples";
 import { findExamples, scoreExample, stem } from "./finder";
+import { starterFits } from "./fit";
 
 function memoryStorage(seed: Record<string, string> = {}, limit = Infinity) {
   const m = new Map(Object.entries(seed));
@@ -142,7 +143,7 @@ describe("the check before download", () => {
     expect(isFictionPhone("(314) 555-2000")).toBe(false);
     expect(isExampleAddress("hello@example.com")).toBe(true);
     expect(isExampleAddress("https://example.com/book")).toBe(true);
-    expect(isExampleAddress("jo@examples.co")).toBe(false);
+    expect(isExampleAddress("jo@examples.test")).toBe(false);
   });
 
   it("flags every example's made-up name, phone and email before anyone publishes them", () => {
@@ -157,7 +158,7 @@ describe("the check before download", () => {
     const d = draftFromExample(exampleBySlug("event-dj")!);
     const mine = {
       ...d,
-      details: { ...d.details, name: "Northside Nights", phone: "(314) 555-2000", email: "book@northsidenights.com", booking: "https://cal.northsidenights.com/book" },
+      details: { ...d.details, name: "Northside Nights", phone: "(314) 555-2000", email: "book@northside-nights.test", booking: "https://cal.northside-nights.test/book" },
       hero: { ...d.hero, headline: "DJ for weddings in the Northside" },
     };
     const r = checkDraft(mine);
@@ -172,5 +173,19 @@ describe("the check before download", () => {
     const ids = r.items.map((i) => i.id);
     if (JSON.stringify(d).split(d.details.name).length > 2) expect(ids).toContain("words-old-name");
     expect(ids).toContain("booking-bad");
+  });
+});
+
+describe("Make it with AI points business sites at the starter", () => {
+  it("offers the starter for a one-page site for a business, club or event", () => {
+    expect(starterFits("a website for my dog grooming business")).toBe(true);
+    expect(starterFits("A one-page site for our walking club")).toBe(true);
+    expect(starterFits("website for the family reunion in July")).toBe(true);
+  });
+  it("leaves apps, games and member sites to the AI workspace", () => {
+    expect(starterFits("a website where parents assign chores")).toBe(false);
+    expect(starterFits("an app for my bakery")).toBe(false);
+    expect(starterFits("a booking website for my salon with logins")).toBe(false);
+    expect(starterFits("a game about dogs")).toBe(false);
   });
 });

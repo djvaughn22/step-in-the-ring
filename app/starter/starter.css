@@ -315,3 +315,4 @@
 .xc-drafts li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 .xc-drafts span { color: var(--muted); font-size: 13.5px; }
 .xc-open { min-height: 36px; font-weight: 700; text-align: left; }
+.xf-field input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
