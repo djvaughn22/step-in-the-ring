@@ -1,27 +1,45 @@
 "use client";
 
-// One quiet line for someone who already has a draft in this browser.
+// One quiet line (or a short list) for someone who already has drafts in
+// this browser. Opening one makes it the draft the editor shows.
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DRAFT_KEY, parseDraft } from "./draft";
+import { byRecent, draftLabel, loadStore, saveStore, setActive, type DraftStore } from "./drafts";
+import { exampleBySlug } from "./examples";
 
 export default function ContinueDraft() {
-  const [name, setName] = useState<string | null>(null);
+  const router = useRouter();
+  const [store, setStore] = useState<DraftStore | null>(null);
   useEffect(() => {
-    try {
-      const d = parseDraft(JSON.parse(window.localStorage.getItem(DRAFT_KEY) ?? "null"));
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- read this browser's storage once, after mount
-      if (d) setName(d.details.name.trim() || "your business");
-    } catch {
-      /* nothing saved, or storage is blocked */
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read this browser's storage once, after mount
+    setStore(loadStore(window.localStorage));
   }, []);
-  if (!name) return null;
+  if (!store || !store.drafts.length) return null;
+  const list = byRecent(store);
+  const open = (id: string) => {
+    saveStore(window.localStorage, setActive(store, id));
+    router.push("/start/edit");
+  };
+  if (list.length === 1) {
+    return (
+      <p className="xc-continue">
+        You have a draft for <strong>{draftLabel(list[0].draft)}</strong> in this browser.{" "}
+        <button type="button" className="se-linkbtn xc-open" onClick={() => open(list[0].id)}>Keep working on it&nbsp;→</button>
+      </p>
+    );
+  }
   return (
-    <p className="xc-continue">
-      You have a draft for <strong>{name}</strong> in this browser.{" "}
-      <Link className="text-link" href="/start/edit">Keep working on it&nbsp;→</Link>
-    </p>
+    <div className="xc-continue">
+      <p>You have {list.length} drafts in this browser. Pick one to keep working on, or start another below.</p>
+      <ul className="xc-drafts">
+        {list.slice(0, 5).map((e) => (
+          <li key={e.id}>
+            <button type="button" className="se-linkbtn xc-open" onClick={() => open(e.id)}>{draftLabel(e.draft)}</button>
+            <span>{exampleBySlug(e.draft.example)?.name ?? ""}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

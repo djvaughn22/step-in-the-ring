@@ -57,12 +57,12 @@ export default async function ExamplePage({ params }: { params: Promise<{ slug: 
       <div className="xp-body">
         <div className="xp-demo">
           <DevicePreview html={html} title={`Example website for a ${ex.name.toLowerCase()}`} />
-          <p className="xp-made-up">{draft.details.name} is a made-up business. Shaded boxes mark where your own photos go.</p>
+          <p className="xp-made-up">{draft.details.name} is made up, and so are its details. Shaded boxes mark where your own photos go.</p>
         </div>
         <aside className="xp-side">
           <section>
             <h2>What&apos;s on the page</h2>
-            <p>{layout.why}</p>
+            <p>{ex.why ?? layout.why}</p>
             <ol className="xp-sections">
               {shown.map((s) => (
                 <li key={s.kind}>
@@ -74,7 +74,7 @@ export default async function ExamplePage({ params }: { params: Promise<{ slug: 
                     {s.kind === "about" && "A few plain sentences about how you work."}
                     {s.kind === "gallery" && `${draft.photos.gallery.length} photo spots for your own work.`}
                     {s.kind === "area" && draft.area.text}
-                    {s.kind === "faq" && `${draft.faq.items.length} questions new customers ask.`}
+                    {s.kind === "faq" && `${draft.faq.items.length} questions people ask first.`}
                     {s.kind === "contact" && `Buttons to ${draft.details.booking ? "book online, " : ""}call, text and email.`}
                   </span>
                 </li>
@@ -86,7 +86,7 @@ export default async function ExamplePage({ params }: { params: Promise<{ slug: 
             <ul className="xp-add">
               {ex.addYourself.map((a) => <li key={a}>{a}</li>)}
             </ul>
-            <p className="xp-small">The example leaves out credentials, reviews, prices and promises on purpose. Add only what&apos;s true for your business.</p>
+            <p className="xp-small">The example leaves out credentials, reviews, prices and promises on purpose. Add only what&apos;s true for you.</p>
           </section>
           <section>
             {/* Owner, 2026-11-12: free first. Paid help is offered after a draft exists (in the editor). */}

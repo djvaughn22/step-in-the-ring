@@ -8,7 +8,7 @@ import { BRAND_OWNERSHIP } from "../site/brand";
 export const metadata: Metadata = {
   title: "Website starter: choose an example",
   description:
-    "Pick the example closest to your business, then add your details and make it yours. Preview it on a phone and a computer, and download the files.",
+    "Find the example closest to your business, club or event, then add your details and make it yours. Preview it on a phone and a computer, and download the files.",
 };
 
 export default function StartPage() {
@@ -17,29 +17,24 @@ export default function StartPage() {
       <header className="xs-head">
         <ol className="se-steps" aria-label="Steps">
           <li aria-current="step">1. Choose an example</li>
-          <li>2. Add your details and make it yours</li>
+          <li>2. Make it yours</li>
+          <li>3. Check and download</li>
         </ol>
-        <h1>Which business is closest to yours?</h1>
+        <h1>Which example is closest to yours?</h1>
         <p>
-          Each example is a full one-page website with wording written for that kind of work. Pick one,
-          then change the words, colors, fonts, photos and sections. Your draft saves in this browser.
+          Each one is a full one-page website, written for that kind of work. Pick one and change
+          anything: words, colors, fonts, photos and sections.
         </p>
         {/* Owner, 2026-11-12: free first. Paid help is offered later, once there's a draft. */}
-        <div className="xs-freepaid">
-          <span><strong>Free:</strong> making and downloading your site, with no account and no coding.</span>
-          <span>Never made a website? That&apos;s fine. You change words and pick colors; the layout is done for you.</span>
-        </div>
+        <p className="xs-free"><strong>Free</strong> to make and download. No account, no coding.</p>
         <ContinueDraft />
       </header>
       <ExampleCards main="start" />
       <footer className="xs-foot">
+        <p>Never made a website? That&apos;s fine. You change words and pick colors; the layout is done for you. Your drafts save in this browser.</p>
         <p>{BRAND_OWNERSHIP}</p>
         <p>
-          Don&apos;t see your business? Start from the closest one; every section can change.
-        </p>
-        <p>
-          Making a site for a hobby, a club, a church group or your own portfolio? Same idea: pick the
-          closest example and change every word.
+          Don&apos;t see your kind of work? Start from the closest one. Every word, color and section can change.
         </p>
       </footer>
     </main>

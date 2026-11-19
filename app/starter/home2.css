@@ -42,9 +42,9 @@ html[data-om-theme="light"] .h2 { --h2-act: #F2B01E; --h2-act-ink: #1A1300; --h2
 .h2-examples a { display: grid; gap: 6px; height: 100%; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--h2-card); color: var(--text); text-decoration: none; }
 .h2-examples a:hover { border-color: var(--h2-act); }
 .h2-examples strong { font-size: 16.5px; }
-.h2-examples span:not(.h2-ex-swatch) { color: var(--muted); font-size: 14.5px; line-height: 1.45; }
-.h2-ex-swatch { display: flex; gap: 6px; width: fit-content; padding: 6px; border-radius: 8px; border: 1px solid var(--line); }
-.h2-ex-swatch i { display: block; width: 18px; height: 18px; border-radius: 50%; }
+.h2-examples .h2-ex-blurb { color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+.h2-examples a .mini { margin-bottom: 6px; }
+.h2-examples a:hover .mini { border-color: var(--h2-act); }
 .h2-allex { margin-top: 16px; font-weight: 700; }
 
 .h2-steps { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: s; }

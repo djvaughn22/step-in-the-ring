@@ -17,12 +17,18 @@ const OWNER_LIST = [
   "Home bakery or small caterer", "Appliance repair service",
 ];
 
+// 2026-11-18: more kinds of people, not only service businesses.
+const ADDED_LIST = [
+  "Computer and phone help", "Food truck", "Wedding and party DJ", "Handmade goods maker",
+  "Freelance graphic designer", "Club or community group", "Family reunion",
+];
+
 const sampleText = (slug: string) => JSON.stringify(exampleBySlug(slug)!.sample);
 
-describe("the 22 examples", () => {
-  it("are exactly the owner's list, each once", () => {
-    expect(EXAMPLES.map((e) => e.name).sort()).toEqual([...OWNER_LIST].sort());
-    expect(new Set(EXAMPLES.map((e) => e.slug)).size).toBe(22);
+describe("the examples", () => {
+  it("are the owner's list plus the later additions, each once", () => {
+    expect(EXAMPLES.map((e) => e.name).sort()).toEqual([...OWNER_LIST, ...ADDED_LIST].sort());
+    expect(new Set(EXAMPLES.map((e) => e.slug)).size).toBe(EXAMPLES.length);
     for (const e of EXAMPLES) expect(e.slug).toMatch(/^[a-z0-9-]+$/);
   });
 
@@ -36,14 +42,14 @@ describe("the 22 examples", () => {
   it("are tailored, not the same page with the nouns swapped", () => {
     for (const key of ["headline", "intro", "about", "areaText", "contactText"] as const) {
       const values = EXAMPLES.map((e) => e.sample[key]);
-      expect(new Set(values).size, key).toBe(22);
+      expect(new Set(values).size, key).toBe(EXAMPLES.length);
     }
     const serviceSets = EXAMPLES.map((e) => e.sample.services.map((s) => s.title).join("|"));
-    expect(new Set(serviceSets).size).toBe(22);
+    expect(new Set(serviceSets).size).toBe(EXAMPLES.length);
     // A common question ("What should I wear?") can fit two businesses; the
     // whole set of questions never repeats.
     const faqSets = EXAMPLES.map((e) => e.sample.faq.map((f) => f.title).join("|"));
-    expect(new Set(faqSets).size).toBe(22);
+    expect(new Set(faqSets).size).toBe(EXAMPLES.length);
   });
 
   it("invent no credentials, reviews, guarantees, prices or customers", () => {
@@ -53,6 +59,13 @@ describe("the 22 examples", () => {
       expect(t, e.slug).not.toMatch(/\b(?:I am|I'm|we are|we're|fully) licensed/i);
       expect(t, e.slug).not.toMatch(/\bfree\b/i);
       expect(e.addYourself.length, e.slug).toBeGreaterThan(0);
+    }
+  });
+
+  it("each carry search words people actually type", () => {
+    for (const e of EXAMPLES) {
+      expect(e.keywords.length, e.slug).toBeGreaterThanOrEqual(5);
+      for (const k of e.keywords) expect(k, e.slug).toBe(k.toLowerCase().trim());
     }
   });
 
@@ -187,5 +200,15 @@ describe("the download", () => {
 
   it("says plainly that we don't host it", () => {
     expect(readme(draftFromExample(EXAMPLES[0]))).toContain("does not host your website");
+  });
+
+  it("lists what was still open when they downloaded, and what to do once it's live", () => {
+    const d = draftFromExample(exampleBySlug("handyman")!);
+    const before = readme(d);
+    expect(before).toContain("BEFORE YOU PUBLISH");
+    expect(before).toContain("phone number is the example's");
+    expect(before).toContain("AFTER IT'S ONLINE");
+    const mine = { ...d, details: { ...d.details, name: "Ridge Road Repairs", phone: "(314) 555-2000", email: "jo@ridgeroadrepairs.com", area: "Ridge Road", hours: "Weekdays" } };
+    expect(readme(mine)).not.toContain("phone number is the example's");
   });
 });

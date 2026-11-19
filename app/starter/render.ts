@@ -55,7 +55,7 @@ export function photoSpots(d: SiteDraft): { id: string; photo: Photo }[] {
 }
 
 /** Corners follow the font: sharper for the serif sets, rounder for Friendly. */
-const RADIUS: Record<string, string> = { elegant: "2px", classic: "4px", clean: "6px", modern: "10px", friendly: "18px" };
+export const RADIUS: Record<string, string> = { elegant: "2px", classic: "4px", clean: "6px", modern: "10px", friendly: "18px" };
 
 const NAV_LABEL: Partial<Record<SectionKind, string>> = {
   services: "Services",

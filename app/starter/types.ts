@@ -72,19 +72,29 @@ export type ExampleGroup =
   | "Lessons"
   | "Hair and beauty"
   | "Photos and events"
-  | "Office and paperwork"
-  | "Food";
+  | "Office, tech and paperwork"
+  | "Food"
+  | "Makers and creative work"
+  | "Groups and gatherings";
 
-/** One business example. Data only: no markup, no code paths of its own. */
+/** One example. Data only: no markup, no code paths of its own. */
 export interface StarterExample {
   slug: string;
-  /** The business type, as a person would say it. */
+  /** The kind of business or group, as a person would say it. */
   name: string;
   group: ExampleGroup;
   /** One line for the chooser card. */
   blurb: string;
   /** A short paragraph for the example page: who this starting point fits. */
   fits: string;
+  /**
+   * Words people type when they look for this kind of site: trades, synonyms,
+   * close neighbours ("barber", "braids"). Lower case. Used only by the finder
+   * on /start and /examples; never shown on the page.
+   */
+  keywords: string[];
+  /** Overrides the layout's "why this order" line when the layout's words don't fit (a reunion isn't a business). */
+  why?: string;
   layout: LayoutId;
   /** Show the photo gallery section by default. */
   gallery?: boolean;

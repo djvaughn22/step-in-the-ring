@@ -126,7 +126,7 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "/examples",
     name: "Examples",
-    what: "22 example websites, one for each kind of small service business, each with a way to start from it.",
+    what: "Example websites for small businesses, makers, clubs and family events, each with a way to start from it.",
     access: "public",
     group: "create",
     inNav: true,

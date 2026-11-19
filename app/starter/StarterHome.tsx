@@ -4,8 +4,9 @@ import "./home2.css";
 import { BRAND_OWNERSHIP } from "../site/brand";
 import ArrivalForward from "./ArrivalForward";
 import DevicePreview from "./DevicePreview";
-import { draftFromExample, paletteById } from "./draft";
+import { draftFromExample } from "./draft";
 import { EXAMPLES, exampleBySlug } from "./examples";
+import MiniSite, { miniData } from "./MiniSite";
 import { renderSite } from "./render";
 
 // THE FRONT DOOR (owner, 2026-11-12): FREE FIRST. The website starter is the
@@ -14,7 +15,7 @@ import { renderSite } from "./render";
 // no package list on this page. No invented clients, numbers or promises.
 
 const SHOWCASE = "mobile-dog-groomer";
-const FEATURED = ["handyman", "hair-stylist-barber", "house-cleaner", "personal-trainer", "photographer", "bookkeeper"];
+const FEATURED = ["handyman", "hair-stylist-barber", "house-cleaner", "personal-trainer", "food-truck", "graphic-designer"];
 
 const PROMISES = [
   ["Free to make and download", "No account, no coding, no card. Make it and take the files."],
@@ -65,24 +66,19 @@ export default function StarterHome() {
 
       <section className="h2-sec" aria-labelledby="ex-h">
         <div className="h2-head">
-          <h2 id="ex-h">Example sites for {EXAMPLES.length} kinds of business</h2>
-          <p>Local, home-based, appointment-based and mobile work. Look around, or start yours from one.</p>
+          <h2 id="ex-h">Examples for {EXAMPLES.length} kinds of work</h2>
+          <p>Trades, wellness, beauty, food, lessons, makers and more, plus clubs and family events. Look around, or start yours from one.</p>
         </div>
         <ul className="h2-examples">
-          {featured.map((e) => {
-            const p = paletteById(e.palette);
-            return (
-              <li key={e.slug}>
-                <Link href={`/examples/${e.slug}`}>
-                  <span className="h2-ex-swatch" aria-hidden="true" style={{ background: p.bg }}>
-                    <i style={{ background: e.accent }} /><i style={{ background: p.alt }} /><i style={{ background: p.text }} />
-                  </span>
-                  <strong>{e.name}</strong>
-                  <span>{e.blurb}</span>
-                </Link>
-              </li>
-            );
-          })}
+          {featured.map((e) => (
+            <li key={e.slug}>
+              <Link href={`/examples/${e.slug}`}>
+                <MiniSite m={miniData(e)} />
+                <strong>{e.name}</strong>
+                <span className="h2-ex-blurb">{e.blurb}</span>
+              </Link>
+            </li>
+          ))}
         </ul>
         <p className="h2-allex"><Link href="/examples">See all {EXAMPLES.length} examples&nbsp;→</Link></p>
       </section>

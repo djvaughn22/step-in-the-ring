@@ -1,31 +1,38 @@
 "use client";
 
-// Step 2 of the website starter: add your details and make it yours.
+// Steps 2 and 3 of the website starter: make it yours, then check and download.
 //
-// Everything stays in this browser (localStorage, DRAFT_KEY). Nothing the
-// owner types is sent anywhere, put in a URL, or counted: track() calls carry
-// only the event name and the example slug.
+// Everything stays in this browser (localStorage, DRAFTS_KEY in drafts.ts).
+// Each example someone starts keeps its own draft. Nothing the owner types is
+// sent anywhere, put in a URL, or counted: track() calls carry only the event
+// name and the example slug.
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { track } from "../lib/analytics";
 import { BRAND_OWNERSHIP } from "../site/brand";
+import { checkDraft, type CheckItem, type CheckResult } from "./check";
 import { FREE_SHORT, PAID_LINE } from "./copy";
 import DevicePreview, { type Device } from "./DevicePreview";
-import { DRAFT_KEY, FONTS, PALETTES, draftFromExample, fontById, inkOn, parseDraft, replaceEverywhere } from "./draft";
+import { FONTS, PALETTES, draftFromExample, fontById, inkOn, replaceEverywhere } from "./draft";
+import {
+  MAX_DRAFTS, activeEntry, byRecent, draftLabel, loadStore, openExample, removeDraft, saveStore, setActive, updateActive,
+  type DraftStore,
+} from "./drafts";
 import { exampleBySlug } from "./examples";
 import { photoSpots, renderSite } from "./render";
 import { SECTION_LABEL, type Details, type HeroStyle, type Item, type SiteDraft, type StarterExample } from "./types";
 import { exportEntries, makeZip, zipName } from "./zip";
 
-type Tab = "details" | "words" | "look" | "photos" | "sections";
+type Tab = "details" | "words" | "look" | "photos" | "sections" | "check";
 const TABS: { id: Tab; label: string }[] = [
   { id: "details", label: "Your details" },
   { id: "words", label: "Words" },
   { id: "look", label: "Look" },
   { id: "photos", label: "Photos" },
   { id: "sections", label: "Sections" },
+  { id: "check", label: "Check" },
 ];
 
 const HERO_STYLES: { id: HeroStyle; label: string }[] = [
@@ -35,15 +42,6 @@ const HERO_STYLES: { id: HeroStyle; label: string }[] = [
 ];
 
 const MAX_ITEMS = 8;
-
-function loadSaved(): SiteDraft | null {
-  try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
-    return raw ? parseDraft(JSON.parse(raw)) : null;
-  } catch {
-    return null;
-  }
-}
 
 /** Shrink a photo to at most 1600px on its long side, as a JPEG. */
 async function shrinkPhoto(file: File): Promise<string> {
@@ -63,92 +61,163 @@ async function shrinkPhoto(file: File): Promise<string> {
   }
 }
 
+function edited(ms: number): string {
+  if (!ms) return "";
+  const d = new Date(ms);
+  const today = new Date();
+  if (d.toDateString() === today.toDateString()) return "edited today";
+  const y = new Date(today);
+  y.setDate(today.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return "edited yesterday";
+  return `edited ${d.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+}
+
+/** Hand the draft to the Launch engine without retyping, through this browser only. */
+function launchSeed(d: SiteDraft): void {
+  const ex = exampleBySlug(d.example);
+  const name = d.details.name.trim() || "my business";
+  const kind = ex ? ` (${ex.name.toLowerCase()})` : "";
+  const area = d.details.area.trim();
+  const raw = `A new one-page website for ${name}${kind}${area ? `, ${area}` : ""}`;
+  try {
+    window.localStorage.setItem("sitr-engine-seed", JSON.stringify({ engineId: "launch", title: `${name} website`, raw }));
+  } catch {
+    /* storage blocked: the engine just opens empty */
+  }
+}
+
 export default function StarterEditor() {
   const params = useSearchParams();
   const router = useRouter();
-  const [draft, setDraft] = useState<SiteDraft | null>(null);
-  const [choice, setChoice] = useState<{ saved: SiteDraft; next: StarterExample } | null>(null);
+  const [store, setStore] = useState<DraftStore | null>(null);
+  const [tooMany, setTooMany] = useState(false);
   const [ready, setReady] = useState(false);
   const [tab, setTab] = useState<Tab>("details");
   const [device, setDevice] = useState<Device>("desktop");
   const [view, setView] = useState<"edit" | "preview">("edit");
   const [saveNote, setSaveNote] = useState<"saved" | "full" | "">("");
   const [done, setDone] = useState(false);
+  const [showDrafts, setShowDrafts] = useState(false);
+  const [nudge, setNudge] = useState(false);
+  const arrived = useRef(false);
+  const panel = useRef<HTMLDivElement>(null);
 
-  // Arrive: open the saved draft, or start one from the example in the link.
+  // Arrive once: open every saved draft, and start (or reopen) the example in the link.
   useEffect(() => {
-    const saved = loadSaved();
-    const ex = exampleBySlug(params.get("example") ?? "");
-    /* eslint-disable react-hooks/set-state-in-effect -- reading this browser's storage once, after mount */
-    if (ex && saved && saved.example !== ex.slug) setChoice({ saved, next: ex });
-    else if (saved) setDraft(saved);
-    else if (ex) {
-      setDraft(draftFromExample(ex));
-      track("starter_start", { example: ex.slug });
+    if (arrived.current) return;
+    arrived.current = true;
+    let s = loadStore(window.localStorage);
+    const slug = params.get("example") ?? "";
+    let full = false;
+    if (slug && exampleBySlug(slug)) {
+      const next = openExample(s, slug);
+      if (!next) full = true;
+      else {
+        if (next.drafts.length > s.drafts.length) track("starter_start", { example: slug });
+        s = next;
+      }
     }
+    /* eslint-disable react-hooks/set-state-in-effect -- reading this browser's storage once, after mount */
+    setStore(s);
+    setTooMany(full);
+    setShowDrafts(full);
     // On a phone, a desktop frame shrinks to about a quarter size and can't be
     // read. Start the preview in the phone frame there; the toggle still switches.
     if (window.matchMedia?.("(max-width: 700px)").matches) setDevice("phone");
     setReady(true);
     /* eslint-enable react-hooks/set-state-in-effect */
-    // The slug has done its job; a reload should open the draft, not ask again.
-    if (params.get("example")) window.history.replaceState(window.history.state, "", "/start/edit");
+    // The slug has done its job; a reload should open the draft, not add another.
+    if (slug) window.history.replaceState(window.history.state, "", "/start/edit");
   }, [params]);
 
   // Save a moment after each change.
   useEffect(() => {
-    if (!draft) return;
-    const t = window.setTimeout(() => {
-      try {
-        window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-        setSaveNote("saved");
-      } catch {
-        setSaveNote("full");
-      }
-    }, 400);
+    if (!store) return;
+    const t = window.setTimeout(() => setSaveNote(saveStore(window.localStorage, store) === "ok" ? "saved" : "full"), 400);
     return () => window.clearTimeout(t);
-  }, [draft]);
+  }, [store]);
 
+  const entry = store ? activeEntry(store) : undefined;
+  const draft = entry?.draft ?? null;
   const html = useMemo(() => (draft ? renderSite(draft, { mode: "preview" }) : ""), [draft]);
+  const check = useMemo<CheckResult | null>(() => (draft ? checkDraft(draft) : null), [draft]);
 
-  if (!ready) return <div className="se-loading">Opening your draft…</div>;
+  if (!ready || !store) return <div className="se-loading">Opening your draft…</div>;
 
-  if (choice) {
-    return (
-      <div className="se-choice">
-        <h1>You already have a draft</h1>
-        <p>
-          This browser has a draft for <strong>{choice.saved.details.name || "your business"}</strong>. Starting from the{" "}
-          {choice.next.name.toLowerCase()} example replaces it. Download it first if you want to keep a copy.
-        </p>
-        <div className="se-choice-go">
-          <button type="button" className="btn btn-gold" onClick={() => { setDraft(choice.saved); setChoice(null); }}>
-            Keep working on my draft
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={() => { setDraft(draftFromExample(choice.next)); track("starter_start", { example: choice.next.slug }); setChoice(null); }}
-          >
-            Replace it with the {choice.next.name.toLowerCase()} example
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const drafts = byRecent(store);
+  const openDraft = (id: string) => {
+    setStore((s) => (s ? setActive(s, id) : s));
+    setTab("details");
+    setDone(false);
+    setNudge(false);
+    setShowDrafts(false);
+    setTooMany(false);
+  };
+  const deleteDraft = (id: string) => {
+    const e = store.drafts.find((x) => x.id === id);
+    if (!e) return;
+    if (!window.confirm(`Delete the draft for ${draftLabel(e.draft)}? It can't be brought back. Download it first if you want a copy.`)) return;
+    setStore((s) => (s ? removeDraft(s, id) : s));
+    setTooMany(false);
+  };
+
+  const draftsPanel = (
+    <section className="se-drafts" aria-labelledby="drafts-h">
+      <h2 id="drafts-h">Your drafts in this browser</h2>
+      {tooMany && <p className="se-err" role="alert">This browser already holds {MAX_DRAFTS} drafts. Delete one you don&apos;t need, then start the new one again.</p>}
+      {drafts.length ? (
+        <ul>
+          {drafts.map((e) => {
+            const ex = exampleBySlug(e.draft.example);
+            const isOpen = e.id === store.active;
+            return (
+              <li key={e.id} aria-current={isOpen ? "true" : undefined}>
+                <span className="se-drafts-name">
+                  <strong>{draftLabel(e.draft)}</strong>
+                  <span>{[ex?.name, edited(e.updated)].filter(Boolean).join(" · ")}</span>
+                </span>
+                {isOpen ? <em>Open now</em> : <button type="button" className="btn btn-ghost btn-small" onClick={() => openDraft(e.id)}>Open</button>}
+                <button type="button" className="se-remove" onClick={() => deleteDraft(e.id)} aria-label={`Delete the draft for ${draftLabel(e.draft)}`}>Delete</button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+      <p className="se-drafts-foot">
+        <Link className="text-link" href="/start">Start another from an example&nbsp;→</Link>
+        <span>Up to {MAX_DRAFTS} drafts. They stay in this browser only, so download the ones you want to keep safe.</span>
+      </p>
+    </section>
+  );
 
   if (!draft) {
     return (
       <div className="se-choice">
-        <h1>Start with an example</h1>
-        <p>Pick the business that&apos;s closest to yours. You can change every word, color, photo and section.</p>
-        <Link className="btn btn-gold" href="/start">Choose an example</Link>
+        <h1>{tooMany ? "Your drafts" : "Start with an example"}</h1>
+        {tooMany ? draftsPanel : (
+          <>
+            <p>Pick the example that&apos;s closest to yours. You can change every word, color, photo and section.</p>
+            <Link className="btn btn-gold" href="/start">Choose an example</Link>
+          </>
+        )}
       </div>
     );
   }
 
   const ex = exampleBySlug(draft.example);
-  const set = (fn: (d: SiteDraft) => SiteDraft) => setDraft((d) => (d ? fn(d) : d));
+  const set = (fn: (d: SiteDraft) => SiteDraft) => setStore((s) => {
+    const cur = s ? activeEntry(s) : undefined;
+    return s && cur ? updateActive(s, fn(cur.draft)) : s;
+  });
+
+  const goTo = (t: Tab, field?: string) => {
+    setTab(t);
+    setView("edit");
+    window.setTimeout(() => {
+      if (field) document.getElementById(`se-f-${field}`)?.focus();
+      else panel.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
 
   const download = () => {
     const zip = makeZip(exportEntries(draft));
@@ -161,12 +230,24 @@ export default function StarterEditor() {
     a.remove();
     window.setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     setDone(true);
+    setNudge(false);
     track("starter_download", { example: draft.example });
   };
 
-  const startOver = () => {
-    if (!window.confirm("Start over with a different example? This draft will be replaced when you pick one. Download it first if you want a copy.")) return;
-    router.push("/start");
+  // Things that would mislead a visitor come first: show them before the files.
+  const askDownload = () => {
+    if (check && check.fixCount > 0 && !(tab === "check" && nudge)) {
+      setNudge(true);
+      goTo("check");
+      return;
+    }
+    download();
+  };
+
+  const toLaunch = () => {
+    launchSeed(draft);
+    track("starter_next", { to: "launch", example: draft.example });
+    router.push("/engines/room?engine=launch");
   };
 
   return (
@@ -174,16 +255,26 @@ export default function StarterEditor() {
       <div className="se-bar">
         <ol className="se-steps" aria-label="Steps">
           <li className="is-done"><Link href="/start">1. Choose an example</Link></li>
-          <li aria-current="step">2. Add your details and make it yours</li>
+          <li aria-current={tab === "check" ? undefined : "step"}>2. Make it yours</li>
+          <li aria-current={tab === "check" ? "step" : undefined}>
+            <button type="button" className="se-steplink" onClick={() => goTo("check")}>3. Check and download</button>
+          </li>
         </ol>
         <div className="se-bar-go">
           <span className="se-save" role="status">
-            {saveNote === "full" ? "This browser is out of room for the draft. Try fewer or smaller photos." : saveNote === "saved" ? "Saved in this browser" : ""}
+            {saveNote === "full" ? "This browser is out of room. Try fewer or smaller photos, or delete a draft you don't need." : saveNote === "saved" ? "Saved in this browser" : ""}
           </span>
-          <span className="se-free">{FREE_SHORT}</span>
-          <button type="button" className="btn btn-gold" onClick={download}>Download site files</button>
+          <button type="button" className="btn btn-ghost btn-small se-drafts-btn" aria-expanded={showDrafts} onClick={() => setShowDrafts((v) => !v)}>
+            Drafts ({store.drafts.length})
+          </button>
+          <span className="se-dl">
+            <button type="button" className="btn btn-gold" onClick={askDownload}>Download site files</button>
+            <span className="se-free">{check && check.fixCount ? `${check.fixCount} to fix first` : FREE_SHORT}</span>
+          </span>
         </div>
       </div>
+
+      {showDrafts && draftsPanel}
 
       <div className="se-switch" role="group" aria-label="Show">
         <button type="button" aria-pressed={view === "edit"} onClick={() => setView("edit")}>Edit</button>
@@ -193,22 +284,33 @@ export default function StarterEditor() {
       {done && (
         <section className="se-done" aria-labelledby="done-h">
           <h2 id="done-h">Your files are downloading.</h2>
-          <p>{BRAND_OWNERSHIP} The download has your page, your photos and a short README on putting it online yourself, at no cost from us.</p>
-          <p>{PAID_LINE}</p>
-          <div className="se-done-go">
-            <Link className="btn btn-ghost" href="/services#publish">See paid publishing help</Link>
-            <Link className="text-link" href="/request#publish">Ask for a quote&nbsp;→</Link>
-            <button type="button" className="text-link se-linkbtn" onClick={() => setDone(false)}>Keep editing</button>
+          <p>{BRAND_OWNERSHIP} Open README.txt in the download first: it lists anything that was still open, how to put the site online, and what to do once it&apos;s live.</p>
+          <div className="se-next">
+            <div>
+              <strong>Plan your launch week</strong>
+              <span>The Launch engine turns your new site into a short checklist and messages to send to the people who already know you.</span>
+              <button type="button" className="btn btn-ghost btn-small" onClick={toLaunch}>Plan the launch</button>
+            </div>
+            <div>
+              <strong>Want help putting it online?</strong>
+              <span>{PAID_LINE}</span>
+              <span className="se-next-links">
+                <Link className="text-link" href="/services#publish">See publishing help</Link>
+                <Link className="text-link" href="/request#publish">Ask for a quote&nbsp;→</Link>
+              </span>
+            </div>
           </div>
+          <button type="button" className="text-link se-linkbtn" onClick={() => setDone(false)}>Keep editing</button>
         </section>
       )}
 
       <div className="se-main">
-        <div className="se-panel">
+        <div className="se-panel" ref={panel}>
           <div className="se-tabs" role="tablist" aria-label="Edit">
             {TABS.map((t) => (
-              <button key={t.id} role="tab" type="button" aria-selected={tab === t.id} onClick={() => setTab(t.id)}>
+              <button key={t.id} role="tab" type="button" aria-selected={tab === t.id} onClick={() => { setTab(t.id); if (t.id !== "check") setNudge(false); }}>
                 {t.label}
+                {t.id === "check" && check && check.fixCount ? <span className="se-badge" aria-label={`${check.fixCount} to fix`}>{check.fixCount}</span> : null}
               </button>
             ))}
           </div>
@@ -218,9 +320,10 @@ export default function StarterEditor() {
             {tab === "look" && <LookTab draft={draft} set={set} ex={ex} />}
             {tab === "photos" && <PhotosTab draft={draft} set={set} />}
             {tab === "sections" && <SectionsTab draft={draft} set={set} />}
+            {tab === "check" && check && <CheckTab result={check} nudge={nudge} onGo={(i) => goTo(i.tab, i.field)} onDownload={download} />}
           </div>
           <div className="se-foot">
-            <button type="button" className="text-link se-linkbtn" onClick={startOver}>Start over with another example</button>
+            <Link className="text-link" href="/start">Start another draft</Link>
             <Link className="text-link" href="/services#publish">Paid help publishing</Link>
           </div>
         </div>
@@ -249,28 +352,48 @@ function DetailsTab({ draft, set, ex }: { draft: SiteDraft; set: Setter; ex?: St
   // When the name or area changes, the old wording follows on blur, so a
   // half-typed name never gets written into every sentence.
   const before = useRef<string>("");
-  const field = (key: keyof Details, label: string, hint?: string, type = "text", carry = false) => (
-    <Field label={label} hint={hint}>
-      <input
-        type={type}
-        value={draft.details[key]}
-        onFocus={() => { before.current = draft.details[key]; }}
-        onChange={(e) => { const v = e.target.value; set((d) => ({ ...d, details: { ...d.details, [key]: v } })); }}
-        onBlur={(e) => { if (carry) { const v = e.target.value; set((d) => replaceEverywhere(d, before.current, v)); } }}
-        autoComplete="off"
-      />
-    </Field>
-  );
+  const base = useMemo(() => (ex ? draftFromExample(ex).details : null), [ex]);
+  const anyExample = !!base && (Object.keys(base) as (keyof Details)[]).some((k) => base[k] && draft.details[k] === base[k]);
+  const field = (key: keyof Details, label: string, hint?: string, type = "text", carry = false) => {
+    const isExample = !!base && !!base[key] && draft.details[key] === base[key];
+    const id = `se-f-${key}`;
+    return (
+      <div className="se-field">
+        <span className="se-label-row">
+          <label className="se-label" htmlFor={id}>{label}</label>
+          {isExample ? <span className="se-tag">Example</span> : null}
+        </span>
+        <input
+          id={id}
+          type={type}
+          value={draft.details[key]}
+          onFocus={(e) => {
+            before.current = draft.details[key];
+            // Tapping an example value selects it, so typing replaces it.
+            if (isExample) e.currentTarget.select();
+          }}
+          onChange={(e) => { const v = e.target.value; set((d) => ({ ...d, details: { ...d.details, [key]: v } })); }}
+          onBlur={(e) => { if (carry) { const v = e.target.value; set((d) => replaceEverywhere(d, before.current, v)); } }}
+          autoComplete="off"
+        />
+        {hint ? <span className="se-hint">{hint}</span> : null}
+      </div>
+    );
+  };
   return (
     <div className="se-stack">
-      <p className="se-intro">Start here. Put in your own details and the preview updates as you type. Your business name and area carry into the wording when you leave each box.</p>
-      {field("name", "Business name", undefined, "text", true)}
+      <p className="se-intro">
+        {anyExample
+          ? "Start here. Boxes marked Example still hold the example's made-up details: tap one and type yours. The preview updates as you type, and your name and area carry into the wording when you leave each box."
+          : "Your details. The preview updates as you type, and your name and area carry into the wording when you leave each box."}
+      </p>
+      {field("name", "Business or group name", undefined, "text", true)}
       {field("tagline", "What you do, in a few words", "Shown above the headline and in search results.")}
       {field("area", "Where you work", "A town, neighborhood or \"online\".", "text", true)}
       {field("phone", "Phone", "Used for the Call and Text buttons. Leave it empty to hide them.", "tel")}
       {field("email", "Email", "Leave it empty to hide the Email button.", "email")}
       {field("booking", "Online booking link (optional)", "If you already use a booking or scheduling service, paste its https:// link.", "url")}
-      {field("hours", "Hours")}
+      {field("hours", "Hours", "Leave it empty to keep hours off the page.")}
       {ex && ex.addYourself.length > 0 && (
         <div className="se-note">
           <strong>Only you can add these</strong>
@@ -278,6 +401,46 @@ function DetailsTab({ draft, set, ex }: { draft: SiteDraft; set: Setter; ex?: St
           <span>The example leaves them out on purpose. Add them in the Words tab where they fit.</span>
         </div>
       )}
+    </div>
+  );
+}
+
+function CheckTab({ result, nudge, onGo, onDownload }: { result: CheckResult; nudge: boolean; onGo: (i: CheckItem) => void; onDownload: () => void }) {
+  const fixes = result.items.filter((i) => i.level === "fix");
+  const looks = result.items.filter((i) => i.level === "look");
+  const row = (i: CheckItem) => (
+    <li key={i.id} className={`se-check-${i.level}`}>
+      <span className="se-check-mark" aria-hidden="true">{i.level === "fix" ? "!" : "•"}</span>
+      <span className="se-check-text"><strong>{i.title}</strong><span>{i.detail}</span></span>
+      <button type="button" className="btn btn-ghost btn-small" onClick={() => onGo(i)}>{i.level === "fix" ? "Fix it" : "Go there"}</button>
+    </li>
+  );
+  return (
+    <div className="se-stack">
+      {nudge && fixes.length > 0 && (
+        <p className="se-check-nudge" role="alert">Before you download: a few things on the page still belong to the example. Visitors would see them.</p>
+      )}
+      <p className="se-intro">
+        {fixes.length
+          ? `${fixes.length} ${fixes.length === 1 ? "thing" : "things"} to fix before you publish, then a few worth a look.`
+          : "Nothing to fix. A few things are worth a look before you publish."}
+      </p>
+      {fixes.length > 0 && <><h3 className="se-check-h">Fix before you publish</h3><ul className="se-check">{fixes.map(row)}</ul></>}
+      {looks.length > 0 && <><h3 className="se-check-h">Worth a look</h3><ul className="se-check">{looks.map(row)}</ul></>}
+      {result.good.length > 0 && (
+        <>
+          <h3 className="se-check-h">Done</h3>
+          <ul className="se-check">
+            {result.good.map((g) => (
+              <li key={g} className="se-check-ok"><span className="se-check-mark" aria-hidden="true">✓</span><span className="se-check-text"><strong>{g}</strong></span></li>
+            ))}
+          </ul>
+        </>
+      )}
+      <div className="se-check-go">
+        <button type="button" className="btn btn-gold" onClick={onDownload}>{fixes.length ? "Download anyway" : "Download site files"}</button>
+        <span className="se-hint">A .zip with your page, your photos and a README on putting it online. The README lists anything still open.</span>
+      </div>
     </div>
   );
 }
@@ -317,7 +480,7 @@ function WordsTab({ draft, set }: { draft: SiteDraft; set: Setter }) {
   const d = draft;
   return (
     <div className="se-stack">
-      <p className="se-intro">Every word is yours to change. Sections are in page order; hidden ones are marked.</p>
+      <p className="se-intro">Every word is yours to change. Read each part as a customer would, and change anything that isn&apos;t true for you. Sections are in page order; hidden ones are marked.</p>
       {d.sections.map(({ kind }) => (
         <details key={kind} className="se-group" open={kind === "hero"}>
           <summary>{SECTION_LABEL[kind]}{on(kind) ? "" : <em> (hidden)</em>}</summary>

@@ -2,6 +2,7 @@
 // compressed and the HTML is small, so this keeps the download simple and
 // needs no library. Works in the browser and in tests.
 
+import { readmeTodo } from "./check";
 import { photoSpots, renderSite } from "./render";
 import type { SiteDraft } from "./types";
 
@@ -101,6 +102,10 @@ function dataUrlBytes(url: string): { bytes: Uint8Array; ext: string } | null {
 
 export function readme(d: SiteDraft): string {
   const name = d.details.name.trim() || "your business";
+  const todo = readmeTodo(d);
+  const before = todo.length
+    ? `When you downloaded, these still needed a look:\n${todo.map((t) => `  - ${t}`).join("\n")}\n  Fix them in the starter and download again.`
+    : "  Nothing was flagged when you downloaded. Read the page once more the\n  way a customer would, and check every phone number and link.";
   return `Website files for ${name}
 Made with the Step In The Ring website starter.
 
@@ -116,6 +121,9 @@ CHECK IT
   Double-click index.html. It opens in your web browser, the same way
   visitors will see it.
 
+BEFORE YOU PUBLISH
+${before}
+
 PUT IT ONLINE
   Any web host that accepts plain files (often called "static hosting")
   will work. Upload this whole folder, keeping index.html at the top level.
@@ -123,7 +131,17 @@ PUT IT ONLINE
 
   Then connect your domain (like yourbusiness.com). Your host shows the
   settings to enter at the company where you bought the domain. Changes
-  can take a few hours to show up everywhere.
+  can take a few hours to show up everywhere. Keep the domain and hosting
+  accounts in your own name.
+
+AFTER IT'S ONLINE
+  - Open the address on your phone. Tap Call, Text, Email and your booking
+    button, and make sure each one reaches you.
+  - Put the address where people already look for you: the website field
+    of your Google Business Profile, your social media bios, your email
+    signature, invoices, cards and flyers.
+  - Keep your name, phone number and hours the same on the site and on
+    those listings, so nobody gets mixed messages.
 
 CHANGE IT LATER
   Go back to the starter in the same browser to edit your saved draft and

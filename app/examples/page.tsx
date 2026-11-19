@@ -6,8 +6,8 @@ import ExampleCards from "../starter/ExampleCards";
 import { EXAMPLES } from "../starter/examples";
 
 export const metadata: Metadata = {
-  title: "Website examples for small service businesses",
-  description: `${EXAMPLES.length} example websites, one for each kind of small service business, from Pilates instructors to appliance repair. See one, then start from it.`,
+  title: "Website examples for small businesses, makers and groups",
+  description: `${EXAMPLES.length} example websites, from Pilates instructors and appliance repair to food trucks, potters, walking clubs and family reunions. See one, then start from it.`,
 };
 
 export default function ExamplesPage() {
@@ -16,9 +16,9 @@ export default function ExamplesPage() {
       <header className="xs-head">
         <h1>{EXAMPLES.length} example websites</h1>
         <p>
-          One for each kind of business, with sections and wording that fit the work. Look around, then
-          start from the one that&apos;s closest to yours. Names, phone numbers and details in the
-          examples are made up.
+          For small businesses, makers, clubs and family events, with sections and wording that fit each
+          one. Look around, then start from the one closest to yours. Names, phone numbers and details in
+          the examples are made up.
         </p>
         <p><Link className="btn btn-gold" href="/start">Choose your example</Link></p>
       </header>
