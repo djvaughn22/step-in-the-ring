@@ -1,8 +1,9 @@
-# Overnight product pass, 2026-11-18 (checkpoint)
+# Overnight product pass, 2026-11-18
 
-Branch: `overnight-2026-11-18` (from main 606c5bc). Production is untouched until
-the branch is verified and merged. If this session stops early, resume from
-"Next steps" below; do not restart the audit.
+SHIPPED to production as c4dcff7 (three commits on top of 606c5bc), Vercel
+success, checked live on stepinthering.com. Rollback tag:
+`live-before-overnight-20261118` (= 606c5bc). Resume from "Next steps" below;
+do not restart the audit.
 
 ## What the audit found (first-time visitor, 375px phone)
 
@@ -45,7 +46,7 @@ the branch is verified and merged. If this session stops early, resume from
 | 6 | Launch/Grow/Sell: local business paths; real-world kits hide build steps | done |
 | 7 | Home: more-to-make doors; Engines in the More menu | done |
 | 8 | Make with AI: business-site ideas are offered the starter | done |
-| 9 | Tests, lint, typecheck, build, browser checks, deploy | in progress |
+| 9 | Tests (1,672), lint, typecheck, build, browser checks, deploy | done |
 
 ## Assumptions
 
