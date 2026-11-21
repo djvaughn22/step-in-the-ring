@@ -24,6 +24,7 @@ import { exampleBySlug } from "./examples";
 import { photoSpots, renderSite } from "./render";
 import { SECTION_LABEL, type Details, type HeroStyle, type Item, type SiteDraft, type StarterExample } from "./types";
 import { exportEntries, makeZip, zipName } from "./zip";
+import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 type Tab = "details" | "words" | "look" | "photos" | "sections" | "check";
 const TABS: { id: Tab; label: string }[] = [
@@ -290,14 +291,16 @@ export default function StarterEditor() {
               <span>The Launch engine turns your new site into a short checklist and messages to send to the people who already know you.</span>
               <button type="button" className="btn btn-ghost btn-small" onClick={toLaunch}>Plan the launch</button>
             </div>
-            <div>
-              <strong>Want help putting it online?</strong>
-              <span>{PAID_LINE}</span>
-              <span className="se-next-links">
-                <Link className="text-link" href="/services#publish">See publishing help</Link>
-                <Link className="text-link" href="/request#publish">Ask for a quote&nbsp;→</Link>
-              </span>
-            </div>
+            {PAID_HELP_OPEN && (
+              <div>
+                <strong>Want help putting it online?</strong>
+                <span>{PAID_LINE}</span>
+                <span className="se-next-links">
+                  <Link className="text-link" href="/services#publish">See publishing help</Link>
+                  <Link className="text-link" href="/request#publish">Ask for a quote&nbsp;→</Link>
+                </span>
+              </div>
+            )}
           </div>
           <button type="button" className="text-link se-linkbtn" onClick={() => setDone(false)}>Keep editing</button>
         </section>
@@ -323,7 +326,7 @@ export default function StarterEditor() {
           </div>
           <div className="se-foot">
             <Link className="text-link" href="/start">Start another draft</Link>
-            <Link className="text-link" href="/services#publish">Paid help publishing</Link>
+            {PAID_HELP_OPEN && <Link className="text-link" href="/services#publish">Paid help publishing</Link>}
           </div>
         </div>
         <div className="se-preview">

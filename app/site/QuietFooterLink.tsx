@@ -35,9 +35,11 @@
 import Link from "next/link";
 import RingMark from "./RingMark";
 import TesterFeedback from "./TesterFeedback";
+import { PAID_HELP_OPEN } from "./paidHelp";
 
 const GROUPS: { label: string; links: [string, string][] }[] = [
-  { label: "Build it with us", links: [["/services", "Services"], ["/request", "Request a project"], ["/builds", "Made here"]] },
+  // Paid help on hold (paidHelp.ts): only "Made here" stays in this group.
+  { label: PAID_HELP_OPEN ? "Build it with us" : "See what we made", links: PAID_HELP_OPEN ? [["/services", "Services"], ["/request", "Request a project"], ["/builds", "Made here"]] : [["/builds", "Made here"]] },
   { label: "Build it yourself", links: [["/create", "Create"], ["/how", "How it works"], ["/tools", "Tools"], ["/engines", "Engines"], ["/products/ready-to-build", "Ready to Build"]] },
   { label: "This site", links: [["/library", "Your work"], ["/whats-built", "What works today"], ["/everything", "Everything on this site"], ["/members/login", "Tester sign-in"]] },
 ];

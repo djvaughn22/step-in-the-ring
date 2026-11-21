@@ -15,8 +15,10 @@ describe("Made here", () => {
     expect(h.match(/<h1/g)).toHaveLength(1);
     expect(h).toContain("See what we&#x27;ve built.");
     expect(h).toMatch(/<a class="btn btn-gold" href="\/create">Make something like this/);
-    expect(h.match(/href="\/request"/g)?.length).toBe(2);
-    expect(h).toContain('href="/services"');
+    // Paid help on hold (2026-11-20): no request or services links; the free way instead.
+    expect(h).not.toContain('href="/request"');
+    expect(h).not.toContain('href="/services"');
+    expect(h).toContain('href="/start"');
     expect(h).toContain("not client work");
     expect(h).toContain(`${SHOWCASE_COUNT} live sites and games`);
   });

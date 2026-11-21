@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Sheet, PageHead, Section } from "../site/ui";
 import { BRAND_ONE_LINE, BRAND_OWNERSHIP, WHY_THE_NAME } from "../site/brand";
 import { INDEPENDENCE_NOTICE } from "../services/offers";
+import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 export const metadata: Metadata = {
   title: "About StepInTheRing",
@@ -26,7 +27,7 @@ export default function AboutPage() {
       <Section title="Ways to use it">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
           <li><strong style={{ color: "var(--text)" }}>The website starter.</strong> <Link href="/start">Choose an example</Link> for your kind of business, change the words, colors, fonts, photos and sections, and download the files. No account.</li>
-          <li><strong style={{ color: "var(--text)" }}>Help from us, if you want it.</strong> Publishing help, finishing your draft, or a site built for you, with a written quote first. <Link href="/services">See services</Link> or <Link href="/request">request a project</Link>.</li>
+          {PAID_HELP_OPEN && <li><strong style={{ color: "var(--text)" }}>Help from us, if you want it.</strong> Publishing help, finishing your draft, or a site built for you, with a written quote first. <Link href="/services">See services</Link> or <Link href="/request">request a project</Link>.</li>}
           <li><strong style={{ color: "var(--text)" }}>Make other things with AI.</strong> <Link href="/make">The workspace</Link>, tools and engines on this site, with no account and no coding.</li>
         </ul>
       </Section>

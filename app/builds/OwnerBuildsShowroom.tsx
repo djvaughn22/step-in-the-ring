@@ -5,6 +5,7 @@
 import Link from "next/link";
 import Portfolio from "../work/Portfolio";
 import { SHOWCASE_COUNT } from "../work/work";
+import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 export default function OwnerBuildsShowroom() {
   return (
@@ -18,13 +19,13 @@ export default function OwnerBuildsShowroom() {
         </p>
         <div className="actions">
           <Link className="btn btn-gold" href="/create">Make something like this →</Link>
-          <Link className="btn btn-ghost" href="/request">Request a project</Link>
+          {PAID_HELP_OPEN && <Link className="btn btn-ghost" href="/request">Request a project</Link>}
         </div>
       </div>
 
       <Portfolio />
 
-      <div className="owner-showroom-cta">
+      {PAID_HELP_OPEN ? <div className="owner-showroom-cta">
         <div>
           <span className="kicker">Your turn</span>
           <h2>Have an idea? Let&apos;s build it.</h2>
@@ -38,7 +39,17 @@ export default function OwnerBuildsShowroom() {
           <Link className="btn btn-ghost" href="/create">Start on your own</Link>
           <Link className="text-link" href="/services">Services and prices&nbsp;→</Link>
         </div>
-      </div>
+      </div> : <div className="owner-showroom-cta">
+        <div>
+          <span className="kicker">Your turn</span>
+          <h2>Make your own.</h2>
+          <p>Start a website from an example, or make something else with the free tools here.</p>
+        </div>
+        <div className="actions">
+          <Link className="btn btn-gold" href="/start">Start a website</Link>
+          <Link className="btn btn-ghost" href="/create">Make something else</Link>
+        </div>
+      </div>}
     </section>
   );
 }

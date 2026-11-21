@@ -4,14 +4,15 @@ import { Band, Masthead, Sheet } from "../site/ui";
 import { CARE_PLANS, CARE_TERMS, FINISH_VS_BUSINESS, NOT_INCLUDED, OFFERS, PRICE_RANGE } from "./offers";
 import { FREE_LINE } from "../starter/copy";
 import { EXAMPLES } from "../starter/examples";
+import { PAID_HELP_OPEN, PAUSED_LINE, PAUSED_TITLE } from "../site/paidHelp";
 
 const EXAMPLE_COUNT = EXAMPLES.length;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = PAID_HELP_OPEN ? {
   title: "Services: help with your website",
   description:
     `Optional help for small service businesses: publish the draft you made, have it finished, or have a site built, ${PRICE_RANGE}. A written quote comes before any work starts.`,
-};
+} : { title: "Paid help is paused", description: PAUSED_LINE, robots: { index: false } };
 
 const STEPS = [
   ["Tell us about it", "Send a short request. We reply by email, usually within two business days."],
@@ -22,6 +23,7 @@ const STEPS = [
 ] as const;
 
 export default function ServicesPage() {
+  if (!PAID_HELP_OPEN) return <Paused />;
   return (
     <Sheet wide>
       <Masthead
@@ -130,6 +132,20 @@ export default function ServicesPage() {
         <Link className="btn btn-gold btn-big" href="/request">Request a project</Link>
       </section>
 
+    </Sheet>
+  );
+}
+
+/** While paid help is on hold (paidHelp.ts): no prices, no request, just the free way. */
+function Paused() {
+  return (
+    <Sheet>
+      <Masthead kicker="Paid help" title={PAUSED_TITLE} lead={PAUSED_LINE}>
+        <div className="svc-mast-go">
+          <Link className="btn btn-gold" href="/start">Start your website</Link>
+          <Link className="text-link" href="/examples">See the examples&nbsp; →</Link>
+        </div>
+      </Masthead>
     </Sheet>
   );
 }

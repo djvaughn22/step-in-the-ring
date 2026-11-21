@@ -8,6 +8,7 @@ import { draftFromExample } from "./draft";
 import { EXAMPLES, exampleBySlug } from "./examples";
 import MiniSite, { miniData } from "./MiniSite";
 import { renderSite } from "./render";
+import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 // THE FRONT DOOR (owner, 2026-11-12): FREE FIRST. The website starter is the
 // product. Paid help and budgets come later, only as an option once someone
@@ -121,10 +122,12 @@ export default function StarterHome() {
         <div className="h2-go">
           <Link className="h2-btn h2-btn-main" href="/start">Choose your example</Link>
         </div>
-        <p className="h2-later">
-          Rather have us do it? Once you have a draft, you can ask about optional help finishing or publishing it.
-          We&apos;ll tell you honestly if it&apos;s a fit. <Link href="/services">About optional help</Link>
-        </p>
+        {PAID_HELP_OPEN && (
+          <p className="h2-later">
+            Rather have us do it? Once you have a draft, you can ask about optional help finishing or publishing it.
+            We&apos;ll tell you honestly if it&apos;s a fit. <Link href="/services">About optional help</Link>
+          </p>
+        )}
       </section>
 
       <section className="h2-sec" aria-labelledby="more-h">

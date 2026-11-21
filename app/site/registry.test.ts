@@ -144,11 +144,12 @@ describe("the menu", () => {
     // Home is the wordmark on the left of the bar, the way it is on every
     // site. The first word in the menu should say what this place is for.
     expect(navPages()[0].path).toBe("/start");
-    expect(navPages().map((p) => p.path)).toEqual(["/start", "/examples", "/services", "/builds"]);
+    // Services leaves the menu while paid help is on hold (paidHelp.ts, 2026-11-20).
+    expect(navPages().map((p) => p.path)).toEqual(["/start", "/examples", "/builds"]);
   });
 
   it("uses words a first-time visitor can read without knowing the product", () => {
-    expect(navPages().map((p) => p.name)).toEqual(["Website starter", "Examples", "Services", "Made here"]);
+    expect(navPages().map((p) => p.name)).toEqual(["Website starter", "Examples", "Made here"]);
   });
 
   it("keeps every other door one level down, under More", () => {

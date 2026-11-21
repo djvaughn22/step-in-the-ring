@@ -42,6 +42,7 @@ import {
   CREATION_TYPE_LABEL, SOFTWARE_VERDICT_LABEL, type CreationRecordV1, type HandoffPayloadV1,
 } from "../creation/types";
 import { useFlash } from "../engines/shared/useFlash";
+import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 type Stage = "landing" | "stepped" | "result" | "saved";
 
@@ -688,7 +689,7 @@ function RingScreens({ mode, urlOpen }: { mode: "home" | "create"; urlOpen: stri
               <li><strong>Tried something?</strong><span>Tell us what worked, what didn&apos;t, or what you loved. No account needed.</span><Link className="text-link" href="/whats-built#tell-us">Send a note&nbsp; →</Link></li>
             </ul>
           </section>
-          <section className="home-final"><RingMark /><h2>Start with one sentence.</h2><p>Say what you want to make in the box at the top of this page. Want help with a bigger project? Tell us about it.</p><div className="home-final-go"><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start on your own&nbsp; ↑</button><Link className="btn btn-ghost btn-big" href="/request">Request a project</Link></div></section>
+          <section className="home-final"><RingMark /><h2>Start with one sentence.</h2><p>Say what you want to make in the box at the top of this page.{PAID_HELP_OPEN && " Want help with a bigger project? Tell us about it."}</p><div className="home-final-go"><button className="btn btn-gold btn-big" type="button" onClick={() => shapeRef.current?.focus()}>Start on your own&nbsp; ↑</button>{PAID_HELP_OPEN && <Link className="btn btn-ghost btn-big" href="/request">Request a project</Link>}</div></section>
         </div>
       </main>
     );

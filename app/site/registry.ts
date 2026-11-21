@@ -21,6 +21,7 @@
 //   - No secrets. No passcodes. No local paths. This file is public source and
 //     it ships in the bundle.
 // ─────────────────────────────────────────────────────────────────────────────
+import { PAID_HELP_OPEN } from "./paidHelp";
 
 // Digital Front Desk is not listed here: it moved to iDontCry Dream Labs
 // (https://idontcry.com/digital-front-desk) at the end of September, and the old
@@ -433,7 +434,8 @@ const NAV_ORDER = ["/start", "/examples", "/services", "/builds"];
 const MORE_ORDER = ["/make", "/how", "/tools", "/engines", "/library"];
 
 export function navPages(): SitePage[] {
-  return SITE_PAGES.filter((p) => p.inNav).sort(
+  // Paid services stay out of the nav while paid help is on hold (paidHelp.ts).
+  return SITE_PAGES.filter((p) => p.inNav && (PAID_HELP_OPEN || p.group !== "hire")).sort(
     (a, b) => NAV_ORDER.indexOf(a.path) - NAV_ORDER.indexOf(b.path),
   );
 }

@@ -81,9 +81,9 @@ describe("the website starter on the home page", () => {
     expect(BRAND_OWNERSHIP).toContain("doesn't host your website");
   });
 
-  it("offers help as an option, never as the only way", () => {
-    expect(text).toContain("Rather have us do it?");
-    expect(text).toContain("optional help");
+  it("offers no paid help while it is on hold (2026-11-20)", () => {
+    expect(text).not.toContain("Rather have us do it?");
+    expect(text).not.toMatch(/optional help|request a project|have us do it/i); // a sample business card may say "Ask for a quote"
   });
 
   it("keeps the other capabilities one link away", () => {
