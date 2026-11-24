@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Step In The Ring",
     description:
-      "Choose an example for your kind of business, make it yours, and download site files you own. Help publishing it if you want it. Part of Open Mirror LLC.",
+      "Choose an example for your kind of business, make it yours, and download site files you own. Help publishing it if you want it.",
     url: "https://stepinthering.com",
     siteName: "Step In The Ring",
     type: "website",

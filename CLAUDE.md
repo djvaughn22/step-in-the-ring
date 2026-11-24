@@ -43,6 +43,7 @@ itself was scrubbed, not preserved, so it is not repeated here). Never again:
   `app/lib/analytics.test.ts`.
 
 ## Open Mirror family rules
+- **Messaging (owner, 2026-11-24):** Step In The Ring helps people turn ideas into websites and real businesses, in its own voice. Share text and search descriptions describe Step In The Ring, not Open Mirror ("Part of Open Mirror LLC." left the share text). No plugs for other Open Mirror sites and no preparedness copy; "Made here" (/builds) is the one page that shows the studio's own sites, as examples of work. Full rules: the hub repo's `docs/MESSAGING.md`.
 - One of 11 Open Mirror LLC sites (hub: openmirrorllc.com, repo djvaughn22/open-mirror). Baseline tag: `mvp-1`.
 - **Design:** flat + cool. bg `#0b1220`, surface `#141d2e`, border `#26324c`, text `#e8edf5`, muted `#94a3b8`. No glass, no gradients, **no red**.
 - **Shared chrome is SYNCED, not owned here:** `OpenMirrorNav.tsx`, `OpenMirrorFooter.tsx`, `OpenMirrorTheme.tsx` in the app folder are copies from the hub repo `packages/openmirror-ui/`. NEVER edit them here — edit in the hub, run its `scripts/sync-ui.sh`, then rebuild/commit each satellite.

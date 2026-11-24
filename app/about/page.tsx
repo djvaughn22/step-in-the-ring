@@ -8,7 +8,7 @@ import { PAID_HELP_OPEN } from "../site/paidHelp";
 export const metadata: Metadata = {
   title: "About StepInTheRing",
   description:
-    "A website starter for small service businesses: start from an example, make it yours, download the files. Optional help publishing, from Open Mirror LLC.",
+    "A website starter for small service businesses: start from an example, make it yours, download the files. Optional help publishing.",
 };
 
 export default function AboutPage() {
