@@ -24,7 +24,7 @@ export const BRAND_SIGNATURE = "A website starter for small service businesses";
 export const BRAND_SHORT = "Website starter";
 
 export const BRAND_ONE_LINE =
-  "Choose an example for your kind of business, add your details and make it yours, then download site files you own. Help publishing it is there if you want it.";
+  "Choose an example for your kind of business, add your details and make it yours, then download site files you own.";
 
 /** The hosting difference, said once and the same way everywhere. */
 export const BRAND_OWNERSHIP =
