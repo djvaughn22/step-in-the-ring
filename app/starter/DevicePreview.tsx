@@ -44,7 +44,18 @@ export default function DevicePreview({
 
   const { w, h } = SIZE[device];
   const pad = device === "phone" ? 24 : 0;
-  const scale = width ? Math.min(1, (width - pad) / w) : device === "phone" ? 0.8 : 0.5;
+  const scale = Math.min(1, (width - pad) / w);
+  // Until the stage is measured (the server render, and a slow load before the
+  // page hydrates) CSS sizes the frame to the same box: the stage width less
+  // the pad, never wider than the device. So it already fits and nothing moves
+  // or overlaps while loading. The page inside needs that width for its scale,
+  // so it stays hidden until then.
+  const frame = width
+    ? { width: w * scale, height: h * scale }
+    : { width: `min(${w}px, 100% - ${pad}px)`, aspectRatio: `${w} / ${h}` };
+  const page = width
+    ? { width: w, height: h, transform: `scale(${scale})` }
+    : { width: w, height: h, visibility: "hidden" as const };
 
   return (
     <div className="dp">
@@ -58,12 +69,12 @@ export default function DevicePreview({
         </div>
       )}
       <div ref={box} className={`dp-stage dp-${device}`}>
-        <div className="dp-frame" style={{ width: w * scale, height: h * scale }}>
+        <div className="dp-frame" style={frame}>
           <iframe
             title={title}
             srcDoc={html}
             sandbox="allow-popups allow-popups-to-escape-sandbox"
-            style={{ width: w, height: h, transform: `scale(${scale})` }}
+            style={page}
           />
         </div>
       </div>
