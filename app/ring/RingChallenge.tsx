@@ -309,7 +309,7 @@ export default function RingChallenge({ challenge: c }: { challenge: TwoSidesCha
       {/* 3 · Try (and record, if you choose) */}
       <section id="try" className="rg-sec rg-try" aria-labelledby="try-h">
         <span className="rg-num">3</span>
-        <h2 id="try-h">Try it: {side} side{phase === "done" ? "s done" : ""}</h2>
+        <h2 id="try-h">{phase === "done" ? "Try it: both sides done" : `Try it: ${side} side`}</h2>
 
         {phase === "ready" && (
           <>

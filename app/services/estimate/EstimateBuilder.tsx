@@ -98,9 +98,9 @@ export default function EstimateBuilder({ startPages, exampleName, open }: { sta
         <fieldset className={styles.step}>
           <legend>How many pages?</legend>
           <div className={styles.stepper}>
-            <button type="button" onClick={() => set("pages", Math.max(1, scope.pages - 1))} aria-label="One fewer page">−</button>
+            <button type="button" onClick={() => { setScope((s) => ({ ...s, pages: Math.max(1, s.pages - 1) })); setCopied(false); }} aria-label="One fewer page">−</button>
             <output aria-live="polite">{scope.pages} {scope.pages === 1 ? "page" : "pages"}</output>
-            <button type="button" onClick={() => set("pages", Math.min(30, scope.pages + 1))} aria-label="One more page">+</button>
+            <button type="button" onClick={() => { setScope((s) => ({ ...s, pages: Math.min(30, s.pages + 1) })); setCopied(false); }} aria-label="One more page">+</button>
           </div>
           <p className={styles.hint}>A one-page site is often enough to start: what you do, where, and how to reach you.</p>
         </fieldset>

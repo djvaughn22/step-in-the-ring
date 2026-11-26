@@ -11,10 +11,10 @@ const DESCRIPTION =
   "A free website builder for small businesses. Start from an example for your kind of work, make it yours, and download files you own. No coding, no account.";
 
 export const metadata: Metadata = {
-  title: { absolute: "Step In The Ring: get your business online, without the headache" },
+  title: { absolute: "Step In The Ring: make something real, one step at a time" },
   description: DESCRIPTION,
   openGraph: {
-    title: "Get your business online. Without the headache.",
+    title: "Make something real. One step at a time.",
     description: DESCRIPTION,
     url: "https://stepinthering.com",
     siteName: "Step In The Ring",
