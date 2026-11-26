@@ -43,6 +43,7 @@ itself was scrubbed, not preserved, so it is not repeated here). Never again:
   `app/lib/analytics.test.ts`.
 
 ## Open Mirror family rules
+- **The owner's compass (permanent, Nov 25 2026):** before building any feature, ask whether it helps someone live, learn, create, connect, prepare, persevere or serve. Step In The Ring helps ordinary people stop watching and start doing, and leaves them more capable, not more dependent on us.
 - **Messaging (owner, 2026-11-24):** Step In The Ring helps people turn ideas into websites and real businesses, in its own voice. Share text and search descriptions describe Step In The Ring, not Open Mirror ("Part of Open Mirror LLC." left the share text). No plugs for other Open Mirror sites and no preparedness copy; "Made here" (/builds) is the one page that shows the studio's own sites, as examples of work. Full rules: the hub repo's `docs/MESSAGING.md`.
 - **Owner reset (2026-11-25):** keep the shared footer's OpenMirrorLLC.com link (the one way to find the other sites). No copy about how anything is built beyond what a visitor needs to use a feature, no public service prices or offers of paid help while paid help is paused ("Help publishing it is there if you want it." came out of the site line); questions go to ask@openmirrorllc.com, plainly.
 - One of 11 Open Mirror LLC sites (hub: openmirrorllc.com, repo djvaughn22/open-mirror). Baseline tag: `mvp-1`.
