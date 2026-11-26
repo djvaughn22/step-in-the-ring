@@ -99,6 +99,30 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "learn",
   },
+  // Ways to make it real (owner direction, late November): do it yourself, do
+  // it with us, have us build it. Product pages say what a buyer receives;
+  // nothing is for sale until the owner opens sales, and no page shows a price.
+  {
+    path: "/products",
+    name: "Ways to make it real",
+    what: "Guides you keep and free tools for making something real, with what each one gets you.",
+    access: "public",
+    group: "learn",
+  },
+  {
+    path: "/products/old-laptop-to-build-machine",
+    name: "Old Laptop to Build Machine",
+    what: "See what the guide for turning an old computer into a build machine includes, and check your computer free.",
+    access: "public",
+    group: "learn",
+  },
+  {
+    path: "/products/start-your-own-business",
+    name: "Start Your Own Business Game Plan",
+    what: "See the steps and worksheets for going from an idea to a small, organized business.",
+    access: "public",
+    group: "learn",
+  },
   // ── Create ─────────────────────────────────────────────────────────────
   {
     path: "/",

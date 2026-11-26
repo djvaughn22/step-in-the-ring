@@ -25,6 +25,15 @@ const PROMISES = [
 ] as const;
 
 // Doors into the engines, named by the job, not the engine (2026-11-18).
+// Guides you keep (owner direction, Nov 25 2026): the bigger things people
+// come to make. Each door opens a page that says what the guide includes;
+// nothing is for sale until the owner opens sales, and no price shows here.
+const GUIDES = [
+  ["Turn an old computer into a build machine", "Check yours first, then see what the guide covers.", "/products/old-laptop-to-build-machine"],
+  ["Start your own business", "Thirteen steps from an idea to a small, organized business.", "/products/start-your-own-business"],
+  ["Plan a five-hour build", "Plan one focused session, keep track of it and report what got done.", "/five-hour-sprint-tool"],
+] as const;
+
 const DOORS = [
   ["Plan your launch", "Two weeks of checks and messages for when your site goes live, and one result to count.", "/engines/room?engine=launch"],
   ["Price a service or product", "Who it's for, an offer, a price to test and a first test to run.", "/engines/room?engine=sell"],
@@ -128,6 +137,23 @@ export default function StarterHome() {
             We&apos;ll tell you honestly if it&apos;s a fit. <Link href="/services">About optional help</Link>
           </p>
         )}
+      </section>
+
+      <section className="h2-sec" aria-labelledby="guides-h">
+        <div className="h2-head">
+          <h2 id="guides-h">Bigger things to make</h2>
+          <p>Step-by-step guides for an old computer that builds, or a small business of your own.</p>
+        </div>
+        <ul className="h2-doors">
+          {GUIDES.map(([title, text, href]) => (
+            <li key={href}>
+              <Link href={href}><strong>{title}</strong><span>{text}</span></Link>
+            </li>
+          ))}
+        </ul>
+        <p className="h2-allex">
+          <Link href="/products">All the ways to make it real&nbsp;→</Link>
+        </p>
       </section>
 
       <section className="h2-sec" aria-labelledby="more-h">
