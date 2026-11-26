@@ -56,6 +56,16 @@
 .faq summary { cursor: pointer; font-weight: 800; color: var(--text); }
 .faq p { margin-top: 10px; color: var(--muted); max-width: 720px; }
 
+.glance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 22px; margin: 0; }
+.glance div { border-top: 1px solid var(--line); padding-top: 10px; }
+.glance dt { font: 12px var(--mono, ui-monospace, monospace); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.glance dd { margin: 0; font-size: 15px; color: var(--text); }
+.card .glance { grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+.card .glance dd { font-size: 14px; color: var(--muted); }
+.more summary { cursor: pointer; color: var(--accent); font-weight: 750; font-size: 14px; list-style: none; }
+.more summary::-webkit-details-marker { display: none; }
+.more summary::after { content: " ▾"; }
+.more[open] summary::after { content: " ▴"; }
 .closing { padding: 64px 0 10px; text-align: center; display: grid; justify-items: center; gap: 14px; }
 .closing h2 { font-size: clamp(28px, 3.4vw, 44px); line-height: 1.12; max-width: 780px; }
 .closing p { color: var(--muted); max-width: 620px; }
@@ -89,7 +99,7 @@
 
 @media (max-width: 860px) {
   .hero, .split { grid-template-columns: 1fr; gap: 34px; }
-  .grid, .grid3, .steps { grid-template-columns: 1fr; }
+  .grid, .grid3, .steps, .glance { grid-template-columns: 1fr; }
   .section, .path { padding: 44px 0; }
   .subtitle { font-size: 17.5px; }
 }

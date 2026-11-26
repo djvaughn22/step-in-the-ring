@@ -34,11 +34,11 @@ export default function OpengraphImage() {
           STEPINTHERING.COM
         </div>
         <div style={{ marginTop: 20, fontSize: 84, lineHeight: 1.08, display: "flex", flexWrap: "wrap" }}>
-          <span>Get your business online.&nbsp;</span>
-          <span style={{ color: ACT }}>Without the headache.</span>
+          <span>Make something real.&nbsp;</span>
+          <span style={{ color: ACT }}>One step at a time.</span>
         </div>
         <div style={{ marginTop: 28, fontSize: 36, color: MUTED, lineHeight: 1.35, display: "flex" }}>
-          A free website builder. Start from an example, make it yours, download the files.
+          Try a challenge. Learn a skill. Make a website. Start a business of your own.
         </div>
       </div>
     ),

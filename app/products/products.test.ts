@@ -5,7 +5,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { AVAILABILITY_LABEL, PATHS, readyMailto } from "./catalog";
+import { AVAILABILITY_LABEL, DETAIL_LABELS, PATHS, paidItems, readyMailto } from "./catalog";
 import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 const APP = path.join(__dirname, "..");
@@ -41,10 +41,26 @@ describe("the three ways to make it real", () => {
     expect(AVAILABILITY_LABEL.coming).toBe("Not on sale yet");
   });
 
+  it("say six plain things about everything someone would pay for", () => {
+    expect(paidItems().length).toBeGreaterThanOrEqual(6);
+    for (const item of paidItems()) {
+      expect(item.detail, item.title).toBeDefined();
+      for (const key of Object.keys(DETAIL_LABELS) as (keyof typeof DETAIL_LABELS)[]) {
+        expect(item.detail![key].trim().length, `${item.title}: ${key}`).toBeGreaterThan(8);
+      }
+    }
+  });
+
+  it("separate our work from the free tools and official sources it uses", () => {
+    expect(visible("products/old-laptop-to-build-machine/page.tsx")).toMatch(/made by others and free to use under their own licenses/);
+    expect(visible("products/start-your-own-business/page.tsx")).toMatch(/The official rules are free/);
+  });
+
   it("offer no paid help while it is paused", () => {
     const build = PATHS.find((p) => p.id === "build-it")!;
     if (!PAID_HELP_OPEN) {
-      expect(build.items.every((i) => i.availability === "paused" && !i.href)).toBe(true);
+      expect(build.items.every((i) => i.availability === "paused")).toBe(true);
+      expect(build.items.every((i) => /aren't taking new projects/.test(i.line))).toBe(true);
     }
   });
 });

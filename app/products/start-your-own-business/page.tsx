@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import RingMark from "../../site/RingMark";
-import { AVAILABILITY_LABEL, readyMailto } from "../catalog";
+import AtAGlance from "../AtAGlance";
+import { AVAILABILITY_LABEL, GAME_PLAN, readyMailto } from "../catalog";
 import styles from "../products.module.css";
 
 // Start Your Own Business Game Plan (owner direction, Nov 25 2026). The
@@ -63,6 +64,7 @@ const faqs = [
   ["Does it work in my state?", "Yes, for any US state. The filing details differ, and the workbook shows you how to find your own state's official business filing office."],
   ["Is this legal or tax advice?", "No. It's general information and worksheets that help you get organized and ask good questions. For your situation, talk to an attorney or accountant in your state."],
   ["Will you file it for me?", "No. We never file anything, buy a domain or open an account for you. You do each step yourself, from the official source."],
+  ["Isn't this information free?", "The official rules are free on the government's own websites, and the Game Plan links to them. What we made is the order to do things in, the worksheets and the plan you fill in."],
 ];
 
 export default function StartYourOwnBusinessPage() {
@@ -102,6 +104,14 @@ export default function StartYourOwnBusinessPage() {
           <p className={styles.planFoot}>One page. Keep it where you&apos;ll see it.</p>
         </div>
       </header>
+
+      <section className={styles.section} aria-labelledby="glance-h">
+        <div className={styles.intro}>
+          <span className="kicker">At a glance</span>
+          <h2 id="glance-h">Is this for you?</h2>
+        </div>
+        <AtAGlance detail={GAME_PLAN.detail!} />
+      </section>
 
       <section id="steps" className={styles.section} aria-labelledby="steps-h">
         <div className={styles.intro}>

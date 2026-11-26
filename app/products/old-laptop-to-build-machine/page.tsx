@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import RingMark from "../../site/RingMark";
-import { AVAILABILITY_LABEL, readyMailto } from "../catalog";
+import AtAGlance from "../AtAGlance";
+import { AVAILABILITY_LABEL, OLD_LAPTOP, readyMailto } from "../catalog";
 import styles from "../products.module.css";
 
 // Old Laptop to Build Machine (recovered Nov 26 2026; the guide bundle itself
@@ -71,6 +72,7 @@ const faqs = [
   ["How is this different from the free Build Machine page?", "The free page checks your computer and lists the steps. The guide walks through every step with pictures, the setup and check scripts, the reference cards, the recovery guide and the finished first project."],
   ["Does it cost anything to run?", "The tools in the guide cost nothing. Outside services you might choose later, like a coding AI app or your own domain name, have their own costs."],
   ["Can every old computer do this?", "No. Age alone doesn't decide it; the processor, memory, storage and condition do. That's why the first step is the free check."],
+  ["Do I have to pay for Linux or the tools?", "No. Linux Mint, VS Code, Git, GitHub's free plan and Node.js are made by others and free to use under their own licenses. What the guide adds is ours: the steps in order, the worksheets, the scripts and the first project."],
 ];
 
 export default function OldLaptopPage() {
@@ -123,6 +125,14 @@ export default function OldLaptopPage() {
           </p>
         </div>
       </header>
+
+      <section className={styles.section} aria-labelledby="glance-h">
+        <div className={styles.intro}>
+          <span className="kicker">At a glance</span>
+          <h2 id="glance-h">Is this for you?</h2>
+        </div>
+        <AtAGlance detail={OLD_LAPTOP.detail!} />
+      </section>
 
       <section className={styles.section} aria-labelledby="finish-h">
         <div className={styles.intro}>

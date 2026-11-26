@@ -18,17 +18,19 @@
 // solo owners and small service businesses. The make-with-AI workspace keeps
 // its own lines (MAKE_*) and lives on /make, one level down, unchanged.
 
-export const BRAND_SIGNATURE = "A website starter for small service businesses";
+// Nov 26 (owner direction): one Step In The Ring for trying, learning, making,
+// building and starting something; the website examples stay the strongest door.
+export const BRAND_SIGNATURE = "Make something real, one step at a time";
 
 /** Under the wordmark in the bar, for somebody who landed on an inner page. */
-export const BRAND_SHORT = "Website starter";
+export const BRAND_SHORT = "Make something real";
 
 export const BRAND_ONE_LINE =
-  "Choose an example for your kind of business, add your details and make it yours, then download site files you own.";
+  "Try a challenge, learn a skill, start a small business, or make a website from one of 29 examples, one step at a time.";
 
 /** The hosting difference, said once and the same way everywhere. */
 export const BRAND_OWNERSHIP =
-  "Step In The Ring doesn't host your website. You download the files and put them with the hosting you choose, and they stay yours.";
+  "Step In The Ring doesn't host your website. When we build one for you, the files and the web address are yours, on hosting in your name.";
 
 // ── The make-with-AI workspace (owner brief, 2026-11-05), now on /make. ──
 export const MAKE_SIGNATURE = "A workspace for making things with AI";

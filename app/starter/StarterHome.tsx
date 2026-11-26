@@ -10,30 +10,26 @@ import MiniSite, { miniData } from "./MiniSite";
 import { renderSite } from "./render";
 import { PAID_HELP_OPEN } from "../site/paidHelp";
 
-// THE FRONT DOOR (owner, 2026-11-12): FREE FIRST. The website starter is the
-// product. Paid help and budgets come later, only as an option once someone
-// is using it, and only when it's a fit with no conflict. So: no prices and
-// no package list on this page. No invented clients, numbers or promises.
+// THE FRONT DOOR (owner direction, Nov 25 2026): one Step In The Ring for
+// trying, learning, creating, building and starting something of your own.
+// The purpose is obvious in one line; the website examples stay the strongest
+// door. No prices, no package list, no free-download promise (the finished
+// site is something we build, by written quote). No invented clients,
+// numbers or promises.
 
 const SHOWCASE = "mobile-dog-groomer";
 const FEATURED = ["handyman", "hair-stylist-barber", "house-cleaner", "personal-trainer", "food-truck", "graphic-designer"];
 
-const PROMISES = [
-  ["Free to make and download", "No account, no coding, no card. Make it and take the files."],
-  ["Yours to keep", "A normal website: your page, your photos and a short guide. Keep it, copy it, change it."],
-  ["Made for phones too", "See it on a phone and a computer while you work on it."],
+// Five ways in, one line each (owner direction, Nov 25 2026).
+const VERBS = [
+  ["Try something", "The Heisman: one pose, both sides, two minutes.", "/ring"],
+  ["Learn something", "Check the computer you have and set it up to build.", "/products/ready-to-build"],
+  ["Create something", "Say what you want to make and get a clear message for your AI app.", "/make"],
+  ["Build something", "29 website examples to make your own.", "/start"],
+  ["Start something", "From an idea to a small, organized business of your own.", "/products/start-your-own-business"],
 ] as const;
 
 // Doors into the engines, named by the job, not the engine (2026-11-18).
-// Guides you keep (owner direction, Nov 25 2026): the bigger things people
-// come to make. Each door opens a page that says what the guide includes;
-// nothing is for sale until the owner opens sales, and no price shows here.
-const GUIDES = [
-  ["Turn an old computer into a build machine", "Check yours first, then see what the guide covers.", "/products/old-laptop-to-build-machine"],
-  ["Start your own business", "Thirteen steps from an idea to a small, organized business.", "/products/start-your-own-business"],
-  ["Plan a five-hour build", "Plan one focused session, keep track of it and report what got done.", "/five-hour-sprint-tool"],
-] as const;
-
 const DOORS = [
   ["Plan your launch", "Two weeks of checks and messages for when your site goes live, and one result to count.", "/engines/room?engine=launch"],
   ["Price a service or product", "Who it's for, an offer, a price to test and a first test to run.", "/engines/room?engine=sell"],
@@ -44,7 +40,7 @@ const DOORS = [
 const PROCESS = [
   ["Choose an example", "Pick the business closest to yours. Each one is written for that kind of work."],
   ["Make it yours", "Your name, area and contact details. Then change the words, colors, photos and sections."],
-  ["Download your files", "One download with your page, your photos and a short guide to putting it online."],
+  ["See what it takes", "A scope summary shows roughly how much work it would be to finish it and put it online. No prices, no pressure."],
 ] as const;
 
 export default function StarterHome() {
@@ -58,15 +54,15 @@ export default function StarterHome() {
 
       <section className="h2-hero">
         <div className="h2-hero-copy">
-          <p className="h2-kicker">A free website builder for small businesses</p>
-          <h1>Get your business online. <span>Without the headache.</span></h1>
+          <p className="h2-kicker">Step In The Ring</p>
+          <h1>Make something real. <span>One step at a time.</span></h1>
           <p className="h2-lead">
-            Start from an example written for your kind of work, add your details, and change it until it looks
-            right. Then download the files. It&apos;s free, with no coding and no account.
+            Try a challenge, learn a skill, make a website or start a business of your own. Start with an
+            example written for your kind of work, and see it on a phone as you go. It&apos;s free to try.
           </p>
           <div className="h2-go">
             <Link className="h2-btn h2-btn-main" href="/start">Choose your example</Link>
-            <Link className="h2-btn h2-btn-alt" href="/examples">See all {EXAMPLES.length} examples</Link>
+            <Link className="h2-btn h2-btn-alt" href="/products">All the ways to make it real</Link>
           </div>
         </div>
         <div className="sh-show h2-show" aria-label={`Example: ${ex.name.toLowerCase()}`}>
@@ -76,9 +72,9 @@ export default function StarterHome() {
         </div>
       </section>
 
-      <ul className="h2-promises" aria-label="What you get">
-        {PROMISES.map(([t, d]) => (
-          <li key={t}><strong>{t}</strong><span>{d}</span></li>
+      <ul className="h2-promises h2-verbs" aria-label="Ways in">
+        {VERBS.map(([t, d, href]) => (
+          <li key={t}><Link href={href}><strong>{t}</strong><span>{d}</span></Link></li>
         ))}
       </ul>
 
@@ -120,14 +116,14 @@ export default function StarterHome() {
           <ul>
             <li>You choose where your site lives and pay that company directly, in your own name.</li>
             <li>There&apos;s no account with us to keep up, and nothing to cancel.</li>
-            <li>Come back any time to change your draft and download it again.</li>
+            <li>Your draft stays in this browser. Come back any time to keep working on it.</li>
           </ul>
         </div>
       </section>
 
       <section className="h2-cta" aria-labelledby="cta-h">
         <h2 id="cta-h">Ready when you are.</h2>
-        <p>Pick the example closest to your business and make it yours. It&apos;s free.</p>
+        <p>Pick the example closest to your business and make it yours. It&apos;s free to try.</p>
         <div className="h2-go">
           <Link className="h2-btn h2-btn-main" href="/start">Choose your example</Link>
         </div>
@@ -137,23 +133,6 @@ export default function StarterHome() {
             We&apos;ll tell you honestly if it&apos;s a fit. <Link href="/services">About optional help</Link>
           </p>
         )}
-      </section>
-
-      <section className="h2-sec" aria-labelledby="guides-h">
-        <div className="h2-head">
-          <h2 id="guides-h">Bigger things to make</h2>
-          <p>Step-by-step guides for an old computer that builds, or a small business of your own.</p>
-        </div>
-        <ul className="h2-doors">
-          {GUIDES.map(([title, text, href]) => (
-            <li key={href}>
-              <Link href={href}><strong>{title}</strong><span>{text}</span></Link>
-            </li>
-          ))}
-        </ul>
-        <p className="h2-allex">
-          <Link href="/products">All the ways to make it real&nbsp;→</Link>
-        </p>
       </section>
 
       <section className="h2-sec" aria-labelledby="more-h">

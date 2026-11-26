@@ -70,8 +70,10 @@ describe("the website starter on the home page", () => {
 
   it("says what this is, for whom, and what you get", () => {
     // Owner, 2026-11-12: free first. No prices on the home page.
-    expect(text).toContain("Get your business online. Without the headache.");
-    expect(text).toContain("It's free");
+    // Owner direction, Nov 25 2026: one purpose, said plainly; free to try, no free-download promise.
+    expect(text).toContain("Make something real. One step at a time.");
+    expect(text).toContain("It's free to try");
+    expect(text).not.toMatch(/download/i);
     expect(text).toContain("Choose your example");
     expect(text).not.toMatch(/\$\d/);
   });
@@ -173,7 +175,8 @@ describe("the language stays plain", () => {
 describe("the promise travels", () => {
   it("search results and the app manifest carry the same line", () => {
     expect(BRAND_ONE_LINE).toMatch(/example/);
-    expect(BRAND_ONE_LINE).toMatch(/download/);
+    // Owner, Nov 25 2026: no free-download messaging; the files are something we build.
+    expect(BRAND_ONE_LINE).not.toMatch(/download/);
     expect(metadata.description).toBe(BRAND_ONE_LINE);
     expect(readFileSync("app/manifest.ts", "utf8")).toContain("BRAND_ONE_LINE");
   });
@@ -181,9 +184,9 @@ describe("the promise travels", () => {
   it("the share card says it too", () => {
     const card = readFileSync("app/opengraph-image.tsx", "utf8");
     // 2026-11-12: the share card carries the home page's line, free first.
-    expect(card).toContain("Get your business online.");
-    expect(card).toContain("Without the headache.");
-    expect(card).toContain("A free website builder.");
+    expect(card).toContain("Make something real.");
+    expect(card).toContain("One step at a time.");
+    expect(card).not.toMatch(/download/i);
     expect(card).not.toMatch(/\$\d/);
   });
 

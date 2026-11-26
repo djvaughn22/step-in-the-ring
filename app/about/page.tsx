@@ -8,7 +8,7 @@ import { PAID_HELP_OPEN } from "../site/paidHelp";
 export const metadata: Metadata = {
   title: "About StepInTheRing",
   description:
-    "A website starter for small service businesses: start from an example, make it yours, download the files. Optional help publishing.",
+    "Try a challenge, learn a skill, start a small business, or make a website from one of 29 examples, one step at a time.",
 };
 
 export default function AboutPage() {
@@ -26,7 +26,7 @@ export default function AboutPage() {
 
       <Section title="Ways to use it">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
-          <li><strong style={{ color: "var(--text)" }}>The website starter.</strong> <Link href="/start">Choose an example</Link> for your kind of business, change the words, colors, fonts, photos and sections, and download the files. No account.</li>
+          <li><strong style={{ color: "var(--text)" }}>The website starter.</strong> <Link href="/start">Choose an example</Link> for your kind of business, change the words, colors, fonts, photos and sections, and see it on a phone. No account.</li>
           {PAID_HELP_OPEN && <li><strong style={{ color: "var(--text)" }}>Help from us, if you want it.</strong> Publishing help, finishing your draft, or a site built for you, with a written quote first. <Link href="/services">See services</Link> or <Link href="/request">request a project</Link>.</li>}
           <li><strong style={{ color: "var(--text)" }}>Make other things with AI.</strong> <Link href="/make">The workspace</Link>, tools and engines on this site, with no account and no coding.</li>
         </ul>
@@ -42,7 +42,7 @@ export default function AboutPage() {
 
       <Section title="What you can do here">
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "var(--muted)", margin: 0, paddingLeft: 18 }}>
-          <li>Start a website for your business from one of 22 examples, preview it on a phone and a computer, and download the files.</li>
+          <li>Start a website for your business from one of 29 examples and preview it on a phone and a computer.</li>
           <li>Say what you want to make and get a first message to give an AI, then the next message each time you want something changed.</li>
           <li>Bring something that isn&rsquo;t a thing to make: a bill you don&rsquo;t understand, a decision, a question.</li>
           <li>Open a guided engine when you already know what kind of thing you&rsquo;re making.</li>
@@ -67,7 +67,7 @@ export default function AboutPage() {
       <Section title="Your work">
         <p style={{ border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, color: "var(--text)", margin: 0 }}>
           Nothing here needs an account, and there is no sign-up. What you type
-          stays on this device unless you download it or paste it into an AI app
+          stays on this device unless you copy it or paste it into an AI app
           yourself, and you&apos;ll find it under <Link href="/library">Your work</Link>.
         </p>
         <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--muted)", margin: "12px 0 0" }}>

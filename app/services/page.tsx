@@ -119,8 +119,8 @@ export default function ServicesPage() {
           <span className="kicker">Do it yourself</span>
           <h2 id="diy-heading">Rather make it on your own?</h2>
           <p>
-            The website starter is free. It has examples for {EXAMPLE_COUNT} kinds of work: add your
-            details, make it yours, and download the files. No account needed.
+            The examples are free to try. There are {EXAMPLE_COUNT} kinds of work: add your details,
+            make one yours and see it on a phone. No account needed.
           </p>
         </div>
         <Link className="btn btn-ghost" href="/start">Choose an example</Link>
@@ -142,8 +142,8 @@ function Paused() {
     <Sheet>
       <Masthead kicker="Paid help" title={PAUSED_TITLE} lead={PAUSED_LINE}>
         <div className="svc-mast-go">
-          <Link className="btn btn-gold" href="/start">Start your website</Link>
-          <Link className="text-link" href="/examples">See the examples&nbsp; →</Link>
+          <Link className="btn btn-gold" href="/start">Browse the examples</Link>
+          <Link className="text-link" href="/services/estimate">See what a site would take to build&nbsp; →</Link>
         </div>
       </Masthead>
     </Sheet>

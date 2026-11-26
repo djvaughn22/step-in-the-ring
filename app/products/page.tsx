@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import RingMark from "../site/RingMark";
+import AtAGlance from "./AtAGlance";
 import { AVAILABILITY_LABEL, PATHS, READY_EMAIL } from "./catalog";
 import styles from "./products.module.css";
 
@@ -51,11 +52,27 @@ export default function ProductsPage() {
                   <p>{item.line}</p>
                   {item.href && (
                     <span className={styles.go}>
-                      {item.availability === "coming" ? "See what's inside" : "Open"}&nbsp;→
+                      {item.availability === "free" ? "Open" : item.availability === "paused" || item.availability === "open" ? "See how it works" : "See what's inside"}&nbsp;→
                     </span>
                   )}
                 </div>
               );
+              // Products without a page of their own carry their six facts here.
+              if (!item.href && item.detail) {
+                return (
+                  <li key={item.title} className={styles.card}>
+                    <div className={styles.cardTop}>
+                      <h3>{item.title}</h3>
+                      <span className={styles.status} data-a={item.availability}>{AVAILABILITY_LABEL[item.availability]}</span>
+                    </div>
+                    <p>{item.line}</p>
+                    <details className={styles.more}>
+                      <summary>At a glance</summary>
+                      <AtAGlance detail={item.detail} />
+                    </details>
+                  </li>
+                );
+              }
               return (
                 <li key={item.title}>
                   {item.href ? (

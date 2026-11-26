@@ -8,7 +8,7 @@ import { BRAND_OWNERSHIP } from "../site/brand";
 export const metadata: Metadata = {
   title: "Website starter: choose an example",
   description:
-    "Find the example closest to your business, club or event, then add your details and make it yours. Preview it on a phone and a computer, and download the files.",
+    "Find the example closest to your business, club or event, then add your details and make it yours. Preview it on a phone and a computer.",
 };
 
 export default function StartPage() {
@@ -18,15 +18,15 @@ export default function StartPage() {
         <ol className="se-steps" aria-label="Steps">
           <li aria-current="step">1. Choose an example</li>
           <li>2. Make it yours</li>
-          <li>3. Check and download</li>
+          <li>3. Check it</li>
         </ol>
         <h1>Which example is closest to yours?</h1>
         <p>
           Each one is a full one-page website, written for that kind of work. Pick one and change
           anything: words, colors, fonts, photos and sections.
         </p>
-        {/* Owner, 2026-11-12: free first. Paid help is offered later, once there's a draft. */}
-        <p className="xs-free"><strong>Free</strong> to make and download. No account, no coding.</p>
+        {/* Owner, Nov 25 2026: browse, preview and customize for free; the finished site is something we build. */}
+        <p className="xs-free"><strong>Free</strong> to try. No account, no coding.</p>
         <ContinueDraft />
       </header>
       <ExampleCards main="start" />

@@ -1,12 +1,12 @@
-// The free / paid line, said the same way on Home, the starter, the editor
-// and Services (owner, 2026-11-11): "Make your website yourself. Download it.
-// Or pay us to help finish and publish it." Paid help is inquiry-only: a
-// written quote, no checkout, no deposits taken on this site.
+// Owner direction (Nov 25 2026): browse, preview and customize the examples
+// for free; the finished website is something we build, by written quote.
+// There is no public download. Paid help stays inquiry-only and paused until
+// the owner turns it on (app/site/paidHelp.ts).
 
-export const FREE_SHORT = "Free to make and download";
+export const FREE_SHORT = "Free to try";
 
 export const FREE_LINE =
-  "Making your website here is free. Build it, download the files and publish it yourself, with no account.";
+  "Trying the examples is free: browse them, change the words and photos, and see your site on a phone and a computer. No account needed.";
 
 export const PAID_LINE =
   "Want help finishing or publishing it? That's optional paid help, by written quote. Nothing is sold or charged on this site.";

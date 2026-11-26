@@ -99,6 +99,22 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "learn",
   },
+  // Creative Ring (owner direction, late November): watch, try, improve, share.
+  // No accounts and nothing uploaded; the first ring is the Heisman.
+  {
+    path: "/ring",
+    name: "Creative Ring",
+    what: "Short challenges to watch, try, repeat and share if you want to, starting with the Heisman.",
+    access: "public",
+    group: "create",
+  },
+  {
+    path: "/ring/heisman",
+    name: "The Heisman",
+    what: "Strike the pose on your left side, then your right, and see which side is steadier and how you improve.",
+    access: "public",
+    group: "create",
+  },
   // Ways to make it real (owner direction, late November): do it yourself, do
   // it with us, have us build it. Product pages say what a buyer receives;
   // nothing is for sale until the owner opens sales, and no page shows a price.
@@ -180,6 +196,16 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "hire",
     inNav: true,
+  },
+  {
+    // Have us build it (owner direction, late November): effort in hours,
+    // never a price. Out of search while paid help is paused.
+    path: "/services/estimate",
+    name: "What would it take to build?",
+    what: "Choose pages, look, features and upkeep, and see roughly how many hours of work a website would take.",
+    access: "public",
+    group: "hire",
+    noindex: !PAID_HELP_OPEN,
   },
   {
     path: "/request",
