@@ -181,6 +181,13 @@ describe("the promise travels", () => {
     expect(readFileSync("app/manifest.ts", "utf8")).toContain("BRAND_ONE_LINE");
   });
 
+  it("the home page's search and share description makes no free-download promise (owner, Nov 25 2026)", () => {
+    const home = readFileSync("app/page.tsx", "utf8");
+    expect(home).not.toMatch(/download/i);
+    expect(home).not.toMatch(/free website builder/i);
+    expect(home).toContain("Make something real");
+  });
+
   it("the share card says it too", () => {
     const card = readFileSync("app/opengraph-image.tsx", "utf8");
     // 2026-11-12: the share card carries the home page's line, free first.

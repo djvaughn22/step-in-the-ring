@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import StarterHome from "./starter/StarterHome";
 
 const DESCRIPTION =
-  "A free website builder for small businesses. Start from an example for your kind of work, make it yours, and download files you own. No coding, no account.";
+  "Try a challenge, learn a skill, start a small business, or make a website from one of 29 examples. See it on a phone as you go. No coding, no account.";
 
 export const metadata: Metadata = {
   title: { absolute: "Step In The Ring: make something real, one step at a time" },
