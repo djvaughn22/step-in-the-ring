@@ -30,7 +30,7 @@ export const BRAND_ONE_LINE =
 
 /** The hosting difference, said once and the same way everywhere. */
 export const BRAND_OWNERSHIP =
-  "Step In The Ring doesn't host your website. When we build one for you, the files and the web address are yours, on hosting in your name.";
+  "Step In The Ring doesn't host your website. You download the files and put them with the hosting you choose, and they stay yours.";
 
 // ── The make-with-AI workspace (owner brief, 2026-11-05), now on /make. ──
 export const MAKE_SIGNATURE = "A workspace for making things with AI";

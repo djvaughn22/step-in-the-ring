@@ -4,6 +4,8 @@
 //
 // Honest status, always: nothing on this list is for sale until the owner
 // opens sales, and no page shows a price (app/lib/publicPriceGuard.test.ts).
+// Nov 26-27 2026 (owner): the public pages list only what's usable now
+// (publicPaths below); the planned paid products stay here as the record.
 // "Have us build it" follows the paid-help switch (app/site/paidHelp.ts).
 //
 // Every product someone would pay for says six things plainly (owner, Nov 25):
@@ -63,7 +65,6 @@ const NO_PERSONAL_HELP = "Not right now. Questions about the guide go to ask@ope
 export const OLD_LAPTOP: CatalogItem = {
   title: "Old Laptop to Build Machine",
   line: "Turn a suitable older computer into a machine for making websites and apps, then put a first project online.",
-  href: "/products/old-laptop-to-build-machine",
   availability: "coming",
   detail: {
     forWho: "Anyone with an older laptop or desktop they'd like to put to work: families, students, people on a budget.",
@@ -78,7 +79,6 @@ export const OLD_LAPTOP: CatalogItem = {
 export const GAME_PLAN: CatalogItem = {
   title: "Start Your Own Business Game Plan",
   line: "Go from an idea to a small, organized business: your customer, your offer, a name, the official filings and a first month.",
-  href: "/products/start-your-own-business",
   availability: "coming",
   detail: {
     forWho: "Someone in the US with an idea for a small or side business, starting on evenings and weekends.",
@@ -199,7 +199,6 @@ export const PATHS: MakePath[] = [
         line: PAID_HELP_OPEN
           ? "Tell us what you need. Every project starts with a written quote."
           : "We aren't taking new projects right now. You can still put together a scope summary.",
-        href: "/services/estimate",
         availability: PAID_HELP_OPEN ? "open" : "paused",
         detail: {
           forWho: "Small businesses and people who'd rather have it built.",
@@ -220,6 +219,23 @@ export const READY_EMAIL = "ask@openmirrorllc.com";
 export function readyMailto(product: string): string {
   return `mailto:${READY_EMAIL}?subject=${encodeURIComponent(`Tell me when ${product} is ready`)}`;
 }
+
+/**
+ * What the public pages show (owner direction, Nov 26-27 2026: remove
+ * premature monetization). Only things someone can use today: no
+ * "not on sale yet", "in the works" or "invited testers" listings, no
+ * "have us build it" path while paid help is paused, and no "tell me when
+ * it's ready" sign-ups. The full list above stays as the record of the
+ * planned products; paidItems() still describes them for the owner.
+ */
+export function publicPaths(): MakePath[] {
+  return PATHS.filter((p) => p.id !== "build-it" || PAID_HELP_OPEN)
+    .map((p) => ({ ...p, items: p.items.filter((i) => i.availability === "free") }))
+    .filter((p) => p.items.length > 0);
+}
+
+/** Professional help, said plainly: one email (owner direction, Nov 26-27 2026). */
+export const HELP_LINE = "Want help with something bigger? Email the owner for more details.";
 
 /** Anything a person would pay for, now or later. */
 export function paidItems(): CatalogItem[] {

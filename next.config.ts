@@ -53,6 +53,12 @@ export const RETIRED_SALES_REDIRECTS = [
   { source: "/products/five-hour-sprint", destination: "/five-hour-sprint-tool", permanent: false },
   { source: "/products/five-hour-sprint/:path*", destination: "/five-hour-sprint-tool", permanent: false },
   { source: "/shop", destination: "/tools", permanent: false },
+  // Owner direction (Nov 26-27 2026): remove premature monetization. These two
+  // pages described guides that aren't for sale, and the scope summary belonged
+  // to paused paid help. Temporary on purpose: delete a line to bring one back.
+  { source: "/products/old-laptop-to-build-machine", destination: "/build-machine", permanent: false },
+  { source: "/products/start-your-own-business", destination: "/engines", permanent: false },
+  { source: "/services/estimate", destination: "/services", permanent: false },
 ];
 
 // Oct 4 2026: /explore repeated the Owner's Builds showroom with fewer

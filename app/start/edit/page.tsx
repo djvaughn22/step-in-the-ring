@@ -5,7 +5,7 @@ import StarterEditor from "../../starter/StarterEditor";
 
 export const metadata: Metadata = {
   title: "Make your website yours",
-  description: "Add your details, change the words, colors, fonts, photos and sections, and preview it on a phone and a computer.",
+  description: "Add your details, change the words, colors, fonts, photos and sections, preview on phone and desktop, and download the files.",
   robots: { index: false },
 };
 

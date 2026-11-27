@@ -1,11 +1,8 @@
 "use client";
 
-// Steps 2 and 3 of the website starter: make it yours, then check it.
-//
-// Owner direction (Nov 25 2026): visitors browse, preview and customize the
-// examples; the website files are a deliverable we prepare. There is no public
-// download. The signed-in owner exports through /api/starter/export, on the
-// server, for authorized fulfillment. "Have us build it" opens the scope summary.
+// Steps 2 and 3 of the website starter: make it yours, then check and download.
+// Owner direction (Nov 26-27 2026): the download is free again (it was owner-only
+// from Nov 26); help is "Email the owner for more details".
 //
 // Everything stays in this browser (localStorage, DRAFTS_KEY in drafts.ts).
 // Each example someone starts keeps its own draft. Nothing the owner types is
@@ -16,8 +13,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { track } from "../lib/analytics";
+import { BRAND_OWNERSHIP } from "../site/brand";
 import { checkDraft, type CheckItem, type CheckResult } from "./check";
-import { PAID_LINE } from "./copy";
+import { FREE_SHORT, HELP_LINE, HELP_MAILTO, PAID_LINE } from "./copy";
 import DevicePreview, { type Device } from "./DevicePreview";
 import { FONTS, PALETTES, draftFromExample, fontById, inkOn, replaceEverywhere } from "./draft";
 import {
@@ -27,6 +25,7 @@ import {
 import { exampleBySlug } from "./examples";
 import { photoSpots, renderSite } from "./render";
 import { SECTION_LABEL, type Details, type HeroStyle, type Item, type SiteDraft, type StarterExample } from "./types";
+import { exportEntries, makeZip, zipName } from "./zip";
 import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 type Tab = "details" | "words" | "look" | "photos" | "sections" | "check";
@@ -91,16 +90,6 @@ function launchSeed(d: SiteDraft): void {
 }
 
 export default function StarterEditor() {
-  // Is this the signed-in owner? Only then is the export shown (the server checks again).
-  const [owner, setOwner] = useState(false);
-  useEffect(() => {
-    let live = true;
-    fetch("/api/owner/me", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : { owner: false }))
-      .then((j: { owner?: boolean }) => { if (live) setOwner(!!j.owner); })
-      .catch(() => {});
-    return () => { live = false; };
-  }, []);
   const params = useSearchParams();
   const router = useRouter();
   const [store, setStore] = useState<DraftStore | null>(null);
@@ -169,7 +158,7 @@ export default function StarterEditor() {
   const deleteDraft = (id: string) => {
     const e = store.drafts.find((x) => x.id === id);
     if (!e) return;
-    if (!window.confirm(`Delete the draft for ${draftLabel(e.draft)}? It can't be brought back.`)) return;
+    if (!window.confirm(`Delete the draft for ${draftLabel(e.draft)}? It can't be brought back. Download it first if you want a copy.`)) return;
     setStore((s) => (s ? removeDraft(s, id) : s));
     setTooMany(false);
   };
@@ -198,7 +187,7 @@ export default function StarterEditor() {
       ) : null}
       <p className="se-drafts-foot">
         <Link className="text-link" href="/start">Start another from an example&nbsp;→</Link>
-        <span>Up to {MAX_DRAFTS} drafts. They stay in this browser only.</span>
+        <span>Up to {MAX_DRAFTS} drafts. They stay in this browser only, so download the ones you want to keep safe.</span>
       </p>
     </section>
   );
@@ -232,34 +221,30 @@ export default function StarterEditor() {
     }, 60);
   };
 
-  // Authorized fulfillment only: the server checks the owner session and
-  // builds the files. Nothing here works for anyone else.
-  const exportFiles = async () => {
-    const res = await fetch("/api/starter/export", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ draft }),
-    });
-    if (!res.ok) {
-      window.alert("Website files are prepared by Step In The Ring.");
-      return;
-    }
-    const blob = await res.blob();
+  const download = () => {
+    const zip = makeZip(exportEntries(draft));
+    const blob = new Blob([zip.buffer as ArrayBuffer], { type: "application/zip" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = res.headers.get("x-file-name") || "website.zip";
+    a.download = zipName(draft);
     document.body.append(a);
     a.click();
     a.remove();
     window.setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     setDone(true);
     setNudge(false);
-    track("starter_owner_export", { example: draft.example });
+    track("starter_download", { example: draft.example });
   };
 
-  // "Have us build it": the scope summary, starting from this example. Only
-  // the example's slug travels in the link, never anything typed.
-  const buildHref = `/services/estimate?pages=1&example=${encodeURIComponent(draft.example)}`;
+  // Things that would mislead a visitor come first: show them before the files.
+  const askDownload = () => {
+    if (check && check.fixCount > 0 && !(tab === "check" && nudge)) {
+      setNudge(true);
+      goTo("check");
+      return;
+    }
+    download();
+  };
 
   const toLaunch = () => {
     launchSeed(draft);
@@ -274,7 +259,7 @@ export default function StarterEditor() {
           <li className="is-done"><Link href="/start">1. Choose an example</Link></li>
           <li aria-current={tab === "check" ? undefined : "step"}>2. Make it yours</li>
           <li aria-current={tab === "check" ? "step" : undefined}>
-            <button type="button" className="se-steplink" onClick={() => goTo("check")}>3. Check it</button>
+            <button type="button" className="se-steplink" onClick={() => goTo("check")}>3. Check and download</button>
           </li>
         </ol>
         <div className="se-bar-go">
@@ -285,9 +270,8 @@ export default function StarterEditor() {
             Drafts ({store.drafts.length})
           </button>
           <span className="se-dl">
-            <Link className="btn btn-gold" href={buildHref}>Have us build it</Link>
-            {owner && <button type="button" className="btn btn-ghost btn-small" onClick={exportFiles}>Export files (owner)</button>}
-            <span className="se-free">{check && check.fixCount ? `${check.fixCount} to fix` : "Your draft stays in this browser"}</span>
+            <button type="button" className="btn btn-gold" onClick={askDownload}>Download site files</button>
+            <span className="se-free">{check && check.fixCount ? `${check.fixCount} to fix first` : FREE_SHORT}</span>
           </span>
         </div>
       </div>
@@ -301,8 +285,8 @@ export default function StarterEditor() {
 
       {done && (
         <section className="se-done" aria-labelledby="done-h">
-          <h2 id="done-h">The files are downloading.</h2>
-          <p>Owner export. Open README.txt first: it lists anything that was still open, how to put the site online, and what to do once it&apos;s live.</p>
+          <h2 id="done-h">Your files are downloading.</h2>
+          <p>{BRAND_OWNERSHIP} Open README.txt in the download first: it lists anything that was still open, how to put the site online, and what to do once it&apos;s live.</p>
           <div className="se-next">
             <div>
               <strong>Plan your launch week</strong>
@@ -316,6 +300,15 @@ export default function StarterEditor() {
                 <span className="se-next-links">
                   <Link className="text-link" href="/services#publish">See publishing help</Link>
                   <Link className="text-link" href="/request#publish">Ask for a quote&nbsp;→</Link>
+                </span>
+              </div>
+            )}
+            {!PAID_HELP_OPEN && (
+              <div>
+                <strong>Want help with it?</strong>
+                <span>Email the owner for more details.</span>
+                <span className="se-next-links">
+                  <a className="text-link" href={HELP_MAILTO}>Email the owner&nbsp;→</a>
                 </span>
               </div>
             )}
@@ -340,16 +333,16 @@ export default function StarterEditor() {
             {tab === "look" && <LookTab draft={draft} set={set} ex={ex} />}
             {tab === "photos" && <PhotosTab draft={draft} set={set} />}
             {tab === "sections" && <SectionsTab draft={draft} set={set} />}
-            {tab === "check" && check && <CheckTab result={check} nudge={nudge} onGo={(i) => goTo(i.tab, i.field)} buildHref={buildHref} owner={owner} onExport={exportFiles} />}
+            {tab === "check" && check && <CheckTab result={check} nudge={nudge} onGo={(i) => goTo(i.tab, i.field)} onDownload={download} />}
           </div>
           <div className="se-foot">
             <Link className="text-link" href="/start">Start another draft</Link>
-            {PAID_HELP_OPEN && <Link className="text-link" href="/services#publish">Paid help publishing</Link>}
+            {PAID_HELP_OPEN ? <Link className="text-link" href="/services#publish">Paid help publishing</Link> : <a className="text-link" href={HELP_MAILTO} title={HELP_LINE}>Email the owner</a>}
           </div>
         </div>
         <div className="se-preview">
           <DevicePreview html={html} title="Preview of your website" device={device} onDevice={setDevice} />
-          <p className="se-preview-note">Empty photo spots show what fits there until you add a photo.</p>
+          <p className="se-preview-note">Empty photo spots show what fits there. They&apos;re left out of the download until you add a photo.</p>
         </div>
       </div>
     </div>
@@ -425,7 +418,7 @@ function DetailsTab({ draft, set, ex }: { draft: SiteDraft; set: Setter; ex?: St
   );
 }
 
-function CheckTab({ result, nudge, onGo, buildHref, owner, onExport }: { result: CheckResult; nudge: boolean; onGo: (i: CheckItem) => void; buildHref: string; owner: boolean; onExport: () => void }) {
+function CheckTab({ result, nudge, onGo, onDownload }: { result: CheckResult; nudge: boolean; onGo: (i: CheckItem) => void; onDownload: () => void }) {
   const fixes = result.items.filter((i) => i.level === "fix");
   const looks = result.items.filter((i) => i.level === "look");
   const row = (i: CheckItem) => (
@@ -438,7 +431,7 @@ function CheckTab({ result, nudge, onGo, buildHref, owner, onExport }: { result:
   return (
     <div className="se-stack">
       {nudge && fixes.length > 0 && (
-        <p className="se-check-nudge" role="alert">A few things on the page still belong to the example. Visitors would see them.</p>
+        <p className="se-check-nudge" role="alert">Before you download: a few things on the page still belong to the example. Visitors would see them.</p>
       )}
       <p className="se-intro">
         {fixes.length
@@ -458,9 +451,8 @@ function CheckTab({ result, nudge, onGo, buildHref, owner, onExport }: { result:
         </>
       )}
       <div className="se-check-go">
-        <Link className="btn btn-gold" href={buildHref}>Have us build it</Link>
-        <span className="se-hint">See roughly how much work it would take to finish and put online. It&apos;s an estimate of effort, not a price.</span>
-        {owner && <button type="button" className="btn btn-ghost btn-small" onClick={onExport}>Export files (owner)</button>}
+        <button type="button" className="btn btn-gold" onClick={onDownload}>{fixes.length ? "Download anyway" : "Download site files"}</button>
+        <span className="se-hint">A .zip with your page, your photos and a README on putting it online. The README lists anything still open.</span>
       </div>
     </div>
   );
@@ -624,7 +616,7 @@ function PhotosTab({ draft, set }: { draft: SiteDraft; set: Setter }) {
   const label = (id: string) => (id === "hero" ? "Top of the page" : id === "about" ? "About you" : `Work photo ${Number(id.split("-")[1]) + 1}`);
   return (
     <div className="se-stack">
-      <p className="se-intro">Use photos you took or have the right to use. They&apos;re made smaller to load fast, and stay in this browser.</p>
+      <p className="se-intro">Use photos you took or have the right to use. They&apos;re made smaller to load fast, and stay in this browser until you download.</p>
       {err && <p className="se-err" role="alert">{err}</p>}
       {photoSpots(draft).map(({ id, photo }) => (
         <div className="se-photo" key={id}>

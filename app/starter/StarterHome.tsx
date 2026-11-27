@@ -13,9 +13,9 @@ import { PAID_HELP_OPEN } from "../site/paidHelp";
 // THE FRONT DOOR (owner direction, Nov 25 2026): one Step In The Ring for
 // trying, learning, creating, building and starting something of your own.
 // The purpose is obvious in one line; the website examples stay the strongest
-// door. No prices, no package list, no free-download promise (the finished
-// site is something we build, by written quote). No invented clients,
-// numbers or promises.
+// door. No prices and no package list. Owner direction (Nov 26-27 2026): the
+// download is free again; professional help is an email. No invented
+// clients, numbers or promises.
 
 const SHOWCASE = "mobile-dog-groomer";
 const FEATURED = ["handyman", "hair-stylist-barber", "house-cleaner", "personal-trainer", "food-truck", "graphic-designer"];
@@ -26,7 +26,7 @@ const VERBS = [
   ["Learn something", "Check the computer you have and set it up to build.", "/products/ready-to-build"],
   ["Create something", "Say what you want to make and get a clear message for your AI app.", "/make"],
   ["Build something", "29 website examples to make your own.", "/start"],
-  ["Start something", "From an idea to a small, organized business of your own.", "/products/start-your-own-business"],
+  ["Start something", "Guided steps for a launch plan, a price to test or a plan for an event.", "/engines"],
 ] as const;
 
 // Doors into the engines, named by the job, not the engine (2026-11-18).
@@ -40,7 +40,7 @@ const DOORS = [
 const PROCESS = [
   ["Choose an example", "Pick the business closest to yours. Each one is written for that kind of work."],
   ["Make it yours", "Your name, area and contact details. Then change the words, colors, photos and sections."],
-  ["See what it takes", "A scope summary shows roughly how much work it would be to finish it and put it online. No prices, no pressure."],
+  ["Download your files", "One download with your page, your photos and a short guide to putting it online."],
 ] as const;
 
 export default function StarterHome() {

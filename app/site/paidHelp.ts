@@ -9,4 +9,4 @@ export const PAID_HELP_OPEN = false;
 
 export const PAUSED_TITLE = "Paid help is paused for now.";
 export const PAUSED_LINE =
-  "Step In The Ring isn't taking website projects right now. You can still browse the examples, make one your own and see it on a phone.";
+  "Step In The Ring isn't taking website projects right now. You can still browse the examples, make one your own and download the files.";

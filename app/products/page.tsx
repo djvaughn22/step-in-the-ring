@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import RingMark from "../site/RingMark";
 import AtAGlance from "./AtAGlance";
-import { AVAILABILITY_LABEL, PATHS, READY_EMAIL } from "./catalog";
+import { AVAILABILITY_LABEL, HELP_LINE, READY_EMAIL, publicPaths } from "./catalog";
 import styles from "./products.module.css";
 
-// Ways to make it real (owner direction, Nov 25 2026). Step In The Ring is
-// where someone decides to make something real and finds a practical way to
-// do it: a guide they keep, our free tools, or (when it's open) having it
-// built. No prices here; nothing is for sale until the owner opens sales.
+// Ways to make it real (owner direction, Nov 25 2026; Nov 26-27: only what's
+// usable now). Guides and tools someone can use today, with no account. No
+// prices, no planned paid products, no sign-ups for later; bigger help is one
+// plain email.
 export const metadata: Metadata = {
   title: "Ways to make it real",
   description:
-    "Guides you keep and free tools for making something real: a website, a build machine from an old computer, or a small business of your own.",
+    "Guides and tools for making something real: a website, a computer set up to build, a launch plan or a price to test. No account needed.",
   alternates: { canonical: "/products" },
 };
 
@@ -23,16 +23,15 @@ export default function ProductsPage() {
         <div>
           <span className="kicker">Ways to make it real</span>
           <h1>
-            Make something real. <span>Pick how much help you want.</span>
+            Make something real. <span>Start with what&apos;s here.</span>
           </h1>
           <p className={styles.subtitle}>
-            Some people want a guide and a quiet evening. Some want tools that carry the heavy parts. Some want
-            it made for them. Start wherever fits, and switch any time.
+            Guides and tools you can use today, with no account. Start wherever fits, and switch any time.
           </p>
         </div>
       </header>
 
-      {PATHS.map((path, i) => (
+      {publicPaths().map((path, i) => (
         <section key={path.id} id={path.id} className={styles.path} aria-labelledby={`${path.id}-h`}>
           <div className={styles.pathHead}>
             <span className={styles.pathNumber}>0{i + 1}</span>
@@ -104,8 +103,8 @@ export default function ProductsPage() {
           </Link>
         </div>
         <p className={styles.small}>
-          Questions, or want to hear when a guide is ready?{" "}
-          <a href={`mailto:${READY_EMAIL}?subject=${encodeURIComponent("Step In The Ring guides")}`}>{READY_EMAIL}</a>
+          {HELP_LINE}{" "}
+          <a href={`mailto:${READY_EMAIL}?subject=${encodeURIComponent("Step In The Ring")}`}>{READY_EMAIL}</a>
         </p>
       </section>
     </main>

@@ -5,16 +5,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { AVAILABILITY_LABEL, DETAIL_LABELS, PATHS, paidItems, readyMailto } from "./catalog";
+import { AVAILABILITY_LABEL, DETAIL_LABELS, HELP_LINE, PATHS, paidItems, publicPaths, readyMailto } from "./catalog";
+import { SITE_PAGES } from "../site/registry";
 import { PAID_HELP_OPEN } from "../site/paidHelp";
 
 const APP = path.join(__dirname, "..");
-const PAGES = [
-  "products/page.tsx",
-  "products/old-laptop-to-build-machine/page.tsx",
-  "products/start-your-own-business/page.tsx",
-  "products/catalog.ts",
-];
+// The two guide pages and the scope summary were removed (owner, Nov 26-27
+// 2026); git tag pre-overnight-20261127 keeps them.
+const PAGES = ["products/page.tsx", "products/catalog.ts"];
 const visible = (rel: string) =>
   readFileSync(path.join(APP, rel), "utf8")
     .replace(/\/\*[\s\S]*?\*\//g, "")
@@ -51,10 +49,6 @@ describe("the three ways to make it real", () => {
     }
   });
 
-  it("separate our work from the free tools and official sources it uses", () => {
-    expect(visible("products/old-laptop-to-build-machine/page.tsx")).toMatch(/made by others and free to use under their own licenses/);
-    expect(visible("products/start-your-own-business/page.tsx")).toMatch(/The official rules are free/);
-  });
 
   it("offer no paid help while it is paused", () => {
     const build = PATHS.find((p) => p.id === "build-it")!;
@@ -73,27 +67,50 @@ describe("the product pages", () => {
     expect(src).not.toMatch(/AI[- ]powered|built with AI|supercharge|game.?chang|revolutioni[sz]e|guarantee|bring your idea to life/i);
   });
 
-  it("say plainly that the guides aren't on sale yet", () => {
-    for (const rel of PAGES.slice(1, 3)) expect(visible(rel)).toContain("AVAILABILITY_LABEL.coming");
-  });
 
-  it("keep the old-computer promise honest", () => {
-    const src = visible("products/old-laptop-to-build-machine/page.tsx");
-    expect(src).toContain("Not every old computer can do this.");
-    expect(src).toMatch(/href="\/build-machine"/);
-    expect(src).toMatch(/Will it erase my computer\?/);
-  });
 
-  it("treat business formation as education with official sources", () => {
-    const src = visible("products/start-your-own-business/page.tsx");
-    expect(src).toContain("not legal, tax or accounting advice");
-    expect(src).toContain("https://www.irs.gov/");
-    expect(src).toContain("https://www.sba.gov/");
-    expect(src).toMatch(/never file anything, buy a domain or open an account for you/i);
-    expect(src).toMatch(/Getting an EIN from the IRS is free/);
-  });
 
   it("ask to be told when it's ready by plain email, nothing stored", () => {
     expect(readyMailto("X")).toMatch(/^mailto:ask@openmirrorllc\.com\?subject=/);
+  });
+});
+
+// Owner direction (Nov 26-27 2026): remove premature monetization. The planned
+// paid products stay in catalog.ts as the record, but the public pages list
+// only what someone can use today, and bigger help is one plain email.
+describe("the public pages list only what's usable now", () => {
+  it("show free things only, and no have-us-build-it path while paid help is paused", () => {
+    const shown = publicPaths().flatMap((p) => p.items);
+    expect(shown.length).toBeGreaterThanOrEqual(5);
+    expect(shown.every((i) => i.availability === "free")).toBe(true);
+    if (!PAID_HELP_OPEN) expect(publicPaths().some((p) => p.id === "build-it")).toBe(false);
+  });
+
+  it("the products page reads publicPaths, not the full list, and asks for no sign-ups", () => {
+    const src = visible("products/page.tsx");
+    expect(src).toContain("publicPaths()");
+    expect(src).not.toMatch(/PATHS\.map/);
+    expect(src).not.toMatch(/hear when|tell me when/i);
+    expect(src).toContain("HELP_LINE");
+    expect(HELP_LINE).toBe("Want help with something bigger? Email the owner for more details.");
+  });
+
+  it("send the not-for-sale guide pages and the paused scope summary somewhere free", () => {
+    const cfg = readFileSync(path.join(APP, "..", "next.config.ts"), "utf8");
+    expect(cfg).toContain('{ source: "/products/old-laptop-to-build-machine", destination: "/build-machine", permanent: false }');
+    expect(cfg).toContain('{ source: "/products/start-your-own-business", destination: "/engines", permanent: false }');
+    expect(cfg).toContain('{ source: "/services/estimate", destination: "/services", permanent: false }');
+    const paths = SITE_PAGES.map((p) => p.path);
+    for (const gone of ["/products/old-laptop-to-build-machine", "/products/start-your-own-business", "/services/estimate"]) {
+      expect(paths).not.toContain(gone);
+    }
+  });
+
+  it("the website editor downloads the files again, with no have-us-build-it button", () => {
+    const editor = visible("starter/StarterEditor.tsx");
+    expect(editor).toContain("Download site files");
+    expect(editor).toMatch(/makeZip\(exportEntries\(draft\)\)/);
+    expect(editor).not.toMatch(/Have us build it|services\/estimate/);
+    expect(editor).toContain("HELP_MAILTO");
   });
 });

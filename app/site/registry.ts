@@ -118,24 +118,12 @@ export const SITE_PAGES: SitePage[] = [
   // Ways to make it real (owner direction, late November): do it yourself, do
   // it with us, have us build it. Product pages say what a buyer receives;
   // nothing is for sale until the owner opens sales, and no page shows a price.
+  // Late November (owner): the two guide pages and the scope summary are
+  // redirected (next.config) and left out of the registry and the sitemap.
   {
     path: "/products",
     name: "Ways to make it real",
     what: "Guides you keep and free tools for making something real, with what each one gets you.",
-    access: "public",
-    group: "learn",
-  },
-  {
-    path: "/products/old-laptop-to-build-machine",
-    name: "Old Laptop to Build Machine",
-    what: "See what the guide for turning an old computer into a build machine includes, and check your computer free.",
-    access: "public",
-    group: "learn",
-  },
-  {
-    path: "/products/start-your-own-business",
-    name: "Start Your Own Business Game Plan",
-    what: "See the steps and worksheets for going from an idea to a small, organized business.",
     access: "public",
     group: "learn",
   },
@@ -196,16 +184,6 @@ export const SITE_PAGES: SitePage[] = [
     access: "public",
     group: "hire",
     inNav: true,
-  },
-  {
-    // Have us build it (owner direction, late November): effort in hours,
-    // never a price. Out of search while paid help is paused.
-    path: "/services/estimate",
-    name: "What would it take to build?",
-    what: "Choose pages, look, features and upkeep, and see roughly how many hours of work a website would take.",
-    access: "public",
-    group: "hire",
-    noindex: !PAID_HELP_OPEN,
   },
   {
     path: "/request",

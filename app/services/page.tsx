@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Band, Masthead, Sheet } from "../site/ui";
 import { CARE_PLANS, CARE_TERMS, FINISH_VS_BUSINESS, NOT_INCLUDED, OFFERS, PRICE_RANGE } from "./offers";
-import { FREE_LINE } from "../starter/copy";
+import { FREE_LINE, HELP_MAILTO } from "../starter/copy";
 import { EXAMPLES } from "../starter/examples";
 import { PAID_HELP_OPEN, PAUSED_LINE, PAUSED_TITLE } from "../site/paidHelp";
 
@@ -143,7 +143,7 @@ function Paused() {
       <Masthead kicker="Paid help" title={PAUSED_TITLE} lead={PAUSED_LINE}>
         <div className="svc-mast-go">
           <Link className="btn btn-gold" href="/start">Browse the examples</Link>
-          <Link className="text-link" href="/services/estimate">See what a site would take to build&nbsp; →</Link>
+          <a className="text-link" href={HELP_MAILTO}>Email the owner for more details&nbsp; →</a>
         </div>
       </Masthead>
     </Sheet>

@@ -70,10 +70,12 @@ describe("the website starter on the home page", () => {
 
   it("says what this is, for whom, and what you get", () => {
     // Owner, 2026-11-12: free first. No prices on the home page.
-    // Owner direction, Nov 25 2026: one purpose, said plainly; free to try, no free-download promise.
+    // Owner direction, Nov 25 2026: one purpose, said plainly.
+    // Nov 26-27 2026 (owner: remove premature monetization): the download is free again.
     expect(text).toContain("Make something real. One step at a time.");
     expect(text).toContain("It's free to try");
-    expect(text).not.toMatch(/download/i);
+    expect(text).toContain("Download your files");
+    expect(text).not.toMatch(/scope summary|have us build it/i);
     expect(text).toContain("Choose your example");
     expect(text).not.toMatch(/\$\d/);
   });
@@ -175,7 +177,7 @@ describe("the language stays plain", () => {
 describe("the promise travels", () => {
   it("search results and the app manifest carry the same line", () => {
     expect(BRAND_ONE_LINE).toMatch(/example/);
-    // Owner, Nov 25 2026: no free-download messaging; the files are something we build.
+    // The one line says what you can do here; the download is described where it happens.
     expect(BRAND_ONE_LINE).not.toMatch(/download/);
     expect(metadata.description).toBe(BRAND_ONE_LINE);
     expect(readFileSync("app/manifest.ts", "utf8")).toContain("BRAND_ONE_LINE");
